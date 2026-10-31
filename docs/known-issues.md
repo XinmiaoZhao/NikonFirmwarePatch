@@ -27,6 +27,7 @@
 
 ## 像素位移合成
 
+- **当前仅支持每组在新建文件夹中拍摄，文件编号从 `0001` 开始。** 拍摄前在起始存储文件夹设置中同时勾选“新建文件夹”和“重置文件编号”。
 - **输入限完整的 4／8／16／32 张 FX/L、8256×5504、14-bit 无损压缩 NEF 组。** HE／HE★、DX、残缺或重复组不能合成，RAW 预拍生成的 HE／HE★ NEF 也不适用。
 - **机内缩略图只显示首帧。** 合成输出为 NEFX，需在电脑上查看；机内回放不能用来查看最终合成结果。
 - 4／8 张组输出 8256×5504，16／32 张组输出 16512×11008。重复合成另起文件名，不覆盖原片或旧输出。
@@ -66,6 +67,7 @@ Applies to the current four-feature version, built from official Nikon Z8 C 3.11
 
 ### Pixel shift
 
+- **Currently, each group must be captured in a new folder with file numbering starting at `0001`.** Before shooting, enable both **New folder** and **Reset file numbering** under **Starting storage folder**.
 - Requires complete 4/8/16/32-frame FX/L 8256×5504 14-bit lossless NEF groups. HE/HE★, DX, incomplete and duplicate groups are unsupported.
 - Thumbnails show the first frame. View the merged NEFX on a computer; camera playback does not display the merged result.
 - Output is 8256×5504 for 4/8 frames and 16512×11008 for 16/32. Repeated merges use new filenames without overwriting inputs or earlier outputs.

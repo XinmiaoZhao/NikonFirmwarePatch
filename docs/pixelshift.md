@@ -10,14 +10,17 @@
 
 ### 支持范围
 
+**当前仅支持每组在新建文件夹中拍摄，文件编号从 `0001` 开始。**
+
 支持完整的 **4／8／16／32 张、FX/L、8256×5504、14-bit 无损压缩 NEF** 组。HE／HE★、DX、残缺或重复组不能合成；RAW 预拍生成的 HE／HE★ NEF 也不适用。补丁不改变像素位移拍摄动作。
 
 ### 使用步骤
 
-1. 使用原厂像素变化拍摄取得完整组，等待写卡完成。
-2. 打开照片拍摄菜单中的“像素变化合成”。
-3. 上下移动，OK 勾选，选择开始合成并确认；已有输出的组可再次合成。
-4. 合成中按 MENU 取消；OK 不取消。半按离开页面也会取消，再次进入可查看结果。等写入结束再关机或取卡。
+1. 在像素变化拍摄的起始存储文件夹设置中，同时勾选 **New folder（新建文件夹）** 和 **Reset file numbering（重置文件编号）**，使每组在新文件夹中从 `0001` 开始。
+2. 使用原厂像素变化拍摄取得完整组，等待写卡完成。
+3. 打开照片拍摄菜单中的“像素变化合成”。
+4. 上下移动，OK 勾选，选择开始合成并确认；已有输出的组可再次合成。
+5. 合成中按 MENU 取消；OK 不取消。半按离开页面也会取消，再次进入可查看结果。等写入结束再关机或取卡。
 
 ### 输出与显示
 
@@ -39,14 +42,17 @@
 
 ### Supported modes
 
+**Currently, each group must be captured in a new folder with file numbering starting at `0001`.**
+
 Supports complete **4/8/16/32-frame, FX/L, 8256×5504, 14-bit lossless-compressed NEF** groups. HE/HE★, DX, incomplete and duplicate groups are unsupported, including HE/HE★ NEFs from pre-capture. The patch does not change pixel-shift shooting itself.
 
 ### Steps
 
-1. Capture a complete group using stock pixel-shift shooting and wait for writes to finish.
-2. Open Pixel shift merge in the photo shooting menu.
-3. Move up/down, use OK to select groups, then start and confirm merging. Groups with existing outputs can be merged again.
-4. MENU cancels an active merge; OK does not. Leaving by half-press also cancels, and the result is available on re-entry. Wait for writes before power-off or card removal.
+1. Under **Pixel shift shooting → Starting storage folder**, enable both **New folder** and **Reset file numbering** so that each group starts at `0001` in a new folder.
+2. Capture a complete group using stock pixel-shift shooting and wait for writes to finish.
+3. Open Pixel shift merge in the photo shooting menu.
+4. Move up/down, use OK to select groups, then start and confirm merging. Groups with existing outputs can be merged again.
+5. MENU cancels an active merge; OK does not. Leaving by half-press also cancels, and the result is available on re-entry. Wait for writes before power-off or card removal.
 
 ### Files and display
 

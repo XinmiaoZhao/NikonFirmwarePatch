@@ -20,7 +20,7 @@
 |---|---|
 | `prores` | ProRes HQ／Standard／LT／Proxy，按视频拍摄菜单库分别保存 |
 | `precapture` | C15／C30 HE／HE★ RAW 连拍与预拍，普通画质菜单控制，计入 NEF 的剩余张数 |
-| `pixelshift` | 机内浏览、选择像素位移组并合成 NEFX |
+| `pixelshift` | 机内浏览、选择像素位移组并合成 NEFX；当前仅支持每组在新建文件夹中拍摄，编号从 `0001` 开始 |
 | `opengate-nraw` | FX 3:2 开放门 8.3K 30／25／24p，以及 N-RAW High／Fine／Normal／Basic 四档 |
 
 任意非空选择共 15 种。ProRes 与“开放门＋N-RAW”可分别构建；开放门和 N-RAW 四档合为一个选项。
@@ -78,7 +78,7 @@ Windows 使用 `py -3 -m venv .venv` 创建环境，用 `.\.venv\Scripts\Activat
 |---|---|
 | `prores` | ProRes HQ/Standard/LT/Proxy, stored per movie shooting bank |
 | `precapture` | C15/C30 HE/HE★ RAW and pre-capture, ordinary-menu controls and NEF-aware remaining counts |
-| `pixelshift` | In-camera pixel-shift group browsing, selection and NEFX merging |
+| `pixelshift` | In-camera pixel-shift group browsing, selection and NEFX merging; currently requires each group to be captured in a new folder with numbering starting at `0001` |
 | `opengate-nraw` | FX 3:2 open gate at 8.3K 30/25/24p and N-RAW High/Fine/Normal/Basic |
 
 Choose any nonempty subset: 15 combinations. ProRes and open gate/N-RAW can be built separately; open gate and the four N-RAW tiers are one option.
