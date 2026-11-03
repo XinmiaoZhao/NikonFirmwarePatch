@@ -22,8 +22,9 @@
 | `precapture` | C15／C30 HE／HE★ RAW 连拍与预拍，普通画质菜单控制，计入 NEF 的剩余张数 |
 | `pixelshift` | 机内浏览、选择像素位移组并合成 NEFX；当前仅支持每组在新建文件夹中拍摄，编号从 `0001` 开始 |
 | `opengate-nraw` | FX 3:2 开放门 8.3K 30／25／24p，以及 N-RAW High／Fine／Normal／Basic 四档 |
+| `locked-banks` | **原型，未经审核或实机测试；仅限源码检出，不在 v0.3.0-r1 Release 中。** 菜单库像已保存的预设：切换离开时丢弃更改，除非再次选择当前库。见 [docs/locked-banks.md](docs/locked-banks.md) |
 
-任意非空选择共 15 种。ProRes 与“开放门＋N-RAW”可分别构建；开放门和 N-RAW 四档合为一个选项。
+四项已审核功能的任意非空选择共 15 种，加上 `locked-banks` 原型共 31 种。ProRes 与“开放门＋N-RAW”可分别构建；开放门和 N-RAW 四档合为一个选项。
 
 **这是实验固件，构建或安装可能造成数据丢失、卡损坏或相机故障。** 离线检查不等于实机安全保证，请勿用于不可替代的工作。无担保及责任条款见 [LICENSE](LICENSE) 和 [NOTICE](NOTICE.md)。
 
@@ -54,7 +55,7 @@ python patch.py "/path/to/Z_8_0311.bin" --features opengate-nraw --version 04.07
 python patch.py "/path/to/Z_8_0311.bin" --interactive --version 04.08 --tag p0 --output build/chosen
 ```
 
-Windows 使用 `py -3 -m venv .venv` 创建环境，用 `.\.venv\Scripts\Activate.ps1` 激活，然后运行相同的 Python 命令。全部 15 种组合的构建回归在 macOS 上运行；Windows 路径回归与预编译 CLI 检查见[当前验证](docs/validation.md)。
+Windows 使用 `py -3 -m venv .venv` 创建环境，用 `.\.venv\Scripts\Activate.ps1` 激活，然后运行相同的 Python 命令。全部组合（15 种已审核，加原型共 31 种）的构建回归在 macOS 上运行；Windows 路径回归与预编译 CLI 检查见[当前验证](docs/validation.md)。
 
 未指定功能时默认只选 ProRes。版本格式为 `NN.NN`，tag 为小写字母加数字。Z8 支持降级和同版本重刷，不要求版本高于机身。工具不能读取机身版本或保证安装成功。
 
@@ -80,8 +81,9 @@ Windows 使用 `py -3 -m venv .venv` 创建环境，用 `.\.venv\Scripts\Activat
 | `precapture` | C15/C30 HE/HE★ RAW and pre-capture, ordinary-menu controls and NEF-aware remaining counts |
 | `pixelshift` | In-camera pixel-shift group browsing, selection and NEFX merging; currently requires each group to be captured in a new folder with numbering starting at `0001` |
 | `opengate-nraw` | FX 3:2 open gate at 8.3K 30/25/24p and N-RAW High/Fine/Normal/Basic |
+| `locked-banks` | **Prototype, not reviewed or camera-tested; source checkout only, not in the v0.3.0-r1 Release.** Menu banks act as saved presets: changes are dropped when you switch away unless you select the active bank again. See [docs/locked-banks.md](docs/locked-banks.md) |
 
-Choose any nonempty subset: 15 combinations. ProRes and open gate/N-RAW can be built separately; open gate and the four N-RAW tiers are one option.
+Choose any nonempty subset of the four reviewed features: 15 combinations, or 31 with the `locked-banks` prototype. ProRes and open gate/N-RAW can be built separately; open gate and the four N-RAW tiers are one option.
 
 **Experimental firmware: building or installing can cause data loss, card corruption or camera malfunction.** Offline checks do not guarantee camera safety. Do not use it for irreplaceable work. See the warranty and liability terms in [LICENSE](LICENSE) and [NOTICE](NOTICE.md).
 
@@ -112,7 +114,7 @@ python patch.py "/path/to/Z_8_0311.bin" --features opengate-nraw --version 04.07
 python patch.py "/path/to/Z_8_0311.bin" --interactive --version 04.08 --tag p0 --output build/chosen
 ```
 
-On Windows, create the environment with `py -3 -m venv .venv` and activate `.\.venv\Scripts\Activate.ps1`, then run the same Python commands. All 15 build selections are checked on macOS; see [current validation](docs/validation.md) for Windows path regression and prebuilt CLI checks.
+On Windows, create the environment with `py -3 -m venv .venv` and activate `.\.venv\Scripts\Activate.ps1`, then run the same Python commands. All build selections (15 reviewed, 31 with the prototype) are checked on macOS; see [current validation](docs/validation.md) for Windows path regression and prebuilt CLI checks.
 
 The default is ProRes only when no feature selection is supplied. Versions use `NN.NN`; tags use a lowercase letter and digit. Z8 supports downgrade and same-version reinstall, so the version need not exceed the installed one. The toolkit cannot read the camera version or guarantee installation.
 
