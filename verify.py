@@ -71,13 +71,13 @@ def verify_pair(original, candidate, features=None, *, expected_version=None, ex
     need(a[:112] == b[:112] and a[128:581844] == b[128:581844] and
          a[82389555:-16] == b[82389555:-16], 'Non-EG module or header changed')
     old, new = a[581844:82389555], b[581844:82389555]
-    order=('prores','precapture','pixelshift','opengate-nraw')
+    order=('prores','precapture','pixelshift','opengate-nraw','locked-banks')
     recipes=json.loads((HERE/'resources/combinations.json').read_text())
     need(recipes['schema']==2,'Unsupported recipe schema')
     profiles=recipes['profiles']
     if features is None:
         features=[]
-        for name,offset in [('prores',0xBBEB88),('precapture',0xE0FE90),('pixelshift',0x479714),('opengate-nraw',0x62E150)]:
+        for name,offset in [('prores',0xBBEB88),('precapture',0xE0FE90),('pixelshift',0x479714),('opengate-nraw',0x62E150),('locked-banks',0xF7D26C)]:
             if old[offset:offset+4]!=new[offset:offset+4]:features.append(name)
     need(features and len(features)==len(set(features)) and set(features)<=set(order),'Invalid feature selection')
     features=[f for f in order if f in features]
@@ -124,7 +124,7 @@ def main():
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument('original',type=Path)
     ap.add_argument('candidate',type=Path)
-    ap.add_argument('--features', nargs='+', choices=['prores','precapture','pixelshift','opengate-nraw'], help='Expected new features; otherwise detect changed entry hooks')
+    ap.add_argument('--features', nargs='+', choices=['prores','precapture','pixelshift','opengate-nraw','locked-banks'], help='Expected new features; otherwise detect changed entry hooks')
     ap.add_argument('--version', help='Expected output version NN.NN; otherwise check identity consistency only')
     ap.add_argument('--tag', help='Expected output tag; requires --version; default p0 when --version is set')
     a = ap.parse_args()

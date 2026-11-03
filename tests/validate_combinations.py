@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""All 15 feature selections and integrity failures using an external stock fixture."""
+"""All feature selections and integrity failures using an external stock fixture."""
 import argparse,binascii,itertools,json,os,subprocess,sys,tempfile
 from pathlib import Path
 sys.dont_write_bytecode=True
@@ -22,7 +22,7 @@ def main():
         except (ValueError,KeyError):rows.append(dict(test=name,result='REJECTED'))
         else:raise RuntimeError('Accepted negative control: '+name)
     try:
-        for bits in itertools.product((False,True),repeat=4):
+        for bits in itertools.product((False,True),repeat=len(FEATURES)):
             names=[f for f,on in zip(FEATURES,bits) if on]
             if not names:continue
             eg,meta=build(pkg.eg,'00.00','t0',names)
@@ -46,7 +46,7 @@ def main():
         reject('wrong version',lambda:verify_pair(original,packet,list(FEATURES),expected_version='00.01',expected_tag='t0'))
         reject('wrong tag',lambda:verify_pair(original,packet,list(FEATURES),expected_version='00.00',expected_tag='t1'))
         reject('tag without version',lambda:verify_pair(original,packet,list(FEATURES),expected_tag='t0'))
-        for name,at in [('unrelated data',0x2400000),('pre-capture code',0x890010),('shared strings',0x770010),('shared bank',0x820000),('D10 hook',0x62E150),('PS11 callback',0x4BF1670)]:
+        for name,at in [('unrelated data',0x2400000),('pre-capture code',0x890010),('shared strings',0x770010),('shared bank',0x820000),('D10 hook',0x62E150),('PS11 callback',0x4BF1670),('locked-bank routine',0x75F904),('locked-bank custom gate',0xF7E0A8)]:
             bad=bytearray(eg);bad[at]^=1;bad[-2:]=binascii.crc_hqx(bad[:-2],0).to_bytes(2,'big')
             damaged,_=pkg.replace_eg(bytes(bad),'eg2070_0000t0.bi')
             reject('valid checksums with '+name+' changed',lambda:verify_pair(original,damaged,list(FEATURES)))
@@ -70,6 +70,6 @@ def main():
     except Exception as exc:
         failures.append(str(exc));raise
     finally:
-        a.report.write_text(json.dumps(dict(status='FAIL' if failures else 'PASS',scope='15 offline build/envelope checks and explicit negative controls; no camera or CPU execution',tests=rows,failures=failures,checker_sha256=sha(Path(__file__).read_bytes()),input_sha256=sha(original)),indent=2)+'\n')
+        a.report.write_text(json.dumps(dict(status='FAIL' if failures else 'PASS',scope=f'{2**len(FEATURES)-1} offline build/envelope checks and explicit negative controls; no camera or CPU execution',tests=rows,failures=failures,checker_sha256=sha(Path(__file__).read_bytes()),input_sha256=sha(original)),indent=2)+'\n')
 
 if __name__=='__main__':main()

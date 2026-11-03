@@ -23,7 +23,9 @@ def main():
         if not names:continue
         _,detail,rows=compose(package.eg,names,check_recipe=False)
         key='+'.join(names)
-        profiles[key]=dict(id='z8-c311-v030-'+''.join('1' if b else '0' for b in bits),features=names,patches=rows)
+        # Reviewed features keep their v0.3.0 bit ids; locked-banks is an unreviewed prototype suffix.
+        ident='z8-c311-v030-'+''.join('1' if f in names else '0' for f in FEATURES if f!='locked-banks')+('-lockbanks-proto' if 'locked-banks' in names else '')
+        profiles[key]=dict(id=ident,features=names,patches=rows)
         print(key,len(rows),flush=True)
     catalog=[];lookup={}
     for profile in profiles.values():
