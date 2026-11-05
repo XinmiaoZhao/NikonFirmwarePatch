@@ -79,7 +79,7 @@ jobs:
           from tools.check_release import check_release
           work = Path(os.environ['RUNNER_TEMP']) / 'nikon-smoke'
           work.mkdir(exist_ok=False)
-          tag = 'v0.4.0-rc.1'
+          tag = 'v0.4.0-rc.2'
           prefix = 'NikonFirmwarePatch-' + tag
           filename = prefix + '-toolkit.zip'
           url = 'https://github.com/XinmiaoZhao/NikonFirmwarePatch/releases/download/' + tag + '/' + filename

@@ -1,6 +1,6 @@
 # 工具包、源码与验证 / Toolkit, source and verification
 
-当前四组工具包为 [v0.4.0-rc.1 预发布版](https://github.com/XinmiaoZhao/NikonFirmwarePatch/releases/tag/v0.4.0-rc.1)。已经发布的版本、附件与对应提交见 [GitHub Releases](https://github.com/XinmiaoZhao/NikonFirmwarePatch/releases)；功能变化见[更新日志](../CHANGELOG.md)。工具包版本与用户选择的固件版本相互独立。
+当前四组工具包为 [v0.4.0-rc.2 预发布版](https://github.com/XinmiaoZhao/NikonFirmwarePatch/releases/tag/v0.4.0-rc.2)。已经发布的版本、附件与对应提交见 [GitHub Releases](https://github.com/XinmiaoZhao/NikonFirmwarePatch/releases)；功能变化见[更新日志](../CHANGELOG.md)。工具包版本与用户选择的固件版本相互独立。
 
 ## 工具包内容
 
@@ -43,6 +43,6 @@ python tools/check_repository.py --all
 
 ## English
 
-The four groups ship in v0.4.0-rc.1. A complete toolkit packages public source, documentation, bilingual colour figures/data, the optional F LUT and nine matching compiled patch units. Original/full modified firmware, camera media, runtimes and compilers are not distributed.
+The four groups ship in v0.4.0-rc.2. A complete toolkit packages public source, documentation, bilingual colour figures/data, the optional F LUT and nine matching compiled patch units. Original/full modified firmware, camera media, runtimes and compilers are not distributed.
 
 Source checkouts use explicit source compilation or a matching complete toolkit. Independent verification checks the exact input, declared edits, untouched bytes, other modules and identities. Release assets are built from a clean reviewed commit and retain that identity. Windows firmware jobs verify the published toolkit digest and source commit, then build from its extracted files on Python 3.12 and 3.13.

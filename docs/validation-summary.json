@@ -1,6 +1,6 @@
 {
   "schema": 3,
-  "release": "v0.4.0-rc.1",
+  "release": "v0.4.0-rc.2",
   "platform": "macOS arm64",
   "cases": [
     {

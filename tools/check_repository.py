@@ -11,6 +11,10 @@ import zlib
 MAX_BYTES = 512 * 1024
 SCREENSHOTS = {
     'docs/images/prores-quality-options.png',
+    'docs/images/log-settings.png',
+    'docs/images/h265-bitrate.png',
+    'docs/images/desqueeze-options.png',
+    'docs/images/video-menu-values.png',
     'docs/images/prores-quality-value.png',
     'docs/images/pixelshift-groups.png',
     'docs/images/nraw-quality-tiers.png',

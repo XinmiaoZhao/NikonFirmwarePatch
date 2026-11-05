@@ -1,22 +1,44 @@
-# v0.4.0-rc.1 — 2026-11-05
+# 更新日志 / Changelog
 
-四组安装选项统一为画幅、视频品质、Log 色彩与照片工具。新增反挤压、H.265 五档码率、ProRes HQ 星标与三档 Log；RAW 预拍增加 DX 与无损选择回退 HE★，像素偏移支持任意起始编号。开放门继续与 N-RAW 四档绑定。共享菜单、设置复制、星标和资源布局已统一。
+## v0.4.0 — 四组补丁 / Four feature groups
 
-2026-11-05：采用经实拍标定的 M1 与常量 Cpxs；三档菜单、原厂截零及按片段回放修复保留。色彩报告给出机身录像相对 N-RAW 的误差，并模拟简化链路产生的偏色。N-RAW 旧录与新录素材的片段 Log 名称及辅助观感已上机确认。
+当前预发布：[v0.4.0-rc.2](https://github.com/XinmiaoZhao/NikonFirmwarePatch/releases/tag/v0.4.0-rc.2)。以下变化相对于上一公开功能系列 v0.3.0／v0.3.0-r1。RC2 补全 README 使用说明、致谢和模拟器截图；固件补丁与 RC1 相同。
 
-English: the 2026-11-05 revision adopts the camera-tested matrices and constant Cpxs, with three choices, stock clamping and per-clip playback retained. The report now contains camera measurements and common-input simulations of simplified colour processing. On-camera playback showed the expected Log name and assist appearance for existing and newly recorded N-RAW clips. Four build groups add desqueeze, H.265 quality, ProRes HQ stars, selectable Log colour, DX pre-capture and HE★ fallback, with updated pixel-shift group recognition. See the [colour report](docs/log-colour-report.md) and optional [post-production F LUT](luts/README.md).
+### 新增
 
-# Changelog / 更新日志
+- **构建选项。** 可独立选择画幅、视频品质、Log 色彩和照片工具，或从原厂 C 3.11 一次构建任意非空组合，共 15 种。分别使用 `framing`、`video-quality`、`log-colour`、`photo-tools`；原来的四个 CLI 名称仅适用于对应旧工具包。
+- **反挤压监看。** 画幅组新增关闭及 1.25× 至 2.00× 共七种校正倍率；按视频菜单库保存，用于取景、放大导航和回放，录像保留原始像素比例。开放门和 N-RAW 四档画质仍归同一组。
+- **H.265 码率。** 视频品质组提供原厂标称码率的 100%、60%、45%、30%、20%，菜单可显示当前模式的目标 Mbps。100% 使用星标。ProRes 的 HQ／422／LT／Proxy 继续按菜单库保存，新增 HQ 星标。
+- **Log 录像与监看。** 视频菜单可选 N-Log／BT.2020、S-Log3／S-Gamut3.Cine、Log3G10／REDWideGamutRGB。两种新增 Log 使用实拍标定的线性矩阵与色度补偿，具有对应的图标、片段名称和显示辅助。
+- **DX RAW 预拍。** 照片工具扩展 C15/C30 的 DX 输出，保留完整 DX 预览，并按所选画质写出 RAW 或 RAW+JPEG。FX 和 DX 的无损选项在预拍时回退为 HE★。
+- **后期与复核。** 增加中英文色彩报告、实拍／模拟色差图、两套机内监看表的来源、Resolve／Final Cut Pro 输入设置，以及供后期使用的 65³ F LUT。
 
-## v0.3.1 (未单独发布 / unreleased intermediate revision) — 2026-11-04
+### 修改与修复
 
-- 修复 [issue #17](https://github.com/XinmiaoZhao/NikonFirmwarePatch/issues/17)：像素位移合成只识别起始文件编号除以 2048 余 1 的组（如 `0001`、`2049`），其他组被拒而列表为空。MakerNote `0x0056` 的第 4–7 字节是连拍起始文件字（卡槽、文件夹、文件编号、类型），旧版把其低 16 位当作固定值 `0x0022`。
-- 现按字段核对起始文件字（文件夹 100–999、文件编号 1–9999、类型为 NEF、最高两位为 0），并以整字作为组身份。任意起始编号、同一文件夹中连续拍摄的多组、跨过 `DSC_9999` 进入下一文件夹的组、卡槽 2 的组均可识别和合成；不再需要“新建文件夹”和“重置文件编号”。
-- 其余检查不变：版本、像素位移状态、帧数与序号、相机序列号、快门起点、位移、裁切、曝光和白平衡。合成流程与输出格式不变，日志中的组 `id` 为起始文件字的十进制值。
-- 只改像素位移机器码 `pixelshift.bin`（130,456 → 130,520 B）及 8 种含像素位移组合中的同一个代码窗口；其他三份机器码、7 种不含像素位移的组合配方及构建与核验程序（`patch.py`、`verify.py`、源码与机器码加载器）与 v0.3.0-r1 相同；维护者配方导出器只改配方 ID 前缀，预编译 CLI 回归改用新的示例版本号。
-- 含像素位移的选择请用新的固件版本号重新构建（示例 05.25）。未选像素位移的已装固件无需重刷。此修复已通过主机回归、独立核验和 QEMU 运行，尚未在相机上以新编号实拍组验证。
+- **像素位移组识别。** 修复[问题 #17](https://github.com/XinmiaoZhao/NikonFirmwarePatch/issues/17)。扫描器按文件类型、卡槽、文件夹和起始编号分别读取组身份；过去从 0001、2049 等之外的编号起拍时，完整组可能在列表中消失。现在无需重置文件编号，同一文件夹连续多组、跨 DSC_9999 边界和副卡组也可识别。常规完整性、曝光及位移检查仍然生效。
+- **N-RAW 代理回放。** 详情页名称与显示辅助根据片段自己的 Log 名称选择。机身实测覆盖旧录与新录素材；回取景时恢复录像菜单选择。保留 RAW 本体的原厂色调分类，便于后期按 RAW 解码。
+- **显示几何。** 反挤压状态下同步调整 AF 框、亮起的 AF 点与触控映射。影片回放按当前反挤压倍率显示。
+- **视频菜单与编码。** ProRes 和 H.265 的星标按格式分流；离开 H.265 模式时，码率行显示百分比。调整 H.265 保护计时，避免部分 4K50/60 模式选 60% 后意外变成全帧内编码。
+- **组合与分发。** 四组共享菜单布局、语言资源及菜单库字段复制。完整 toolkit 提供九份与源码匹配的编译单元。Windows CI 使用经哈希验证的发行 ZIP 构建固件，并将全选输出与提供的参考哈希比较。
 
-English: fixes [issue #17](https://github.com/XinmiaoZhao/NikonFirmwarePatch/issues/17), where pixel-shift merge accepted only groups whose first file number is 1 mod 2048 (e.g. `0001`, `2049`) and showed an empty list otherwise. Bytes 4–7 of MakerNote `0x0056` hold the burst start-file word (slot, folder, file number, type); the scanner had compared its low 16 bits with a constant `0x0022`. The word is now checked by field (folder 100–999, file 1–9999, NEF type, top two bits zero) and the whole word identifies the group. Any starting number, several groups in one folder, groups rolling over `DSC_9999` and slot-2 groups are recognized; New folder and Reset file numbering are no longer required. All other checks and the merge itself are unchanged. Only `pixelshift.bin` (130,456 → 130,520 B) and one code window in the eight pixel-shift recipes changed; other machine code, the seven other recipes and the build/verification programs (`patch.py`, `verify.py`, source and machine-code loaders) are unchanged from v0.3.0-r1; the maintainer recipe exporter changes only the recipe ID prefix and the prebuilt CLI regression uses the new example version. Rebuild pixel-shift selections with a new firmware version number (05.25 in the README). The fix passed host regression, independent verification and a QEMU run; it has not yet been confirmed in the camera with a group starting at another number.
+### English
+
+**Added**
+
+- Choose any of four build groups from stock Z8 C 3.11. The CLI supports all 15 nonempty combinations and has an interactive selection mode.
+- Framing adds seven anamorphic desqueeze factors (1.25× through 2.00×) plus Off. The factor follows the movie bank in live view and is selectable for playback. Open gate and the four N-RAW quality tiers stay together.
+- Video quality adds five H.265 bitrate targets (100/60/45/30/20%) and a displayed target in Mbps. The highest H.265 setting and ProRes HQ have format-specific stars.
+- Select N-Log, S-Log3 or Log3G10 in the recording menu. Both new Log modes have calibrated recording matrices, chroma compensation, clip labels, icons and dedicated monitoring transforms.
+- C15/C30 RAW pre-capture supports DX geometry and previews as well as FX. Lossless selection produces HE★ in pre-capture.
+- The bilingual colour report, measurements, control simulations, grading instructions and optional 65³ F LUT document the capture-to-post workflow.
+
+**Changed and fixed**
+
+- Pixel-shift group discovery now checks the fields in the burst-start word individually. Complete groups can start at any file number, share a folder, roll over DSC_9999 or reside on the secondary card. This fixes the empty-list symptom in [issue #17](https://github.com/XinmiaoZhao/NikonFirmwarePatch/issues/17).
+- N-RAW proxy playback selects the label and assist transform from the clip’s own Log name. The tester confirmed both on existing and new recordings. Returning to live view restores the recording selection.
+- Desqueeze adjusts lit AF points, AF overlays and touch mapping. ProRes and H.265 share icon resources while keeping format-specific indicators and independent saved settings.
+- The H.265 row shows a percentage outside H.265 mode. A protection-timer correction prevents an unintended all-intra pattern in certain 4K50/60 modes at the 60% setting.
+- The toolkit bundles nine reviewed compiled units. Windows CI downloads and verifies the release ZIP before building and checking the reference full-selection firmware. RC2 restores the bilingual setup and recovery guidance, contributor credits and emulator gallery; its firmware patches match RC1.
 
 ## [v0.3.0-r1](https://github.com/XinmiaoZhao/NikonFirmwarePatch/releases/tag/v0.3.0-r1) — 2026-10-29
 

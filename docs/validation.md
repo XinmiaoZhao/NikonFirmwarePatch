@@ -1,4 +1,4 @@
-# v0.4.0-rc.1 验证范围 / Validation coverage
+# v0.4.0-rc.2 验证范围 / Validation coverage
 
 本轮补丁以用户自行取得的原厂 Z8 C 3.11 为输入。构建时选择的固件版本号用于区分文件；以下按功能组合说明证据。
 
