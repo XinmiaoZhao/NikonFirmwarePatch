@@ -15,7 +15,8 @@ sys.path.insert(0, str(ROOT))
 from z8patch import compiled
 from tools.check_release import TAG
 
-UNITS = ('precapture', 'pixelshift', 'pixelshift-af', 'opengate')
+UNITS = ('precapture','pixelshift','pixelshift-af','opengate','anamorphic','h265','log','quality','shared')
+FOLDERS = {'precapture':'z8precapture/', 'pixelshift':'z8pixelshift/src/', 'pixelshift-af':'z8pixelshift/src/', 'opengate':'z8opengate/src/', 'anamorphic':'z8anamorphic/', 'h265':'z8h265/', 'log':'z8log/', 'quality':'z8quality/', 'shared':'z8patch/src/'}
 
 
 class WindowsPathView:
@@ -34,6 +35,9 @@ class WindowsPathView:
 
     def iterdir(self):
         return (type(self)(p) for p in self.path.iterdir())
+
+    def rglob(self, pattern):
+        return (type(self)(p) for p in self.path.rglob(pattern))
 
     def relative_to(self, other):
         relative = self.path.relative_to(other.path)
@@ -54,6 +58,14 @@ class CompiledPathTests(unittest.TestCase):
             'z8pixelshift/src/fixture.h': b'#define FIXTURE 1\n',
             'z8opengate/src/d10_hooks.S': b'/* assembly fixture */\n',
             'z8opengate/src/fixture.inc': b'/* include fixture */\n',
+            'z8anamorphic/src/hooks.S': b'/* geometry fixture */\n',
+            'z8h265/src/hooks.S': b'/* bitrate fixture */\n',
+            'z8h265/tiers.json': b'{}\n',
+            'z8log/src/hooks.S': b'/* log fixture */\n',
+            'z8log/data.json': b'{}\n',
+            'z8quality/src/hooks.S': b'/* star fixture */\n',
+            'z8quality/icons/fixture.png': b'fake png fixture\n',
+            'z8patch/src/shared.S': b'/* shared fixture */\n',
         }
         for name, raw in self.sources.items():
             target = self.root / name
@@ -63,8 +75,7 @@ class CompiledPathTests(unittest.TestCase):
         self.profiles = {}
         self.code = {}
         for name in UNITS:
-            folder = ('z8precapture/' if name == 'precapture' else
-                      'z8opengate/src/' if name == 'opengate' else 'z8pixelshift/src/')
+            folder = FOLDERS[name]
             code = b'test-only byte sequence: ' + name.encode('ascii')
             self.code[name] = code
             resource = 'resources/' + name + '.bin'

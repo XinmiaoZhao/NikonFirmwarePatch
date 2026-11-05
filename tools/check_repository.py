@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Check index content without printing potential credential values."""
 import argparse
+import hashlib
 import pathlib
 import re
 import subprocess
@@ -15,7 +16,36 @@ SCREENSHOTS = {
     'docs/images/nraw-quality-tiers.png',
     'docs/images/opengate-frame-rates.png',
 }
+# Reviewed small UI source assets, not firmware inputs.
+SCREENSHOTS.update({'z8log/icons/slog3_fill.png', 'z8quality/icons/fill_0a5e.png', 'z8quality/icons/menu_1289.png', 'z8log/icons/slog3_outline.png', 'z8quality/icons/outline_0769.png', 'z8quality/icons/fill_0a5b.png', 'z8quality/icons/fill_0a5c.png', 'z8quality/icons/fill_0a5d.png', 'z8log/icons/log3g10_fill.png', 'z8quality/icons/menu_1288.png', 'z8quality/icons/outline_0aa1.png', 'z8quality/icons/outline_0a9e.png', 'z8quality/icons/menu_1285.png', 'z8quality/icons/menu_1286.png', 'z8quality/icons/menu_10f4.png', 'z8quality/icons/outline_0765.png', 'z8quality/icons/menu_1287.png', 'z8quality/icons/outline_0a9f.png', 'z8quality/icons/fill_0a5f.png', 'z8log/icons/log3g10_outline.png', 'z8quality/icons/menu_10f0.png', 'z8quality/icons/menu_10f2.png', 'z8quality/icons/outline_0a9d.png', 'z8quality/icons/outline_0aa0.png', 'z8quality/icons/outline_0761.png'})
 
+
+SCREENSHOTS.update({'docs/images/log-slog3-errors.png', 'docs/images/log-slog3-chromaticity.png', 'docs/images/log-slog3-errors-zh.png', 'docs/images/log-rwg-conditions-zh.png', 'docs/images/log-rwg-conditions.png', 'docs/images/log-colour-spaces-zh.png', 'docs/images/log-rwg-prediction.png', 'docs/images/log-colour-spaces.png', 'docs/images/log-slog3-chromaticity-zh.png', 'docs/images/log-rwg-prediction-zh.png'})
+
+SCREENSHOTS.update({'docs/images/log-measured-conditions.png', 'docs/images/log-slog3-revised-codes-zh.png', 'docs/images/log-measured-distribution.png', 'docs/images/log-measured-conditions-zh.png', 'docs/images/log-measured-chromaticity-zh.png', 'docs/images/log-measured-chromaticity.png', 'docs/images/log-slog3-revised-codes.png', 'docs/images/log-measured-distribution-zh.png'})
+
+SCREENSHOTS.update({
+    'docs/images/log-camera-xy-zh.png',
+    'docs/images/log-camera-xy.png',
+    'docs/images/log-camera-de-cdf-zh.png',
+    'docs/images/log-camera-de-cdf.png',
+    'docs/images/log-camera-xy-log3g10-zh.png',
+    'docs/images/log-camera-xy-log3g10.png',
+    'docs/images/log-camera-xy-slog3-zh.png',
+    'docs/images/log-camera-xy-slog3.png',
+    'docs/images/log-control-xy-log3g10-zh.png',
+    'docs/images/log-control-xy-log3g10.png',
+    'docs/images/log-control-xy-slog3-zh.png',
+    'docs/images/log-control-xy-slog3.png',
+    'docs/images/log-control-errors-zh.png',
+    'docs/images/log-control-errors.png',
+    'docs/images/log-control-xy-zh.png',
+    'docs/images/log-control-xy.png',
+})
+
+# Exact public colour-transform asset; never a general exemption for .cube inputs.
+PUBLIC_LUT = "luts/RWG_Log3G10_F_v1_65.cube"
+PUBLIC_LUT_SHA = "2862a0c6ee17f73d9e83fcee04a706413742b00d53bc538d224a6a70bb3f93da"
 
 def plain_png(data):
     """Accept small screenshots with valid chunks and no embedded metadata."""
@@ -102,9 +132,12 @@ def main():
         blocked = item.suffix.lower() in BLOCKED_SUFFIXES or any(p in BLOCKED_PARTS for p in item.parts)
         blocked |= item.name in {'.DS_Store', '.env', 'credentials.json', 'secrets.json'}
         blocked |= item.name.startswith('.env.') and item.name != '.env.example'
+        public_lut = path == PUBLIC_LUT and hashlib.sha256(content).hexdigest() == PUBLIC_LUT_SHA
+        if public_lut:
+            blocked = False
         if blocked:
             issues.append((path, 'excluded input, private record, or runtime path'))
-        if size > MAX_BYTES:
+        if size > (8 * 1024 * 1024 if public_lut else MAX_BYTES):
             issues.append((path, 'file exceeds the 512 KiB source-resource limit'))
         screenshot = path in SCREENSHOTS and plain_png(content)
         if path in SCREENSHOTS and not screenshot:
@@ -113,7 +146,7 @@ def main():
             try:
                 content.decode('utf-8')
             except UnicodeDecodeError:
-                issues.append((path, 'only the reviewed PNG screenshots may contain binary content'))
+                issues.append((path, 'only reviewed PNG figures, screenshots and UI assets may contain binary content'))
             if b'\0' in content:
                 issues.append((path, 'NUL bytes suggest binary content'))
         if content.startswith(EXECUTABLE_MAGIC):

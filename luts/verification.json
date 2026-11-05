@@ -1,0 +1,33 @@
+{
+  "status": "PASS",
+  "scope": "CUBE syntax, domain, red-fastest storage, every grid node and neutral ramp; numerical interpolation only, no editing-app UI test",
+  "lut": "RWG_Log3G10_F_v1_65.cube",
+  "sha256": "2862a0c6ee17f73d9e83fcee04a706413742b00d53bc538d224a6a70bb3f93da",
+  "grid_size": 65,
+  "grid_nodes": 274625,
+  "node_max_normalized_error": 4.999947425532447e-07,
+  "reference_samples": 288,
+  "reference_sample_code_error_10bit": {
+    "rms": 0.04017014095181304,
+    "median": 0.0,
+    "p99": 0.17923247471567677,
+    "max": 0.3715784688597678
+  },
+  "reference_sample_colour_ratio_error_stops": {
+    "rms": 0.0006923323205829673,
+    "median": 0.0,
+    "p99": 0.0026431728394768483,
+    "max": 0.005729088212423239
+  },
+  "uniform_cube_samples": 10000,
+  "uniform_cube_code_error_10bit": {
+    "rms": 3.966030913698541,
+    "median": 0.0024478829646927963,
+    "p99": 0.28298914336570635,
+    "max": 104.67058508925923
+  },
+  "interpolation": "tetrahedral; all six tetrahedra",
+  "model_boundary": "Blue-dominant threshold differs from red/green; interpolation smooths its discontinuity. Tied grid nodes use adjacent-limit averages; neutral ramp preserved. Scale-free near-black handling.",
+  "sample_data_sha256": "14ae962d4236fdf61ecd3a5e34dd621ebe17f875873e356484c0b12348800ac5",
+  "checker_sha256": "1bb8fc910876360dad395f2755d70eee10d46c2630499a1b472777e4b9241cf2"
+}

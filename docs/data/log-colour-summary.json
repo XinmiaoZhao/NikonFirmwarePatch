@@ -1,0 +1,44 @@
+{
+  "slog3": {
+    "matrix_curve_only": {
+      "median": 2.643787813213752,
+      "p95": 20.37628402879946,
+      "max": 26.918274514392973,
+      "below_1": 6,
+      "below_2": 16
+    },
+    "hue_corrected": {
+      "median": 0.6448795264104961,
+      "p95": 1.8674222054836123,
+      "max": 2.8849931300656984,
+      "below_1": 35,
+      "below_2": 46
+    }
+  },
+  "log3g10_fixed_integer_model": {
+    "colour_rms": 0.018918298870831005,
+    "brightness_rms": 0.010807216564876383,
+    "colour_worst": 0.11147238740089935,
+    "brightness_worst": 0.053492551132448836,
+    "duv_median": 1.3049789932328744,
+    "duv_max": 7.6539956615585165
+  },
+  "log3g10_cross_validation": {
+    "colour_rms": 0.021,
+    "colour_p90": 0.033,
+    "colour_worst": 0.13,
+    "colour_worst_chip": "r1c2",
+    "duv_median": 1.3,
+    "duv_p90": 3.5,
+    "duv_max": 9.3,
+    "brightness_rms": 0.011,
+    "brightness_p90": 0.019,
+    "brightness_worst": 0.053,
+    "brightness_worst_chip": "r3c4"
+  },
+  "samples": {
+    "slog3": 48,
+    "log3g10": 288
+  },
+  "data_sha256": "14ae962d4236fdf61ecd3a5e34dd621ebe17f875873e356484c0b12348800ac5"
+}

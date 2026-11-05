@@ -3,7 +3,8 @@
 #define Z8_PSM_GROUP_H
 #include "job.h"
 /* PS7: time (DateTimeOriginal) comes before wb so that the frames of a group, shot seconds apart, still compare
-   equal from wb on (psm_group_config). identity: count, index, group, start, serial and time were read. */
+   equal from wb on (psm_group_config). identity: count, index, group, start, serial and time were read.
+   PS12: group = 0x0056's start-file word (slot, folder, file number, type), the same in every frame of a group. */
 typedef struct {
     uint32_t group, index, count, start;
     int32_t shift[2];
@@ -30,7 +31,8 @@ typedef struct { char name[13]; uint8_t attrs; uint16_t dir; uint64_t bytes; } p
    whole record between its scan and its read pass) */
 typedef struct { uint32_t bytes, metadata; uint16_t dir; uint8_t status; char name[13]; } psm_frame_ref;
 typedef struct { uint16_t dir; char stem[13]; } psm_merged_ref;
-/* A group is one camera's frames of one pixel-shift sequence on one card: (card, serial, start, group id, count). */
+/* A group is one camera's frames of one pixel-shift sequence on one card: (card, serial, start, group id, count).
+   PS12: group id = the start-file word (PS3-PS11: its high half). */
 typedef struct {
     uint32_t start, group, count, mask;
     uint8_t card;                      /* 'A' or 'B' */

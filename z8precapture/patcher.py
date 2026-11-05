@@ -1,4 +1,4 @@
-"""Pre-capture HN11 public adapter: feature windows only; no identity or loader edits."""
+"""Pre-capture HN11 public adapter (HN13: DX): feature windows only; no identity or loader edits."""
 import struct
 from z8prores.package import require
 BASE=0x40160000
@@ -28,6 +28,8 @@ def edits(code, symbols):
         0x4d2ffcc: struct.pack('<I', 0x1082600),
         0x890000: code,
     }
+    # HN13 Z: first instruction of the HSFC mode normaliser 0x41059c60 (cmp w0,#6) -> b precapture_area_mode
+    values[0x41059c60 - 0x40160000] = branch(0x41059c60, entries['precapture_area_mode'], tail=True)
     for at, entry in (
         (0x40e99798, 'precapture_tenc_config'),
         (0x4104df14, 'precapture_e_alloc'),

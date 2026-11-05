@@ -37,7 +37,7 @@ def main():
                     raw=(ROOT/u['resource']).read_bytes();path.write_bytes(bytes([raw[0]^1])+raw[1:])
                     reject(name+' corrupt asset',lambda:load(name));path.unlink()
             out=temp/'missing-output'
-            cmd=[sys.executable,'-B',str(isolated/'patch.py'),str(a.stock.resolve()),'--features','precapture','pixelshift','opengate-nraw','--version','00.00','--tag','t0','--output',str(out)]
+            cmd=[sys.executable,'-B',str(isolated/'patch.py'),str(a.stock.resolve()),'--features','framing','video-quality','log-colour','photo-tools','--version','00.00','--tag','t0','--output',str(out)]
             result=subprocess.run(cmd,capture_output=True,text=True,env=dict(os.environ,PATH=''))
             need(result.returncode!=0 and 'Precompiled patch missing' in result.stderr and not out.exists(),'Missing prebuilt must stop CLI before output')
             rows.append(dict(test='missing asset CLI no compiler/no output',result='PASS'))

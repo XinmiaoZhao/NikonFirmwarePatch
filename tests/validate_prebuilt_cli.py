@@ -25,6 +25,8 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--stock', type=Path, required=True)
     parser.add_argument('--report', type=Path, required=True)
+    parser.add_argument('--all-version', default='00.02', help='Full-selection firmware identity to reproduce')
+    parser.add_argument('--all-sha256', help='Expected SHA-256 of the reference full-selection package')
     args = parser.parse_args()
     if args.report.exists():
         raise ValueError('Report already exists')
@@ -49,25 +51,27 @@ def main():
 
     try:
         with tempfile.TemporaryDirectory(prefix='nikon-prebuilt-cli-') as directory:
-            for label, features in (
-                    ('issue12', ['prores', 'precapture']),
-                    ('all', ['prores', 'precapture', 'pixelshift', 'opengate-nraw'])):
+            for label, features, version in (
+                    ('video-photo', ['video-quality', 'photo-tools'], '00.01'),
+                    ('all', ['framing', 'video-quality', 'log-colour', 'photo-tools'], args.all_version)):
                 check = json.loads(run(ROOT / 'patch.py', stock, '--features', *features, '--check'))
                 if check['status'] != 'COMPATIBLE':
                     raise ValueError('Input compatibility check failed')
                 output = Path(directory) / label
-                run(ROOT / 'patch.py', stock, '--features', *features, '--version', '04.05',
+                run(ROOT / 'patch.py', stock, '--features', *features, '--version', version,
                     '--tag', 'p0', '--output', output)
-                firmware = output / 'Z_8_0405.bin'
+                firmware = output / ('Z_8_' + version.replace('.', '') + '.bin')
                 verified_text = run(ROOT / 'verify.py', stock, firmware, '--features', *features,
-                                    '--version', '04.05', '--tag', 'p0')
+                                    '--version', version, '--tag', 'p0')
                 verified = json.loads(verified_text)
                 if verified['status'] != 'PASS':
                     raise ValueError('Independent verification failed')
                 manifest = json.loads((output / 'manifest.json').read_text(encoding='utf-8'))
                 if manifest['output_sha256'] != digest(firmware):
                     raise ValueError('Output readback mismatch')
-                report['tests'].append({'name': label, 'features': features, 'status': 'PASS',
+                if label == 'all' and args.all_sha256 and manifest['output_sha256'] != args.all_sha256:
+                    raise ValueError('Full-selection firmware differs from the supplied regression reference')
+                report['tests'].append({'name': label, 'features': features, 'identity': version + '.p0', 'status': 'PASS',
                                         'bytes': firmware.stat().st_size,
                                         'sha256': digest(firmware), 'independent_verification': 'PASS'})
             if digest(stock) != expected['sha256']:

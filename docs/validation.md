@@ -1,36 +1,25 @@
-# 当前版本验证 / Current validation
+# v0.4.0-rc.1 验证范围 / Validation coverage
 
-适用于 v0.3.0 四功能版本及 v0.3.0-r1 主机工具修订。上一公开版为 [v0.2.0](validation-v0.2.0.md)，功能变化见[更新日志](../CHANGELOG.md)。[机器可读摘要](validation-summary.json)保留验证项目及证据哈希。
+本轮补丁以用户自行取得的原厂 Z8 C 3.11 为输入。构建时选择的固件版本号用于区分文件；以下按功能组合说明证据。
 
-## r1 主机验证 / Host revision checks
-
-本次修订只统一源码身份键的路径表示；源码仍按原始字节计算 SHA-256。四份补丁机器码与全部组合配方沿用 v0.3.0，同身份、同功能选择应生成相同固件字节。下述原指令、QEMU 与实机记录仍绑定原功能实现，本次不新增设备安全结论。
-
-- `tests/test_compiled_paths.py` 用独立清单、真实文件及 Python 的 Windows 路径语义检验加载器，覆盖四份补丁、两种加载模式，以及改动源码／机器码、缺失／额外文件的拒绝路径。无需固件或编译器。
-- [Host checks](https://github.com/XinmiaoZhao/NikonFirmwarePatch/actions/workflows/host-checks.yml) 在真实 Windows Python 3.12／3.13、Linux 与 macOS 执行路径回归。手动发布门另在 Windows 使用发布源码与哈希固定的同字节预编译单元执行 `prores precapture` 和全选组合，清空 PATH 排除编译器调用，并单独运行 `verify.py`。源码和四份机器码哈希逐项与最终 ZIP 比对；执行记录见 Release 链接。
-- 全部 15 种组合、源码／预编译一致性及分发包负控继续在 macOS 核验。
-
-This host-only revision canonicalizes path keys without normalizing source bytes or relaxing integrity checks. Firmware code and recipes are unchanged. The release gate runs matching source and prebuilt units on Windows Python 3.12/3.13, records every source/code hash for comparison with the final ZIP, builds the reported and all-feature selections without a compiler, and independently verifies both outputs. Cross-platform path tests also cover altered and missing inputs. Native-code, QEMU and camera records below are inherited from the unchanged v0.3.0 implementation.
-
-## 构建与启动
-
-- 四项功能的 15 种非空组合均通过独立封装、修改范围、未改字节和版本身份核验；全选组合的源码构建与预编译构建一致。
-- 原指令检查覆盖菜单库、功能选择隔离、RAW 剩余张数及刷新、NEF 建头、登记拒绝后的 JPEG 回退和再次尝试。
-- 15 种配方具备与实现一致的最小 QEMU 启动记录，可进入固件版本页并返回重进。此检查使用解密 MAIN、合成外设输入和文件型虚拟卡，检查止于更新入口，不执行刷写。
-
-## 实机与文件
-
-| 功能 | 已完成的检查 |
+| 项目 | 已验证的范围 |
 |---|---|
-| ProRes | 两段录像共 294 帧完整解码；编码档位与文件结构对应，菜单库行为由测试者确认 |
-| 开放门／N-RAW | 六段录像共 897 帧及对应 897 帧代理完整解码，画幅和码率预算符合设置；机内显示和回放由测试者确认 |
-| RAW 连拍／预拍 | 278 个文件的身份、RAW／JPEG 元数据和双卡配对核验，其中 159 NEF、119 JPEG；60 对同类型备份的影像内容一致，NEF 的 RAW 负载相同 |
-| 像素位移 | 测试组均在新建文件夹中拍摄，文件编号从 `0001` 开始；4／32 张组的两份 NEFX 与预先固定的完整输出一致，85 份原片／旧输出未变；MENU、半按和普通关机取消均无新增输出或临时残留 |
+| 四组构建 | 15 种非空组合独立解封装，核对身份、补丁窗口、未改动字节、共享菜单和资源边界。源码重编与工具包内预编译单元比对 |
+| 有界启动 | 每种组合从解密 MAIN 启动，使用模拟外设进入菜单，两次到固件版本页，停在更新入口。机身更新流程不在模拟范围内 |
+| N-RAW 回放 | 使用本轮更新的补丁构建全选固件。Z8 机身回放旧录的 S-Log3 和新录的 Log3G10，详情页名称均正确，测试者确认开启辅助后的还原观感符合各自片段。屏摄记录了名称和 ASSIST 图标；面板色度没有仪器测量 |
+| ProRes | 此前同一编码实现的全选固件在 SD 上记录 1 段 HQ、3 段 LT。四段 4K 29.97p、10-bit 4:2:2 全部解码到片尾 |
+| RAW 预拍 | 同一照片实现的 FX／DX 样本中，选择“无损”实际记录 HE★。99 张预拍 NEF 全部解码，59 个配对 JPEG 与同次快门一致。直接选择 DX、C30、仅 RAW、HE★ 的组合仍待补测 |
+| 像素位移 | 机内合成 4 张和 16 张两组，从非 0001 编号起拍。两份 NEFX 均完整解码；每份抽查 16,388 个位置，红、绿与源帧重建一致，蓝的差异仅位于 AF 校正行 |
+| 共享设置与显示 | 先前的有界执行覆盖菜单分流、星标刷新、菜单库字段复制。机身试用反馈反挤压绿点正常。跨库切换、取电重开、取景器边缘及各回放页仍需分别观察 |
 
-文件解码、像素比较和机身操作反馈分别记录；菜单、回放等界面结论来自测试者观察。验证按对应功能实现绑定，代码不变的功能保留其既有记录。这些结果说明已检查的行为，不是对所有场景的可靠性保证。当前已确认的问题和功能限制见[已知问题](known-issues.md)。
+录像色彩与模型对照见[色彩报告](log-colour-report.md)。可选 F LUT 已做格点、插值和中性轴数值检查；剪辑软件及显示器的端到端输出另需校验。发布工具包在 Windows Python 3.12 和 3.13 上的实际运行状态见 [Host checks](https://github.com/XinmiaoZhao/NikonFirmwarePatch/actions/workflows/host-checks.yml)。[机器摘要](validation-summary.json) · [历史像素位移修订](validation-v0.3.1.md) · [历史预拍修订](validation-v0.2.0.md)
 
 ## English
 
-The current four-feature version passes independent build/byte checks for all 15 selections, source/prebuilt equivalence, bounded native-code checks and implementation-matched minimal QEMU startup checks. QEMU uses decrypted MAIN and synthetic peripherals; it does not perform a firmware update.
+The original Z8 C 3.11 package is checked before building. All 15 nonempty selections are independently decoded and checked for identity, patch windows, preserved bytes and shared-resource boundaries. Each bounded emulator run boots decrypted MAIN with synthetic peripherals, enters the firmware version page twice and stops at the update entry.
 
-Camera evidence includes 294 decoded ProRes frames; 897 N-RAW frames and their proxies; a 278-file RAW/JPEG metadata/routing check; and exact 4/32-frame pixel-shift outputs plus cancellation recovery. The pixel-shift test groups were captured in new folders with file numbering starting at `0001`. UI behavior is tester-reported. Records are bound to the implementation checked and retained where code is unchanged. See [known issues](known-issues.md#english), the [previous public release](validation-v0.2.0.md), and the [changelog](../CHANGELOG.md).
+The all-feature firmware built with this update was tested on a Z8. A previously recorded S-Log3 N-RAW clip and a newly recorded Log3G10 clip showed the correct names in playback. The tester confirmed the expected assist rendering; the photographs document the label and ASSIST indicator. Display colour accuracy was not measured.
+
+Earlier all-feature camera checks on the same recording and photo implementations covered four decoded ProRes HQ/LT recordings, 99 decoded pre-capture NEFs and 59 matching JPEGs, DX/FX lossless-to-HE★ fallback, and two fully decoded 4-/16-frame pixel-shift merges from non-default starting file numbers. The tester also reported normal lit AF points with desqueeze. Menu-bank/power-cycle transitions and individual playback icons, small-viewfinder or subject-detection geometries remain separate checks.
+
+See the [colour measurements](log-colour-report.en.md), [known limitations](known-issues.md) and [Windows toolkit CI](https://github.com/XinmiaoZhao/NikonFirmwarePatch/actions/workflows/host-checks.yml). Windows jobs build on Python 3.12 and 3.13 using the released ZIP and verify the full-selection output against the supplied reference digest.

@@ -1,5 +1,8 @@
 /* Menu-controlled RAW pre-capture; HN9 space fallback, HN10 remaining-count fixes, HN11 JPEG grade in the count.
  * HN12: the NEF's MakerNote 0x0044 (JPGCompression) is 0, as in a camera NEF.
+ * HN13: the DX image area like FX: the C60 DX readout (5408 x 3608) in C15 and, with hook Z, in C30; NEF, P2, hook T and
+ * the count follow the frame's geometry.
+ * HN14: RAW recording "lossless compressed" (item 1) is encoded at HE* in C15/C30, like HE* (item 3).
  * Public adapter: no card configuration, diagnostic footer off by default. */
 typedef unsigned char u8;
 typedef unsigned short u16;
@@ -83,8 +86,9 @@ typedef long s64;
 #define C_HE 2u                     /* frame class = budget selector */
 #define C_HS 4u
 #define FX_DIMS 0x15902058u        /* 5520 << 16 | 8280 */
-#define RAW_W 8280u
-#define RAW_H 5520u
+#define DX_DIMS 0x0e181520u        /* HN13: 3608 << 16 | 5408, HSFC selector 4 (0x4106699c): the C60 readout */
+#define PAYLOAD_DX 0x006fa600u      /* HE: floor(5408*3608*30/80) & 0x3fffe00 (budget 2) */
+#define PAYLOAD_DX_HS 0x00ba1400u   /* HE*: floor(5408*3608*50/80) & 0x3fffe00 (budget 4) */
 #define WORK_BYTES 0x40000u        /* one heap block per NEF, freed before return */
 #define HDR_MAX 0x30000u           /* NEF header block */
 #define TAB 0x30000u               /* entry table, ENT_MAX * 32 bytes */
@@ -228,7 +232,12 @@ static u32 e_class(u64 e) {
     if(bytes>=NEW_ALLOCATION) return C_HE;
     return 0;
 }
-static u32 payload_of(u32 cls) { return cls==C_HS?PAYLOAD_HS:PAYLOAD; }
+/* HN13: the payload of a class in a geometry (FX_DIMS or DX_DIMS); 0 for any other geometry. */
+static u32 payload_of(u32 cls,u32 dims) {
+    if(dims==FX_DIMS) return cls==C_HS?PAYLOAD_HS:PAYLOAD;
+    if(dims==DX_DIMS) return cls==C_HS?PAYLOAD_DX_HS:PAYLOAD_DX;
+    return 0;
+}
 static u8 *record(u64 e) {
     u32 cls=e_class(e); if(!cls) return 0;
     u64 block=LOAD64(e+8),base=LOAD64(block),bytes=LOAD32(block+8);
@@ -237,10 +246,10 @@ static u8 *record(u64 e) {
     return (u8 *)q;
 }
 static int e_shape(u64 e) {
-    if(!e || LOAD32(e+0x30)!=3 || LOAD32(e+0x34)!=5 || LOAD32(e+0x38)!=FX_DIMS) return 0;
-    u32 cls=e_class(e); u64 d=LOAD64(e+0x40),block=LOAD64(e+8);
-    if(!cls || !d || (d&511) || d+payload_of(cls)<d) return 0;
-    return d>=LOAD64(block) && d+payload_of(cls)<=LOAD64(block)+LOAD32(block+8);
+    if(!e || LOAD32(e+0x30)!=3 || LOAD32(e+0x34)!=5) return 0;
+    u32 cls=e_class(e),pay=payload_of(cls,LOAD32(e+0x38)); u64 d=LOAD64(e+0x40),block=LOAD64(e+8);
+    if(!cls || !pay || !d || (d&511) || d+pay<d) return 0;
+    return d>=LOAD64(block) && d+pay<=LOAD64(block)+LOAD32(block+8);
 }
 static void seal(u8 *q) { set32(q+0x78,crc32(q,0x78)); CLEAN(q,128); }
 static void aux_seal(u8 *q) { set32(q+A_CRC,crc32(q+0x80,0x7c)); CLEAN(q+0x80,128); }
@@ -349,10 +358,10 @@ static u32 plan_of(u32 v,u32 *qi,u32 *half) {
     return 0;
 }
 /* The frame is an ordinary stock HSFC C15/C30 JPEG frame, as the five real frames: JPEG only, not HEIF,
- * no special size, no second JPEG, FX L, and the HSFC item's own values (fine/normal, half 0). */
+ * no special size, no second JPEG, FX or (HN13) DX L, and the HSFC item's own values (fine/normal, half 0). */
 static int stock_hsfc_m(u64 m) {
     return LOAD32(m)==3 && LOAD32(m+0x294)==3 && LOAD32(m+0x2fc)==0 && LOAD32(m+0x2570)==0 && LOAD8(m+0x2ce)==0 &&
-           LOAD32(m+0x26c)==0 && LOAD32(m+0x290)<=1 && LOAD32(m+0x2a0)==0;
+           LOAD32(m+0x26c)<=1 && LOAD32(m+0x290)<=1 && LOAD32(m+0x2a0)==0;
 }
 
 /* P2. Original: ldr x0,[x23,#0x748]; bl 0x4104df5c; str xzr,[x23,#0x748].
@@ -404,10 +413,19 @@ __attribute__((used)) void precapture_tdec_release(u64 r) {
 #define TENC_CONFIG ((void (*)(u64))0x40e8db3cul)                  /* (stage context): request type, budget, transform */
 #define POOL_ALLOC ((u64 (*)(u32,u32,u32))0x41047478ul)            /* (frame, pool 0x39, bytes) -> E */
 #define E_SIZE ((u32 (*)(u32,u32))0x4104df60ul)                    /* (capture kind, release mode) -> E request bytes */
-/* The settings ask for HE*: C15/C30, RAW or RAW + JPEG in Image quality, RAW recording HE*. */
+/* HN14: the RAW recording items C15/C30 encode at HE*: HE* (3) and lossless compressed (1), which the HSFC path cannot
+ * encode (budget selectors 2 and 4 only). HE (4) stays HE. */
+static int rawrec_hs(void) {
+    u32 v=LOAD32(G_RAWREC);
+#ifdef NEG_LOSSLESS_HE                /* negative-control builds only: HN13 (lossless compressed falls back to HE) */
+    return v==3;
+#endif
+    return v==3 || v==1;
+}
+/* The settings ask for HE*: C15/C30, RAW or RAW + JPEG in Image quality, RAW recording HE* or (HN14) lossless. */
 static int hs_settings(u32 mode) {
     u32 t=LOAD32(G_QTYPE);
-    return (mode==6 || mode==3) && LOAD32(G_RAWREC)==3 && (t==0 || t==1);
+    return (mode==6 || mode==3) && rawrec_hs() && (t==0 || t==1);
 }
 /* Exactly one card holds a valid configuration with "follow Image quality" and no stop file (HN5R's P2 rule). HN5
  * called this from hook T; kept only for the negative control NEG_T_FILE_IO (file calls in the capture stage). */
@@ -426,7 +444,7 @@ __attribute__((used)) void precapture_tenc_config(u64 ctx) {
     u64 i;
     TENC_CONFIG(ctx);
     if(!ctx || LOAD32(ctx+0x10)!=0xb || LOAD32(G_REQ+0xb8)!=2 || !(i=LOAD64(ctx+0x9e0))) return;
-    if(LOAD32(i)!=3 || LOAD32(i+8)!=0 || !hs_settings(LOAD32(i+0x48))) return;   /* HSFC, FX geometry */
+    if(LOAD32(i)!=3 || (LOAD32(i+8)!=0 && LOAD32(i+8)!=4) || !hs_settings(LOAD32(i+0x48))) return;   /* HSFC, FX or DX (HN13) */
 #ifdef NEG_T_FILE_IO                  /* negative-control builds only: HN5's per-frame card read */
     if(!menu_card()) return;
 #endif
@@ -461,6 +479,17 @@ __asm__(".pushsection .text.hn5stub,\"ax\",%progbits\n"
         ".global precapture_tdec_sel_entry\n.type precapture_tdec_sel_entry,%function\n"
         "precapture_tdec_sel_entry:\n\tstp x29, x30, [sp, #-32]!\n\tstp x8, x10, [sp, #16]\n\tmov x0, x23\n"
         "\tbl hn5_tdec_sel\n\tmov w9, w0\n\tldp x8, x10, [sp, #16]\n\tldp x29, x30, [sp], #32\n\tret\n"
+        ".popsection\n");
+/* Z (HN13). Original 0x41059c60 (w0 = HSFC release mode, w1 = image area 0x2124; returns the mode the geometry follows):
+ *   cmp w0,#6; b.ne ret; cmp w1,#1; mov w8,#5; cinc w8,w8,ne; cmp w1,#0; mov w9,#3; csel w0,w9,w8,eq; ret
+ * i.e. C15 FX -> 3, C15 DX -> 5, C15 other -> 6, every other mode unchanged. Its first instruction becomes a branch here
+ * (x30 is still the caller's); the C30 clause adds C30 DX -> 5. Same registers as the original (w0, w8, w9). */
+__asm__(".pushsection .text.hn13stub,\"ax\",%progbits\n"
+        ".global precapture_area_mode\n.type precapture_area_mode,%function\n"
+        "precapture_area_mode:\n"
+        "\tcmp w0, #3\n\tb.ne 1f\n\tcmp w1, #1\n\tmov w8, #5\n\tcsel w0, w8, w0, eq\n\tret\n"
+        "1:\tcmp w0, #6\n\tb.ne 2f\n\tcmp w1, #1\n\tmov w8, #5\n\tcinc w8, w8, ne\n\tcmp w1, #0\n\tmov w9, #3\n"
+        "\tcsel w0, w9, w8, eq\n2:\tret\n"
         ".popsection\n");
 /* R. Original: bl 0x40ea21fc (-> 0x40e92ab0: mov w0,#12) at 0x40f96c90 in the ready gate 0x40f96c40, which clears the
  * "!" flag 0xa03bc6ba0 when 12 + [G_LIMIT] < budget [0xa03bc6bcc] (signed). The budget is at most the pool's frames
@@ -635,9 +664,10 @@ __attribute__((used)) u32 precapture_display_mode(u32 v,u64 rec) {
 /* The DCF settings subscription: the stock five ids (0x441871d8), HN10's two and HN11's two. Read only during 0x4086e900. */
 __attribute__((used)) const u32 precapture_dcf_ids[9] = {0x601u, 0x2000688u, 0x6000689u, 0x200172au, 0x2000600u, ID_QTYPE, ID_RAWREC,
                                                    ID_QGRADE, ID_QSTAR};
-/* NEF bytes of a C15/C30 frame under the current settings (HN5's class rule: HE* only for RAW recording 3). */
+/* NEF bytes of a C15/C30 frame under the current settings (HN5's class rule: HE* for RAW recording 3, HN14 also 1; HN13:
+ * the DX payload for the cached image area DX, read the DX area in C15 and, with hook Z, in C30). */
 static u32 nef_estimate(void) {
-    return payload_of(LOAD32(G_RAWREC)==3 ? C_HS : C_HE) + NEF_EXTRA;
+    return payload_of(rawrec_hs() ? C_HS : C_HE,LOAD32(G_RAREA)==1 ? DX_DIMS : FX_DIMS) + NEF_EXTRA;
 }
 /* 0 = the stock plan; else T_RAWJPEG / T_RAW / T_JPEG: the files HN writes per frame (the display's condition, hn_display).
  * HN11: JPEG too, since P2 gives a JPEG-only frame the ordinary grade and star as well. */
@@ -657,7 +687,7 @@ static u32 count_type(void) {
  * inputs with the ordinary grade and star. The estimate is T1[area][star][size][grade] (0xa02a2460c) + the two thumbnail
  * tables [row][grade] (0xa02a24c0c, 0xa02a24c48) + 248,512; it reads block +0, +4, +8, +0x10, +0x14, +0x1c (+0x2c for
  * kind 2 only) and writes nothing but its stack. 0 (keep the plan's bytes) unless the JPEG is one P2 re-grades
- * (stock_hsfc_m: FX L, the HSFC grade fine or normal without star) and the estimate of the cached HSFC grade and star
+ * (stock_hsfc_m: FX or DX L, the HSFC grade fine or normal without star) and the estimate of the cached HSFC grade and star
  * reproduces the plan's bytes exactly, i.e. the plan was built from these inputs. */
 static u64 jpeg_bytes(u64 stock) {
 #ifdef NEG_JPEG_STOCK
@@ -665,9 +695,10 @@ static u64 jpeg_bytes(u64 stock) {
 #endif
     u32 blk[16] __attribute__((aligned(16)));
     u32 kind=LOAD32(G_RKIND),g=LOAD32(G_RGRADE),c=LOAD32(G_RSTAR);
-    if((kind!=0 && kind!=3) || LOAD32(G_RAREA)!=0 || LOAD32(G_RSIZE)!=0 || g>1 || c!=0) return 0;
+    u32 area=LOAD32(G_RAREA);
+    if((kind!=0 && kind!=3) || area>1 || LOAD32(G_RSIZE)!=0 || g>1 || c!=0) return 0;   /* HN13: FX or DX */
     zero((u8 *)blk,sizeof blk);
-    blk[0]=kind; blk[2]=LOAD32(G_RTHUMB); blk[4]=g; blk[7]=c;          /* area (+4) and size (+0x14) are 0 */
+    blk[0]=kind; blk[1]=area; blk[2]=LOAD32(G_RTHUMB); blk[4]=g; blk[7]=c;    /* size (+0x14) is 0 */
 #ifndef NEG_NO_CHECK                  /* negative-control builds only: no check that the plan came from the cache */
     if((u64)JPEG_EST((u64)blk)!=stock) return 0;
 #else
@@ -994,11 +1025,13 @@ static u8 *nb(u8 *p,const char *v,const u8 *body,u32 n,u32 zeros) {   /* "0100"+
 /* Header block: TIFF, IFD0, SubIFDs, GPS, Exif, thumbnail, MakerNote (+PreviewIFD); the
  * VGA preview stream follows directly as the MakerNote's last bytes.
  * h is the CPU view of the stock JPEG header buffer: SOI, APP1 Exif, APP1 XMP, APP2 MPF. */
-static int build(out_t *w,const u8 *h,u32 hl,const u32 *hlen,u64 m,lay_t *L,u32 flags,u8 *wk,u32 cls) {
+static int build(out_t *w,const u8 *h,u32 hl,const u32 *hlen,u64 m,lay_t *L,u32 flags,u8 *wk,u32 cls,u32 dims) {
     ent_t *t=(ent_t *)(wk+TAB); u32 n;
     if(hl<0x400 || get32(h)!=0xe1ffd8ffu || LOAD32(m+0x2bc)!=0) return 0;   /* M+0x2bc=0: RGGB */
     if(cls!=C_HE && cls!=C_HS) return 0;
-    u32 payload=payload_of(cls),code=cls==C_HS?14u:13u;   /* NEF compression: 13 HE, 14 HE* (leaf 0x406ea044) */
+    u32 payload=payload_of(cls,dims),code=cls==C_HS?14u:13u;   /* NEF compression: 13 HE, 14 HE* (leaf 0x406ea044) */
+    u32 rw=dims&0xffffu,rh=dims>>16;                          /* HN13: the frame's geometry, FX or DX */
+    if(!payload) return 0;
     u32 l1=(u32)h[4]<<8|h[5];
     if(l1<16 || 4+l1>hl || !equal(h+6,(const u8 *)"Exif\0\0",6)) return 0;
     src_t T={h+12,l1-8};
@@ -1037,13 +1070,13 @@ static int build(out_t *w,const u8 *h,u32 hl,const u32 *hlen,u64 m,lay_t *L,u32 
     const u8 *wb=find(&MN,im,0x000c,5,4),*v54=find(&MN,im,0x0054,7,20),*bnd=find(&MN,im,0x0016,3,4);
     if(!wb || !v54 || !bnd) return 0;
     u32 bx=get16(bnd),by=get16(bnd+2),iw=get16(bnd+4)-bx,ih=get16(bnd+6)-by;
-    if(get16(bnd+4)<=bx || get16(bnd+6)<=by || iw>RAW_W || ih>RAW_H || (RAW_W-iw)&1 || (RAW_H-ih)&1) return 0;
+    if(get16(bnd+4)<=bx || get16(bnd+6)<=by || iw>rw || ih>rh || (rw-iw)&1 || (rh-ih)&1) return 0;
     u8 *v=wk+NI;                    /* small computed values */
     for(u32 k=0;k<4;k++) set16(v+k*2,LOAD16(m+0x2b4+2*k));                 /* black   v+0  */
-    set16(v+8,(RAW_W-iw)/2); set16(v+10,(RAW_H-ih)/2); set16(v+12,iw); set16(v+14,ih); /* crop v+8 */
+    set16(v+8,(rw-iw)/2); set16(v+10,(rh-ih)/2); set16(v+12,iw); set16(v+14,ih);     /* crop v+8 */
     copy(v+16,(const u8 *)"0100",4); set32(v+20,payload); set32(v+24,1);  /* 0x0058  v+16 */
     u32 jfr=(flags&F_FULL)?L->jfr.size:L->fhd.size;
-    set32(v+28,RAW_W); set32(v+32,RAW_H); set32(v+36,payload); set32(v+40,jfr);
+    set32(v+28,rw); set32(v+32,rh); set32(v+36,payload); set32(v+40,jfr);
     set32(v+44,thn); set32(v+48,L->fhd.size); set32(v+52,L->vga.size); set16(v+56,14); set16(v+58,34713);
     set16(v+60,32803); set16(v+62,1); set16(v+64,2); set16(v+66,6); set32(v+68,1); set32(v+72,0);
     u8 *m51=v+96; copy(m51,he51,24); m51[10]=(u8)code;                       /* MakerNote 0x0051  v+96 */
@@ -1272,7 +1305,7 @@ __attribute__((noinline)) static plan_t *prepare(const job_t *jb) {
     p->hl=hl; p->hlen[0]=hl; p->hlen[1]=LOAD32(lp+0x1c); p->hlen[2]=LOAD32(lp+0x2c);
     p->cls=e_class(jb->e); p->rawrec=get32(jb->q+A_RAWREC);
     if(p->cls!=get32(jb->q+A_CLASS)) { FREE(raw); return 0; }         /* the record was made for this allocation */
-    p->reg_rc=0; p->st_jpeg=0xffffffffu; p->st_nef=0xffffffffu; p->cancel_ok=0xffffffffu; p->payload_bytes=payload_of(p->cls);
+    p->reg_rc=0; p->st_jpeg=0xffffffffu; p->st_nef=0xffffffffu; p->cancel_ok=0xffffffffu; p->payload_bytes=payload_of(p->cls,LOAD32(jb->e+0x38));
     p->mtype=2; p->stock_mode=0; p->dims_src=LOAD64(da);
     if(!stream(LOAD64(da),&p->L.main) || !stream(LOAD64(da+8),&p->L.vga) || !stream(LOAD64(da+16),&p->L.fhd)) goto bad;
     if(p->flags&F_FULL) {
@@ -1281,7 +1314,7 @@ __attribute__((noinline)) static plan_t *prepare(const job_t *jb) {
     }
     if(!jpg_name(p->jid,p->fin,p->tmp) || p->fin[0]!=p->drive || p->fin[1]!=':' || EXISTS(p->fin)>=0 || EXISTS(p->tmp)>=0) goto bad;
     zero((u8 *)&w,sizeof(w)); w.o=wk; w.cap=HDR_MAX;
-    if(!build(&w,(const u8 *)XLATE(hp),hl,p->hlen,p->m,&p->L,p->flags,wk,p->cls) || p->L.end_at<p->L.raw_at) goto bad;
+    if(!build(&w,(const u8 *)XLATE(hp),hl,p->hlen,p->m,&p->L,p->flags,wk,p->cls,LOAD32(jb->e+0x38)) || p->L.end_at<p->L.raw_at) goto bad;
     p->hdr_bytes=w.pos; p->total=p->L.end_at+((p->flags&F_FOOTER)?512u:0u); p->t_header=now();
     return p;
 bad:

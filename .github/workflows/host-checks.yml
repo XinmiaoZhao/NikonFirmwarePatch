@@ -10,6 +10,16 @@ on:
         description: 'Run Windows prebuilt firmware checks with hash-pinned public inputs'
         type: boolean
         default: false
+      toolkit_sha256:
+        description: 'SHA-256 from the release toolkit checksum file (required for firmware_smoke)'
+        type: string
+
+      regression_version:
+        description: 'Full-selection firmware version from the reference build'
+        type: string
+      regression_sha256:
+        description: 'Full-selection firmware SHA-256 from the reference build'
+        type: string
 
 permissions:
   contents: read
@@ -55,42 +65,39 @@ jobs:
       - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
         with:
           python-version: ${{ matrix.python }}
-      - name: Verify public prebuilt units and obtain official input
+      - name: Verify the exact release toolkit and obtain official input
+        env:
+          REGRESSION_VERSION: ${{ inputs.regression_version }}
+          REGRESSION_SHA256: ${{ inputs.regression_sha256 }}
+          TOOLKIT_SHA256: ${{ inputs.toolkit_sha256 }}
         shell: python
         run: |
-          import hashlib, io, json, os, sys, urllib.request, zipfile
+          import hashlib, json, os, re, sys, urllib.request, zipfile
           from pathlib import Path
           root = Path(os.environ['GITHUB_WORKSPACE'])
           sys.path.insert(0, str(root))
-          from tools.check_release import SOURCE_FILES
+          from tools.check_release import check_release
           work = Path(os.environ['RUNNER_TEMP']) / 'nikon-smoke'
           work.mkdir(exist_ok=False)
-          # r1 changes host code only. Use the unchanged public v0.3.0 machine code,
-          # retaining read-only permissions and never requiring access to a draft.
-          url = 'https://github.com/XinmiaoZhao/NikonFirmwarePatch/releases/download/v0.3.0/NikonFirmwarePatch-v0.3.0-toolkit.zip'
-          expected_zip = '126f05abae535cf0e2844e938920c15acc67d7b144d7bd363dc0af97e6365cad'
-          with urllib.request.urlopen(url, timeout=60) as response:
-              archive_bytes = response.read(8 * 1024 * 1024 + 1)
-          if hashlib.sha256(archive_bytes).hexdigest() != expected_zip:
-              raise ValueError('Public base toolkit digest mismatch')
-          units = json.loads((root / 'resources/compiled.json').read_text(encoding='utf-8'))['units']
-          code_hashes = {}
-          with zipfile.ZipFile(io.BytesIO(archive_bytes)) as package:
-              prefix = 'NikonFirmwarePatch-v0.3.0/'
-              if package.read(prefix + 'resources/compiled.json') != (root / 'resources/compiled.json').read_bytes():
-                  raise ValueError('Machine-code profiles changed; this host-only smoke fixture must be reviewed')
-              for unit in units.values():
-                  name = unit['resource']
-                  raw = package.read(prefix + name)
-                  if len(raw) != unit['bytes'] or hashlib.sha256(raw).hexdigest() != unit['sha256']:
-                      raise ValueError('Unreviewed prebuilt unit: ' + name)
-                  with (root / name).open('xb') as output:
-                      output.write(raw)
-                  code_hashes[name] = hashlib.sha256(raw).hexdigest()
-          inputs = {'source_commit': os.environ['GITHUB_SHA'], 'base_toolkit_sha256': expected_zip,
-                    'source_files_sha256': {name: hashlib.sha256((root / name).read_bytes()).hexdigest() for name in SOURCE_FILES},
-                    'compiled_units_sha256': code_hashes,
-                    'scope': 'Native Windows checkout and prebuilt bytes; compare every source/code hash with the final release ZIP'}
+          tag = 'v0.4.0-rc.1'
+          prefix = 'NikonFirmwarePatch-' + tag
+          filename = prefix + '-toolkit.zip'
+          url = 'https://github.com/XinmiaoZhao/NikonFirmwarePatch/releases/download/' + tag + '/' + filename
+          expected_zip = os.environ['TOOLKIT_SHA256']
+          if not re.fullmatch(r'[0-9a-f]{64}', expected_zip):
+              raise ValueError('A release toolkit SHA-256 is required')
+          archive = work / filename
+          with urllib.request.urlopen(url, timeout=90) as response:
+              archive.write_bytes(response.read(8 * 1024 * 1024 + 1))
+          if hashlib.sha256(archive.read_bytes()).hexdigest() != expected_zip:
+              raise ValueError('Toolkit download digest mismatch')
+          inputs = check_release(archive, os.environ['GITHUB_SHA'])
+          if inputs['tag'] != tag:
+              raise ValueError('Toolkit tag mismatch')
+          # The member allowlist and hashes have been checked against checkout.
+          with zipfile.ZipFile(archive) as package:
+              package.extractall(work)
+          toolkit = work / prefix
           (work / 'host-inputs.json').write_text(json.dumps(inputs, indent=2) + '\n', encoding='utf-8')
           expected = json.loads((root / 'resources/input.json').read_text(encoding='utf-8'))
           url = 'https://download.nikonimglib.com/archive8/wP5Vr003qbpC07ibhJ666rmRfF47/Z_8_0311.bin'
@@ -106,13 +113,19 @@ jobs:
           if received != expected['bytes'] or digest.hexdigest() != expected['sha256']:
               raise ValueError('Official input digest mismatch')
           with open(os.environ['GITHUB_ENV'], 'a', encoding='utf-8') as env:
-              env.write('TOOLKIT_ROOT=' + str(root) + '\n')
+              version = os.environ['REGRESSION_VERSION']
+              reference = os.environ['REGRESSION_SHA256']
+              if not re.fullmatch(r'[0-9]{2}\.[0-9]{2}', version) or not re.fullmatch(r'[0-9a-f]{64}', reference):
+                  raise ValueError('A valid firmware regression version and SHA-256 are required')
+              env.write('REGRESSION_VERSION=' + version + '\n')
+              env.write('REGRESSION_SHA256=' + reference + '\n')
+              env.write('TOOLKIT_ROOT=' + str(toolkit) + '\n')
       - name: Install pinned verifier dependency
         run: python -m pip install -r "$env:TOOLKIT_ROOT/requirements.txt"
       - name: Test matching source and prebuilt units on Windows
         run: python -B "$env:TOOLKIT_ROOT/tests/test_compiled_paths.py"
       - name: Build reported and all-feature selections without a compiler
-        run: python -B "$env:TOOLKIT_ROOT/tests/validate_prebuilt_cli.py" --stock "$env:RUNNER_TEMP/nikon-smoke/Z_8_0311.bin" --report "$env:RUNNER_TEMP/nikon-smoke/report.json"
+        run: python -B "$env:TOOLKIT_ROOT/tests/validate_prebuilt_cli.py" --stock "$env:RUNNER_TEMP/nikon-smoke/Z_8_0311.bin" --report "$env:RUNNER_TEMP/nikon-smoke/report.json" --all-version "$env:REGRESSION_VERSION" --all-sha256 "$env:REGRESSION_SHA256"
       - name: Preserve only the small verification report
         if: always()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2

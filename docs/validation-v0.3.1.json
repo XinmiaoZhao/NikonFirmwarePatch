@@ -1,0 +1,102 @@
+{
+  "version": "v0.3.1",
+  "previous_public_release": "v0.3.0-r1",
+  "official_input": "Nikon Z8 C 3.11",
+  "official_input_sha256": "d67413c2ede6b9ce8887175f20700bd9fbad2a973a4820968c45503d15d80d96",
+  "build": {
+    "nonempty_selections": 15,
+    "independent_window_and_integrity_checks": "PASS",
+    "source_prebuilt_equal": true
+  },
+  "native": {
+    "scope": [
+      "menu banks",
+      "feature selector isolation",
+      "remaining count and refresh",
+      "NEF header generation",
+      "database refusal, JPEG fallback and retry"
+    ],
+    "memory": "synthetic",
+    "services": "Explicit boundaries for file, database and clock services"
+  },
+  "qemu": {
+    "selections": 15,
+    "status": "PASS",
+    "scope": "Implementation-matched records; decrypted MAIN, synthetic peripherals, file-backed virtual cards; firmware page and Update entry only, no flashing; v0.3.0 implementation, not re-run for the eight v0.3.1 pixel-shift recipes"
+  },
+  "camera": {
+    "full_decode": {
+      "prores_frames": 294,
+      "nraw_frames": 897,
+      "proxy_frames": 897,
+      "exact_nefx_outputs": 2,
+      "preserved_pixel_shift_inputs_outputs": 85,
+      "cancellations": [
+        "32-frame MENU",
+        "4-frame half-press",
+        "4-frame normal power-off"
+      ]
+    },
+    "ui": "Tester-reported normal",
+    "scope": "Completed checks bound to the relevant implementation; retained where code is unchanged. Metadata-only checks are separate from complete RAW decoding.",
+    "file_metadata": {
+      "files": 278,
+      "nef": 159,
+      "jpeg": 119,
+      "same_type_backup_pairs": 60,
+      "raw_payload_match": true
+    }
+  },
+  "record_sha256": {
+    "build": "ce09336bbf1d5116471257960b7ce60bd6ec7ef17ee5431cf0eddc8c03036c80",
+    "native": "3655df53ac2911708d13a908767f9bf473c3ca0381a5b5fce9577203a7bf20ef",
+    "boot": "14fe3af702be5ee21790fab27ed2451080a060080e06cf6ae4338ca04f18f8bf",
+    "file_metadata": "c14905b55b9b335c9c205055bb8fcd35e88788c353bbf3c7b3be2a5f97b96be2",
+    "camera": {
+      "summary.json": "a8b0dd32a639ec8804bc3f2ab68282783501dd345c5c492696e67adfff4002a8",
+      "video.json": "f00d2153af8d70b215fe96b833c1a49b0ccba9d6794c21825257f49690cb1ba5",
+      "nraw-decode.json": "7f9fe73a9e2cb804d12cc84ebb2b54295493f6e444682fdc85af4cd8db8b1a93",
+      "photos.json": "97b24543221d6ce502e1bbd90ab77287160a5b6352aa506e8f5e513de42262bb",
+      "merge.json": "db3926234a4999f13130cc31961eac0d084f443f63169dfe0c1e419eff748847",
+      "user-observation.json": "3cc47dc35ff03acde9bcdd6de967231390d3f603c7c9697c4d203c9137afd248"
+    }
+  },
+  "inherited_firmware_validation_from": "v0.3.0 for prores, precapture and opengate-nraw; pixel-shift camera records are from the v0.3.0 code",
+  "host_revision": {
+    "issue": 12,
+    "source_path_keys": "POSIX forward slashes; source bytes and SHA-256 checks unchanged",
+    "path_regression": "tests/test_compiled_paths.py",
+    "prebuilt_cli_regression": "tests/validate_prebuilt_cli.py",
+    "windows_python_versions": [
+      "3.12",
+      "3.13"
+    ],
+    "execution_records": "Exact-source Host checks workflow linked from the Release",
+    "firmware_code_and_recipes_unchanged": "in v0.3.0-r1; v0.3.1 changes pixel-shift code and recipes only; patch.py, verify.py and the loaders unchanged",
+    "new_camera_tests": false
+  },
+  "firmware_implementation_commit_unchanged_units": "41fcba57165c990beca720d549e55389247e843c",
+  "pixel_shift_fix": {
+    "issue": 17,
+    "changed_sources": [
+      "z8pixelshift/src/group.c",
+      "z8pixelshift/src/group.h",
+      "z8pixelshift/src/job.c"
+    ],
+    "start_file_word": "MakerNote 0x0056 bytes 4-7; bits 30-31 zero, folder 100-999, file 1-9999, type 2 (NEF); whole word is the group identity",
+    "pixelshift_code_bytes": 130520,
+    "pixelshift_code_sha256": "4c1df43e991014aebe6116b70f3f30dd667c2b0fc00639867494ed004fcbf0bb",
+    "pixelshift_code_equals_reviewed_research_build": "reviewed merge implementation",
+    "other_machine_code_unchanged": true,
+    "changed_recipes": 8,
+    "changed_rows_per_recipe": 1,
+    "unchanged_selections_identical_firmware": 7,
+    "host_synthetic_cases": 30,
+    "host_cases_previous_code_missed": 16,
+    "host_camera_original_groups_reproduced": 6,
+    "host_renumbered_copy_groups_merged": 5,
+    "originals_unchanged": 80,
+    "qemu": "Implementation-matched test package: issue-layout list, selection and merge match pinned host outputs; public v0.3.1 recipes not re-run",
+    "camera_tested": false
+  }
+}

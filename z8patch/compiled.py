@@ -20,22 +20,42 @@ SPECS = {
     'pixelshift-af': dict(source='z8pixelshift/src/af_unit.c', flags=[f for f in FLAGS if f!='-mgeneral-regs-only']+['-ffp-contract=off'], cave=0x409D8000, limit=0x409DA000, entry='ps8_af_one_batch'),
     'opengate': dict(source='z8opengate/src/d10_hooks.S', flags=['-target','aarch64-none-elf','-x','assembler-with-cpp','-DFULL_OUTPUT=1','-DWITH_Q3=1','-DQ3_STASH_RAM=0xa0ff50000','-DQ3_FINE_TABLE=0x40953000','-DQ3_BASIC_TABLE=0x409533f0','-DOG_TIER_DELTA=0x4000']),
 }
+SPECS.update({
+    'anamorphic':dict(source='z8anamorphic/src/hooks.S', flags=['-target','aarch64-none-elf','-x','assembler-with-cpp'],asm_base=0x40970000,limit=0x40974000,folder='z8anamorphic'),
+    'h265':dict(source='z8h265/src/hooks.S', flags=['-target','aarch64-none-elf','-x','assembler-with-cpp'],asm_base=0x40A10000,limit=0x40A12000,folder='z8h265'),
+    'log':dict(source='z8log/src/hooks.S', flags=['-target','aarch64-none-elf','-x','assembler-with-cpp'],asm_base=0x40B00000,limit=0x40B08000,folder='z8log'),
+    'quality':dict(source='z8quality/src/hooks.S', flags=['-target','aarch64-none-elf','-x','assembler-with-cpp'],asm_base=0x40A41000,limit=0x40A50000,folder='z8quality'),
+    'shared':dict(source='z8patch/src/shared.S', flags=['-target','aarch64-none-elf','-x','assembler-with-cpp'],asm_base=0x40980000,limit=0x40980F00,folder='z8patch/src'),
+})
 
 
 def source_files(name):
+    if 'folder' in SPECS[name]:
+        folder=ROOT/SPECS[name]['folder']
+        return {p.relative_to(ROOT).as_posix():sha(p.read_bytes()) for p in sorted(folder.rglob('*'))
+                if p.is_file() and p.suffix in ('.py','.S','.json','.png')}
     folder = ROOT/('z8precapture' if name=='precapture' else 'z8opengate/src' if name=='opengate' else 'z8pixelshift/src')
     return {p.relative_to(ROOT).as_posix():sha(p.read_bytes()) for p in sorted(folder.iterdir()) if p.suffix in ('.c','.h','.inc','.S')}
 
 
+
 def compile_unit(name, compiler='clang'):
     """Maintainer primitive; callers must compare output against a reviewed recipe."""
-    spec = SPECS[name]
+    spec = dict(SPECS[name])
+    if name=='log':
+        from z8log.patcher import asm_defines
+        spec['flags']=[*spec['flags'],*[f'-D{k}={v:#x}' for k,v in sorted(asm_defines().items())]]
     with tempfile.TemporaryDirectory(prefix='nikon-patch-compile-') as folder:
         obj = Path(folder)/'patch.o'
         cmd = [compiler,*spec['flags'],'-c',str(ROOT/spec['source']),'-o',str(obj)]
         result = subprocess.run(cmd, capture_output=True, text=True)
         require(result.returncode==0, 'Compiler failed: '+result.stderr[-5000:])
-        if name=='opengate':
+        if 'asm_base' in spec:
+            from .asm import link_elf
+            code, entries, relocations=link_elf(obj.read_bytes(),spec['asm_base'])
+            require(spec['asm_base']+len(code)<=spec['limit'],'Assembly exceeds its reserved area')
+            symbols={k:dict(va=hex(v),bytes=0) for k,v in entries.items()}
+        elif name=='opengate':
             from z8opengate.linker import link_elf
             raw, entries, relocations = link_elf(obj.read_bytes())
             code = bytearray(raw)

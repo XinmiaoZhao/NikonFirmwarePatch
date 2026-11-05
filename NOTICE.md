@@ -10,9 +10,15 @@ The original tool source and the precompiled patch built from it are licensed un
 - [Capstone 5.0.7](https://github.com/capstone-engine/capstone/tree/5.0.7) is installed separately to inspect generated ARM64 instructions. Its code and runtime are not bundled here; its license is available in [LICENSE.TXT](https://github.com/capstone-engine/capstone/blob/5.0.7/LICENSE.TXT).
 - [Clang/LLVM](https://clang.llvm.org/) is an optional external dependency for explicit native-patch source builds and release preparation. The default Release toolkit uses the reviewed precompiled patch. No compiler or runtime is bundled.
 
-The compatibility profile contains hashes and layout parameters, not firmware contents. The Release toolkit includes the four patch units (pre-capture, pixel-shift main/AF and open-gate) compiled from the corresponding published C/assembly source, plus the complete tool source, build scripts and license. No Nikon input image or complete patched output is included. Other patch instructions are generated from source; menu structures and text are read from the user's input. The release manifest binds the source commit, compiler recipe and individual files.
+The compatibility profile contains hashes and layout parameters, not firmware contents. The Release toolkit includes nine patch units (pre-capture, pixel-shift main/AF, open-gate, desqueeze, H.265, Log colour, quality icons and shared menus) compiled from the corresponding published C/assembly source, plus the complete tool source, build scripts and license. No Nikon input image or complete patched output is included. Other patch instructions are generated from source; menu structures and text are read from the user's input. The release manifest binds the source commit, compiler recipe and individual files.
 
 The screenshots document the firmware interface running in an emulator. The tool's source-code license does not relicense the depicted firmware interface.
+
+## Colour-report data and LUT
+
+The report's spectral locus uses [CIE 2019 standard-observer data](https://doi.org/10.25039/CIE.DS.xvudnb9b), licensed CC BY-SA 4.0. The original source, conversion and the derived figure families (Chinese and English) are identified in [docs/data/README.md](docs/data/README.md); those figures remain CC BY-SA 4.0. The original report code, numerical samples, other original charts and the project's generated F-model LUT use this repository's GPL-3.0-only license. No Sony or RED PDF is redistributed. The F LUT is a project-generated post-production colour transform; it contains neither firmware nor camera media.
+
+The colour-space figure also includes a calibration-matrix reference derived from the [Nikon Z 8 entry in LibRaw](https://github.com/LibRaw/LibRaw/blob/2caab57e269cc7fce17c3189e4d4d7e3e5861875/src/tables/colordata.cpp#L1044-L1045), which attributes the matrix to Adobe DNG Converter. The numerical entry and source identity are retained in [adobe-z8-matrix.json](docs/data/adobe-z8-matrix.json). No LibRaw source code is bundled for this illustration; the reference is not a measured sensor-gamut boundary.
 
 ## Contributor acknowledgements
 
@@ -20,7 +26,8 @@ We thank the following contributors, **in no particular order**:
 
 - [@Mei-MingLe (日月)](https://github.com/Mei-MingLe) for research ideas and analysis.
 - [@heavensabove (pai)](https://github.com/heavensabove) for the foundational pixel-shift merge work and base code.
-- [@y-g-jiang (Jiang Yaogeng)](https://github.com/y-g-jiang) for research ideas and suggestions, and for technical discussions that helped refine the approach.
+- [@y-g-jiang (Jiang Yaogeng)](https://github.com/y-g-jiang) and “地上相机AAA” for research ideas, suggestions and technical discussions that helped refine the approach.
+- [@YouKakou (时雨)](https://github.com/YouKakou) for foundational exploration of Log3G10 colour. 感谢其对 Log3G10 色彩的基础探索。
 - [@ShiSheng233 (锂化溴)](https://github.com/ShiSheng233) for open-gate ideas and the implementation framework, and for sharing the related reference implementation.
 - [@aoyukkk (傲宇)](https://github.com/aoyukkk), [@South-Bridge (琴岛唯一指定哥布林)](https://github.com/South-Bridge), and “追晚霞的流浪汉” for development assistance, camera testing and feedback.
 

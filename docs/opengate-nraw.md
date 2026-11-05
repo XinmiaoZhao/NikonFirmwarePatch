@@ -6,7 +6,7 @@
 
 ### 功能
 
-`--features opengate-nraw` 同时增加 FX 3:2 开放门和 **High／Fine／Normal／Basic** 四档 N-RAW 画质。该选项可独立构建，不依赖 ProRes。
+`--features framing` 同时增加 FX 3:2 开放门和 **High／Fine／Normal／Basic** 四档 N-RAW 画质。与反挤压显示一起安装；画幅组可以独立构建。
 
 ### 支持范围
 
@@ -29,13 +29,13 @@
 
 - 为兼容只识别两档的软件，Fine 的兼容名称映射为 High，Basic 映射为 Normal；这些名称不能区分实际四档编码。
 - Basic 的 1.0 bit/像素预算会损失高频细节。开放门 High 为 2.5 bit/像素，普通 8.3K 30／25／24p High 为 3.0，不能视为相同压缩预算。
-- 开放门与 N-RAW 四档合为一个构建选项。
+- 开放门、N-RAW 四档和反挤压属于同一个画幅组。
 
 ## English
 
 ### Overview
 
-`--features opengate-nraw` adds FX 3:2 open gate and **High/Fine/Normal/Basic** N-RAW quality tiers. This option can be built independently of ProRes.
+`--features framing` adds FX 3:2 open gate and **High/Fine/Normal/Basic** N-RAW quality tiers. It is bundled with anamorphic desqueeze; the framing group can be built independently.
 
 ### Supported modes
 
@@ -58,7 +58,7 @@ Output is NEV. Live view and playback use the selected aspect ratio. Menu/playba
 
 - For compatibility with two-tier readers, Fine maps to the High label and Basic to Normal; those labels cannot distinguish the four actual encoding tiers.
 - Basic's 1.0-bit/pixel budget reduces fine texture. Open-gate High uses 2.5 bits/pixel versus 3.0 for ordinary 8.3K 30/25/24p High; the budgets are different.
-- Open gate and the four N-RAW tiers are one build option.
+- Open gate, four N-RAW tiers and desqueeze are one build group.
 
 ## 码率参考 / Bitrate reference
 

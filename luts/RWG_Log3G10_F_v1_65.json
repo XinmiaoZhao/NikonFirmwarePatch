@@ -1,0 +1,30 @@
+{
+  "schema": 1,
+  "title": "RWG / Log3G10 F saturation-map model",
+  "model_version": 1,
+  "lut_size": 65,
+  "rows": 274625,
+  "input_space": "REDWideGamutRGB / Log3G10",
+  "output_space": "REDWideGamutRGB / Log3G10",
+  "domain_min": [
+    0,
+    0,
+    0
+  ],
+  "domain_max": [
+    1,
+    1,
+    1
+  ],
+  "order": "red fastest, then green, then blue",
+  "recommended_interpolation": "tetrahedral",
+  "file": "RWG_Log3G10_F_v1_65.cube",
+  "bytes": 7415148,
+  "sha256": "2862a0c6ee17f73d9e83fcee04a706413742b00d53bc538d224a6a70bb3f93da",
+  "generator_sha256": "cc855da11d43babb7da09ab66acc13f9633d954f10dd29d6abc800f18ce60421",
+  "output_min": 0.0,
+  "output_max": 1.0,
+  "near_black": "Scale-free model; no absolute activation threshold",
+  "display_transform": false,
+  "tied_dominant_nodes": "Mean of adjacent branch limits in Log code space; neutral axis preserved"
+}

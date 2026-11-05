@@ -1,0 +1,445 @@
+{
+  "modes": [
+    {
+      "mode": "1080 120",
+      "sets": {
+        "menu": {
+          "star": "0x114e",
+          "star_format": "L",
+          "plain": "0x114f",
+          "plain_format": "L",
+          "clean": true,
+          "difference_rows_columns": [
+            0,
+            13,
+            59,
+            71
+          ]
+        },
+        "fill": {
+          "star": "0x805",
+          "star_format": "L",
+          "plain": "0x807",
+          "plain_format": "L",
+          "clean": true,
+          "difference_rows_columns": [
+            0,
+            10,
+            53,
+            63
+          ]
+        },
+        "outline": {
+          "star": "0x806",
+          "star_format": "L",
+          "plain": "0x808",
+          "plain_format": "L",
+          "clean": true,
+          "difference_rows_columns": [
+            0,
+            13,
+            51,
+            67
+          ]
+        }
+      },
+      "menu_pair_in_icons_json": [
+        "0x114e",
+        "0x114f",
+        null
+      ]
+    },
+    {
+      "mode": "1080 100",
+      "sets": {
+        "menu": {
+          "star": "0x114c",
+          "star_format": "L",
+          "plain": "0x114d",
+          "plain_format": "L",
+          "clean": true,
+          "difference_rows_columns": [
+            0,
+            13,
+            59,
+            71
+          ]
+        },
+        "fill": {
+          "star": "0x809",
+          "star_format": "L",
+          "plain": "0x80b",
+          "plain_format": "L",
+          "clean": true,
+          "difference_rows_columns": [
+            0,
+            10,
+            53,
+            63
+          ]
+        },
+        "outline": {
+          "star": "0x80a",
+          "star_format": "L",
+          "plain": "0x80c",
+          "plain_format": "L",
+          "clean": true,
+          "difference_rows_columns": [
+            0,
+            13,
+            51,
+            67
+          ]
+        }
+      },
+      "menu_pair_in_icons_json": [
+        "0x114c",
+        "0x114d",
+        null
+      ]
+    },
+    {
+      "mode": "1080 60",
+      "sets": {
+        "menu": {
+          "star": "0xced",
+          "star_format": "L",
+          "plain": "0xcec",
+          "plain_format": "L",
+          "clean": true,
+          "difference_rows_columns": [
+            0,
+            13,
+            59,
+            71
+          ]
+        },
+        "fill": {
+          "star": "0x589",
+          "star_format": "L",
+          "plain": "0x587",
+          "plain_format": "L",
+          "clean": true,
+          "difference_rows_columns": [
+            0,
+            10,
+            53,
+            63
+          ]
+        },
+        "outline": {
+          "star": "0x58a",
+          "star_format": "L",
+          "plain": "0x588",
+          "plain_format": "L",
+          "clean": false,
+          "difference_rows_columns": [
+            0,
+            27,
+            27,
+            67
+          ]
+        }
+      },
+      "menu_pair_in_icons_json": [
+        "0xced",
+        "0xcec",
+        null
+      ]
+    },
+    {
+      "mode": "1080 50",
+      "sets": {
+        "menu": {
+          "star": "0xceb",
+          "star_format": "L",
+          "plain": "0xcea",
+          "plain_format": "L",
+          "clean": true,
+          "difference_rows_columns": [
+            0,
+            13,
+            59,
+            71
+          ]
+        },
+        "fill": {
+          "star": "0x585",
+          "star_format": "L",
+          "plain": "0x583",
+          "plain_format": "L",
+          "clean": true,
+          "difference_rows_columns": [
+            0,
+            10,
+            53,
+            63
+          ]
+        },
+        "outline": {
+          "star": "0x586",
+          "star_format": "L",
+          "plain": "0x584",
+          "plain_format": "L",
+          "clean": false,
+          "difference_rows_columns": [
+            0,
+            27,
+            37,
+            67
+          ]
+        }
+      },
+      "menu_pair_in_icons_json": [
+        "0xceb",
+        "0xcea",
+        null
+      ]
+    },
+    {
+      "mode": "2160 60",
+      "sets": {
+        "menu": {
+          "star": "0x1262",
+          "star_format": "L",
+          "plain": "0x1332",
+          "plain_format": "L",
+          "clean": true,
+          "difference_rows_columns": [
+            0,
+            13,
+            59,
+            71
+          ]
+        },
+        "fill": {
+          "star": "0x9ff",
+          "star_format": "L",
+          "plain": "0xac7",
+          "plain_format": "L",
+          "clean": false,
+          "difference_rows_columns": [
+            0,
+            31,
+            39,
+            63
+          ]
+        },
+        "outline": {
+          "star": "0xa01",
+          "star_format": "L",
+          "plain": "0xac8",
+          "plain_format": "L",
+          "clean": false,
+          "difference_rows_columns": [
+            0,
+            33,
+            1,
+            67
+          ]
+        }
+      },
+      "menu_pair_in_icons_json": [
+        "0x1262",
+        "0x1332",
+        null
+      ]
+    },
+    {
+      "mode": "2160 50",
+      "sets": {
+        "menu": {
+          "star": "0x1261",
+          "star_format": "L",
+          "plain": "0x1331",
+          "plain_format": "L",
+          "clean": true,
+          "difference_rows_columns": [
+            0,
+            13,
+            59,
+            71
+          ]
+        },
+        "fill": {
+          "star": "0x9fe",
+          "star_format": "L",
+          "plain": "0xac5",
+          "plain_format": "L",
+          "clean": true,
+          "difference_rows_columns": [
+            0,
+            10,
+            53,
+            63
+          ]
+        },
+        "outline": {
+          "star": "0xa00",
+          "star_format": "L",
+          "plain": "0xac6",
+          "plain_format": "L",
+          "clean": false,
+          "difference_rows_columns": [
+            0,
+            33,
+            1,
+            67
+          ]
+        }
+      },
+      "menu_pair_in_icons_json": [
+        "0x1261",
+        "0x1331",
+        null
+      ]
+    },
+    {
+      "mode": "2160 30",
+      "sets": {
+        "menu": {
+          "star": "0x10f4",
+          "star_format": "L",
+          "plain": "0x10f5",
+          "plain_format": "P1",
+          "clean": false,
+          "difference_rows_columns": [
+            0,
+            33,
+            2,
+            71
+          ]
+        },
+        "fill": {
+          "star": "0x768",
+          "star_format": "L",
+          "plain": "0x76a",
+          "plain_format": "L",
+          "clean": false,
+          "difference_rows_columns": [
+            0,
+            24,
+            28,
+            63
+          ]
+        },
+        "outline": {
+          "star": "0x769",
+          "star_format": "L",
+          "plain": "0x76b",
+          "plain_format": "P1",
+          "clean": false,
+          "difference_rows_columns": [
+            0,
+            33,
+            0,
+            67
+          ]
+        }
+      },
+      "menu_pair_in_icons_json": [
+        "0x10f4",
+        null,
+        "menu_10f4.png"
+      ]
+    },
+    {
+      "mode": "2160 25",
+      "sets": {
+        "menu": {
+          "star": "0x10f2",
+          "star_format": "L",
+          "plain": "0x10f3",
+          "plain_format": "P1",
+          "clean": false,
+          "difference_rows_columns": [
+            0,
+            33,
+            2,
+            71
+          ]
+        },
+        "fill": {
+          "star": "0x764",
+          "star_format": "L",
+          "plain": "0x766",
+          "plain_format": "L",
+          "clean": false,
+          "difference_rows_columns": [
+            0,
+            24,
+            28,
+            63
+          ]
+        },
+        "outline": {
+          "star": "0x765",
+          "star_format": "L",
+          "plain": "0x767",
+          "plain_format": "P1",
+          "clean": false,
+          "difference_rows_columns": [
+            0,
+            32,
+            0,
+            67
+          ]
+        }
+      },
+      "menu_pair_in_icons_json": [
+        "0x10f2",
+        null,
+        "menu_10f2.png"
+      ]
+    },
+    {
+      "mode": "2160 24",
+      "sets": {
+        "menu": {
+          "star": "0x10f0",
+          "star_format": "L",
+          "plain": "0x10f1",
+          "plain_format": "P1",
+          "clean": false,
+          "difference_rows_columns": [
+            0,
+            30,
+            2,
+            71
+          ]
+        },
+        "fill": {
+          "star": "0x760",
+          "star_format": "L",
+          "plain": "0x762",
+          "plain_format": "L",
+          "clean": false,
+          "difference_rows_columns": [
+            0,
+            24,
+            28,
+            63
+          ]
+        },
+        "outline": {
+          "star": "0x761",
+          "star_format": "L",
+          "plain": "0x763",
+          "plain_format": "P1",
+          "clean": false,
+          "difference_rows_columns": [
+            0,
+            32,
+            0,
+            67
+          ]
+        }
+      },
+      "menu_pair_in_icons_json": [
+        "0x10f0",
+        null,
+        "menu_10f0.png"
+      ]
+    }
+  ]
+}

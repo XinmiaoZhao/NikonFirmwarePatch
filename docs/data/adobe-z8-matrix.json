@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "title": "Adobe / LibRaw Nikon Z 8 calibration-matrix reference",
+  "source": {
+    "repository": "LibRaw/LibRaw",
+    "commit": "2caab57e269cc7fce17c3189e4d4d7e3e5861875",
+    "table_url": "https://github.com/LibRaw/LibRaw/blob/2caab57e269cc7fce17c3189e4d4d7e3e5861875/src/tables/colordata.cpp#L1044-L1045",
+    "table_git_blob_sha1": "3f6dc81ce00d0e1d494d3c12d07617ea8ed01731",
+    "attribution": "LibRaw attributes these matrices to Adobe DNG Converter unless otherwise noted; the Nikon Z 8 entry has no exception.",
+    "direction_url": "https://github.com/LibRaw/LibRaw/blob/2caab57e269cc7fce17c3189e4d4d7e3e5861875/src/utils/utils_dcraw.cpp#L282-L312",
+    "direction_git_blob_sha1": "6af7a1a9b1e2be5a6e3e485ec8271b5a6c5410cc",
+    "scale_url": "https://github.com/LibRaw/LibRaw/blob/2caab57e269cc7fce17c3189e4d4d7e3e5861875/src/tables/colordata.cpp#L1905-L1911"
+  },
+  "matrix_direction": "CIE XYZ to reference camera native RGB",
+  "xyz_to_camera_integer": [
+    [
+      11423,
+      -4564,
+      -1123
+    ],
+    [
+      -4816,
+      12895,
+      2119
+    ],
+    [
+      -210,
+      1061,
+      7282
+    ]
+  ],
+  "divisor": 10000,
+  "derivation": "Invert the matrix to camera RGB -> XYZ; normalize each inverse-matrix column by X+Y+Z to obtain its xy basis coordinate.",
+  "scope": "Single published matrix; no dual-illuminant interpolation, individual-camera calibration match, or added chromatic adaptation. No 4000 K assignment. D65 in the figure labels the three encoding spaces only.",
+  "interpretation": "Virtual matrix basis coordinates for reference, not a measured sensor gamut or recordable-colour boundary.",
+  "native_basis_xy": [
+    [
+      0.7398754809096972,
+      0.27951340572649874
+    ],
+    [
+      0.3086195255686586,
+      0.7988783980774169
+    ],
+    [
+      0.04320369169212176,
+      -0.168836525437559
+    ]
+  ]
+}

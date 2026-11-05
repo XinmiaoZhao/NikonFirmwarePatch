@@ -23,7 +23,7 @@ def main():
         if not names:continue
         _,detail,rows=compose(package.eg,names,check_recipe=False)
         key='+'.join(names)
-        profiles[key]=dict(id='z8-c311-v030-'+''.join('1' if b else '0' for b in bits),features=names,patches=rows)
+        profiles[key]=dict(id='z8-c311-groups-v1-'+''.join('1' if b else '0' for b in bits),features=names,patches=rows)
         print(key,len(rows),flush=True)
     catalog=[];lookup={}
     for profile in profiles.values():

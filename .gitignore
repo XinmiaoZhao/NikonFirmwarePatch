@@ -1,4 +1,4 @@
-# Inputs and generated outputs are never source artifacts.
+# Firmware inputs and temporary outputs are excluded; reviewed public assets are listed explicitly.
 build/
 local_data/
 *.bin
@@ -40,3 +40,6 @@ credentials.json
 secrets.json
 
 /build-validation.json
+
+# Reviewed project-generated post-production LUT, requested as a repository asset.
+!/luts/RWG_Log3G10_F_v1_65.cube

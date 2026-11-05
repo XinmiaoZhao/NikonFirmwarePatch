@@ -837,7 +837,7 @@ static int camera_job(const psm_platform *p, uint32_t mode, const psm_scan *publ
     }
     s = published?published:align64(scan_memory);
     if(!published)clear((void *)s, sizeof(*s));
-    lput(&l, "PS11 AF pixel shift merge\nmode ");
+    lput(&l, "PS12 AF pixel shift merge\nmode ");
     lput(&l, mode == PSM_MODE_ALL ? "all" : "newest");
     lput(&l, "\nclock_hz ");
     lnum(&l, l.hz);

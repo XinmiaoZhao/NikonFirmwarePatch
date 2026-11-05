@@ -176,7 +176,7 @@ def code(cs):
     blk.stp_pre(19, 30, -0x20)
     blk.str_x(20, 31, 0x10)
     blk.mov_x(19, 0)
-    blk.bl(F_VIDEO_REFRESH)
+    blk.nop()  # shared dispatcher calls the native refresh once
     blk.mov_x(20, 0)                                  # keep the stock return value
     blk.cbz_x(19, 'refresh_done')
     blk.mov_x(0, 19)
@@ -207,7 +207,7 @@ def code(cs):
     return blk, data, listing
 
 
-def menu(img, ids, blk):
+def menu(img, ids, blk, ok_action=None):
     # ---- sub-page tables -------------------------------------------------------------------
     layout = bytearray(img.old[NRAW_LAYOUT:NRAW_LAYOUT + 0x110])
     if struct.unpack_from('<I', layout, 0x44)[0] != 0x8A6:
@@ -218,7 +218,7 @@ def menu(img, ids, blk):
         raise ValueError('stock N-RAW option row differs')
     rows = b''.join(struct.pack('<11I', ids['option_ids'][i], *stock_row[1:6], ITEM_OPTION0 + i, *stock_row[7:])
                     for i in range(4))
-    ok = blk.labels['ok']
+    ok = blk.labels['ok'] if ok_action is None else ok_action
     table = events(img, NRAW_EVENTS, 14, lambda e, a, g, t: (e, ok if a == NRAW_OK else a, g, t))
     if table.count(struct.pack('<Q', ok)) != 3:
         raise ValueError('expected three OK transitions in the stock option table')
@@ -308,7 +308,7 @@ def loader(img):
                 copied_bytes=hex(end - SECTION_VA), room=hex(SECTION_ROOM))
 
 
-def build_main(data, strings_context):
+def build_main(data, strings_context, ok_action=None):
     """Return Image edits and review metadata; input is immutable MAIN without CRC."""
     cs = Cs(CS_ARCH_ARM64, CS_MODE_LITTLE_ENDIAN)
     img = Image(data)
@@ -320,8 +320,8 @@ def build_main(data, strings_context):
     if CODE_AT + len(code_bytes) > GUI_AT:
         raise ValueError('Code area too small')
     img.put(CODE_AT, code_bytes, 'code: sub-page entry, OK, refresh wrapper, value texts', expect_zero=True)
-    where = menu(img, ids, blk)
+    where = menu(img, ids, blk, ok_action)
     from . import back_half
     back = back_half.apply(img, cs, VALUE_RAM, STASH_RAM, CODE_AT + len(code_bytes), GUI_AT, bank=False)
-    return img, dict(strings=ids, menu=where, back_half=back,
+    return img, dict(strings=ids, menu=where, back_half=back, entries={k:hex(v) for k,v in blk.labels.items()},
                     code=[dict(va=hex(x), word=w, text=t) for x, w, t in listing])

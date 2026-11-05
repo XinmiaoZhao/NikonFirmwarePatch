@@ -1,0 +1,1509 @@
+{
+  "shares_percent": [
+    100,
+    60,
+    45,
+    30,
+    20
+  ],
+  "hook_table_bytes": 544,
+  "hook_table_sha256": "7948332fecec8d843e449f5ff92ef9bc83913a80df7b0f81e2f56fd1db8b2b5b",
+  "rows": [
+    {
+      "row": 11,
+      "width": 7680,
+      "height": 4320,
+      "depth": 8,
+      "fps": "30000/1001",
+      "tiers": [
+        {
+          "share": 100,
+          "nominal_bps": 440000000,
+          "target_kbps": 366666,
+          "level": 61,
+          "bpp": 0.369
+        },
+        {
+          "share": 60,
+          "nominal_bps": 264000000,
+          "target_kbps": 220000,
+          "level": 60,
+          "bpp": 0.221
+        },
+        {
+          "share": 45,
+          "nominal_bps": 198000000,
+          "target_kbps": 165000,
+          "level": 60,
+          "bpp": 0.166
+        },
+        {
+          "share": 30,
+          "nominal_bps": 132000000,
+          "target_kbps": 110000,
+          "level": 60,
+          "bpp": 0.111
+        },
+        {
+          "share": 20,
+          "nominal_bps": 88000000,
+          "target_kbps": 73333,
+          "level": 60,
+          "bpp": 0.074
+        }
+      ]
+    },
+    {
+      "row": 12,
+      "width": 7680,
+      "height": 4320,
+      "depth": 8,
+      "fps": "25000/1000",
+      "tiers": [
+        {
+          "share": 100,
+          "nominal_bps": 440000000,
+          "target_kbps": 366666,
+          "level": 61,
+          "bpp": 0.442
+        },
+        {
+          "share": 60,
+          "nominal_bps": 264000000,
+          "target_kbps": 220000,
+          "level": 60,
+          "bpp": 0.265
+        },
+        {
+          "share": 45,
+          "nominal_bps": 198000000,
+          "target_kbps": 165000,
+          "level": 60,
+          "bpp": 0.199
+        },
+        {
+          "share": 30,
+          "nominal_bps": 132000000,
+          "target_kbps": 110000,
+          "level": 60,
+          "bpp": 0.133
+        },
+        {
+          "share": 20,
+          "nominal_bps": 88000000,
+          "target_kbps": 73333,
+          "level": 60,
+          "bpp": 0.088
+        }
+      ]
+    },
+    {
+      "row": 13,
+      "width": 7680,
+      "height": 4320,
+      "depth": 8,
+      "fps": "24000/1001",
+      "tiers": [
+        {
+          "share": 100,
+          "nominal_bps": 440000000,
+          "target_kbps": 366666,
+          "level": 61,
+          "bpp": 0.461
+        },
+        {
+          "share": 60,
+          "nominal_bps": 264000000,
+          "target_kbps": 220000,
+          "level": 60,
+          "bpp": 0.277
+        },
+        {
+          "share": 45,
+          "nominal_bps": 198000000,
+          "target_kbps": 165000,
+          "level": 60,
+          "bpp": 0.207
+        },
+        {
+          "share": 30,
+          "nominal_bps": 132000000,
+          "target_kbps": 110000,
+          "level": 60,
+          "bpp": 0.138
+        },
+        {
+          "share": 20,
+          "nominal_bps": 88000000,
+          "target_kbps": 73333,
+          "level": 60,
+          "bpp": 0.092
+        }
+      ]
+    },
+    {
+      "row": 14,
+      "width": 3840,
+      "height": 2160,
+      "depth": 8,
+      "fps": "120000/1001",
+      "tiers": [
+        {
+          "share": 100,
+          "nominal_bps": 440000000,
+          "target_kbps": 366666,
+          "level": 61,
+          "bpp": 0.369
+        },
+        {
+          "share": 60,
+          "nominal_bps": 264000000,
+          "target_kbps": 220000,
+          "level": 52,
+          "bpp": 0.221
+        },
+        {
+          "share": 45,
+          "nominal_bps": 198000000,
+          "target_kbps": 165000,
+          "level": 52,
+          "bpp": 0.166
+        },
+        {
+          "share": 30,
+          "nominal_bps": 132000000,
+          "target_kbps": 110000,
+          "level": 52,
+          "bpp": 0.111
+        },
+        {
+          "share": 20,
+          "nominal_bps": 88000000,
+          "target_kbps": 73333,
+          "level": 52,
+          "bpp": 0.074
+        }
+      ]
+    },
+    {
+      "row": 15,
+      "width": 3840,
+      "height": 2160,
+      "depth": 8,
+      "fps": "100000/1000",
+      "tiers": [
+        {
+          "share": 100,
+          "nominal_bps": 440000000,
+          "target_kbps": 366666,
+          "level": 61,
+          "bpp": 0.442
+        },
+        {
+          "share": 60,
+          "nominal_bps": 264000000,
+          "target_kbps": 220000,
+          "level": 52,
+          "bpp": 0.265
+        },
+        {
+          "share": 45,
+          "nominal_bps": 198000000,
+          "target_kbps": 165000,
+          "level": 52,
+          "bpp": 0.199
+        },
+        {
+          "share": 30,
+          "nominal_bps": 132000000,
+          "target_kbps": 110000,
+          "level": 52,
+          "bpp": 0.133
+        },
+        {
+          "share": 20,
+          "nominal_bps": 88000000,
+          "target_kbps": 73333,
+          "level": 52,
+          "bpp": 0.088
+        }
+      ]
+    },
+    {
+      "row": 16,
+      "width": 3840,
+      "height": 2160,
+      "depth": 8,
+      "fps": "60000/1001",
+      "tiers": [
+        {
+          "share": 100,
+          "nominal_bps": 360000000,
+          "target_kbps": 300000,
+          "level": 61,
+          "bpp": 0.603
+        },
+        {
+          "share": 60,
+          "nominal_bps": 216000000,
+          "target_kbps": 180000,
+          "level": 52,
+          "bpp": 0.362
+        },
+        {
+          "share": 45,
+          "nominal_bps": 162000000,
+          "target_kbps": 135000,
+          "level": 51,
+          "bpp": 0.272
+        },
+        {
+          "share": 30,
+          "nominal_bps": 108000000,
+          "target_kbps": 90000,
+          "level": 51,
+          "bpp": 0.181
+        },
+        {
+          "share": 20,
+          "nominal_bps": 72000000,
+          "target_kbps": 60000,
+          "level": 51,
+          "bpp": 0.121
+        }
+      ]
+    },
+    {
+      "row": 17,
+      "width": 3840,
+      "height": 2160,
+      "depth": 8,
+      "fps": "50000/1000",
+      "tiers": [
+        {
+          "share": 100,
+          "nominal_bps": 360000000,
+          "target_kbps": 300000,
+          "level": 61,
+          "bpp": 0.723
+        },
+        {
+          "share": 60,
+          "nominal_bps": 216000000,
+          "target_kbps": 180000,
+          "level": 52,
+          "bpp": 0.434
+        },
+        {
+          "share": 45,
+          "nominal_bps": 162000000,
+          "target_kbps": 135000,
+          "level": 51,
+          "bpp": 0.326
+        },
+        {
+          "share": 30,
+          "nominal_bps": 108000000,
+          "target_kbps": 90000,
+          "level": 51,
+          "bpp": 0.217
+        },
+        {
+          "share": 20,
+          "nominal_bps": 72000000,
+          "target_kbps": 60000,
+          "level": 51,
+          "bpp": 0.145
+        }
+      ]
+    },
+    {
+      "row": 18,
+      "width": 3840,
+      "height": 2160,
+      "depth": 8,
+      "fps": "30000/1001",
+      "tiers": [
+        {
+          "share": 100,
+          "nominal_bps": 180000000,
+          "target_kbps": 150000,
+          "level": 52,
+          "bpp": 0.603
+        },
+        {
+          "share": 60,
+          "nominal_bps": 108000000,
+          "target_kbps": 90000,
+          "level": 50,
+          "bpp": 0.362
+        },
+        {
+          "share": 45,
+          "nominal_bps": 81000000,
+          "target_kbps": 67500,
+          "level": 50,
+          "bpp": 0.272
+        },
+        {
+          "share": 30,
+          "nominal_bps": 54000000,
+          "target_kbps": 45000,
+          "level": 50,
+          "bpp": 0.181
+        },
+        {
+          "share": 20,
+          "nominal_bps": 36000000,
+          "target_kbps": 30000,
+          "level": 50,
+          "bpp": 0.121
+        }
+      ]
+    },
+    {
+      "row": 19,
+      "width": 3840,
+      "height": 2160,
+      "depth": 8,
+      "fps": "25000/1000",
+      "tiers": [
+        {
+          "share": 100,
+          "nominal_bps": 180000000,
+          "target_kbps": 150000,
+          "level": 52,
+          "bpp": 0.723
+        },
+        {
+          "share": 60,
+          "nominal_bps": 108000000,
+          "target_kbps": 90000,
+          "level": 50,
+          "bpp": 0.434
+        },
+        {
+          "share": 45,
+          "nominal_bps": 81000000,
+          "target_kbps": 67500,
+          "level": 50,
+          "bpp": 0.326
+        },
+        {
+          "share": 30,
+          "nominal_bps": 54000000,
+          "target_kbps": 45000,
+          "level": 50,
+          "bpp": 0.217
+        },
+        {
+          "share": 20,
+          "nominal_bps": 36000000,
+          "target_kbps": 30000,
+          "level": 50,
+          "bpp": 0.145
+        }
+      ]
+    },
+    {
+      "row": 20,
+      "width": 3840,
+      "height": 2160,
+      "depth": 8,
+      "fps": "24000/1001",
+      "tiers": [
+        {
+          "share": 100,
+          "nominal_bps": 180000000,
+          "target_kbps": 150000,
+          "level": 52,
+          "bpp": 0.754
+        },
+        {
+          "share": 60,
+          "nominal_bps": 108000000,
+          "target_kbps": 90000,
+          "level": 50,
+          "bpp": 0.453
+        },
+        {
+          "share": 45,
+          "nominal_bps": 81000000,
+          "target_kbps": 67500,
+          "level": 50,
+          "bpp": 0.339
+        },
+        {
+          "share": 30,
+          "nominal_bps": 54000000,
+          "target_kbps": 45000,
+          "level": 50,
+          "bpp": 0.226
+        },
+        {
+          "share": 20,
+          "nominal_bps": 36000000,
+          "target_kbps": 30000,
+          "level": 50,
+          "bpp": 0.151
+        }
+      ]
+    },
+    {
+      "row": 21,
+      "width": 1920,
+      "height": 1080,
+      "depth": 8,
+      "fps": "120000/1001",
+      "tiers": [
+        {
+          "share": 100,
+          "nominal_bps": 180000000,
+          "target_kbps": 150000,
+          "level": 52,
+          "bpp": 0.603
+        },
+        {
+          "share": 60,
+          "nominal_bps": 108000000,
+          "target_kbps": 90000,
+          "level": 50,
+          "bpp": 0.362
+        },
+        {
+          "share": 45,
+          "nominal_bps": 81000000,
+          "target_kbps": 67500,
+          "level": 50,
+          "bpp": 0.272
+        },
+        {
+          "share": 30,
+          "nominal_bps": 54000000,
+          "target_kbps": 45000,
+          "level": 50,
+          "bpp": 0.181
+        },
+        {
+          "share": 20,
+          "nominal_bps": 36000000,
+          "target_kbps": 30000,
+          "level": 50,
+          "bpp": 0.121
+        }
+      ]
+    },
+    {
+      "row": 22,
+      "width": 1920,
+      "height": 1080,
+      "depth": 8,
+      "fps": "100000/1000",
+      "tiers": [
+        {
+          "share": 100,
+          "nominal_bps": 180000000,
+          "target_kbps": 150000,
+          "level": 52,
+          "bpp": 0.723
+        },
+        {
+          "share": 60,
+          "nominal_bps": 108000000,
+          "target_kbps": 90000,
+          "level": 50,
+          "bpp": 0.434
+        },
+        {
+          "share": 45,
+          "nominal_bps": 81000000,
+          "target_kbps": 67500,
+          "level": 50,
+          "bpp": 0.326
+        },
+        {
+          "share": 30,
+          "nominal_bps": 54000000,
+          "target_kbps": 45000,
+          "level": 50,
+          "bpp": 0.217
+        },
+        {
+          "share": 20,
+          "nominal_bps": 36000000,
+          "target_kbps": 30000,
+          "level": 50,
+          "bpp": 0.145
+        }
+      ]
+    },
+    {
+      "row": 23,
+      "width": 1920,
+      "height": 1080,
+      "depth": 8,
+      "fps": "60000/1001",
+      "tiers": [
+        {
+          "share": 100,
+          "nominal_bps": 90000000,
+          "target_kbps": 75000,
+          "level": 50,
+          "bpp": 0.603
+        },
+        {
+          "share": 60,
+          "nominal_bps": 54000000,
+          "target_kbps": 45000,
+          "level": 41,
+          "bpp": 0.362
+        },
+        {
+          "share": 45,
+          "nominal_bps": 40500000,
+          "target_kbps": 33750,
+          "level": 41,
+          "bpp": 0.272
+        },
+        {
+          "share": 30,
+          "nominal_bps": 27000000,
+          "target_kbps": 22500,
+          "level": 41,
+          "bpp": 0.181
+        },
+        {
+          "share": 20,
+          "nominal_bps": 18000000,
+          "target_kbps": 15000,
+          "level": 41,
+          "bpp": 0.121
+        }
+      ]
+    },
+    {
+      "row": 24,
+      "width": 1920,
+      "height": 1080,
+      "depth": 8,
+      "fps": "50000/1000",
+      "tiers": [
+        {
+          "share": 100,
+          "nominal_bps": 90000000,
+          "target_kbps": 75000,
+          "level": 50,
+          "bpp": 0.723
+        },
+        {
+          "share": 60,
+          "nominal_bps": 54000000,
+          "target_kbps": 45000,
+          "level": 41,
+          "bpp": 0.434
+        },
+        {
+          "share": 45,
+          "nominal_bps": 40500000,
+          "target_kbps": 33750,
+          "level": 41,
+          "bpp": 0.326
+        },
+        {
+          "share": 30,
+          "nominal_bps": 27000000,
+          "target_kbps": 22500,
+          "level": 41,
+          "bpp": 0.217
+        },
+        {
+          "share": 20,
+          "nominal_bps": 18000000,
+          "target_kbps": 15000,
+          "level": 41,
+          "bpp": 0.145
+        }
+      ]
+    },
+    {
+      "row": 25,
+      "width": 1920,
+      "height": 1080,
+      "depth": 8,
+      "fps": "30000/1001",
+      "tiers": [
+        {
+          "share": 100,
+          "nominal_bps": 45000000,
+          "target_kbps": 37500,
+          "level": 41,
+          "bpp": 0.603
+        },
+        {
+          "share": 60,
+          "nominal_bps": 27000000,
+          "target_kbps": 22500,
+          "level": 40,
+          "bpp": 0.362
+        },
+        {
+          "share": 45,
+          "nominal_bps": 20250000,
+          "target_kbps": 16875,
+          "level": 40,
+          "bpp": 0.272
+        },
+        {
+          "share": 30,
+          "nominal_bps": 13500000,
+          "target_kbps": 11250,
+          "level": 40,
+          "bpp": 0.181
+        },
+        {
+          "share": 20,
+          "nominal_bps": 9000000,
+          "target_kbps": 7500,
+          "level": 40,
+          "bpp": 0.121
+        }
+      ]
+    },
+    {
+      "row": 26,
+      "width": 1920,
+      "height": 1080,
+      "depth": 8,
+      "fps": "25000/1000",
+      "tiers": [
+        {
+          "share": 100,
+          "nominal_bps": 45000000,
+          "target_kbps": 37500,
+          "level": 41,
+          "bpp": 0.723
+        },
+        {
+          "share": 60,
+          "nominal_bps": 27000000,
+          "target_kbps": 22500,
+          "level": 40,
+          "bpp": 0.434
+        },
+        {
+          "share": 45,
+          "nominal_bps": 20250000,
+          "target_kbps": 16875,
+          "level": 40,
+          "bpp": 0.326
+        },
+        {
+          "share": 30,
+          "nominal_bps": 13500000,
+          "target_kbps": 11250,
+          "level": 40,
+          "bpp": 0.217
+        },
+        {
+          "share": 20,
+          "nominal_bps": 9000000,
+          "target_kbps": 7500,
+          "level": 40,
+          "bpp": 0.145
+        }
+      ]
+    },
+    {
+      "row": 27,
+      "width": 1920,
+      "height": 1080,
+      "depth": 8,
+      "fps": "24000/1001",
+      "tiers": [
+        {
+          "share": 100,
+          "nominal_bps": 45000000,
+          "target_kbps": 37500,
+          "level": 41,
+          "bpp": 0.754
+        },
+        {
+          "share": 60,
+          "nominal_bps": 27000000,
+          "target_kbps": 22500,
+          "level": 40,
+          "bpp": 0.453
+        },
+        {
+          "share": 45,
+          "nominal_bps": 20250000,
+          "target_kbps": 16875,
+          "level": 40,
+          "bpp": 0.339
+        },
+        {
+          "share": 30,
+          "nominal_bps": 13500000,
+          "target_kbps": 11250,
+          "level": 40,
+          "bpp": 0.226
+        },
+        {
+          "share": 20,
+          "nominal_bps": 9000000,
+          "target_kbps": 7500,
+          "level": 40,
+          "bpp": 0.151
+        }
+      ]
+    },
+    {
+      "row": 28,
+      "width": 7680,
+      "height": 4320,
+      "depth": 10,
+      "fps": "30000/1001",
+      "tiers": [
+        {
+          "share": 100,
+          "nominal_bps": 480000000,
+          "target_kbps": 400000,
+          "level": 61,
+          "bpp": 0.402
+        },
+        {
+          "share": 60,
+          "nominal_bps": 288000000,
+          "target_kbps": 240000,
+          "level": 61,
+          "bpp": 0.241
+        },
+        {
+          "share": 45,
+          "nominal_bps": 216000000,
+          "target_kbps": 180000,
+          "level": 60,
+          "bpp": 0.181
+        },
+        {
+          "share": 30,
+          "nominal_bps": 144000000,
+          "target_kbps": 120000,
+          "level": 60,
+          "bpp": 0.121
+        },
+        {
+          "share": 20,
+          "nominal_bps": 96000000,
+          "target_kbps": 80000,
+          "level": 60,
+          "bpp": 0.08
+        }
+      ]
+    },
+    {
+      "row": 29,
+      "width": 7680,
+      "height": 4320,
+      "depth": 10,
+      "fps": "25000/1000",
+      "tiers": [
+        {
+          "share": 100,
+          "nominal_bps": 480000000,
+          "target_kbps": 400000,
+          "level": 61,
+          "bpp": 0.482
+        },
+        {
+          "share": 60,
+          "nominal_bps": 288000000,
+          "target_kbps": 240000,
+          "level": 61,
+          "bpp": 0.289
+        },
+        {
+          "share": 45,
+          "nominal_bps": 216000000,
+          "target_kbps": 180000,
+          "level": 60,
+          "bpp": 0.217
+        },
+        {
+          "share": 30,
+          "nominal_bps": 144000000,
+          "target_kbps": 120000,
+          "level": 60,
+          "bpp": 0.145
+        },
+        {
+          "share": 20,
+          "nominal_bps": 96000000,
+          "target_kbps": 80000,
+          "level": 60,
+          "bpp": 0.096
+        }
+      ]
+    },
+    {
+      "row": 30,
+      "width": 7680,
+      "height": 4320,
+      "depth": 10,
+      "fps": "24000/1001",
+      "tiers": [
+        {
+          "share": 100,
+          "nominal_bps": 480000000,
+          "target_kbps": 400000,
+          "level": 61,
+          "bpp": 0.503
+        },
+        {
+          "share": 60,
+          "nominal_bps": 288000000,
+          "target_kbps": 240000,
+          "level": 61,
+          "bpp": 0.302
+        },
+        {
+          "share": 45,
+          "nominal_bps": 216000000,
+          "target_kbps": 180000,
+          "level": 60,
+          "bpp": 0.226
+        },
+        {
+          "share": 30,
+          "nominal_bps": 144000000,
+          "target_kbps": 120000,
+          "level": 60,
+          "bpp": 0.151
+        },
+        {
+          "share": 20,
+          "nominal_bps": 96000000,
+          "target_kbps": 80000,
+          "level": 60,
+          "bpp": 0.101
+        }
+      ]
+    },
+    {
+      "row": 31,
+      "width": 3840,
+      "height": 2160,
+      "depth": 10,
+      "fps": "120000/1001",
+      "tiers": [
+        {
+          "share": 100,
+          "nominal_bps": 480000000,
+          "target_kbps": 400000,
+          "level": 61,
+          "bpp": 0.402
+        },
+        {
+          "share": 60,
+          "nominal_bps": 288000000,
+          "target_kbps": 240000,
+          "level": 61,
+          "bpp": 0.241
+        },
+        {
+          "share": 45,
+          "nominal_bps": 216000000,
+          "target_kbps": 180000,
+          "level": 52,
+          "bpp": 0.181
+        },
+        {
+          "share": 30,
+          "nominal_bps": 144000000,
+          "target_kbps": 120000,
+          "level": 52,
+          "bpp": 0.121
+        },
+        {
+          "share": 20,
+          "nominal_bps": 96000000,
+          "target_kbps": 80000,
+          "level": 52,
+          "bpp": 0.08
+        }
+      ]
+    },
+    {
+      "row": 32,
+      "width": 3840,
+      "height": 2160,
+      "depth": 10,
+      "fps": "100000/1000",
+      "tiers": [
+        {
+          "share": 100,
+          "nominal_bps": 480000000,
+          "target_kbps": 400000,
+          "level": 61,
+          "bpp": 0.482
+        },
+        {
+          "share": 60,
+          "nominal_bps": 288000000,
+          "target_kbps": 240000,
+          "level": 61,
+          "bpp": 0.289
+        },
+        {
+          "share": 45,
+          "nominal_bps": 216000000,
+          "target_kbps": 180000,
+          "level": 52,
+          "bpp": 0.217
+        },
+        {
+          "share": 30,
+          "nominal_bps": 144000000,
+          "target_kbps": 120000,
+          "level": 52,
+          "bpp": 0.145
+        },
+        {
+          "share": 20,
+          "nominal_bps": 96000000,
+          "target_kbps": 80000,
+          "level": 52,
+          "bpp": 0.096
+        }
+      ]
+    },
+    {
+      "row": 33,
+      "width": 3840,
+      "height": 2160,
+      "depth": 10,
+      "fps": "60000/1001",
+      "tiers": [
+        {
+          "share": 100,
+          "nominal_bps": 400000000,
+          "target_kbps": 333333,
+          "level": 61,
+          "bpp": 0.67
+        },
+        {
+          "share": 60,
+          "nominal_bps": 240000000,
+          "target_kbps": 200000,
+          "level": 52,
+          "bpp": 0.402
+        },
+        {
+          "share": 45,
+          "nominal_bps": 180000000,
+          "target_kbps": 150000,
+          "level": 52,
+          "bpp": 0.302
+        },
+        {
+          "share": 30,
+          "nominal_bps": 120000000,
+          "target_kbps": 100000,
+          "level": 51,
+          "bpp": 0.201
+        },
+        {
+          "share": 20,
+          "nominal_bps": 80000000,
+          "target_kbps": 66666,
+          "level": 51,
+          "bpp": 0.134
+        }
+      ]
+    },
+    {
+      "row": 34,
+      "width": 3840,
+      "height": 2160,
+      "depth": 10,
+      "fps": "50000/1000",
+      "tiers": [
+        {
+          "share": 100,
+          "nominal_bps": 400000000,
+          "target_kbps": 333333,
+          "level": 61,
+          "bpp": 0.804
+        },
+        {
+          "share": 60,
+          "nominal_bps": 240000000,
+          "target_kbps": 200000,
+          "level": 52,
+          "bpp": 0.482
+        },
+        {
+          "share": 45,
+          "nominal_bps": 180000000,
+          "target_kbps": 150000,
+          "level": 52,
+          "bpp": 0.362
+        },
+        {
+          "share": 30,
+          "nominal_bps": 120000000,
+          "target_kbps": 100000,
+          "level": 51,
+          "bpp": 0.241
+        },
+        {
+          "share": 20,
+          "nominal_bps": 80000000,
+          "target_kbps": 66666,
+          "level": 51,
+          "bpp": 0.161
+        }
+      ]
+    },
+    {
+      "row": 35,
+      "width": 3840,
+      "height": 2160,
+      "depth": 10,
+      "fps": "30000/1001",
+      "tiers": [
+        {
+          "share": 100,
+          "nominal_bps": 225000000,
+          "target_kbps": 187500,
+          "level": 52,
+          "bpp": 0.754
+        },
+        {
+          "share": 60,
+          "nominal_bps": 135000000,
+          "target_kbps": 112500,
+          "level": 51,
+          "bpp": 0.453
+        },
+        {
+          "share": 45,
+          "nominal_bps": 101250000,
+          "target_kbps": 84375,
+          "level": 50,
+          "bpp": 0.339
+        },
+        {
+          "share": 30,
+          "nominal_bps": 67500000,
+          "target_kbps": 56250,
+          "level": 50,
+          "bpp": 0.226
+        },
+        {
+          "share": 20,
+          "nominal_bps": 45000000,
+          "target_kbps": 37500,
+          "level": 50,
+          "bpp": 0.151
+        }
+      ]
+    },
+    {
+      "row": 36,
+      "width": 3840,
+      "height": 2160,
+      "depth": 10,
+      "fps": "25000/1000",
+      "tiers": [
+        {
+          "share": 100,
+          "nominal_bps": 225000000,
+          "target_kbps": 187500,
+          "level": 52,
+          "bpp": 0.904
+        },
+        {
+          "share": 60,
+          "nominal_bps": 135000000,
+          "target_kbps": 112500,
+          "level": 51,
+          "bpp": 0.543
+        },
+        {
+          "share": 45,
+          "nominal_bps": 101250000,
+          "target_kbps": 84375,
+          "level": 50,
+          "bpp": 0.407
+        },
+        {
+          "share": 30,
+          "nominal_bps": 67500000,
+          "target_kbps": 56250,
+          "level": 50,
+          "bpp": 0.271
+        },
+        {
+          "share": 20,
+          "nominal_bps": 45000000,
+          "target_kbps": 37500,
+          "level": 50,
+          "bpp": 0.181
+        }
+      ]
+    },
+    {
+      "row": 37,
+      "width": 3840,
+      "height": 2160,
+      "depth": 10,
+      "fps": "24000/1001",
+      "tiers": [
+        {
+          "share": 100,
+          "nominal_bps": 225000000,
+          "target_kbps": 187500,
+          "level": 52,
+          "bpp": 0.943
+        },
+        {
+          "share": 60,
+          "nominal_bps": 135000000,
+          "target_kbps": 112500,
+          "level": 51,
+          "bpp": 0.566
+        },
+        {
+          "share": 45,
+          "nominal_bps": 101250000,
+          "target_kbps": 84375,
+          "level": 50,
+          "bpp": 0.424
+        },
+        {
+          "share": 30,
+          "nominal_bps": 67500000,
+          "target_kbps": 56250,
+          "level": 50,
+          "bpp": 0.283
+        },
+        {
+          "share": 20,
+          "nominal_bps": 45000000,
+          "target_kbps": 37500,
+          "level": 50,
+          "bpp": 0.189
+        }
+      ]
+    },
+    {
+      "row": 38,
+      "width": 1920,
+      "height": 1080,
+      "depth": 10,
+      "fps": "120000/1001",
+      "tiers": [
+        {
+          "share": 100,
+          "nominal_bps": 225000000,
+          "target_kbps": 187500,
+          "level": 52,
+          "bpp": 0.754
+        },
+        {
+          "share": 60,
+          "nominal_bps": 135000000,
+          "target_kbps": 112500,
+          "level": 51,
+          "bpp": 0.453
+        },
+        {
+          "share": 45,
+          "nominal_bps": 101250000,
+          "target_kbps": 84375,
+          "level": 50,
+          "bpp": 0.339
+        },
+        {
+          "share": 30,
+          "nominal_bps": 67500000,
+          "target_kbps": 56250,
+          "level": 50,
+          "bpp": 0.226
+        },
+        {
+          "share": 20,
+          "nominal_bps": 45000000,
+          "target_kbps": 37500,
+          "level": 50,
+          "bpp": 0.151
+        }
+      ]
+    },
+    {
+      "row": 39,
+      "width": 1920,
+      "height": 1080,
+      "depth": 10,
+      "fps": "100000/1000",
+      "tiers": [
+        {
+          "share": 100,
+          "nominal_bps": 225000000,
+          "target_kbps": 187500,
+          "level": 52,
+          "bpp": 0.904
+        },
+        {
+          "share": 60,
+          "nominal_bps": 135000000,
+          "target_kbps": 112500,
+          "level": 51,
+          "bpp": 0.543
+        },
+        {
+          "share": 45,
+          "nominal_bps": 101250000,
+          "target_kbps": 84375,
+          "level": 50,
+          "bpp": 0.407
+        },
+        {
+          "share": 30,
+          "nominal_bps": 67500000,
+          "target_kbps": 56250,
+          "level": 50,
+          "bpp": 0.271
+        },
+        {
+          "share": 20,
+          "nominal_bps": 45000000,
+          "target_kbps": 37500,
+          "level": 50,
+          "bpp": 0.181
+        }
+      ]
+    },
+    {
+      "row": 40,
+      "width": 1920,
+      "height": 1080,
+      "depth": 10,
+      "fps": "60000/1001",
+      "tiers": [
+        {
+          "share": 100,
+          "nominal_bps": 112000000,
+          "target_kbps": 93333,
+          "level": 51,
+          "bpp": 0.751
+        },
+        {
+          "share": 60,
+          "nominal_bps": 67200000,
+          "target_kbps": 56000,
+          "level": 50,
+          "bpp": 0.451
+        },
+        {
+          "share": 45,
+          "nominal_bps": 50400000,
+          "target_kbps": 42000,
+          "level": 41,
+          "bpp": 0.338
+        },
+        {
+          "share": 30,
+          "nominal_bps": 33600000,
+          "target_kbps": 28000,
+          "level": 41,
+          "bpp": 0.225
+        },
+        {
+          "share": 20,
+          "nominal_bps": 22400000,
+          "target_kbps": 18666,
+          "level": 41,
+          "bpp": 0.15
+        }
+      ]
+    },
+    {
+      "row": 41,
+      "width": 1920,
+      "height": 1080,
+      "depth": 10,
+      "fps": "50000/1000",
+      "tiers": [
+        {
+          "share": 100,
+          "nominal_bps": 112000000,
+          "target_kbps": 93333,
+          "level": 51,
+          "bpp": 0.9
+        },
+        {
+          "share": 60,
+          "nominal_bps": 67200000,
+          "target_kbps": 56000,
+          "level": 50,
+          "bpp": 0.54
+        },
+        {
+          "share": 45,
+          "nominal_bps": 50400000,
+          "target_kbps": 42000,
+          "level": 41,
+          "bpp": 0.405
+        },
+        {
+          "share": 30,
+          "nominal_bps": 33600000,
+          "target_kbps": 28000,
+          "level": 41,
+          "bpp": 0.27
+        },
+        {
+          "share": 20,
+          "nominal_bps": 22400000,
+          "target_kbps": 18666,
+          "level": 41,
+          "bpp": 0.18
+        }
+      ]
+    },
+    {
+      "row": 42,
+      "width": 1920,
+      "height": 1080,
+      "depth": 10,
+      "fps": "30000/1001",
+      "tiers": [
+        {
+          "share": 100,
+          "nominal_bps": 56000000,
+          "target_kbps": 46666,
+          "level": 50,
+          "bpp": 0.751
+        },
+        {
+          "share": 60,
+          "nominal_bps": 33600000,
+          "target_kbps": 28000,
+          "level": 41,
+          "bpp": 0.451
+        },
+        {
+          "share": 45,
+          "nominal_bps": 25200000,
+          "target_kbps": 21000,
+          "level": 40,
+          "bpp": 0.338
+        },
+        {
+          "share": 30,
+          "nominal_bps": 16800000,
+          "target_kbps": 14000,
+          "level": 40,
+          "bpp": 0.225
+        },
+        {
+          "share": 20,
+          "nominal_bps": 11200000,
+          "target_kbps": 9333,
+          "level": 40,
+          "bpp": 0.15
+        }
+      ]
+    },
+    {
+      "row": 43,
+      "width": 1920,
+      "height": 1080,
+      "depth": 10,
+      "fps": "25000/1000",
+      "tiers": [
+        {
+          "share": 100,
+          "nominal_bps": 56000000,
+          "target_kbps": 46666,
+          "level": 50,
+          "bpp": 0.9
+        },
+        {
+          "share": 60,
+          "nominal_bps": 33600000,
+          "target_kbps": 28000,
+          "level": 41,
+          "bpp": 0.54
+        },
+        {
+          "share": 45,
+          "nominal_bps": 25200000,
+          "target_kbps": 21000,
+          "level": 40,
+          "bpp": 0.405
+        },
+        {
+          "share": 30,
+          "nominal_bps": 16800000,
+          "target_kbps": 14000,
+          "level": 40,
+          "bpp": 0.27
+        },
+        {
+          "share": 20,
+          "nominal_bps": 11200000,
+          "target_kbps": 9333,
+          "level": 40,
+          "bpp": 0.18
+        }
+      ]
+    },
+    {
+      "row": 44,
+      "width": 1920,
+      "height": 1080,
+      "depth": 10,
+      "fps": "24000/1001",
+      "tiers": [
+        {
+          "share": 100,
+          "nominal_bps": 56000000,
+          "target_kbps": 46666,
+          "level": 50,
+          "bpp": 0.939
+        },
+        {
+          "share": 60,
+          "nominal_bps": 33600000,
+          "target_kbps": 28000,
+          "level": 41,
+          "bpp": 0.563
+        },
+        {
+          "share": 45,
+          "nominal_bps": 25200000,
+          "target_kbps": 21000,
+          "level": 40,
+          "bpp": 0.422
+        },
+        {
+          "share": 30,
+          "nominal_bps": 16800000,
+          "target_kbps": 14000,
+          "level": 40,
+          "bpp": 0.282
+        },
+        {
+          "share": 20,
+          "nominal_bps": 11200000,
+          "target_kbps": 9333,
+          "level": 40,
+          "bpp": 0.188
+        }
+      ]
+    }
+  ]
+}

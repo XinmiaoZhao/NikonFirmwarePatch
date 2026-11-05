@@ -47,6 +47,14 @@ static int gtag(greader *r,uint32_t base,uint32_t limit,uint32_t ifd,uint16_t ta
         }
     }return found?0:PSM_BAD_NEF;
 }
+/* PS12: 0x0056 bytes 4-7 name the first file of the burst, the same word in every frame of a group (ExifTool
+   MakerNotes0x56 BurstStart*): bit 29 = slot - 1, bits 19-28 folder, bits 5-18 file number, bits 0-4 file type
+   (2 = NEF; pixel shift records RAW only). PS3-PS11 compared its low half with 0x0022 (file 1 of a NEF burst), which
+   refused every group whose first file number is not 1 mod 2048 (issue #17: 102NCZ_8/DSC_2841 gives 0x03316322). */
+static int gstart(uint32_t v) {
+    uint32_t folder=(v>>19)&0x3FFu,file=(v>>5)&0x3FFFu;
+    return !(v&0xC0000000u)&&folder>=100&&folder<=999&&file>=1&&file<=9999&&(v&0x1Fu)==2;
+}
 /* PS7: identity bit 1 = a Z 8 NEF; bit 2 = count, index, group, start, serial and time are known, so a later
    refusal belongs to that group. The checks are PS6's; serial and time are read before the checks of one frame. */
 int psm_probe_metadata(const psm_platform *p,int fd,uint32_t size,psm_metadata *m,void *cache) {
@@ -79,10 +87,10 @@ int psm_probe_metadata(const psm_platform *p,int fd,uint32_t size,psm_metadata *
     /* PS6: modes 1-4 = 4, 8, 16, 32 shots. The frame index is 0x0056's (1..n). 0x005E numbers the place in its
        pass, pass * 16 + place: an 8-shot group's second pass is 17-20 (299NCZ_8), a 32-shot group's 17-32. */
     m->count=4u<<(b[4]-1);uint32_t place=b[5];
-    if(gtag(&r,base,limit,mifd,0x56,7,16,b)||!geq(b,"0100",4)||g16(b+4)!=0x22||g32(b+12)!=1)return PSM_BAD_GROUP;
+    if(gtag(&r,base,limit,mifd,0x56,7,16,b)||!geq(b,"0100",4)||!gstart(g32(b+4))||g32(b+12)!=1)return PSM_BAD_GROUP;
     m->index=g32(b+8);
     if(!m->index||m->index>m->count)return PSM_BAD_GROUP;
-    m->group=g16(b+6);
+    m->group=g32(b+4);   /* PS12: the whole start-file word; PS3-PS11 kept its high half (slot and folder) */
     if(gtag(&r,base,limit,mifd,0xa7,4,1,b)||g32(b)<m->index)return PSM_BAD_GROUP;
     m->start=g32(b)-m->index+1;
     if(gtag(&r,base,limit,mifd,0x1d,2,8,m->serial)||gtag(&r,0,size,exif,0x9003,2,20,m->time)||m->time[19])

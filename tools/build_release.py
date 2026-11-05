@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Package committed source and four reviewed original patch units; never reads firmware."""
+"""Package committed source and nine reviewed original patch units; never reads firmware."""
 import argparse,hashlib,json,re,subprocess,sys,zipfile
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[1];sys.path.insert(0,str(ROOT))

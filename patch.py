@@ -19,7 +19,7 @@ def main():
     ap.add_argument('--version', help='Output version NN.NN; choose a distinct identity for a different feature set')
     ap.add_argument('--tag', default='p0', help='Internal revision suffix: lowercase letter plus digit; default p0')
     group = ap.add_mutually_exclusive_group()
-    group.add_argument('--features', nargs='+', choices=FEATURES, help='Any nonempty subset of the four features; default prores')
+    group.add_argument('--features', nargs='+', choices=FEATURES, help='Explicit nonempty selection of the four feature groups')
     group.add_argument('--interactive', action='store_true', help='Choose one or more of the four features')
     ap.add_argument('--code-source', choices=['prebuilt', 'source'], default='prebuilt',
                     help='Native patch code: reviewed prebuilt Release bytes (default), or explicitly compile from source')
@@ -33,12 +33,13 @@ def main():
     if a.check and (a.output or a.version or a.tag != 'p0' or a.interactive or a.compiler or a.code_source != 'prebuilt'):
         ap.error('--check cannot be combined with output options')
     if a.interactive:
-        print('1: ProRes quality / ProRes 画质\n2: RAW pre-capture / RAW 预拍摄\n3: Pixel shift merge / 像素偏移合成\n4: Open gate + N-RAW quality / 开放门＋N-RAW 四档\n5: All / 全选')
+        print('1: Framing / 开放门＋反挤压＋N-RAW 四档\n2: Video quality / ProRes＋H.265 品质\n3: Log colour / Log 色彩\n4: Photo tools / RAW 预拍＋像素偏移\n5: All / 全选')
         choice=input('Select numbers separated by commas / 用逗号分隔 [1,2,3,4 or 5]: ').strip()
         parts=[v.strip() for v in choice.split(',')]
         require(parts and len(parts)==len(set(parts)) and (parts==['5'] or all(p in ('1','2','3','4') for p in parts)), 'Select 1,2,3,4 or 5 for all')
         a.features=list(FEATURES) if parts==['5'] else [FEATURES[int(p)-1] for p in parts]
-    selected = a.features or ['prores']
+    require(a.check or a.features, 'Choose --features or --interactive explicitly')
+    selected = a.features or list(FEATURES)
     require(a.firmware.is_file(), 'Input must be a regular firmware file')
     require(a.firmware.stat().st_size == PACKAGE_BYTES, 'Unsupported firmware length')
     if not a.check:
@@ -68,7 +69,9 @@ def main():
         try:
             commit=subprocess.check_output(['git','-C',str(root),'rev-parse','HEAD'],stderr=subprocess.DEVNULL,text=True).strip()
             dirty=subprocess.check_output(['git','-C',str(root),'status','--porcelain'],stderr=subprocess.DEVNULL,text=True)
-            provenance.update(source_commit=commit,source_tree_clean=not dirty.strip())
+            top=subprocess.check_output(['git','-C',str(root),'rev-parse','--show-toplevel'],stderr=subprocess.DEVNULL,text=True).strip()
+            if Path(top).resolve()==root.resolve():
+                provenance.update(source_commit=commit,source_tree_clean=not dirty.strip())
         except (OSError,subprocess.CalledProcessError):
             pass
     report.update(provenance=provenance, status='BUILT_AND_LOCALLY_VERIFIED', input_sha256=package.sha256,
@@ -77,15 +80,15 @@ def main():
                   input_modules=package.modules, output_modules=checked.modules,
                   source_hashes={str(p.relative_to(Path(__file__).resolve().parent)): sha(p.read_bytes())
                                  for p in sorted(Path(__file__).resolve().parent.rglob('*'))
-                                 if p.is_file() and p.suffix in ('.py','.c','.h','.inc','.S','.json')
+                                 if p.is_file() and p.suffix in ('.py','.c','.h','.inc','.S','.json','.png')
                                  and not any(x in p.relative_to(Path(__file__).resolve().parent).parts for x in ('.git','build','local_data','.venv','venv','__pycache__'))},
                   independent_verification=independent,
                   scope='Selected features plus their declared shared resources, identity and checksums only; this newly generated combination requires camera testing')
-    if 'precapture' in selected:
+    if 'photo-tools' in selected:
         report['capture_control'] = dict(control='camera-menu', configuration_required=False,
                                         history_ceiling=30, c15=True, c30=True,
-                                        raw_compression=['HE', 'HE-star'],
-                                        diagnostic_footer=False, budget_us=1500000, space_refusal_fallback='stock JPEG only', remaining_count='NEF-aware plus ordinary JPEG grade/star estimate for eligible FX/L frames; release admission/overflow still use stock JPEG plan')
+                                        raw_compression=['HE', 'HE-star'], dx=True, lossless_fallback='HE-star',
+                                        diagnostic_footer=False, budget_us=1500000, space_refusal_fallback='stock JPEG only', remaining_count='NEF-aware plus ordinary JPEG grade/star estimate for eligible FX/DX/L frames; release admission/overflow still use stock JPEG plan')
     # Create only after validation. Exclusive creation never replaces input or an earlier build.
     # On I/O failure the directory is kept, without a successful manifest, for inspection.
     a.output.mkdir(parents=True, exist_ok=False)

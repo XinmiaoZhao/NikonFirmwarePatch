@@ -71,13 +71,13 @@ def verify_pair(original, candidate, features=None, *, expected_version=None, ex
     need(a[:112] == b[:112] and a[128:581844] == b[128:581844] and
          a[82389555:-16] == b[82389555:-16], 'Non-EG module or header changed')
     old, new = a[581844:82389555], b[581844:82389555]
-    order=('prores','precapture','pixelshift','opengate-nraw')
+    order=('framing','video-quality','log-colour','photo-tools')
     recipes=json.loads((HERE/'resources/combinations.json').read_text())
     need(recipes['schema']==2,'Unsupported recipe schema')
     profiles=recipes['profiles']
     if features is None:
         features=[]
-        for name,offset in [('prores',0xBBEB88),('precapture',0xE0FE90),('pixelshift',0x479714),('opengate-nraw',0x62E150)]:
+        for name,offset in [('framing',0x62E150),('video-quality',0x1C5D48),('log-colour',0xFBA508),('photo-tools',0xE0FE90)]:
             if old[offset:offset+4]!=new[offset:offset+4]:features.append(name)
     need(features and len(features)==len(set(features)) and set(features)<=set(order),'Invalid feature selection')
     features=[f for f in order if f in features]
@@ -112,7 +112,9 @@ def verify_pair(original, candidate, features=None, *, expected_version=None, ex
         need(end <= lo and old[end:lo] == new[end:lo], 'Overlapping edits or change outside declared windows')
         end = hi
     need(old[end:] == new[end:], 'Unlisted final change')
-    return dict(status='PASS', input_sha256=sha(original), output_sha256=sha(candidate),
+    from z8patch.contract import verify_contract
+    contract=verify_contract(old,new,features)
+    return dict(status='PASS',composition_contract=contract, input_sha256=sha(original), output_sha256=sha(candidate),
                 output_identity=identity.decode(), features=sorted(features), patch_matches_reviewed_profile=True,
                 official_input_verified=True, requested_identity_checked=expected_version is not None,
                 requested_features_checked=requested_features,
@@ -124,7 +126,7 @@ def main():
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument('original',type=Path)
     ap.add_argument('candidate',type=Path)
-    ap.add_argument('--features', nargs='+', choices=['prores','precapture','pixelshift','opengate-nraw'], help='Expected new features; otherwise detect changed entry hooks')
+    ap.add_argument('--features', nargs='+', choices=['framing','video-quality','log-colour','photo-tools'], help='Expected new features; otherwise detect changed entry hooks')
     ap.add_argument('--version', help='Expected output version NN.NN; otherwise check identity consistency only')
     ap.add_argument('--tag', help='Expected output tag; requires --version; default p0 when --version is set')
     a = ap.parse_args()
