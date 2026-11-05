@@ -83,6 +83,8 @@ python patch.py Z_8_0311.bin --features framing --version 04.06 --tag p0 --outpu
 
 # 全选四组，版本号用于标识本次输出。
 python patch.py Z_8_0311.bin --features framing video-quality log-colour photo-tools --version 04.06 --tag p0 --output build/all
+# v0.4.0-rc.2 四组全选、版本 04.06、tag p0：build/all/Z_8_0406.bin 的 SHA-256
+# 4deca457f0e3af1ea858e53db55ce4946cd99d916c663304e351047c049d2a63
 
 # 交互选择四组；预编译工具包默认不调用编译器。
 python patch.py Z_8_0311.bin --interactive --version 04.06 --tag p0 --output build/chosen
@@ -188,6 +190,8 @@ python patch.py Z_8_0311.bin --features framing --version 04.06 --tag p0 --outpu
 
 # Build all four groups; the version identifies the output.
 python patch.py Z_8_0311.bin --features framing video-quality log-colour photo-tools --version 04.06 --tag p0 --output build/all
+# SHA-256 of build/all/Z_8_0406.bin with v0.4.0-rc.2, all four groups, version 04.06 and tag p0
+# 4deca457f0e3af1ea858e53db55ce4946cd99d916c663304e351047c049d2a63
 
 # Choose groups interactively; prebuilt mode runs without a compiler.
 python patch.py Z_8_0311.bin --interactive --version 04.06 --tag p0 --output build/chosen
