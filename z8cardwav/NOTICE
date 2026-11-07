@@ -1,0 +1,20 @@
+Z9 mark2 source-only patch toolkit
+Copyright (C) 2026 s3lemming and contributors
+SPDX-License-Identifier: GPL-3.0-or-later
+
+The C integrations, offline tools and synthetic tests are newly authored project
+code. Recovered ABI addresses and structural descriptions target Z9 firmware 5.32.
+No Nikon firmware source, firmware image, extracted resource, private format
+material, or device readback is licensed or distributed by this repository.
+
+Design reference: https://github.com/XinmiaoZhao/NikonFirmwarePatch
+Reviewed revision: 1a60fc00ff082b6ccc346db0df626662308b3974
+No implementation code or private format material from that project is included.
+The LICENSE file is the standard GNU GPL version 3 text.
+
+Python, NumPy, GCC and GNU binutils are external dependencies and retain their
+respective licenses. Nikon and Z9 are names used to identify compatibility;
+this independent project is not affiliated with or endorsed by Nikon.
+
+Local Z8 C3.11 port: recovered Z8 interfaces, native event/state mappings, 36-language custom labels, common synchronous callback epilogue, bounded BSS extension and integration builder.
+Original project does not endorse or qualify this port.
