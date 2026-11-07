@@ -133,7 +133,7 @@ if '--staged-only' not in sys.argv:
  passed('native_menu_scan_import_1500ms_and_profile_write_readback')
  # New labels work in all 36 languages through the patched native text resolver.
  for language in range(36):
-  a.call(0x4032e130,language,0xc55,RAM+0x4000,RAM+0x4010);ptr=a.r64(RAM+0x4000);size=a.r32(RAM+0x4010)
+  a.call(0x4032e130,language,0xD01,RAM+0x4000,RAM+0x4010);ptr=a.r64(RAM+0x4000);size=a.r32(RAM+0x4010)
   assert bytes(a.u.mem_read(ptr,size)).decode('utf-16le')=='tone.wav'
  a.call('mark2_outer_type_text',0x42b2f692,0,70);assert a.draw[-1]=='CUS'
  passed('patched_text_resolver_all_36_languages_and_CUS')
@@ -289,14 +289,14 @@ if '--staged-only' not in sys.argv:
   assert f.field('selected')==0 and f.field('attempts',True)==4
   assert f.field('confirm_retries',True)==1 and f.field('confirm_mismatches',True)==2
   assert f.field('import_status',True)==14 and not any(e[0]=='bind' for e in f.events)
-  f.call('mark2_picker_label',0,0xc54,RAM+0x4000,RAM+0x4010)
+  f.call('mark2_picker_label',0,0xD00,RAM+0x4000,RAM+0x4010)
   assert bytes(f.u.mem_read(f.r64(RAM+0x4000),f.r32(RAM+0x4010))).decode('utf-16le')==('WAV diff 01 @000000' if STAGED else 'WAV mismatch - retry')
   passed('persistent_mismatch_stops_after_four_imports_with_specific_error')
   # A first-pass read error is not silently replaced by a later successful pair.
   f=Lab();f.files[r'A:\CUSTOM_SOUND\tone.wav']=wav()[0];f.select(5);f.read_fail=True;f.select(6)
   assert f.field('attempts',True)==1 and f.field('confirm_stage',True)==1
   assert f.field('confirm_error',True)==4 and f.field('selected')==0
-  f.call('mark2_picker_label',0,0xc54,RAM+0x4000,RAM+0x4010)
+  f.call('mark2_picker_label',0,0xD00,RAM+0x4000,RAM+0x4010)
   assert bytes(f.u.mem_read(f.r64(RAM+0x4000),f.r32(RAM+0x4010))).decode('utf-16le')=='WAV read failed - retry'
   passed('first_read_error_keeps_native_selection_and_reports_read_failure')
 

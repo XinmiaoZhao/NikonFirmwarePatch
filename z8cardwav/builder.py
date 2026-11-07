@@ -13,6 +13,11 @@ from pathlib import Path
 ROOT=Path(__file__).resolve().parent
 EXPECTED_MODULE='f85e0138e2f5e660ece8560de62e0d12cb795e0e14983e50f20b61dce906c46c'
 EXPECTED_PAYLOAD=None
+# Picker label IDs intercepted in the stock text resolver. Must stay disjoint
+# from feature string IDs (z8patch/shared.py STRING_IDS..STRING_END); the
+# disjointness is pinned by tests/test_cardwav_ids.py.
+WAV_LABEL_BASE=0xD00
+WAV_LABEL_COUNT=21
 UNIT=ROOT.parent/'resources'/'cardwav.json'
 # Hook slots that replay one original instruction: slot label -> source VA.
 DISPLACED={'api':0x40e3133c,'pcm':0x40d23c4c,'flags':0x40f9c5cc,'terminal':0x40f9cda0,'fast_timer':0x40f9cc64,'composite':0x40f9cfa4,'cxx_stop':0x40f9d00c,'notice_sync_end':0x40e35420,'notice_async_end':0x40e35590,'label':0x4032e130}
@@ -48,7 +53,7 @@ def build(module,output,base_module=None,llvm=None,tail=b'Ver.04.12.p0\0',code_s
 
     def append(blob,align=16):
      b.extend(bytes(-len(b)%align));p=len(b);b.extend(blob);return BASE+p
-    rows=orig[0x43d64d94-BASE:0x43d64d94-BASE+5*44];new=bytearray(rows[-44:]);struct.pack_into('<H',new,0,0xc54);struct.pack_into('<I',new,24,0x7e20)
+    rows=orig[0x43d64d94-BASE:0x43d64d94-BASE+5*44];new=bytearray(rows[-44:]);struct.pack_into('<H',new,0,WAV_LABEL_BASE);struct.pack_into('<I',new,24,0x7e20)
     rp=append(rows+new);ep=append(orig[0x43d64e70-BASE:0x43d64e70-BASE+40]+21*orig[0x43d64e70-BASE:0x43d64e70-BASE+8])
     patch(0xa028cb040,struct.pack('<Q',rp),'Sound rows: five originals byte-identical plus Load WAV from card')
     patch(0xa028cb048,struct.pack('<Q',ep),'26 original-compatible event bindings; 20 displayed files')
@@ -94,7 +99,7 @@ def build(module,output,base_module=None,llvm=None,tail=b'Ver.04.12.p0\0',code_s
     asm += [f'.quad notice_slot_{i}'for i in range(64)]
     label_word=struct.unpack_from('<I',orig,0x4032e130-BASE)[0]
     asm += ['.section .text.labels,"ax"','.global mark2_discovery_label','mark2_discovery_label:',
-     'cmp w1,#0xc54','b.lo 3f','cmp w1,#0xc69','b.lo mark2_picker_label','3:',
+     f'cmp w1,#{WAV_LABEL_BASE:#x}','b.lo 3f',f'cmp w1,#{WAV_LABEL_BASE+WAV_LABEL_COUNT:#x}','b.lo mark2_picker_label','3:',
      'displaced_label:',f'.inst {label_word}','b native_text_continue']
     (O/'hooks.S').write_text('\n'.join(asm)+'\n')
     (O/'layout.ld').write_text('continue_notice_sync_end = 0x40e35424; continue_notice_async_end = 0x40e35594; native_text_continue = 0x4032e134; continue_composite = 0x40f9cfa8; continue_cxx_stop = 0x40f9d010; continue_api = 0x40e31340; continue_pcm = 0x40d23c50; continue_flags = 0x40f9c5d0; continue_terminal = 0x40f9cda4; continue_fast_timer = 0x40f9cc68; SECTIONS { . = 0x44f6c000; .text : { *(.text*) } .rodata : { *(.rodata*) } /DISCARD/ : { *(.comment) *(.eh_frame*) *(.note*) } }\n')

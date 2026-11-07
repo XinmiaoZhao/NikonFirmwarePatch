@@ -25,7 +25,7 @@
     },
     "picker.c": {
       "original_sha256": "8dc9e9cdc6d49ce2227c9f22cb6c2a280382383cd780031226609079516bb76b",
-      "adapted_sha256": "0d99bd26f034997ebd59d6d7c0c13eb28794cfda1bf227f47dfb14d1e14031bc",
+      "adapted_sha256": "87cd360d4e143454cced9936f3474f872f024b2b78026cf3b96cb93965db8ff1",
       "modified": true
     },
     "profile.c": {

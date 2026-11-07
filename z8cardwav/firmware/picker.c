@@ -351,7 +351,7 @@ static void publish_rows(void){
  for(uint32_t i=0;i<5*44;i++)((uint8_t *)p->rows)[i]=builtin[i];
  for(uint32_t r=5;r<6+p->count;r++){
   for(uint32_t i=0;i<44;i++)p->rows[r][i]=builtin[4*44+i];
-  *(uint16_t *)p->rows[r]=(uint16_t)(r==5?0xc54:0xc55+r-6);
+  *(uint16_t *)p->rows[r]=(uint16_t)(r==5?0xD00:0xD01+r-6);
   *(uint32_t *)(p->rows[r]+24)=r==5?0x7e20:0x7e21+r-6;
  }
  *(uint8_t **)(HOLDER+0x10)=(uint8_t *)p->rows;*(uint16_t *)(HOLDER+0x20)=(uint16_t)(6+p->count);
@@ -423,7 +423,7 @@ void mark2_outer_type_text(const char *text,uint32_t slot,uint32_t label){
  FN(0x403f2920,void(*)(const char *,uint32_t,uint32_t))(text,slot,label);
 }
 void mark2_picker_label(uint32_t language,uint32_t label,const uint16_t **out,uint32_t *bytes){
- if(label==0xc54){
+ if(label==0xD00){
   static const uint16_t scan[]={'L','o','a','d',' ','W','A','V',' ','f','r','o','m',' ','c','a','r','d'};
   static const uint16_t fail[]={'S','a','v','e',' ','f','a','i','l','e','d',' ','-',' ','c','h','e','c','k',' ','c','a','r','d'};
   if(language>=36){*out=0;*bytes=0;return;}
@@ -462,7 +462,7 @@ void mark2_picker_label(uint32_t language,uint32_t label,const uint16_t **out,ui
    else{*out=loadfail;*bytes=sizeof loadfail;}
   }else{*out=K->persist_status?fail:scan;*bytes=K->persist_status?sizeof fail:sizeof scan;}return;
  }
- uint32_t i=label-0xc55;
+ uint32_t i=label-0xD01;
  if(language<36 && i<K->count){*out=K->files[i].label;*bytes=K->label_bytes[i];}
  else{*out=0;*bytes=0;}
 }
