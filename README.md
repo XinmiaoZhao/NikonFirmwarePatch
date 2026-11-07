@@ -88,7 +88,15 @@ python patch.py Z_8_0311.bin --features framing video-quality log-colour photo-t
 
 # 交互选择四组；预编译工具包默认不调用编译器。
 python patch.py Z_8_0311.bin --interactive --version 04.06 --tag p0 --output build/chosen
+
+# 在任意功能组合上叠加卡内 WAV 自定义快门声（WAV 要求与行为见 docs/card-wav.md）。
+python card_wav.py Z_8_0311.bin --features framing video-quality log-colour photo-tools --version 04.07 --tag w0 --output build/all-wav
+
+# 仅快门声，不含四组功能。
+python card_wav.py Z_8_0311.bin --wav-only --version 04.07 --tag w0 --output build/wav
 ```
+
+快门声叠加建议使用 `w` 族标签；其 `--code-source` 只作用于快门声单元（默认预编译零槽单元，无需编译器；源码模式钉定 LLVM 19.1.7）。四组功能基底始终使用评审过的预编译单元。
 
 构建输出为 `.bin`、`manifest.json` 和 `SHA256SUMS.txt`。输出目录必须不存在；输入原件不会被覆盖。本页各命令统一用 04.06 演示。不同功能组合可能使用相同文件名；保留各自的输出目录，按 manifest 中的功能清单和 SHA-256 区分。实际上机时建议给不同内容分配不同身份。`00.xx.t0` 仅用于离线测试，不能作为上机包。
 
@@ -195,7 +203,15 @@ python patch.py Z_8_0311.bin --features framing video-quality log-colour photo-t
 
 # Choose groups interactively; prebuilt mode runs without a compiler.
 python patch.py Z_8_0311.bin --interactive --version 04.06 --tag p0 --output build/chosen
+
+# Stack the card WAV custom shutter sound on any feature combination (see docs/card-wav.md).
+python card_wav.py Z_8_0311.bin --features framing video-quality log-colour photo-tools --version 04.07 --tag w0 --output build/all-wav
+
+# Card WAV only, without the four feature groups.
+python card_wav.py Z_8_0311.bin --wav-only --version 04.07 --tag w0 --output build/wav
 ```
+
+WAV-inclusive builds use the `w` tag family. `--code-source` applies to the card WAV unit only (the default prebuilt zero-slot unit needs no compiler; source mode is pinned to LLVM 19.1.7). The four-group base always uses the reviewed prebuilt units.
 
 Each build produces a firmware `.bin`, `manifest.json` and `SHA256SUMS.txt`. Choose an output directory that does not already exist. The original input is preserved. All examples use 04.06. Different selections can therefore produce the same filename. Keep their output directories separate and identify each package by the feature list and SHA-256 in its manifest. Assign distinct identities to different packages for camera use. Reserve `00.xx.t0` for offline testing.
 
@@ -240,5 +256,6 @@ Original source and compiled patches use GPL-3.0-only. Nikon firmware retains it
 - [@YouKakou（时雨）](https://github.com/YouKakou)：开展 Log3G10 色彩的基础探索。 Foundational exploration of Log3G10 colour.
 - [@ShiSheng233（锂化溴）](https://github.com/ShiSheng233)：提供开放门的思路、框架及相关参考实现。 Open-gate ideas, implementation framework and reference implementation.
 - [@aoyukkk（傲宇）](https://github.com/aoyukkk)、[@South-Bridge（琴岛唯一指定哥布林）](https://github.com/South-Bridge)和“追晚霞的流浪汉”：协助开发、开展实机测试并反馈问题。 Development assistance, camera testing and feedback.
+- [@PIPA12344（ZengXu）](https://github.com/PIPA12344)与 [s3lemming](https://github.com/s3lemming)：卡内 WAV 快门声的 Z9 原始实现、Z8 移植与 04.23 整合验证。 Z9 ancestor implementation, Z8 port and 04.23 integration of the card WAV shutter sound.
 
 感谢 [RdWing/z8-qemu](https://github.com/RdWing/z8-qemu)、[WonderLantern/z9-qemu](https://github.com/WonderLantern/z9-qemu)、[WonderLantern/z7-qemu](https://github.com/WonderLantern/z7-qemu)与 [QEMU](https://www.qemu.org/) 的基础工作。We thank these emulator projects for the underlying models, tools and protocol references. See [NOTICE](NOTICE.md) for dependency credits and licensing.
