@@ -2,6 +2,7 @@
 """Card WAV stacked builds and integrity failures using an external stock fixture."""
 import argparse
 import binascii
+import itertools
 import json
 import sys
 import tempfile
@@ -45,20 +46,38 @@ def main():
 
     with tempfile.TemporaryDirectory() as tmp:
         keep = Path(tmp) / 'keep'
+        from z8cardwav.stack import unpack
 
-        # One feature combo plus WAV, prebuilt unit.
+        # Full matrix: 15 feature combinations plus WAV, prebuilt unit.
+        import time
+        for bits in itertools.product((False, True), repeat=4):
+            names = [f for f, on in zip(FEATURES, bits) if on]
+            if not names:
+                continue
+            t0 = time.time()
+            mpacket, mmeta = build_stacked(original, names, '00.00', 't0',
+                                           code_source='prebuilt', llvm=a.llvm_bin, keep=None)
+            mverified = verify_stacked(original, mpacket, names, '00.00', 't0',
+                                       code_source='prebuilt', llvm=a.llvm_bin)
+            need(mverified['status'] == 'PASS', 'Stacked verification failed for ' + '+'.join(names))
+            need(mmeta['base_features'] == names and mmeta['card_wav']['confirmed_import'], 'Meta mismatch')
+            need(mmeta['card_wav']['module_bytes'] > STOCK_LEN, 'Module did not grow')
+            rows.append(dict(test='+'.join(names) + '+card-wav', result='PASS',
+                             payload_sha256=mmeta['payload_sha256'], package_sha256=sha(mpacket)))
+            print('+'.join(names) + '+card-wav: PASS (%.1fs)' % (time.time() - t0), flush=True)
+
+        # Detailed controls against the photo-tools packet.
         packet, meta = build_stacked(original, ['photo-tools'], '00.00', 't0',
                                      code_source='prebuilt', llvm=a.llvm_bin, keep=keep / 'a')
         verified = verify_stacked(original, packet, ['photo-tools'], '00.00', 't0',
                                   code_source='prebuilt', llvm=a.llvm_bin)
         need(verified['status'] == 'PASS', 'Stacked verification failed')
-        from z8cardwav.stack import unpack
         stacked_eg = unpack(pkg, packet, 'eg2070_0000t0.bi')
         stacked_len = len(stacked_eg)
         need(stacked_len > STOCK_LEN, 'Stacked module did not grow')
         need(meta['card_wav']['module_bytes'] > STOCK_LEN, 'Reported module length did not grow')
         need(meta['base_features'] == ['photo-tools'] and meta['card_wav']['confirmed_import'], 'Meta mismatch')
-        rows.append(dict(test='photo-tools+card-wav prebuilt', result='PASS',
+        rows.append(dict(test='photo-tools+card-wav prebuilt (detailed)', result='PASS',
                          payload_sha256=sha(stacked_eg), package_sha256=sha(packet)))
         print('photo-tools+card-wav: PASS', flush=True)
 
@@ -71,6 +90,16 @@ def main():
         need(wav_meta['base_features'] == [], 'WAV-only base features mismatch')
         rows.append(dict(test='card-wav-only prebuilt', result='PASS', package_sha256=sha(wav_only)))
         print('card-wav-only: PASS', flush=True)
+
+        # Source/prebuilt parity for all features plus WAV under the pinned LLVM.
+        t0 = time.time()
+        src_packet, _ = build_stacked(original, list(FEATURES), '00.00', 't0',
+                                      code_source='source', llvm=a.llvm_bin, keep=keep / 'src')
+        pre_packet, _ = build_stacked(original, list(FEATURES), '00.00', 't0',
+                                      code_source='prebuilt', llvm=a.llvm_bin, keep=keep / 'pre')
+        need(src_packet == pre_packet, 'Source/prebuilt stacked package mismatch')
+        rows.append(dict(test='all features+card-wav source/prebuilt equivalence', result='PASS'))
+        print('all features+card-wav source/prebuilt equivalence: PASS (%.1fs)' % (time.time() - t0), flush=True)
 
         # Negative controls.
         rows.append(reject('patched input', lambda: build_stacked(packet, ['photo-tools'], '00.00', 't0')))

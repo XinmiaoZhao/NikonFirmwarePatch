@@ -50,6 +50,10 @@ SCREENSHOTS.update({
 # Exact public colour-transform asset; never a general exemption for .cube inputs.
 PUBLIC_LUT = "luts/RWG_Log3G10_F_v1_65.cube"
 PUBLIC_LUT_SHA = "2862a0c6ee17f73d9e83fcee04a706413742b00d53bc538d224a6a70bb3f93da"
+# Reviewed zero-slot card WAV unit: every displaced-instruction slot ships blank
+# and is filled from the user's firmware at build time. Hash mirrors resources/cardwav.json.
+CARDWAV_UNIT = "resources/cardwav.bin"
+CARDWAV_UNIT_SHA = "369acfa607adcfb1b2b68b16ca79671d7069e78e5129d4fa4b361b04fea99fbe"
 
 def plain_png(data):
     """Accept small screenshots with valid chunks and no embedded metadata."""
@@ -139,6 +143,9 @@ def main():
         public_lut = path == PUBLIC_LUT and hashlib.sha256(content).hexdigest() == PUBLIC_LUT_SHA
         if public_lut:
             blocked = False
+        cardwav_unit = path == CARDWAV_UNIT and hashlib.sha256(content).hexdigest() == CARDWAV_UNIT_SHA
+        if cardwav_unit:
+            blocked = False
         if blocked:
             issues.append((path, 'excluded input, private record, or runtime path'))
         if size > (8 * 1024 * 1024 if public_lut else MAX_BYTES):
@@ -146,7 +153,7 @@ def main():
         screenshot = path in SCREENSHOTS and plain_png(content)
         if path in SCREENSHOTS and not screenshot:
             issues.append((path, 'invalid screenshot or embedded PNG metadata'))
-        if not screenshot:
+        if not screenshot and not cardwav_unit:
             try:
                 content.decode('utf-8')
             except UnicodeDecodeError:
