@@ -40,7 +40,7 @@
 **Interfaces:**
 - Produces: a working venv + confirmed-green baseline (15-combo suite) that later tasks must not break.
 
-- [ ] **Step 1: Create isolated venv with uv**
+- [x] **Step 1: Create isolated venv with uv**
 
 ```sh
 cd /home/gjk/git-repos/nfp-cardwav-wt
@@ -48,7 +48,7 @@ uv venv .venv --python 3.12
 uv pip install --python .venv/bin/python -r requirements.txt
 ```
 
-- [ ] **Step 2: Run the existing 15-combo baseline against the stock input**
+- [x] **Step 2: Run the existing 15-combo baseline against the stock input**
 
 ```sh
 mkdir -p build
@@ -56,7 +56,7 @@ mkdir -p build
 ```
 Expected: all 15 rows PASS, negative controls REJECTED, report written.
 
-- [ ] **Step 3: Commit nothing yet; record baseline output hash for later comparison**
+- [x] **Step 3: Commit nothing yet; record baseline output hash for later comparison**
 Run `sha256sum build/baseline-combos.json` and keep the value in the task notes.
 
 ### Task 2: Vendor the z8cardwav package (fork superset, adapted)
@@ -68,17 +68,17 @@ Run `sha256sum build/baseline-combos.json` and keep the value in the task notes.
 **Interfaces:**
 - Produces: `z8cardwav.builder.build(module, output, base_module=None, llvm=None, tail=..., code_source='prebuilt')`, `z8cardwav.stack.stack(stock_eg, base_eg, llvm=..., keep=None, code_source='prebuilt') -> (eg_bytes, report)`, `z8cardwav.stack.pack(package, eg, name) -> packet`, `z8cardwav.stack.unpack(package, packet, name) -> eg`. Adaptations: unconditional confirm flags; single pinned unit `resources/cardwav.json` (drop fork's version-suffix unit selection); `stack.py` keeps `from z8prores.package import ...`.
 
-- [ ] **Step 1: Copy the package from the fork checkout**
+- [x] **Step 1: Copy the package from the fork checkout**
 `cp -r /tmp/nfp-0418/z8cardwav .` inside the worktree.
 
-- [ ] **Step 2: Adapt builder.py confirmation gating**
+- [x] **Step 2: Adapt builder.py confirmation gating**
 Replace the identity-gated block (`identity=re.fullmatch(...)` through `UNIT = ROOT.parent/'resources'/('cardwav'+suffix+'.json')`) with unconditional `confirmed_import=confirmation_retry=staged_confirmation=True`, `flags.extend(['-DM2_CONFIRM_IMPORT=1','-DM2_CONFIRM_RETRY=1','-DM2_STAGED_CONFIRM=1'])`, `UNIT=ROOT.parent/'resources'/'cardwav.json'`. Keep the source-mode unit emission/comparison and prebuilt fill logic unchanged.
 
-- [ ] **Step 3: Smoke-import and wav-on-stock-source build**
+- [x] **Step 3: Smoke-import and wav-on-stock-source build**
 `Z8_LLVM_BIN=/home/gjk/git-repos/Nikon_Z8_RE/tools/llvm-19.1.7/bin .venv/bin/python -B -c "from z8cardwav import stack, builder; print('ok')"`.
 Then a source-mode stack on a version-stamped stock base must succeed (see Task 4's `version_base`; until then call `builder.build` directly with a hand-made base, keep dir `build/t2-src`).
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 `git add z8cardwav && git commit -m "Vendor z8cardwav card WAV port from PIPA12344 fork 04.23 (GPL-3.0-or-later, unconditional confirmation)"`
 
 ### Task 3: Renumber WAV label IDs and pin the reviewed unit
@@ -91,12 +91,12 @@ Then a source-mode stack on a version-stamped stock base must succeed (see Task 
 **Interfaces:**
 - Produces: `z8cardwav.builder.WAV_LABEL_BASE/COUNT` consumed by the disjointness test; pinned unit consumed by `code_source='prebuilt'`.
 
-- [ ] **Step 1: Write the failing guard test** `tests/test_cardwav_ids.py` (stdlib only, CI-safe): parse `z8patch/shared.py` `STRING_IDS`/`STRING_END` via import; import `z8cardwav.builder`; assert `range(WAV_LABEL_BASE, WAV_LABEL_BASE+WAV_LABEL_COUNT)` ∩ `range(3137, STRING_END)` is empty, `WAV_LABEL_BASE+WAV_LABEL_COUNT <= 4095`, and that `resources/cardwav.bin` exists with SHA-256 matching `resources/cardwav.json` (skip unit-file assertions if absent, so the test can drive the renumber first).
-- [ ] **Step 2: Run it, confirm FAIL** (IDs still 0xC54 overlap anamorphic/h265).
-- [ ] **Step 3: Apply the renumber** to builder.py, picker.c, verify_integration.py; grep `0xc5` in `z8cardwav/` to catch stragglers.
-- [ ] **Step 4: Regenerate the unit in source mode with LLVM 19.1.7** via a stack build with `--keep build/t3-unit` (or direct builder call); the keep dir's `cardwav.bin`/`cardwav.json` become the pinned `resources/` files. Verify the 10 `displaced_*` slots are zero in the pinned .bin.
-- [ ] **Step 5: Run the ARM suites against the regenerated unit** (dev-only): `uv pip install --python .venv/bin/python unicorn==2.1.4`; run `z8cardwav.verify_integration` + `z8cardwav.verify_staged` against the keep dir. Expected: 27 + 13 PASS.
-- [ ] **Step 6: Guard test green, `.gitignore` exception added; commit** `git add -f resources/cardwav.bin` plus json/test/ignore; message "Renumber WAV labels to 0xD00 family; pin zero-slot cardwav unit (clang 19.1.7)".
+- [x] **Step 1: Write the failing guard test** `tests/test_cardwav_ids.py` (stdlib only, CI-safe): parse `z8patch/shared.py` `STRING_IDS`/`STRING_END` via import; import `z8cardwav.builder`; assert `range(WAV_LABEL_BASE, WAV_LABEL_BASE+WAV_LABEL_COUNT)` ∩ `range(3137, STRING_END)` is empty, `WAV_LABEL_BASE+WAV_LABEL_COUNT <= 4095`, and that `resources/cardwav.bin` exists with SHA-256 matching `resources/cardwav.json` (skip unit-file assertions if absent, so the test can drive the renumber first).
+- [x] **Step 2: Run it, confirm FAIL** (IDs still 0xC54 overlap anamorphic/h265).
+- [x] **Step 3: Apply the renumber** to builder.py, picker.c, verify_integration.py; grep `0xc5` in `z8cardwav/` to catch stragglers.
+- [x] **Step 4: Regenerate the unit in source mode with LLVM 19.1.7** via a stack build with `--keep build/t3-unit` (or direct builder call); the keep dir's `cardwav.bin`/`cardwav.json` become the pinned `resources/` files. Verify the 10 `displaced_*` slots are zero in the pinned .bin.
+- [x] **Step 5: Run the ARM suites against the regenerated unit** (dev-only): `uv pip install --python .venv/bin/python unicorn==2.1.4`; run `z8cardwav.verify_integration` + `z8cardwav.verify_staged` against the keep dir. Expected: 27 + 13 PASS.
+- [x] **Step 6: Guard test green, `.gitignore` exception added; commit** `git add -f resources/cardwav.bin` plus json/test/ignore; message "Renumber WAV labels to 0xD00 family; pin zero-slot cardwav unit (clang 19.1.7)".
 
 ### Task 4: Stacker CLI `card_wav.py` with independent stacked audit
 
@@ -108,11 +108,11 @@ Then a source-mode stack on a version-stamped stock base must succeed (see Task 
 - Consumes: `features.build(eg, version, tag, features, compiler, code_source) -> (eg, report)`; `z8cardwav.stack.{stack,pack,unpack}`; `z8prores.package.{Package, require_official_input, sha}`.
 - Produces: CLI `card_wav.py <firmware> (--features F... | --interactive | --wav-only) --version NN.NN --tag [a-z][0-9] [--code-source prebuilt|source] [--llvm-bin DIR] [--keep DIR] --output DIR` plus `--check`. Internals reused by Task 5: `build_stacked(raw, features, version, tag, code_source, llvm, keep) -> (packet, meta)` and `verify_stacked(original, candidate, features, version, tag, code_source, llvm) -> report`.
 
-- [ ] **Step 1: Write the failing test script** `tests/validate_cardwav.py` (mirrors `validate_combinations.py`: `--stock`/`--report`, external fixture). Cases: (a) one combo (photo-tools) + wav builds, audits, round-trips; (b) negative controls: patched input reject, wrong version/tag reject, tampered append byte reject, non-stock EG length in base reject. It fails now (`card_wav` import missing).
-- [ ] **Step 2: Implement `card_wav.py`**: stock input check → base build (`features.build`; for `--wav-only` stamp a version base in-code: three version fields + CRC on stock, mirroring z8-card-wav cli.version_base) → `stack.stack(stock, base, llvm, keep, code_source)` → module name `eg2070_<ver><tag>.bi` → `stack.pack` → write `Z_8_<ver>.bin`, `manifest.json`, `SHA256SUMS.txt` (patch.py conventions: fsync, exclusive create, provenance).
-- [ ] **Step 3: Implement `verify_stacked`**: `stack.unpack` (container + other modules byte-identical + module name) → extract EG → re-derive base via `features.build` from the same stock → re-run the WAV builder on that base in a temp dir → EG audit: allowed windows = {0xEB29FC:12, 0x14EAA90:8, stock_end-11:8} ∪ feature edits ∪ WAV report patches; every other byte in the stock prefix equal; appended tail (from base end to module end) byte-equal to the re-derived payload; CRC==0; three version fields + trailer equal requested identity.
-- [ ] **Step 4: Run `tests/validate_cardwav.py`** against the stock input → all PASS.
-- [ ] **Step 5: Commit** "Add card_wav.py stacker CLI with independent stacked verification".
+- [x] **Step 1: Write the failing test script** `tests/validate_cardwav.py` (mirrors `validate_combinations.py`: `--stock`/`--report`, external fixture). Cases: (a) one combo (photo-tools) + wav builds, audits, round-trips; (b) negative controls: patched input reject, wrong version/tag reject, tampered append byte reject, non-stock EG length in base reject. It fails now (`card_wav` import missing).
+- [x] **Step 2: Implement `card_wav.py`**: stock input check → base build (`features.build`; for `--wav-only` stamp a version base in-code: three version fields + CRC on stock, mirroring z8-card-wav cli.version_base) → `stack.stack(stock, base, llvm, keep, code_source)` → module name `eg2070_<ver><tag>.bi` → `stack.pack` → write `Z_8_<ver>.bin`, `manifest.json`, `SHA256SUMS.txt` (patch.py conventions: fsync, exclusive create, provenance).
+- [x] **Step 3: Implement `verify_stacked`**: `stack.unpack` (container + other modules byte-identical + module name) → extract EG → re-derive base via `features.build` from the same stock → re-run the WAV builder on that base in a temp dir → EG audit: allowed windows = {0xEB29FC:12, 0x14EAA90:8, stock_end-11:8} ∪ feature edits ∪ WAV report patches; every other byte in the stock prefix equal; appended tail (from base end to module end) byte-equal to the re-derived payload; CRC==0; three version fields + trailer equal requested identity.
+- [x] **Step 4: Run `tests/validate_cardwav.py`** against the stock input → all PASS.
+- [x] **Step 5: Commit** "Add card_wav.py stacker CLI with independent stacked verification".
 
 ### Task 5: Full matrix validation and repo wiring
 
@@ -123,21 +123,21 @@ Then a source-mode stack on a version-stamped stock base must succeed (see Task 
 **Interfaces:**
 - Produces: `tests/validate_cardwav.py --stock ... --report ...` covering 16 selections (15 combos + wav-only) × prebuilt, plus all-features+wav source parity; CI-facing `tests/test_cardwav_ids.py` green without unicorn/firmware.
 
-- [ ] **Step 1: Extend the matrix**: loop all 15 nonempty combos + `--wav-only`; each: build → `verify_stacked` → also `verify_pair`-style feature detection on the pre-stack base inside `build_stacked` (recipe check stays active); assert other modules unchanged; append one tamper negative per class (window byte, append byte, other-module byte).
-- [ ] **Step 2: Source/prebuilt parity**: all-features+wav with `--code-source source` under `tools/llvm-19.1.7` must byte-equal prebuilt output.
-- [ ] **Step 3: Run the full matrix** → 16 PASS rows + parity + negatives; save `build/cardwav-matrix.json`.
-- [ ] **Step 4: Re-run the Task 1 baseline** `validate_combinations.py` → identical results (proves zero impact on the four-feature path).
-- [ ] **Step 5: Allowlists + CI + requirements-test.txt + docs/card-wav.md**; run `tools/check_repository.py --all` green.
-- [ ] **Step 6: Commit** "Full-matrix card WAV validation, allowlists, CI wiring and usage doc".
+- [x] **Step 1: Extend the matrix**: loop all 15 nonempty combos + `--wav-only`; each: build → `verify_stacked` → also `verify_pair`-style feature detection on the pre-stack base inside `build_stacked` (recipe check stays active); assert other modules unchanged; append one tamper negative per class (window byte, append byte, other-module byte).
+- [x] **Step 2: Source/prebuilt parity**: all-features+wav with `--code-source source` under `tools/llvm-19.1.7` must byte-equal prebuilt output.
+- [x] **Step 3: Run the full matrix** → 16 PASS rows + parity + negatives; save `build/cardwav-matrix.json`.
+- [x] **Step 4: Re-run the Task 1 baseline** `validate_combinations.py` → identical results (proves zero impact on the four-feature path).
+- [x] **Step 5: Allowlists + CI + requirements-test.txt + docs/card-wav.md**; run `tools/check_repository.py --all` green.
+- [x] **Step 6: Commit** "Full-matrix card WAV validation, allowlists, CI wiring and usage doc".
 
 ### Task 6: Documentation and changelog
 
 **Files:**
 - Modify: `README.md` (bilingual section: what it adds, CUSTOM_SOUND card prep, 48 kHz/16-bit/stereo/≤1.5 s WAV rules, CUS behaviour, M2SND0/1.CFG persistence, build commands, w-tag convention), `CHANGELOG.md` (Unreleased section), `NOTICE.md` (provenance chain + GPL-3.0-or-later scope for vendored code)
 
-- [ ] **Step 1: Write the three doc updates** following existing bilingual structure.
-- [ ] **Step 2: Verify examples in README actually run** (copy-paste commands with the stock fixture in a temp output).
-- [ ] **Step 3: Commit** "Document the card WAV stacker (README, CHANGELOG, NOTICE)".
+- [x] **Step 1: Write the three doc updates** following existing bilingual structure.
+- [x] **Step 2: Verify examples in README actually run** (copy-paste commands with the stock fixture in a temp output).
+- [x] **Step 3: Commit** "Document the card WAV stacker (README, CHANGELOG, NOTICE)".
 
 ### Out of scope (follow-ups, do not implement now)
 
