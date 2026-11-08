@@ -4,13 +4,13 @@
 
 ### 新增
 
-- **第五组构建选项 `video-orientation`（记录视频方向）。** 视频拍摄菜单新增“记录视频方向”行（36 语言标题逐字对齐确认表，取值复用原厂开／关文案），插入在“图像区域”之前，按视频拍摄菜单库 A–D 保存，默认开。开启时在录像开始锁存竖拍（两个方向）与 180° 倒置姿态，并经相机唯一的封装路径把旋转元数据（tkhd 显示矩阵）写入全部录像格式（MP4/H.264、H.265、ProRes 422 HQ、ProRes RAW、N-RAW）；关闭时容器与原厂输出逐字节一致。断电后回到默认“开”（与 H.265 档位同一类会话语义），会话内关闭随菜单库分别保持。非空组合增至 31 种并冻结全部配方；离线检查通过，仿真与实机验收项见[验证记录](docs/validation.md)。此组尚未随 v0.4.0-rc.2 发布。
+- **第五组构建选项 `video-orientation`（记录视频方向）。** 视频拍摄菜单新增“记录视频方向”行（标题逐字对齐经用户确认的 36 语言表，取值复用原厂开／关文案），插入在“图像区域”之前，按视频拍摄菜单库 A–D 保存，默认开。开启时在录像开始锁存竖拍（两个方向）与 180° 倒置姿态，并经相机唯一的封装路径把旋转元数据（tkhd 显示矩阵）写入全部录像格式（MP4/H.264、H.265、ProRes 422 HQ、ProRes RAW、N-RAW）；关闭时容器与原厂输出逐字节一致。断电后回到默认“开”（与 H.265 档位同一类会话语义），会话内关闭随菜单库分别保持。非空组合增至 31 种并冻结全部配方；离线检查通过，仿真与实机验收项见[验证记录](docs/validation.md)。此组尚未随 v0.4.0-rc.2 发布。
 
 ### English
 
 **Added**
 
-- A fifth build group, `video-orientation` (record video orientation), not part of the v0.4.0-rc.2 release. It inserts a "Record video orientation" row before "Image area" in the video shooting menu — titles verbatim from the confirmed 36-language table, values reuse the camera's own On/Off texts — stored per movie shooting bank A–D and defaulting to On. When On, the roll latched at recording start (either portrait direction or 180° upside-down) is written as rotation metadata (the tkhd display matrix) through the camera's single muxing path into every recorded format (MP4/H.264, H.265, ProRes 422 HQ, ProRes RAW, N-RAW); when Off, containers are byte-identical to stock. A power cycle returns every bank to the default On (the same session semantics as the H.265 tier); a manual Off persists per bank within the session. Nonempty combinations grow to 31 with all recipes frozen; offline checks pass, and the pending emulation and camera items are listed in the [validation record](docs/validation.md).
+- A fifth build group, `video-orientation` (record video orientation), not part of the v0.4.0-rc.2 release. It inserts a "Record video orientation" row before "Image area" in the video shooting menu — titles verbatim from the user-confirmed 36-language table, values reuse the camera's own On/Off texts — stored per movie shooting bank A–D and defaulting to On. When On, the roll latched at recording start (either portrait direction or 180° upside-down) is written as rotation metadata (the tkhd display matrix) through the camera's single muxing path into every recorded format (MP4/H.264, H.265, ProRes 422 HQ, ProRes RAW, N-RAW); when Off, containers are byte-identical to stock. A power cycle returns every bank to the default On (the same session semantics as the H.265 tier); a manual Off persists per bank within the session. Nonempty combinations grow to 31 with all recipes frozen; offline checks pass, and the pending emulation and camera items are listed in the [validation record](docs/validation.md).
 
 ## v0.4.0 — 四组补丁 / Four feature groups
 
