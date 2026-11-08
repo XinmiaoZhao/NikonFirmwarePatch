@@ -10,36 +10,38 @@ def verify_contract(old,new,features):
         if not ok:raise ValueError('Composition contract: '+message)
     base=0x40160000
     read=lambda image,fmt,at:struct.unpack_from(fmt,image,at)
-    framing,quality,log,photo=(s in features for s in ('framing','video-quality','log-colour','photo-tools'))
-    video=framing or quality or log
+    framing,quality,log,photo,vr=(s in features for s in ('framing','video-quality','log-colour','photo-tools','video-orientation'))
+    video=framing or quality or log or vr
     if video:
         rows,events,count=read(new,'<QQH',0x4BCC2C0)
-        need((rows,events,count)==(0x40A30000,0x40A31000,45 if quality else 44),'video menu allocation/count')
+        need((rows,events,count)==(0x40A30000,0x40A31000,44+int(quality)+int(vr)),'video menu allocation/count')
         ids=[read(new,'<I',rows-base+44*i+24)[0] for i in range(count)]
         original=[read(old,'<I',0x3AA4758+44*i+24)[0] for i in range(44)]
-        need(len(ids)==len(set(ids)) and set(ids)==set(original)|({0x315A} if quality else set()),'video menu items')
+        need(len(ids)==len(set(ids)) and set(ids)==set(original)|({0x315A} if quality else set())|({0x315B} if vr else set()),'video menu items')
         if log:need(ids.index(0x2E38)==ids.index(0x2FC1)+1,'Log after file type')
         if quality:need(ids.index(0x311B)==ids.index(0x3118)+1 and ids.index(0x315A)==ids.index(0x311B)+1,'quality rows order')
+        if vr:need(ids.index(0x315B)==ids.index(0x30A6)-1,'orientation row directly before the image-area row')
         for enabled,site,item,load in ((log,0x40572940,0x2E38,0x40572930),(quality,0x4057295C,0x311B,0x4057294C),(framing,0x40572978,0x310F,0x40572968)):
             need(new[load-base:load-base+4]==old[load-base:load-base+4],f'original hidden-item identity {item:#x}')
             need(new[site-base:site-base+4]==(bytes.fromhex('02008052') if enabled else old[site-base:site-base+4]),f'visibility {item:#x}')
         mask=read(new,'<I',0x40980F00-base)[0]
-        need(mask==int(framing)+2*int(quality)+4*int(log),'shared feature mask')
-        ptrs=read(new,'<4Q',0x40980F08-base)
-        need([bool(p) for p in ptrs]==[quality,quality,framing,log],'shared callback presence')
+        need(mask==int(framing)+2*int(quality)+4*int(log)+8*int(vr),'shared feature mask')
+        ptrs=read(new,'<5Q',0x40980F08-base)
+        need([bool(p) for p in ptrs]==[quality,quality,framing,log,vr],'shared callback presence')
         need(0x40980000<=read(new,'<Q',0x4BF3A80)[0]<0x40980F00,'shared refresh entry')
     else:
         need(new[0x4BCC2B0:0x4BCC300]==old[0x4BCC2B0:0x4BCC300],'photo-only video page preservation')
         need(new[0xEB62EC:0xEB62F0]==old[0xEB62EC:0xEB62F0],'photo-only bank preservation')
     # 36 offset arrays: native text offsets are byte-for-byte retained, added IDs
     # are present exactly for their selected modules. String IDs stay fixed across masks.
+    entries=3227 if vr else 3226
     ranges=[(3137,3142,framing),(3142,3147,photo),(3147,3153,quality),
-            (3153,3161,framing),(3161,3217,quality),(3217,3225,log)]
+            (3153,3161,framing),(3161,3217,quality),(3217,3225,log)]+([(3225,3226,vr)] if vr else [])
     for language in range(36):
         table=read(new,'<Q',0x311C5A0+8*language)[0]
         original_table=read(old,'<Q',0x311C5A0+8*language)[0]
-        need(table==0x40A70000+language*3226*4,'language table position')
-        offsets=read(new,'<3226i',table-base)
+        need(table==0x40A70000+language*entries*4,'language table position')
+        offsets=read(new,f'<{entries}i',table-base)
         need(offsets[:3137]==read(old,'<3137i',original_table-base),'native string offsets')
         blob=read(new,'<Q',0x387AF58+8*language)[0]
         for lo,hi,enabled in ranges:
@@ -54,5 +56,32 @@ def verify_contract(old,new,features):
     if log:need(end>=0x40B50000 and not any(new[0x40B0E000-base:0x40B0F100-base]),'Log private state initialized')
     if quality:need(new[0x40A40000-base]==0,'star force initially clear')
     if framing:need(not any(new[0x4097F000-base:0x40980000-base]),'AP state initialized')
-    return dict(status='PASS',video_menu=video,language_tables=36,offsets_per_language=3226,
-                exact_group_visibility=True,zero_state=True,loader_end=hex(end))
+    vrotate=None
+    if vr:
+        # Fixed facts of the vrotate unit (cave 0x40A08000-0x40A10000, unit
+        # bytes 0x870 long; symbol offsets from the reviewed compiled.json).
+        cave,unit_end=0x40A08000,0x40A08870
+        need(not any(old[cave-base:0x40A10000-base]),'vrotate cave free in stock')
+        need(not any(new[unit_end-base:0x40A10000-base]),'vrotate reservation tail stays stock zero')
+        def branch_target(site,word):
+            need(word>>26 in (0x05,0x25),f'vrotate hook branch shape at {site:#x}')
+            delta=word&0x3FFFFFF
+            if delta&0x2000000:delta-=0x4000000
+            return site+delta*4
+        need(read(old,'<I',0x40cefd60-base)[0]==0x97FFD09F,'vrotate matrix site stock word')
+        need(cave<=branch_target(0x40cefd60,read(new,'<I',0x40cefd60-base)[0])<unit_end,'vrotate matrix hook branch into the cave')
+        need(old[0x40d17728-base:0x40d17730-base]==bytes.fromhex('08de80d28863a0f2'),'vrotate latch site stock bytes')
+        need(cave<=branch_target(0x40d17728,read(new,'<I',0x40d17728-base)[0])<unit_end,'vrotate latch hook branch into the cave')
+        need(read(new,'<I',0x40d1772C-base)[0]==0xD503201F,'vrotate latch site trailing nop')
+        need(struct.pack('<Q',0xA03D5C26A) in new[cave-base:unit_end-base],'vrotate active value byte literal in the unit')
+        need(new[0x40A082EC-base]==0 and new[0x40A082ED-base]==0,'vrotate one-shot latch and sentinel ship zero')
+        imms={ (w>>5)&0xFFFF for w in struct.unpack_from(f'<{(0x2EC)//4}I',new,cave-base) if w&0xFFE00000==0x52800000 }
+        need({2466,2467}<=imms,'vrotate On/Off value ids in cave code')
+        row_at=rows-base+44*ids.index(0x315B)
+        need(read(new,'<I',row_at)[0]==3225,'vrotate row title id 3225')
+        need(read(new,'<I',row_at+16)[0]==0x20901005,'vrotate row class word')
+        need(read(new,'<I',row_at+20)[0]==0x1327,'vrotate row value sub-widget')
+        vrotate=dict(cave=hex(cave),unit_end=hex(unit_end),row='0x315b',title_id=3225,value_ids=[2466,2467],sentinel='0x5A armed at first boot, ships 0')
+        need(end>=0x40A10000,'copy boundary covers the vrotate cave')
+    return dict(status='PASS',video_menu=video,language_tables=36,offsets_per_language=entries,
+                exact_group_visibility=True,zero_state=True,loader_end=hex(end),vrotate=vrotate)
