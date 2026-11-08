@@ -18,7 +18,7 @@
 
 **Fixed**
 
-- Opening any menu page no longer crashes APPMENU on development-branch `video-orientation` builds. The unit's runtime state bytes (sentinel, latch and friends) lived in the read-only code cave and triggered an EL0 permission fault on first use. All state now migrates to a data-mirror window that boot reloads from the image at every power-up, and the row-events table moved to a fixed read-only cave sub-window. New build-time guards (store-target census, reservation registry, address-coupling assertions) and a three-leg QEMU regression cover the fix; the fixed images pass all legs. Value rendering still awaits manual acceptance, and the camera validation items are unchanged.
+- Opening any menu page no longer crashes APPMENU on development-branch `video-orientation` builds. The unit's runtime state bytes (sentinel, latch and friends) lived in the read-only code cave and triggered an EL0 permission fault on first use. All state now migrates to a data-mirror window that boot reloads from the image at every power-up, and the row-events table moved to a fixed read-only cave sub-window. New build-time guards (store-target census, reservation registry, address-coupling assertions) and a three-leg QEMU regression cover the fix; the fixed image passes all three legs. Value rendering still awaits manual acceptance, and the camera validation items are unchanged.
 
 ## v0.4.0 — 四组补丁 / Four feature groups
 
