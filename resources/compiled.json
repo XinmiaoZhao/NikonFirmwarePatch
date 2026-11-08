@@ -2095,22 +2095,22 @@
       "resource": "resources/quality.bin"
     },
     "shared": {
-      "bytes": 248,
-      "sha256": "c5667d69cdf7f2fb9886ebc43f07ded97e4eb42a61e772f4cf2b560636eff2da",
+      "bytes": 264,
+      "sha256": "9e650cc77082db286d41a40e8bac64357a515c1c7730408ec95f74658de62033",
       "symbols": {
         "shared_bank": {
           "va": "0x40980000",
           "bytes": 0
         },
         "shared_refresh": {
-          "va": "0x40980090",
+          "va": "0x409800a0",
           "bytes": 0
         }
       },
       "source_sha256": {
-        "z8patch/src/shared.S": "2d831aeed33dded53637a104ed600c5767e7aa6eb795c7f731a0953b4170dd98"
+        "z8patch/src/shared.S": "3732f1b92b0ea73456a8f135a616dca7d3913f8979915b6c076c729cb03ad13d"
       },
-      "compiler": "Apple clang version 21.0.0 (clang-2100.1.1.101)",
+      "compiler": "clang version 19.1.7 (/home/runner/work/llvm-project/llvm-project/clang cd708029e0b2869e80abe31ddb175f7c35361f90)",
       "flags": [
         "-target",
         "aarch64-none-elf",
@@ -2118,6 +2118,79 @@
         "assembler-with-cpp"
       ],
       "resource": "resources/shared.bin"
+    },
+    "vrotate": {
+      "bytes": 2160,
+      "sha256": "5337df8c327056a485d07e4fa06d5dc8ecfa421f1349c816d985d33936f4d281",
+      "symbols": {
+        "vr_latch": {
+          "va": "0x40a082ec",
+          "bytes": 0
+        },
+        "vr_matrices": {
+          "va": "0x40a08280",
+          "bytes": 0
+        },
+        "vr_default_on": {
+          "va": "0x40a08150",
+          "bytes": 0
+        },
+        "vr_classify": {
+          "va": "0x40a081a0",
+          "bytes": 0
+        },
+        "vr_latch_displaced": {
+          "va": "0x40a08060",
+          "bytes": 0
+        },
+        "vr_sentinel": {
+          "va": "0x40a082ed",
+          "bytes": 0
+        },
+        "vr_threshold": {
+          "va": "0x40a08278",
+          "bytes": 0
+        },
+        "vr_axis_codes": {
+          "va": "0x40a08270",
+          "bytes": 0
+        },
+        "vr_matrix_hook": {
+          "va": "0x40a08000",
+          "bytes": 0
+        },
+        "vr_latch_hook": {
+          "va": "0x40a08040",
+          "bytes": 0
+        },
+        "vr_row_hook": {
+          "va": "0x40a08070",
+          "bytes": 0
+        },
+        "vr_refresh_hook": {
+          "va": "0x40a080f0",
+          "bytes": 0
+        },
+        "vr_row_events": {
+          "va": "0x40a082f0",
+          "bytes": 0
+        }
+      },
+      "source_sha256": {
+        "z8vrotate/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "z8vrotate/matrices.py": "56b508f02821ae015f3c3e485297072cd7a283b166127be18d9b097dd0471131",
+        "z8vrotate/patcher.py": "36c4042f958ef8a206114eacba585fc287985b4815833c028e9a879168e595fd",
+        "z8vrotate/src/hooks.S": "5c17f030cf9a4a8ea71d3986fc4c67d9097776d7ab1573bf3f2a08f96760f1a6",
+        "z8vrotate/translations.py": "80802fbcb7b491806fae989665dacf169b026359b520da7317dca7101f1d09b8"
+      },
+      "compiler": "clang version 19.1.7 (/home/runner/work/llvm-project/llvm-project/clang cd708029e0b2869e80abe31ddb175f7c35361f90)",
+      "flags": [
+        "-target",
+        "aarch64-none-elf",
+        "-x",
+        "assembler-with-cpp"
+      ],
+      "resource": "resources/vrotate.bin"
     }
   }
 }

@@ -1,7 +1,16 @@
 /* vrotate patch unit (T5): pose-latched tkhd display matrices for movies.
  *
- * Two hooks plus a classifier in cave 0x40A20000..0x40A22000 (SPECS 'vrotate',
- * z8patch/compiled.py).  All firmware evidence addresses below are stock EG
+ * Two hooks plus a classifier in cave 0x40A08000..0x40A10000 (SPECS 'vrotate',
+ * z8patch/compiled.py).  Cave choice (T8, controller-approved after two
+ * collisions): 0x40A20000 is the quality group's icon PNG area
+ * (z8quality/patcher.py PNG=0x40A20000, reserved to 0x40A30000, frozen
+ * v0.4.0 recipe data) and 0x40A12000-0x40A1F000 is the H.265 menu-data
+ * area (z8h265/patcher.py MENU_AT/AREA_END) -- do not reuse either.  This
+ * cave sits between the ProRes GUI ceiling (z8prores/menu.py TEXT_AT = VA
+ * 0x40A04000, enforced by that module's own overflow guard) and the H.265
+ * code base 0x40A10000; ReservationCensusTests in tests/test_vrotate.py
+ * pins the full reservation census and fails loudly on any overlap.
+ * All firmware evidence addresses below are stock EG
  * virtual addresses (BASE 0x40160000) from the vrotate reports
  * .superpowers/sdd/2026-11-08-vrotate/reports/ (t1 anchor, t2 latch site,
  * t3 serialize trace, t7 storage).
@@ -91,11 +100,14 @@
  *   (b in, br x17 out; x30 untouched) from BOTH the latch hook and the
  *   row-refresh hook, whichever runs first.  The cave sentinel byte boots 0
  *   (the text loader re-copies the patched image each boot), so the first
- *   pass writes 1 to the value byte in the active record and all four bank
- *   storages, then arms the sentinel to VR_SENTINEL_VALUE.  Later passes
- *   are no-ops, keeping a user's Off alive for the whole session; a power
- *   cycle re-copies the cave (sentinel back to 0) and every bank defaults
- *   to On again.  Clobbers w8/w9/x10/x17 only.
+ *   pass arms the sentinel to VR_SENTINEL_VALUE FIRST and then writes 1 to
+ *   the value byte in the active record and all four bank storages:
+ *   arm-before-write is the power-loss property -- an init interrupted
+ *   between the two steps at worst leaves a user Off in place until the
+ *   next boot, and never lets a later re-initialization overwrite a stored
+ *   user value.  Later passes are no-ops, keeping a user's Off alive for
+ *   the whole session; a power cycle re-copies the cave (sentinel back to
+ *   0) and every bank defaults to On again.  Clobbers w8/w9/x10/x17 only.
  *
  * Cave data, all patcher-filled at build time (z8vrotate/patcher.py):
  *   vr_matrices 108 B = ORIENT_TO_MATRIX[1..3] big-endian 16.16 words,

@@ -138,6 +138,7 @@ def loader(img,features):
     floor=0x408BF8F0
     if 'framing' in features:floor=max(floor,0x40980000)
     if 'photo-tools' in features:floor=max(floor,0x409F0000)
+    if 'video-orientation' in features:floor=max(floor,0x40A10000)
     if 'video-quality' in features:floor=max(floor,0x40A42000)
     if 'log-colour' in features:floor=max(floor,0x40B50000)
     used=max([floor]+[BASE+e['end'] for e in img.edits if 0x75F8F0<=e['offset']<0xAA0000])

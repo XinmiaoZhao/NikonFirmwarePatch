@@ -1,4 +1,4 @@
-"""Compose four feature groups against one exact original C3.11 payload."""
+"""Compose five feature groups against one exact original C3.11 payload."""
 import binascii
 import json
 import re
@@ -9,7 +9,7 @@ from z8prores.menu import Image
 from z8patch.compiled import load
 from z8patch.shared import Strings, VideoMenu, loader
 
-FEATURES = ('framing','video-quality','log-colour','photo-tools')
+FEATURES = ('framing','video-quality','log-colour','photo-tools','video-orientation')
 ROOT = Path(__file__).resolve().parent
 STOCK_SHA = 'f85e0138e2f5e660ece8560de62e0d12cb795e0e14983e50f20b61dce906c46c'
 
@@ -103,6 +103,13 @@ def compose(eg, features, compiler='clang', code_source='prebuilt', *, check_rec
         af,_=load('pixelshift-af',code_source,compiler)
         part,detail['pixelshift']=build_main(eg,code,meta['symbols'],af,strings)
         merge('pixelshift',part)
+    if 'video-orientation' in chosen:
+        from z8vrotate.patcher import build_main
+        code,entries=unit('vrotate')
+        part,detail['vrotate']=build_main(eg,code,entries,strings)
+        m=detail['vrotate']['menu']
+        menu.add(int(m['item'],16),bytes.fromhex(m['row_hex']),int(m['row_table'],16))
+        merge('vrotate',part);callbacks['vrotate']=entries['vr_refresh_hook']
     detail['strings']=strings.emit(img)
     if callbacks:
         code,entries=unit('shared')

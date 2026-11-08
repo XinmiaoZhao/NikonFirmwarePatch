@@ -19,8 +19,8 @@ def main():
     ap.add_argument('--version', help='Output version NN.NN; choose a distinct identity for a different feature set')
     ap.add_argument('--tag', default='p0', help='Internal revision suffix: lowercase letter plus digit; default p0')
     group = ap.add_mutually_exclusive_group()
-    group.add_argument('--features', nargs='+', choices=FEATURES, help='Explicit nonempty selection of the four feature groups')
-    group.add_argument('--interactive', action='store_true', help='Choose one or more of the four features')
+    group.add_argument('--features', nargs='+', choices=FEATURES, help='Explicit nonempty selection of the five feature groups')
+    group.add_argument('--interactive', action='store_true', help='Choose one or more of the five features')
     ap.add_argument('--code-source', choices=['prebuilt', 'source'], default='prebuilt',
                     help='Native patch code: reviewed prebuilt Release bytes (default), or explicitly compile from source')
     ap.add_argument('--compiler', help='Clang executable; requires --code-source source; default clang')
@@ -33,11 +33,11 @@ def main():
     if a.check and (a.output or a.version or a.tag != 'p0' or a.interactive or a.compiler or a.code_source != 'prebuilt'):
         ap.error('--check cannot be combined with output options')
     if a.interactive:
-        print('1: Framing / 开放门＋反挤压＋N-RAW 四档\n2: Video quality / ProRes＋H.265 品质\n3: Log colour / Log 色彩\n4: Photo tools / RAW 预拍＋像素偏移\n5: All / 全选')
-        choice=input('Select numbers separated by commas / 用逗号分隔 [1,2,3,4 or 5]: ').strip()
+        print('1: Framing / 开放门＋反挤压＋N-RAW 四档\n2: Video quality / ProRes＋H.265 品质\n3: Log colour / Log 色彩\n4: Photo tools / RAW 预拍＋像素偏移\n5: Video orientation / 视频方向自动旋转\n6: All / 全选')
+        choice=input('Select numbers separated by commas / 用逗号分隔 [1,2,3,4,5 or 6]: ').strip()
         parts=[v.strip() for v in choice.split(',')]
-        require(parts and len(parts)==len(set(parts)) and (parts==['5'] or all(p in ('1','2','3','4') for p in parts)), 'Select 1,2,3,4 or 5 for all')
-        a.features=list(FEATURES) if parts==['5'] else [FEATURES[int(p)-1] for p in parts]
+        require(parts and len(parts)==len(set(parts)) and (parts==['6'] or all(p in ('1','2','3','4','5') for p in parts)), 'Select 1,2,3,4,5 or 6 for all')
+        a.features=list(FEATURES) if parts==['6'] else [FEATURES[int(p)-1] for p in parts]
     require(a.check or a.features, 'Choose --features or --interactive explicitly')
     selected = a.features or list(FEATURES)
     require(a.firmware.is_file(), 'Input must be a regular firmware file')

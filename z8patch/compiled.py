@@ -25,7 +25,7 @@ SPECS.update({
     'h265':dict(source='z8h265/src/hooks.S', flags=['-target','aarch64-none-elf','-x','assembler-with-cpp'],asm_base=0x40A10000,limit=0x40A12000,folder='z8h265'),
     'log':dict(source='z8log/src/hooks.S', flags=['-target','aarch64-none-elf','-x','assembler-with-cpp'],asm_base=0x40B00000,limit=0x40B08000,folder='z8log'),
     'quality':dict(source='z8quality/src/hooks.S', flags=['-target','aarch64-none-elf','-x','assembler-with-cpp'],asm_base=0x40A41000,limit=0x40A50000,folder='z8quality'),
-    'vrotate':dict(source='z8vrotate/src/hooks.S', flags=['-target','aarch64-none-elf','-x','assembler-with-cpp'],asm_base=0x40A20000,limit=0x40A22000,folder='z8vrotate'),
+    'vrotate':dict(source='z8vrotate/src/hooks.S', flags=['-target','aarch64-none-elf','-x','assembler-with-cpp'],asm_base=0x40A08000,limit=0x40A10000,folder='z8vrotate'),
     'shared':dict(source='z8patch/src/shared.S', flags=['-target','aarch64-none-elf','-x','assembler-with-cpp'],asm_base=0x40980000,limit=0x40980F00,folder='z8patch/src'),
 })
 

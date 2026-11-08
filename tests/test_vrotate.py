@@ -49,7 +49,7 @@ MATRIX_SITE, MATRIX_STOCK_WORD = 0x40cefd60, 0x97FFD09F
 # trampoline: mov x8,#0x6f0 ; movk x8,#0x31c,lsl#16 (t2 report).
 LATCH_SITE = 0x40d17728
 LATCH_STOCK = bytes.fromhex('08de80d28863a0f2')
-CAVE_BASE, CAVE_LIMIT = 0x40A20000, 0x40A22000
+CAVE_BASE, CAVE_LIMIT = 0x40A08000, 0x40A10000
 
 
 def _clang():
@@ -448,11 +448,14 @@ class DefaultOnTests(unittest.TestCase):
 
     The cave sentinel byte boots 0 (the text loader re-copies the patched
     image every boot); the first hook pass -- from either the latch hook
-    or the row-refresh hook, whichever runs first -- writes 1 to the value
-    byte in the active record and all four bank storage records, then
-    arms the sentinel.  Later passes must be no-ops, so a user's Off
-    survives the whole session; a power cycle resets the sentinel and
-    re-defaults every bank to On.
+    or the row-refresh hook, whichever runs first -- arms the sentinel
+    FIRST, then writes 1 to the value byte in the active record and all
+    four bank storage records.  Arm before write is the power-loss
+    property: an init interrupted between the two steps at worst leaves a
+    user Off in place until the next boot, and never lets a later
+    re-initialization overwrite a stored user value.  Later passes must
+    be no-ops, so a user's Off survives the whole session; a power cycle
+    resets the sentinel and re-defaults every bank to On.
     """
 
     def test_default_on_mirror(self):
@@ -788,6 +791,116 @@ class UnitBuildTests(unittest.TestCase):
             bad[bad_site - EG_BASE] ^= 1
             with self.assertRaises(ValueError, msg=hex(bad_site)):
                 patcher.build_main(bytes(bad), code, entries, Strings())
+
+
+class ReservationCensusTests(unittest.TestCase):
+    """The text-gap reservation census (T8): the vrotate cave must be disjoint
+    from every other feature's reserved window.
+
+    Both T8 cave collisions (0x40A20000 with the quality icon PNG area,
+    0x40A12000 with the H.265 menu-data area) were patcher-level reservations
+    invisible to any single registry.  This census hardcodes the windows as
+    documented by their owning modules and asserts the vrotate reservation is
+    disjoint from each, so a third collision of the same class fails loudly
+    here -- before any build or recipe freeze.
+    """
+
+    # (start, end, owner) -- all stock EG virtual addresses (BASE 0x40160000).
+    CENSUS = (
+        (0x408D0000, 0x40950000, 'anamorphic standalone string text/tables (z8anamorphic/patcher.py TEXT/TABLES/TABLES_LIMIT; superseded by the shared string system in compositions, kept for standalone builds)'),
+        (0x40953000, 0x40955000, 'opengate Q3 fine/basic tables (-DQ3_FINE_TABLE/-DQ3_BASIC_TABLE)'),
+        (0x40960000, 0x40970000, 'opengate code cave (z8patch/linker.py CAVE/CAVE_END; opengate caps code below 0xF000)'),
+        (0x40970000, 0x40974000, 'anamorphic unit (SPECS asm_base/limit)'),
+        (0x4097F000, 0x40980000, 'opengate AP state (zero-state contract window)'),
+        (0x40980000, 0x40981000, 'shared bank/refresh code and CONFIG (z8patch/shared.py BANK/CONFIG, unit below 0x40980F00)'),
+        (0x40990000, 0x409D8000, 'pixelshift unit (SPECS cave/limit)'),
+        (0x409D8000, 0x409DA000, 'pixelshift-af unit (SPECS cave/limit)'),
+        (0x409F0000, 0x40A00000, 'precapture unit (SPECS cave/limit)'),
+        (0x40A00000, 0x40A04000, 'prores code, back-half code and sub-page GUI area (z8prores/menu.py CODE_AT/GUI_AT, ceiling TEXT_AT = VA 0x40A04000, enforced by its own overflow guard)'),
+        (0x40A10000, 0x40A1F000, 'H.265 code and menu data (z8h265/patcher.py CODE_AT/MENU_AT/AREA_END)'),
+        (0x40A20000, 0x40A30000, 'quality derived icon PNGs (z8quality/patcher.py PNG, 0x10000 design limit; frozen v0.4.0 recipe data)'),
+        (0x40A30000, 0x40A40000, 'shared final video menu rows and transition pointers (z8patch/shared.py VIDEO_ROWS/VIDEO_EVENTS plus the capacity ceiling)'),
+        (0x40A40000, 0x40A50000, 'quality force/config/code (z8quality/patcher.py FORCE/CONFIG/CODE; SPECS limit)'),
+        (0x40A50000, 0x40AF0000, 'shared 36-language strings (z8patch/shared.py TEXT/TABLES/TABLES_END)'),
+        (0x40B00000, 0x40B08000, 'log unit (SPECS asm_base/limit)'),
+        (0x40B08000, 0x40B10000, 'log private state (loader floor region beyond the unit)'),
+    )
+
+    def test_vrotate_cave_disjoint_from_reservation_census(self):
+        from z8vrotate import patcher
+        cave = (patcher.CODE_AT, patcher.CODE_END, 'vrotate unit (z8vrotate/patcher.py CODE_AT/CODE_END)')
+        for start, end, owner in self.CENSUS:
+            with self.subTest(owner=owner.split(' (')[0]):
+                self.assertTrue(cave[1] <= start or end <= cave[0],
+                                f'vrotate cave {cave[0]:#x}-{cave[1]:#x} overlaps {owner}')
+
+    def test_vrotate_cave_disjoint_from_other_unit_caves(self):
+        from z8vrotate import patcher
+        from z8patch.compiled import SPECS
+        for name, spec in SPECS.items():
+            if 'asm_base' not in spec or name == 'vrotate':
+                continue
+            base, limit = spec['asm_base'], spec['limit']
+            with self.subTest(unit=name):
+                self.assertTrue(patcher.CODE_END <= base or limit <= patcher.CODE_AT,
+                                f'vrotate cave overlaps SPECS unit {name} {base:#x}-{limit:#x}')
+
+
+class IntegrationTests(unittest.TestCase):
+    """End-to-end composition of the video-orientation feature group (T8).
+
+    Full features.compose of the vrotate-only selection in source mode:
+    the five-group FEATURES tuple, the shared five-slot CONFIG with mask 8,
+    the 0x315B row inserted immediately before the image-area row, the
+    sentinel and one-shot latch cave bytes shipping zero, and the loader
+    boundary covering the vrotate cave.  Needs the stock firmware fixture
+    and an aarch64 clang; skipped otherwise like the other build legs.
+    """
+
+    def _compose(self, check_recipe):
+        import features
+        from z8prores.package import Package
+        if not FIRMWARE.is_file():
+            self.skipTest('stock firmware fixture not present: %s' % FIRMWARE)
+        compiler = _clang()
+        if not compiler:
+            self.skipTest('no clang for the aarch64 unit build')
+        eg = Package(FIRMWARE.read_bytes()).eg
+        return features.compose(eg, ['video-orientation'], compiler, 'source',
+                                check_recipe=check_recipe)
+
+    def test_vrotate_only_composition(self):
+        import struct
+        from z8vrotate import patcher
+        img, detail, rows = self._compose(check_recipe=False)
+        self.assertEqual(detail['menu']['mask'], 8)
+        self.assertEqual(detail['menu']['count'], 45)
+        items = [int(i, 16) for i in detail['menu']['items']]
+        self.assertEqual(items[items.index(0x30A6) - 1], patcher.ROW_ITEM)
+        config = next(e for e in img.edits
+                      if e['purpose'] == 'shared feature mask and row callbacks')
+        self.assertEqual(struct.unpack_from('<II', config['new']), (8, 0))
+        self.assertEqual(len(config['new']), 48)   # five callback slots
+        slots = struct.unpack_from('<5Q', config['new'], 8)
+        self.assertEqual(slots[:4], (0, 0, 0, 0))
+        refresh = int(detail['menu']['callbacks']['vrotate'], 16)
+        self.assertEqual(slots[4], refresh)
+        # Fresh-boot cave fill: the sentinel and the one-shot latch ship 0.
+        unit = next(e for e in img.edits if 'vrotate unit:' in e['purpose'])
+        base = unit['offset'] + EG_BASE
+        entries = detail['vrotate']['entries']
+        for name, want in (('vr_sentinel', 0), ('vr_latch', 0)):
+            at = int(entries[name], 16) - EG_BASE - unit['offset']
+            self.assertEqual(unit['new'][at], want, name)
+        loader_end = int(detail['loader']['end'], 16)
+        self.assertGreaterEqual(loader_end, 0x40A10000)   # covers the vrotate cave
+        self.assertEqual(loader_end % 4096, 0)
+        self.assertEqual(detail['strings']['entries'], 3227)
+        self.assertIn('vrotate', detail['strings']['features'])
+        # The two gated stock hook sites are part of the composition.
+        purposes = [r['purpose'] for r in rows]
+        self.assertTrue(any('movie tkhd matrix copy' in p for p in purposes))
+        self.assertTrue(any('record file open trampoline' in p for p in purposes))
 
 
 if __name__ == '__main__':

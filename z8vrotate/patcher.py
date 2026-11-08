@@ -29,7 +29,7 @@ from z8prores.package import require
 
 from . import matrices, translations
 
-CODE_AT, CODE_END = 0x40A20000, 0x40A22000
+CODE_AT, CODE_END = 0x40A08000, 0x40A10000   # see hooks.S header and ReservationCensusTests
 # Matrix hook: single video-track tkhd matrix copy site (t3 report).
 MATRIX_SITE, MATRIX_STOCK_WORD = 0x40cefd60, 0x97FFD09F
 # Latch hook: recording-side file open marshaling trampoline entry (t2 report).

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""All 15 feature selections and integrity failures using an external stock fixture."""
+"""All 31 feature selections and integrity failures using an external stock fixture."""
 import argparse,binascii,itertools,json,os,subprocess,sys,tempfile
 from pathlib import Path
 sys.dont_write_bytecode=True
@@ -15,6 +15,7 @@ def main():
     ap=argparse.ArgumentParser(description=__doc__);ap.add_argument('--stock',type=Path,required=True)
     ap.add_argument('--report',type=Path,required=True);ap.add_argument('--compiler',default='/usr/bin/clang');a=ap.parse_args()
     need(not a.report.exists(),'Report exists')
+    need(len(FEATURES)==5 and FEATURES[-1]=='video-orientation','Five feature groups with video-orientation last')
     original=a.stock.read_bytes();require_official_input(original);pkg=Package(original)
     rows=[];failures=[]
     def reject(name,fn):
@@ -22,7 +23,7 @@ def main():
         except (ValueError,KeyError):rows.append(dict(test=name,result='REJECTED'))
         else:raise RuntimeError('Accepted negative control: '+name)
     try:
-        for bits in itertools.product((False,True),repeat=4):
+        for bits in itertools.product((False,True),repeat=len(FEATURES)):
             names=[f for f,on in zip(FEATURES,bits) if on]
             if not names:continue
             eg,meta=build(pkg.eg,'00.00','t0',names)
@@ -35,6 +36,7 @@ def main():
             print('+'.join(names)+': PASS',flush=True)
             wrong=[f for f in FEATURES if f not in names] or ['framing']
             reject('+'.join(names)+' wrong feature claim',lambda:verify_pair(original,packet,wrong))
+        need(sum('video-orientation' in r['test'].split('+') for r in rows)==16,'video-orientation compositions exercised')
         # Last iteration is all features. Source mode must give the same bytes.
         source,_=build(pkg.eg,'00.00','t0',list(FEATURES),a.compiler,'source')
         need(source==eg,'Source/prebuilt mismatch')
@@ -70,6 +72,6 @@ def main():
     except Exception as exc:
         failures.append(str(exc));raise
     finally:
-        a.report.write_text(json.dumps(dict(status='FAIL' if failures else 'PASS',scope='15 offline build/envelope checks and explicit negative controls; no camera or CPU execution',tests=rows,failures=failures,checker_sha256=sha(Path(__file__).read_bytes()),input_sha256=sha(original)),indent=2)+'\n')
+        a.report.write_text(json.dumps(dict(status='FAIL' if failures else 'PASS',scope='31 offline build/envelope checks and explicit negative controls; no camera or CPU execution',tests=rows,failures=failures,checker_sha256=sha(Path(__file__).read_bytes()),input_sha256=sha(original)),indent=2)+'\n')
 
 if __name__=='__main__':main()
