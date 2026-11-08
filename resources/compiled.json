@@ -2155,7 +2155,7 @@
       "source_sha256": {
         "z8vrotate/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
         "z8vrotate/matrices.py": "3fa3f88ea388482f28cd9fae2f7c4e66602fb99a17ee405dac07ba96bacfcf51",
-        "z8vrotate/patcher.py": "aca1e3c43918758661e47316ac3f0f28f98a07b33bcc739cc3cc80fbdc869da4",
+        "z8vrotate/patcher.py": "9c9cc85701557174619de097c7bb2f75b71a7c54df7a8b2551c3acc94ee3e3b6",
         "z8vrotate/src/hooks.S": "8dd44101aa3d8741633793764aa0f8e6a2b2f27c121433ba234168f3f17fe6dc",
         "z8vrotate/translations.py": "80802fbcb7b491806fae989665dacf169b026359b520da7317dca7101f1d09b8"
       },
