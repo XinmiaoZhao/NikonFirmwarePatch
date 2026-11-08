@@ -9,16 +9,39 @@ coordinate system is displayed as::
     x' = a*x + c*y + x_off
     y' = b*x + d*y + y_off
 
-Enum-to-matrix mapping (consumed by the matrix hook, T5)
---------------------------------------------------------
-The camera orientation enum at state+0x2500 maps to EXIF orientation values
-through the firmware getter at 0x406e4824 (docs/t14-video-orientation-re.md
-section 4)::
+Own pose code -> matrix (consumed by the matrix hook, T5)
+-------------------------------------------------------
+The keys 0..3 of ORIENT_TO_MATRIX are the patch unit's own pose codes, not
+the firmware enum.  The latch hook (z8vrotate/src/hooks.S) classifies the
+normalised gravity vector (f32 x3 at 0x0A02E560E0, published ~1 kHz by the
+sensor fusion task) at recording start -- the T1 ruling (2026-11-08), because
+the stock orientation enum is pinned to 3 by the all-zero factory calibration
+in emulation and the EXIF ctx+0x2500 lane is capture-scoped and unusable as
+an anchor::
 
-    enum 0 -> EXIF 1 (landscape, normal)  -> IDENTITY_MATRIX
-    enum 1 -> EXIF 6 (rotate 90 deg CW)   -> ROTATE_90_CW_MATRIX
-    enum 2 -> EXIF 8 (rotate 90 deg CCW)  -> ROTATE_90_CCW_MATRIX
-    enum 3 -> EXIF 3 (rotated 180 deg)    -> ROTATE_180_MATRIX
+    0 = landscape / no dominant axis / invalid -> IDENTITY_MATRIX (passthrough)
+    1 = camera rolled 90 deg CW (image needs 90 deg CW to display upright)
+    2 = camera rolled 90 deg CCW
+    3 = upside down (180 deg)
+
+Code 1 keeps the matrix T4 calibrated against Apple's first-party
+EXIF 6 <-> {a=0, b=+1, c=-1} pairing; codes 2/3 follow by the sign symmetry
+of every reference implementation.  For the record, the firmware's own
+orientation enum -> EXIF getter lane table at 0x406e4824 decodes to
+{0 -> 1, 1 -> 8, 2 -> 6, 3 -> 1} -- the T1 instruction-level correction of
+t14 section 4's earlier {0:1, 1:6, 2:8, 3:3} reading (lane1/lane2 swapped,
+lane3 is 1, and enum 3 falls back to no rotation) -- but the enum is no
+longer consumed, so that table is reference material only.
+
+Axis assignment (which gravity-vector direction means which pose): the only
+anchor is the T1 boot observation that a level camera at rest reads
+(0, 0, +1), so +Z is the baseplate normal in the level landscape grip:
++Z = code 0, -Z = code 3 (rolled 180), +X = code 1 (rolled 90 deg CW as seen
+from behind the camera), -X = code 2, and +/-Y (assumed parallel to the lens
+axis) carries no roll code.  This assignment cannot be pinned in emulation
+and ships as the cave constant vr_axis_codes (z8vrotate/patcher.py
+AXIS_CODES); the T11 on-camera calibration flips individual bytes only, as
+documented in the hooks.S header.
 
 EXIF 6 means "rotate the stored image 90 degrees clockwise to display it
 upright"; EXIF 8 means 90 degrees counterclockwise.  The chosen matrices
@@ -42,7 +65,7 @@ Evidence for the byte sequences and the direction assignment
    - IMG_8615.mov (same item): same rotation words, Apple value 6.
    - IMG_8624.mov (same item): identity words, Apple value 1.
    Apple therefore pairs first-party EXIF 6 <-> {a=0, b=+1, c=-1}, which
-   pins enum 1 to the b=+1/c=-1 pattern.  The +0x04380000 word is x_off =
+   pins pose code 1 to the b=+1/c=-1 pattern.  The +0x04380000 word is x_off =
    1080.0 in 16.16 (the encoded track height): rotating 1920x1080 content
    90 deg CW maps x into [-1080, 0], and Apple shifts it back positive --
    a geometric signature that independently confirms the CW direction.
@@ -58,13 +81,13 @@ Evidence for the byte sequences and the direction assignment
    "degrees of clockwise camera rotation"): builds
    ``cos sin 0 -sin cos 0 0 0 1``, i.e. 90 CW -> b=+1, c=-1 -- identical
    words, again with zero x/y offsets.
-4. The mirror leg (enum 2 / EXIF 8) is pinned by the sign symmetry shared
+4. The mirror leg (code 2 / EXIF 8) is pinned by the sign symmetry shared
    by all of the above implementations plus Apple's EXIF-6 anchor.  No
    fetched public sample of the second portrait direction was located, so
    the mirror is marked for the T11 on-camera verification round, which
    ffprobes both portrait grips.
 
-Dual-candidate caveat: a swapped mapping (enum 1 <-> b=-1/c=+1) was the
+Dual-candidate caveat: a swapped mapping (code 1 <-> b=-1/c=+1) was the
 alternative hypothesis; it is excluded by the Apple first-party pairing
 and by the translation-sign geometry, not merely by majority vote.
 
@@ -75,35 +98,38 @@ normalises extents, so the injected matrices keep x=y=0 per the plan spec
 matrix; tkhd width/height stay at encoded size (iPhone-style convention).
 """
 
-# enum 0 / EXIF 1: landscape normal.
+# Pose code 0: landscape normal (passthrough; the stock identity blob covers it).
 IDENTITY_MATRIX = bytes.fromhex(
     '00010000' '00000000' '00000000'
     '00000000' '00010000' '00000000'
     '00000000' '00000000' '40000000'
 )
 
-# enum 1 / EXIF 6: rotate 90 degrees clockwise to display upright.
+# Pose code 1: image needs 90 deg clockwise rotation to display upright
+# (the T4 calibration anchor: Apple's first-party EXIF-6 pairing).
 ROTATE_90_CW_MATRIX = bytes.fromhex(
     '00000000' '00010000' '00000000'
     'ffff0000' '00000000' '00000000'
     '00000000' '00000000' '40000000'
 )
 
-# enum 2 / EXIF 8: rotate 90 degrees counterclockwise to display upright.
+# Pose code 2: image needs 90 deg counterclockwise rotation to display upright.
 ROTATE_90_CCW_MATRIX = bytes.fromhex(
     '00000000' 'ffff0000' '00000000'
     '00010000' '00000000' '00000000'
     '00000000' '00000000' '40000000'
 )
 
-# enum 3 / EXIF 3: upside down.
+# Pose code 3: upside down (180 deg).
 ROTATE_180_MATRIX = bytes.fromhex(
     'ffff0000' '00000000' '00000000'
     '00000000' 'ffff0000' '00000000'
     '00000000' '00000000' '40000000'
 )
 
-# Camera orientation enum (state+0x2500) -> 36-byte tkhd matrix.
+# Own pose code (gravity-vector classification, see above) -> 36-byte tkhd
+# matrix.  The cave table vr_matrices carries only codes 1..3; code 0 is the
+# passthrough identity.
 ORIENT_TO_MATRIX = {
     0: IDENTITY_MATRIX,
     1: ROTATE_90_CW_MATRIX,
