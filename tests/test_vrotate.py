@@ -51,6 +51,20 @@ LATCH_SITE = 0x40d17728
 LATCH_STOCK = bytes.fromhex('08de80d28863a0f2')
 CAVE_BASE, CAVE_LIMIT = 0x40A08000, 0x40A10000
 
+# A+ state window (2026-11-09 vrotate-fix t1 report, four-leg zero-writer
+# census): the five unit data labels moved out of the read-only cave into a
+# 256 B window of the boot-loaded data mirror segment.  RAM window and its
+# EG image offsets below are pinned literals, independent of the patcher.
+VR_STATE_VA, VR_STATE_END = 0xA0281A800, 0xA0281A900
+VR_STATE_IMG_OFF, VR_STATE_SIZE = 0x4B25800, 0x100
+# Frozen window layout (facts.state_window in the build facts):
+VR_MATRICES_OFF, VR_THRESHOLD_OFF = 0x00, 0x6C
+VR_AXIS_CODES_OFF, VR_LATCH_OFF, VR_SENTINEL_OFF = 0x70, 0x76, 0x77
+VR_MAGIC_OFF, VR_MAGIC = 0xFF, 0xA5
+# The pre-migration cave span the five labels used to occupy (0x40A08270
+# .. 0x40A082EE in the shipped unit); kept for the residual-reference test.
+OLD_LABEL_SPAN = (0x40A08270, 0x40A082F0)
+
 
 def _clang():
     """Locate the maintainer clang for the aarch64 unit build, or None."""
@@ -645,7 +659,7 @@ class StorageWiringTests(unittest.TestCase):
         self.assertEqual(storage['value_off'], patcher.VALUE_OFF)
         self.assertEqual(storage['value_addr'], hex(patcher.VALUE_ADDR))
         self.assertEqual([int(a, 16) for a in storage['records']], list(patcher.BANK_RECORDS))
-        self.assertEqual(len(img.edits), 3)
+        self.assertEqual(len(img.edits), 4)   # unit, two hook sites, state window
 
 
 class MenuRowBuildTests(unittest.TestCase):
@@ -722,10 +736,14 @@ class UnitBuildTests(unittest.TestCase):
         self.assertEqual(compiled.SPECS['vrotate']['asm_base'], CAVE_BASE)
         self.assertLessEqual(CAVE_BASE + len(code), CAVE_LIMIT)   # cave bounds
         entries = {name: int(sym['va'], 16) for name, sym in observed['symbols'].items()}
-        for name in ('vr_matrix_hook', 'vr_latch_hook', 'vr_latch_displaced', 'vr_latch',
-                     'vr_sentinel', 'vr_matrices', 'vr_axis_codes', 'vr_threshold'):
+        for name in ('vr_matrix_hook', 'vr_latch_hook', 'vr_latch_displaced', 'vr_row_events'):
             self.assertIn(name, entries, name)
             self.assertTrue(CAVE_BASE <= entries[name] < CAVE_LIMIT, name)
+        # A+ migration: the five data labels left the cave for the data
+        # mirror state window; they must not come back as unit symbols.
+        for name in ('vr_matrices', 'vr_axis_codes', 'vr_threshold', 'vr_latch',
+                     'vr_sentinel'):
+            self.assertNotIn(name, entries, name)
         # T7: the retired cave bytes must stay out of the unit.
         for name in ('vr_value', 'vr_enable'):
             self.assertNotIn(name, entries, name)
@@ -737,12 +755,13 @@ class UnitBuildTests(unittest.TestCase):
         at = entries['vr_latch_displaced'] - CAVE_BASE
         self.assertEqual(bytes(code[at:at + 8]), LATCH_STOCK)
         # Patch generation applies to the stock image: the two expect-byte
-        # gates and the zero-cave check all pass.
+        # gates and the zero-cave / zero-window checks all pass.
         from z8patch.shared import Strings
         img, meta = patcher.build_main(eg, code, entries, Strings())
-        self.assertEqual(len(img.edits), 3)
-        sites = sorted(e['offset'] + EG_BASE for e in img.edits)
-        self.assertEqual(sites, sorted((MATRIX_SITE, LATCH_SITE, CAVE_BASE)))
+        self.assertEqual(len(img.edits), 4)
+        sites = sorted(e['offset'] for e in img.edits)
+        self.assertEqual(sites, sorted((MATRIX_SITE - EG_BASE, LATCH_SITE - EG_BASE,
+                                        CAVE_BASE - EG_BASE, VR_STATE_IMG_OFF)))
         # Offline disassembly (capstone) of the edited sites and the unit.
         from capstone import Cs, CS_ARCH_ARM64, CS_MODE_LITTLE_ENDIAN
         md = Cs(CS_ARCH_ARM64, CS_MODE_LITTLE_ENDIAN)
@@ -770,13 +789,17 @@ class UnitBuildTests(unittest.TestCase):
                             for i in latch_ins))
         self.assertTrue(any(i.mnemonic == 'b' and i.op_str == '#0x40d17730'
                             for i in latch_ins))
-        # T5 review carry-items: the threshold load must be 4-byte aligned;
-        # the gravity-vector literals in the pool must equal the patcher
-        # constants; the assembled sentinel immediate must equal
-        # patcher.SENTINEL_VALUE (both 0x5A materializations agree).
-        self.assertEqual(entries['vr_threshold'] % 4, 0, entries['vr_threshold'])
+        # T5 review carry-items plus the A+ migration: the threshold word in
+        # the state window must stay 4-byte aligned; the gravity-vector and
+        # state-window literals in the pool must equal the patcher constants;
+        # the assembled sentinel immediate must equal patcher.SENTINEL_VALUE
+        # (both 0x5A materializations agree).
+        self.assertEqual((VR_STATE_VA + VR_THRESHOLD_OFF) % 4, 0, VR_THRESHOLD_OFF)
         self.assertIn(struct.pack('<Q', patcher.ORIENT_VALID), code)
         self.assertIn(struct.pack('<Q', patcher.GRAVITY_VEC), code)
+        for off in (VR_MATRICES_OFF, VR_THRESHOLD_OFF, VR_AXIS_CODES_OFF,
+                    VR_LATCH_OFF, VR_SENTINEL_OFF):
+            self.assertIn(struct.pack('<Q', VR_STATE_VA + off), code, hex(off))
         movz_immediates = set()
         from capstone import Cs as _Cs, CS_ARCH_ARM64 as _ARM64, CS_MODE_LITTLE_ENDIAN as _LE
         scan = _Cs(_ARM64, _LE)
@@ -791,6 +814,190 @@ class UnitBuildTests(unittest.TestCase):
             bad[bad_site - EG_BASE] ^= 1
             with self.assertRaises(ValueError, msg=hex(bad_site)):
                 patcher.build_main(bytes(bad), code, entries, Strings())
+
+
+class StateWindowTests(unittest.TestCase):
+    """A+ migration (2026-11-09 vrotate-fix t1/t2): the five unit data
+    labels live in a window of the boot-loaded data mirror segment, not in
+    the read-only cave.
+
+    The t1 report picked RAM [0xA0281A800,0xA0281A900) (EG image
+    [0x4B25800,0x4B25900)) after a four-leg zero-writer census of the stock
+    image; the boot segment loader record {len=0x2AD000, dst=0xA02808000}
+    re-copies the window from the image every power cycle, which is what
+    makes the zero-shipped latch/sentinel bytes a fresh-boot state and the
+    window tail magic byte (0xA5) a witness of a real boot copy.  These
+    tests pin the label addresses, the assembled unit's literal addressing
+    of the window and the asm<->mirror constant parity.
+    """
+
+    def _build(self):
+        from z8patch.shared import Strings
+        from z8vrotate import patcher
+        from z8patch import compiled
+        from z8prores.package import Package
+        if not FIRMWARE.is_file():
+            self.skipTest('stock firmware fixture not present: %s' % FIRMWARE)
+        compiler = _clang()
+        if not compiler:
+            self.skipTest('no clang for the aarch64 unit build')
+        eg = Package(FIRMWARE.read_bytes()).eg
+        code, observed = compiled.compile_unit('vrotate', compiler)
+        entries = {name: int(sym['va'], 16) for name, sym in observed['symbols'].items()}
+        img, meta = patcher.build_main(eg, code, entries, Strings())
+        return patcher, bytes(code), entries, img, meta
+
+    def test_labels_inside_the_data_mirror_window(self):
+        """The five label VAs fall inside the window; the patcher agrees
+        with the pinned literals and the window maps into the segment."""
+        from z8patch.image import DATA_OFF, DATA_END, DATA_VA, data_off
+        patcher, _, _, _, _ = self._build()
+        labels = dict(matrices=VR_MATRICES_OFF, threshold=VR_THRESHOLD_OFF,
+                      axis_codes=VR_AXIS_CODES_OFF, latch=VR_LATCH_OFF,
+                      sentinel=VR_SENTINEL_OFF)
+        for name, off in labels.items():
+            self.assertTrue(VR_STATE_VA <= VR_STATE_VA + off < VR_STATE_END, name)
+        self.assertEqual((patcher.VR_STATE_VA, patcher.VR_STATE_END,
+                          patcher.VR_STATE_SIZE, patcher.VR_STATE_IMG_OFF),
+                         (VR_STATE_VA, VR_STATE_END, VR_STATE_SIZE, VR_STATE_IMG_OFF))
+        self.assertEqual((patcher.VR_MATRICES_OFF, patcher.VR_THRESHOLD_OFF,
+                          patcher.VR_AXIS_CODES_OFF, patcher.VR_LATCH_OFF,
+                          patcher.VR_SENTINEL_OFF, patcher.VR_MAGIC_OFF),
+                         (VR_MATRICES_OFF, VR_THRESHOLD_OFF, VR_AXIS_CODES_OFF,
+                          VR_LATCH_OFF, VR_SENTINEL_OFF, VR_MAGIC_OFF))
+        self.assertEqual(patcher.VR_MAGIC, VR_MAGIC)
+        # The window sits inside the boot-copied data mirror segment and the
+        # EG image offset is the segment arithmetic from the t1 fact block.
+        self.assertTrue(DATA_VA <= VR_STATE_VA and VR_STATE_END <= DATA_VA + DATA_END - DATA_OFF)
+        self.assertEqual(data_off(VR_STATE_VA), VR_STATE_IMG_OFF)
+        self.assertEqual(VR_STATE_VA - DATA_VA + DATA_OFF, VR_STATE_IMG_OFF)
+        self.assertEqual(VR_STATE_IMG_OFF + VR_STATE_SIZE, 0x4B25900)
+
+    def test_unit_addresses_the_window_not_the_cave(self):
+        """The assembled unit carries the five window literals and no
+        residual cave data reference."""
+        import struct as _struct
+        patcher, code, entries, _, _ = self._build()
+        for off in (VR_MATRICES_OFF, VR_THRESHOLD_OFF, VR_AXIS_CODES_OFF,
+                    VR_LATCH_OFF, VR_SENTINEL_OFF):
+            self.assertIn(_struct.pack('<Q', VR_STATE_VA + off), code, hex(off))
+        # No qword anywhere in the code+pool region (everything before the
+        # read-only row-events clone) may point into the cave: the five
+        # labels used to ride there, and any in-cave pointer in the pool
+        # would be a residual or reappeared data reference.  The clone's own
+        # vr_row_hook action slots are the only legitimate cave pointers.
+        limit = entries['vr_row_events'] - CAVE_BASE
+        self.assertGreater(limit, 0)
+        for at in range(0, limit - 7):
+            q = _struct.unpack_from('<Q', code, at)[0]
+            self.assertFalse(CAVE_BASE <= q < CAVE_LIMIT,
+                             'cave pointer %#x at unit+%#x' % (q, at))
+        self.assertFalse(OLD_LABEL_SPAN[0] <= entries['vr_row_events'] < OLD_LABEL_SPAN[1])
+
+    def test_mirror_parity_six_vectors(self):
+        """The constants the assembled unit will read from the window are
+        the ones the build materialized there (asm<->mirror parity).
+
+        Reclassifies the t1 six single-axis canonical vectors using ONLY
+        bytes taken from the built state window edit, exactly the way
+        vr_classify consumes them (threshold word at +0x6C, axis codes at
+        +0x70), and checks the matrices the matrix hook would redirect to.
+        """
+        import struct as _struct
+        from z8vrotate import matrices
+        patcher, code, entries, img, _ = self._build()
+        window = next(e for e in img.edits if e['offset'] == VR_STATE_IMG_OFF)['new']
+        self.assertEqual(len(window), VR_STATE_SIZE)
+        threshold = _struct.unpack_from('<I', window, VR_THRESHOLD_OFF)[0]
+        codes = window[VR_AXIS_CODES_OFF:VR_AXIS_CODES_OFF + 6]
+        self.assertEqual(threshold, patcher.THRESHOLD_BITS)
+        self.assertEqual(bytes(codes), patcher.AXIS_CODES)
+        self.assertEqual(codes, bytes((1, 2, 0, 0, 0, 3)))
+
+        def mirror_classify(gate, x, y, z):
+            # vr_classify's algorithm with the window as the only constant
+            # source: gate, sign strip, unsigned argmax with the
+            # x-beats-y-beats-z tie-break, threshold, axis*2+sign lookup.
+            if gate != 1:
+                return 0
+            words = [_struct.unpack('<I', _struct.pack('<f', c))[0] for c in (x, y, z)]
+            signs = [w >> 31 for w in words]
+            mags = [w & 0x7FFFFFFF for w in words]
+            axis = 0 if mags[0] >= mags[1] else 1
+            if mags[2] > mags[axis]:
+                axis = 2
+            if mags[axis] < threshold:
+                return 0
+            return codes[axis * 2 + signs[axis]]
+
+        canonical = (
+            ((0.0, 0.0, 1.0), codes[4]),   # level rest (t1 anchor)
+            ((1.0, 0.0, 0.0), codes[0]),   # X+
+            ((-1.0, 0.0, 0.0), codes[1]),   # X-
+            ((0.0, 1.0, 0.0), codes[2]),   # Y+
+            ((0.0, -1.0, 0.0), codes[3]),   # Y-
+            ((0.0, 0.0, -1.0), codes[5]),   # Z- (upside down)
+        )
+        for vector, expected in canonical:
+            self.assertEqual(mirror_classify(1, *vector), expected, vector)
+        self.assertEqual(mirror_classify(0, 0.0, 0.0, -1.0), 0)
+        # The matrices the hook would select for the latched codes ride in
+        # the same window, at the offset the pool literal points to.
+        self.assertEqual(bytes(window[VR_MATRICES_OFF:VR_MATRICES_OFF + 108]),
+                         patcher.VR_MATRICES)
+        self.assertEqual(patcher.VR_MATRICES,
+                         matrices.ORIENT_TO_MATRIX[1] + matrices.ORIENT_TO_MATRIX[2]
+                         + matrices.ORIENT_TO_MATRIX[3])
+
+    def test_window_ships_fresh_boot_state(self):
+        """Latch and sentinel mirror bytes ship 0; the magic byte ships 0xA5."""
+        patcher, code, entries, img, _ = self._build()
+        window = next(e for e in img.edits if e['offset'] == VR_STATE_IMG_OFF)['new']
+        self.assertEqual(window[VR_LATCH_OFF], 0)
+        self.assertEqual(window[VR_SENTINEL_OFF], 0)
+        self.assertEqual(window[VR_MAGIC_OFF], VR_MAGIC)
+        # Everything past the 121 B payload up to the magic byte stays zero
+        # (window headroom), and the stock image bytes were zero there.
+        self.assertEqual(window[VR_SENTINEL_OFF + 1:VR_MAGIC_OFF], bytes(VR_MAGIC_OFF - VR_SENTINEL_OFF - 1))
+        stock = None
+        from z8prores.package import Package
+        if FIRMWARE.is_file():
+            stock = Package(FIRMWARE.read_bytes()).eg
+        if stock is not None:
+            self.assertEqual(stock[VR_STATE_IMG_OFF:VR_STATE_IMG_OFF + VR_STATE_SIZE],
+                             bytes(VR_STATE_SIZE))
+
+
+class OldCombinationFreezeTests(unittest.TestCase):
+    """The 15 non-vrotate combinations keep their frozen recipes byte-exact.
+
+    The eight selections that also contain photo-tools cannot build on this
+    machine (the Apple-clang-reviewed precapture/pixelshift units do not
+    reproduce under LLVM 19.1.7 and the reviewed prebuilt binaries are not
+    present), so this suite exercises the seven buildable ones with
+    check_recipe=True; the recipe refreeze audit (build/vrfix) covers all 15
+    including the photo-tools eight.
+    """
+
+    OLD_COMBOS = (['framing'], ['video-quality'], ['log-colour'],
+                  ['framing', 'video-quality'], ['framing', 'log-colour'],
+                  ['video-quality', 'log-colour'],
+                  ['framing', 'video-quality', 'log-colour'])
+
+    def test_old_combinations_match_frozen_recipes(self):
+        import features
+        from z8prores.package import Package
+        if not FIRMWARE.is_file():
+            self.skipTest('stock firmware fixture not present: %s' % FIRMWARE)
+        compiler = _clang()
+        if not compiler:
+            self.skipTest('no clang for the aarch64 unit build')
+        eg = Package(FIRMWARE.read_bytes()).eg
+        for names in self.OLD_COMBOS:
+            with self.subTest(features='+'.join(names)):
+                _, _, rows = features.compose(eg, names, compiler, 'source',
+                                              check_recipe=True)
+                self.assertGreater(len(rows), 0)
 
 
 class ReservationCensusTests(unittest.TestCase):
@@ -852,9 +1059,10 @@ class IntegrationTests(unittest.TestCase):
     Full features.compose of the vrotate-only selection in source mode:
     the five-group FEATURES tuple, the shared five-slot CONFIG with mask 8,
     the 0x315B row inserted immediately before the image-area row, the
-    sentinel and one-shot latch cave bytes shipping zero, and the loader
-    boundary covering the vrotate cave.  Needs the stock firmware fixture
-    and an aarch64 clang; skipped otherwise like the other build legs.
+    state window bytes (constants, zero latch/sentinel, 0xA5 magic) in the
+    boot-copied data mirror segment, and the loader boundary covering the
+    vrotate cave.  Needs the stock firmware fixture and an aarch64 clang;
+    skipped otherwise like the other build legs.
     """
 
     def _compose(self, check_recipe):
@@ -885,13 +1093,32 @@ class IntegrationTests(unittest.TestCase):
         self.assertEqual(slots[:4], (0, 0, 0, 0))
         refresh = int(detail['menu']['callbacks']['vrotate'], 16)
         self.assertEqual(slots[4], refresh)
-        # Fresh-boot cave fill: the sentinel and the one-shot latch ship 0.
-        unit = next(e for e in img.edits if 'vrotate unit:' in e['purpose'])
-        base = unit['offset'] + EG_BASE
+        # Fresh-boot state fill: the five labels live in the data mirror
+        # window; the one-shot latch and first-boot sentinel mirror bytes
+        # ship 0 and the window tail carries the 0xA5 magic byte.
+        window = next(e for e in img.edits if e['offset'] == VR_STATE_IMG_OFF)
+        self.assertEqual(len(window['new']), VR_STATE_SIZE)
+        self.assertEqual(window['new'][VR_MATRICES_OFF:VR_MATRICES_OFF + 108],
+                         patcher.VR_MATRICES)
+        self.assertEqual(struct.unpack_from('<I', window['new'], VR_THRESHOLD_OFF)[0],
+                         patcher.THRESHOLD_BITS)
+        self.assertEqual(window['new'][VR_AXIS_CODES_OFF:VR_AXIS_CODES_OFF + 6],
+                         patcher.AXIS_CODES)
+        self.assertEqual(window['new'][VR_LATCH_OFF], 0)
+        self.assertEqual(window['new'][VR_SENTINEL_OFF], 0)
+        self.assertEqual(window['new'][VR_MAGIC_OFF], VR_MAGIC)
         entries = detail['vrotate']['entries']
-        for name, want in (('vr_sentinel', 0), ('vr_latch', 0)):
-            at = int(entries[name], 16) - EG_BASE - unit['offset']
-            self.assertEqual(unit['new'][at], want, name)
+        for name in ('vr_sentinel', 'vr_latch'):
+            self.assertNotIn(name, entries, name)
+        self.assertEqual(detail['vrotate']['state_window'],
+                         [hex(VR_STATE_VA), hex(VR_STATE_END)])
+        self.assertEqual(detail['vrotate']['state'],
+                         dict(matrices=hex(VR_STATE_VA + VR_MATRICES_OFF),
+                              threshold=hex(VR_STATE_VA + VR_THRESHOLD_OFF),
+                              axis_codes=hex(VR_STATE_VA + VR_AXIS_CODES_OFF),
+                              latch=hex(VR_STATE_VA + VR_LATCH_OFF),
+                              sentinel=hex(VR_STATE_VA + VR_SENTINEL_OFF),
+                              magic='0xa5@+0xff'))
         loader_end = int(detail['loader']['end'], 16)
         self.assertGreaterEqual(loader_end, 0x40A10000)   # covers the vrotate cave
         self.assertEqual(loader_end % 4096, 0)
