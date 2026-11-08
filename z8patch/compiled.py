@@ -8,7 +8,7 @@ import struct
 import subprocess
 import tempfile
 from z8prores.package import require, sha
-from .linker import link
+from .linker import link, CAVE as OPENGATE_CAVE
 
 ROOT = Path(__file__).resolve().parents[1]
 FLAGS = ['--target=aarch64-none-elf','-O2','-ffreestanding','-fno-builtin','-fno-stack-protector',
@@ -75,6 +75,28 @@ def compile_unit(name, compiler='clang'):
     return code, dict(bytes=len(code),sha256=sha(code),symbols=symbols,source_sha256=source_files(name),
                       compiler=subprocess.check_output([compiler,'--version'],text=True).splitlines()[0],
                       flags=spec['flags'],resource='resources/'+name+'.bin')
+
+
+def unit_base(name):
+    """Placement base VA of a compiled unit: asm_base for asm units, cave
+    for C units, and the opengate code cave (z8patch/linker.py CAVE) for the
+    opengate unit (its own linker is based there)."""
+    spec = SPECS[name]
+    if 'asm_base' in spec:
+        return spec['asm_base']
+    if 'cave' in spec:
+        return spec['cave']
+    require(name == 'opengate', 'No placement base for unit: ' + name)
+    return OPENGATE_CAVE
+
+
+def unit_sources(name):
+    """Assembly sources whose .global directives register the unit's entry
+    symbols (the opengate unit is the include closure of z8opengate/src,
+    so every file in that folder belongs to it)."""
+    if name == 'opengate':
+        return sorted((ROOT / 'z8opengate/src').glob('*.S'))
+    return [ROOT / SPECS[name]['source']]
 
 
 def load(name, code_source='prebuilt', compiler='clang'):

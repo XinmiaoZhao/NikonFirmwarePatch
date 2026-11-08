@@ -3,9 +3,17 @@
 No composer, assembler, linker or resource-generator imports; the only
 inputs are the two images, the feature list and (for the vrotate unit
 bound) the frozen reviewed recipe resources/compiled.json.
+
+The build-time address-coupling guards at the bottom (2026-11-09
+vrotate-fix t3) are the machine-enforced form of the NikonFirmwarePatch
+iron rules: unit sources stay pure code + pool (.org ban), emit-region
+bytes may only name registered unit entry symbols, and a unit's data
+stores must resolve outside the read-only cave.
 """
-import json, struct
+import json, re, struct
 from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[1]
 
 
 def verify_contract(old,new,features):
@@ -122,3 +130,261 @@ def verify_contract(old,new,features):
         need(end>=0x40A10000,'copy boundary covers the vrotate cave')
     return dict(status='PASS',video_menu=video,language_tables=36,offsets_per_language=entries,
                 exact_group_visibility=True,zero_state=True,loader_end=hex(end),vrotate=vrotate)
+
+
+# ---- Build-time address-coupling guards (2026-11-09 vrotate-fix t3) ----
+
+ORG_DIRECTIVE = re.compile(r'(?m)^[ \t]*\.org\b')
+
+
+def assert_no_org_directives(root=ROOT):
+    """D1: unit assembly sources must not pin their own layout.
+
+    Scans every z8*/src/*.S under root (all assembly inputs of the build
+    path, including the opengate include closure) and refuses the build on
+    any .org directive: unit sources carry only code + literal pool, and
+    placement is owned by patcher-constant windows (the AGENTS.md iron
+    rule).  .balign/.space stay legal -- in-unit padding and self-referenced
+    data do not freeze external bytes.  Returns the number of sources
+    scanned.
+    """
+    sources = sorted(root.glob('z8*/src/*.S'))
+    if not sources:
+        raise ValueError('Address coupling: no unit assembly sources under ' + str(root))
+    for path in sources:
+        text = path.read_text()
+        hit = ORG_DIRECTIVE.search(text)
+        if hit:
+            line = text.count('\n', 0, hit.start()) + 1
+            raise ValueError('Address coupling: %s line %d uses the banned .org '
+                             'directive: unit sources stay pure code + pool, '
+                             'placement belongs to patcher-constant windows'
+                             % (path, line))
+    return len(sources)
+
+
+# Registered-entry contract for the C-compiled units.  The frozen Release
+# symbol tables (resources/compiled.json) carry no ELF binding bit, so the
+# asm .global scan cannot apply: this explicit table is the registration.
+# Every name below is an external-linkage hook/interface function that the
+# owning patcher writes into an emit-region qword (pre-capture callback
+# slots; pixel shift menu/modal/browser callbacks); each was proven by the
+# t3 existing-stock sweep (build/t3, reports/t3-report.md).
+C_UNIT_ENTRY_CONTRACT = {
+    'precapture': ('precapture_display_mode', 'precapture_ordinary_code',
+                   'precapture_ordinary_star', 'precapture_quality_code',
+                   'precapture_quality_star'),
+    'pixelshift': ('ps8_browser_entry', 'ps8_browser_exit', 'ps8_browser_refresh',
+                   'psm_menu_action', 'psm_menu_available', 'psm_modal_action',
+                   'psm_modal_entry', 'psm_modal_exit', 'psm_modal_ok',
+                   'psm_modal_refresh', 'psm_photo_entry', 'psm_photo_refresh'),
+    'pixelshift-af': (),
+}
+
+
+def asm_global_declarations(paths):
+    """Names declared .global in the given assembly sources.
+
+    For asm units this is the registered-entry signal: link_elf exposes
+    every named label (code and data alike), so the module author's .global
+    directive is what marks an interface entry.
+    """
+    declared = set()
+    for path in paths:
+        declared.update(re.findall(r'^[ \t]*\.globa?l[ \t]+([\w.$]+)',
+                                   path.read_text(), re.M))
+    return declared
+
+
+def registered_unit_entries(name, entries, sources):
+    """Registered entry VAs of a loaded unit, as (symbol -> VA).
+
+    entries is the loaded symbol table (symbol -> VA).  C units use the
+    explicit C_UNIT_ENTRY_CONTRACT (stale names fail loudly); asm units
+    use their .global declarations intersected with the symbol table.
+    """
+    if name in C_UNIT_ENTRY_CONTRACT:
+        missing = [s for s in C_UNIT_ENTRY_CONTRACT[name] if s not in entries]
+        if missing:
+            raise ValueError('Address coupling: C unit entry contract stale '
+                             'for %s, symbols missing from the unit: %s'
+                             % (name, missing))
+        return {s: entries[s] for s in C_UNIT_ENTRY_CONTRACT[name]}
+    declared = asm_global_declarations(sources) & set(entries)
+    return {s: entries[s] for s in declared}
+
+
+def assert_no_cross_region_pointers(rows, placements, base=0x40160000):
+    """D2: emit-region bytes may only name registered unit entries.
+
+    rows are the composition edits (dicts with offset/end/new, EG offsets);
+    placements are (name, start_va, end_va, registered_entries) for every
+    unit the composition loaded.  Every 8-byte-aligned qword of the emit
+    region OUTSIDE the unit spans (bytes inside a unit span are that
+    unit's own business -- internal self-references) whose value falls
+    inside a unit span must equal a registered entry symbol VA of that
+    unit -- otherwise the frozen external bytes would couple to
+    unit-internal addresses that any code growth moves.  Branch/word-sized
+    hook edits are out of scope (they relocate with every refreeze by
+    design).
+    """
+    spans = [(start, stop) for _, start, stop, _ in placements]
+    for row in rows:
+        at, end, raw = row['offset'], row['end'], row['new']
+        pos = at + (-(base + at)) % 8
+        while pos + 8 <= end:
+            if not any(start - base <= pos < stop - base for start, stop in spans):
+                value = struct.unpack_from('<Q', raw, pos - at)[0]
+                for name, start, stop, registered in placements:
+                    if start <= value < stop and value not in registered.values():
+                        raise ValueError(
+                            'Address coupling: emit-region qword at %s names %s '
+                            'inside unit %s [%s,%s) but it is not a registered '
+                            'entry symbol of that unit'
+                            % (hex(base + pos), hex(value), name,
+                               hex(start), hex(stop)))
+            pos += 8
+
+
+def assert_no_cave_store_targets(code, base, window, whitelist=None):
+    """Guard A: a unit's data stores must resolve outside the cave window.
+
+    Disassembles the assembled unit (capstone; literal-pool bytes surface
+    as skipdata, not instructions) and checks every data-writing
+    instruction (str/strb/strh/stp family).  The store's base register is
+    resolved inside its basic block:
+
+    * adr / adrp / ldr =literal / movz(+movk) / add-immediate chains give
+      an absolute address; window hits raise;
+    * an immediate addressing offset folds into the resolved address;
+    * the stack (sp/wsp/x29) and incoming argument registers (x0..x7) are
+      pass-through classes (the hook never owns those targets);
+    * anything else (base loaded from memory, register-offset addressing,
+      live-in non-argument registers) is conservatively rejected: prefer a
+      false alarm over a missed cave write.
+
+    whitelist maps a store's absolute address to a documented reason and
+    is the explicit escape hatch for proven-safe unresolvable shapes.
+    The resolution window is the straight-line run since the last
+    UNCONDITIONAL transfer (b/br/blr/bl/ret -- calls clobber caller-saved
+    registers): conditional branches keep tracked definitions, the
+    conservative cut.  Divergent redefinitions across a conditional
+    branch and its join are not modeled; that control flow does not occur
+    in the leaf hook units and the whitelist remains the escape hatch.
+    """
+    from capstone import Cs, CS_ARCH_ARM64, CS_MODE_LITTLE_ENDIAN
+    whitelist = whitelist or {}
+    code = bytes(code)
+    md = Cs(CS_ARCH_ARM64, CS_MODE_LITTLE_ENDIAN)
+    md.skipdata = True
+    insns = list(md.disasm(code, base))
+    stores = ('str', 'strb', 'strh', 'stp', 'stnp', 'stur', 'sttr', 'stlr')
+    terminators = ('ret', 'br', 'blr', 'bl')
+    argument = {'x%d' % r for r in range(8)} | {'w%d' % r for r in range(8)}
+    stack = {'sp', 'wsp', 'x29', 'w29'}
+    defs = {}                       # register -> ('abs', value) | None
+
+    def clear(reg):
+        defs[reg] = None
+        if reg.startswith('w'):
+            defs['x' + reg[1:]] = None
+
+    def define(reg, state):
+        defs[reg] = state
+        if reg.startswith('w'):
+            defs.pop('x' + reg[1:], None)   # a 32-bit def redefines the pair
+
+    def fail(address, message):
+        if address in whitelist or hex(address) in whitelist:
+            return
+        raise ValueError('Store census: ' + message)
+
+    for ins in insns:
+        mnemonic, operands = ins.mnemonic, ins.op_str
+        if mnemonic in stores:
+            inner = operands[operands.index('[') + 1:operands.rindex(']')]
+            parts = [p.strip() for p in inner.split(',')]
+            base_reg, offset = parts[0], None
+            register_offset = len(parts) > 1 and not parts[1].startswith('#')
+            if len(parts) > 1 and parts[1].startswith('#'):
+                offset = int(parts[1][1:], 0)
+            if base_reg in stack:
+                pass                        # stack frame store
+            elif base_reg in argument and base_reg not in defs:
+                pass                        # incoming parameter target
+            elif register_offset:
+                fail(ins.address, 'store at %s uses register-offset '
+                     'addressing (base %s): effective address not statically '
+                     'resolvable' % (hex(ins.address), base_reg))
+            else:
+                state = defs.get(base_reg, 'live-in')
+                if state == 'live-in':
+                    fail(ins.address, 'cannot resolve store base %s at %s: '
+                         'register has no definition in its basic block '
+                         '(not an argument register)' % (base_reg, hex(ins.address)))
+                elif state is None:
+                    fail(ins.address, 'cannot resolve store base %s at %s: '
+                         'register source is not statically resolvable'
+                         % (base_reg, hex(ins.address)))
+                else:
+                    target = state[1] + (offset or 0)
+                    if window[0] <= target < window[1]:
+                        fail(ins.address, 'store at %s (base %s) resolves into '
+                             'the cave window %s-%s: %s -- the cave is '
+                             'read-only at EL0, unit data belongs in a '
+                             'writable window'
+                             % (hex(ins.address), base_reg,
+                                hex(window[0]), hex(window[1]), hex(target)))
+        elif mnemonic in ('adr', 'adrp'):
+            dest = operands.split(',')[0].strip()
+            target = int(operands.split('#')[1], 0)
+            define(dest, ('abs', target))
+        elif mnemonic == 'ldr' and '[' not in operands and '#' in operands:
+            dest = operands.split(',')[0].strip()
+            slot = int(operands.split('#')[1], 0) - base
+            if 0 <= slot <= len(code) - 8:
+                define(dest, ('abs', struct.unpack_from('<Q', code, slot)[0]))
+            else:
+                clear(dest)
+        elif mnemonic in ('movz', 'mov') and '#' in operands and '[' not in operands:
+            dest, rest = [p.strip() for p in operands.split(',', 1)]
+            imm = int(rest.split('#')[1].split(',')[0].strip(), 0)
+            shift = 0
+            if 'lsl' in rest:
+                shift = int(rest.split('lsl')[1].replace('#', '').strip(), 0)
+            if dest.startswith(('x', 'w')):
+                define(dest, ('abs', imm << shift))
+        elif mnemonic == 'movk':
+            dest, rest = [p.strip() for p in operands.split(',', 1)]
+            imm = int(rest.split('#')[1].split(',')[0].strip(), 0)
+            shift = int(rest.split('lsl')[1].replace('#', '').strip(), 0) \
+                if 'lsl' in rest else 0
+            prior = defs.get(dest)
+            if isinstance(prior, tuple):
+                merged = (prior[1] & ~(0xFFFF << shift)) | (imm << shift)
+                define(dest, ('abs', merged))
+            else:
+                clear(dest)
+        elif mnemonic in ('add', 'sub') and operands.count(',') == 2:
+            dest, source, immediate = [p.strip() for p in operands.split(',')]
+            if immediate.startswith('#'):
+                prior = defs.get(source)
+                delta = int(immediate[1:], 0) * (1 if mnemonic == 'add' else -1)
+                if isinstance(prior, tuple):
+                    define(dest, ('abs', prior[1] + delta))
+                else:
+                    clear(dest)
+            else:
+                clear(dest)
+        elif mnemonic == 'mov' and '#' not in operands and '[' not in operands:
+            dest, source = [p.strip() for p in operands.split(',', 1)]
+            if source in defs:
+                defs[dest] = defs[source]
+            else:
+                clear(dest)
+        elif mnemonic not in terminators and not (mnemonic == 'b' or mnemonic.startswith('b.')):
+            first = operands.split(',')[0].strip() if operands else ''
+            if first.startswith(('x', 'w')) or first in ('sp', 'wsp'):
+                clear(first)
+        if mnemonic in terminators or mnemonic == 'b' or mnemonic.startswith('b.'):
+            defs.clear()          # unconditional transfer ends the window

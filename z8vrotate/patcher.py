@@ -43,6 +43,7 @@ import struct
 
 from z8patch.image import Image, BASE, branch, table_copy, data_off
 from z8patch.shared import STRING_IDS
+from z8patch.contract import assert_no_cave_store_targets
 from z8prores.package import require
 
 from . import matrices, translations
@@ -81,6 +82,13 @@ STATE_LABELS = ('vr_matrices', 'vr_axis_codes', 'vr_threshold', 'vr_latch', 'vr_
 # inside the vrotate cave, stock zero.
 VR_EVENTS_AT = 0x40A09000
 VR_EVENTS_END = VR_EVENTS_AT + 44 * 32
+
+# Guard A whitelist (t3): store addresses whose base cannot be resolved in
+# their basic block but are proven safe.  Empty since the migration -- every
+# data store in the shipped unit rides a same-block state-window/DS-record
+# literal or the stack.  Any new entry needs a reason string that names the
+# proof (see z8patch.contract.assert_no_cave_store_targets).
+STORE_TARGET_WHITELIST = {}
 
 # T6 menu row: cloned from the stock audio attenuator row (item 0x2FC0,
 # row index 35 of the 44-row video menu table, class word 0x20901005).
@@ -268,6 +276,10 @@ def build_main(eg, code, entries, context):
     records = bank_records(eg)
     img = Image(eg)
     code = bytearray(code)
+    # Guard A (t3): refuse the build if any data store in the assembled unit
+    # resolves into the read-only cave -- the original EL0 crash class.
+    assert_no_cave_store_targets(bytes(code), CODE_AT, (CODE_AT, CODE_END),
+                                 STORE_TARGET_WHITELIST)
     # A+ migration guards: the data labels must not live in the cave unit
     # any more, and the unit must address the window through pool literals.
     for name in STATE_LABELS:

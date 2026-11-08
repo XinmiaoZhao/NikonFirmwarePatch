@@ -6,7 +6,9 @@ from pathlib import Path
 from z8prores.package import require, sha
 from z8prores.patcher import public_words
 from z8prores.menu import Image
-from z8patch.compiled import load
+from z8patch.compiled import load, unit_base, unit_sources
+from z8patch.contract import (assert_no_cross_region_pointers, assert_no_org_directives,
+                              registered_unit_entries)
 from z8patch.shared import Strings, VideoMenu, loader
 
 FEATURES = ('framing','video-quality','log-colour','photo-tools','video-orientation')
@@ -37,10 +39,22 @@ def compose(eg, features, compiler='clang', code_source='prebuilt', *, check_rec
     img = Image(eg)
     strings,menu=Strings(),VideoMenu(eg)
     detail,callbacks={},{}
+    # T3 build-time address-coupling guards: D1 refuses any .org in the unit
+    # assembly sources on every build; D2 placements accumulate below and the
+    # cross-region pointer sweep runs once the emit region is complete.
+    assert_no_org_directives()
+    placements=[]
+
+    def record(name,size,entries):
+        base=unit_base(name)
+        placements.append((name,base,base+size,
+                           registered_unit_entries(name,entries,unit_sources(name))))
 
     def unit(name):
         code,meta=load(name,code_source,compiler)
-        return code,{k:int(v['va'],16) for k,v in meta['symbols'].items()}
+        entries={k:int(v['va'],16) for k,v in meta['symbols'].items()}
+        record(name,len(code),entries)
+        return code,entries
 
     def merge(feature,source,refinements=()):
         for e in source.edits:
@@ -95,12 +109,15 @@ def compose(eg, features, compiler='clang', code_source='prebuilt', *, check_rec
     if 'photo-tools' in chosen:
         from z8precapture.patcher import edits
         code,meta=load('precapture',code_source,compiler)
+        record('precapture',len(code),{k:int(v['va'],16) for k,v in meta['symbols'].items()})
         for e in edits(code,meta['symbols']):img.put(e['offset'],e['new'],e['purpose'])
         detail['precapture']=dict(code_sha256=meta['sha256'],code_bytes=len(code),diagnostics=False,
                                   space_fallback=True,remaining_count=True,dx=True,lossless_fallback='HE*')
         from z8pixelshift.patcher import build_main
         code,meta=load('pixelshift',code_source,compiler)
-        af,_=load('pixelshift-af',code_source,compiler)
+        af,af_meta=load('pixelshift-af',code_source,compiler)
+        record('pixelshift',len(code),{k:int(v['va'],16) for k,v in meta['symbols'].items()})
+        record('pixelshift-af',len(af),{k:int(v['va'],16) for k,v in af_meta['symbols'].items()})
         part,detail['pixelshift']=build_main(eg,code,meta['symbols'],af,strings)
         merge('pixelshift',part)
     if 'video-orientation' in chosen:
@@ -116,6 +133,9 @@ def compose(eg, features, compiler='clang', code_source='prebuilt', *, check_rec
         detail['menu']=menu.emit(img,chosen,code,entries,callbacks)
     else:detail['menu']=None
     detail['loader']=loader(img,chosen)
+    # D2: with every edit in place, emit-region qwords outside the unit
+    # spans may only name registered unit entry symbols.
+    assert_no_cross_region_pointers(img.edits, placements)
     rows = [dict(offset=hex(e['offset']),bytes=len(e['new']),purpose=e['purpose'],
                  old_sha256=sha(e['old']),new_sha256=sha(e['new'])) for e in sorted(img.edits,key=lambda r:r['offset'])]
     if check_recipe:
