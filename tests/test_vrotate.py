@@ -61,9 +61,6 @@ VR_STATE_IMG_OFF, VR_STATE_SIZE = 0x4B25800, 0x100
 VR_MATRICES_OFF, VR_THRESHOLD_OFF = 0x00, 0x6C
 VR_AXIS_CODES_OFF, VR_LATCH_OFF, VR_SENTINEL_OFF = 0x70, 0x76, 0x77
 VR_MAGIC_OFF, VR_MAGIC = 0xFF, 0xA5
-# The pre-migration cave span the five labels used to occupy (0x40A08270
-# .. 0x40A082EE in the shipped unit); kept for the residual-reference test.
-OLD_LABEL_SPAN = (0x40A08270, 0x40A082F0)
 
 
 def _clang():
@@ -882,17 +879,18 @@ class StateWindowTests(unittest.TestCase):
                     VR_LATCH_OFF, VR_SENTINEL_OFF):
             self.assertIn(_struct.pack('<Q', VR_STATE_VA + off), code, hex(off))
         # No qword anywhere in the code+pool region (everything before the
-        # read-only row-events clone) may point into the cave: the five
-        # labels used to ride there, and any in-cave pointer in the pool
-        # would be a residual or reappeared data reference.  The clone's own
-        # vr_row_hook action slots are the only legitimate cave pointers.
+        # read-only row-events clone, which keeps its pre-migration cave
+        # address) may point into the cave: the five labels used to ride
+        # there, and any in-cave pointer in the pool would be a residual or
+        # reappeared data reference.  The clone keeps the only legitimate
+        # cave pointers (its three vr_row_hook action slots).
         limit = entries['vr_row_events'] - CAVE_BASE
         self.assertGreater(limit, 0)
+        self.assertEqual(entries['vr_row_events'], 0x40A082F0)
         for at in range(0, limit - 7):
             q = _struct.unpack_from('<Q', code, at)[0]
             self.assertFalse(CAVE_BASE <= q < CAVE_LIMIT,
                              'cave pointer %#x at unit+%#x' % (q, at))
-        self.assertFalse(OLD_LABEL_SPAN[0] <= entries['vr_row_events'] < OLD_LABEL_SPAN[1])
 
     def test_mirror_parity_six_vectors(self):
         """The constants the assembled unit will read from the window are

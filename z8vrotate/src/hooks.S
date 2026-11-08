@@ -59,8 +59,9 @@
  *   word 0x0A02E56018 must equal 1.  Each component's sign bit is stripped
  *   and magnitudes are compared as unsigned integers (IEEE754 non-negative
  *   ordering) -- no FPU needed.  The dominant axis (argmax with the
- *   x-beats-y-beats-z tie-break) must reach the cave threshold vr_threshold
- *   (0.70f = 0x3F333333); otherwise no mark (code 0).  The pose code is
+ *   x-beats-y-beats-z tie-break) must reach the threshold vr_threshold
+ *   (0.70f = 0x3F333333) in the state window; otherwise no mark (code 0).
+ *   The pose code is
  *   vr_axis_codes[axis*2 + sign], the unit's own code 0..3 (0 = landscape /
  *   no mark).  Returns w8; manual-call linkage (b in, br x17 out) so x30
  *   stays intact; clobbers only w8..w16.
@@ -98,23 +99,35 @@
  *
  * vr_default_on -- first-boot default-on init, entered by a manual x17 call
  *   (b in, br x17 out; x30 untouched) from BOTH the latch hook and the
- *   row-refresh hook, whichever runs first.  The cave sentinel byte boots 0
- *   (the text loader re-copies the patched image each boot), so the first
- *   pass arms the sentinel to VR_SENTINEL_VALUE FIRST and then writes 1 to
- *   the value byte in the active record and all four bank storages:
- *   arm-before-write is the power-loss property -- an init interrupted
- *   between the two steps at worst leaves a user Off in place until the
- *   next boot, and never lets a later re-initialization overwrite a stored
- *   user value.  Later passes are no-ops, keeping a user's Off alive for
- *   the whole session; a power cycle re-copies the cave (sentinel back to
- *   0) and every bank defaults to On again.  Clobbers w8/w9/x10/x17 only.
+ *   row-refresh hook, whichever runs first.  The sentinel byte in the
+ *   state window ships 0 in the image and boots 0 (the boot segment
+ *   loader re-copies the data mirror window from the image every power
+ *   cycle), so the first pass arms the sentinel to VR_SENTINEL_VALUE
+ *   FIRST and then writes 1 to the value byte in the active record and
+ *   all four bank storages: arm-before-write is the power-loss property
+ *   -- an init interrupted between the two steps at worst leaves a user
+ *   Off in place until the next boot, and never lets a later
+ *   re-initialization overwrite a stored user value.  Later passes are
+ *   no-ops, keeping a user's Off alive for the whole session; a power
+ *   cycle re-copies the window (sentinel back to 0) and every bank
+ *   defaults to On again.  Clobbers w8/w9/x10/x17 only.
  *
- * Cave data, all patcher-filled at build time (z8vrotate/patcher.py):
- *   vr_matrices 108 B = ORIENT_TO_MATRIX[1..3] big-endian 16.16 words,
- *   vr_axis_codes 6 B, vr_threshold 4 B (0x3F333333), vr_latch 1 B (0),
- *   vr_sentinel 1 B (0; first-boot marker, see vr_default_on),
- *   vr_row_events 44x32 B (the cloned stock transition table of the
- *   template row, see vr_row_hook).
+ * Unit state, in the boot-loaded data mirror window (A+ migration, the
+ *   2026-11-09 vrotate-fix t1 report): a 256 B window of the boot data
+ *   segment (RAM 0xA0281A800, EG image 0x4B25800) holds all five unit data
+ *   labels -- vr_matrices 108 B = ORIENT_TO_MATRIX[1..3] big-endian 16.16
+ *   words at +0x00, vr_threshold 4 B (0x3F333333) at +0x6C,
+ *   vr_axis_codes 6 B at +0x70, vr_latch 1 B (0) at +0x76, vr_sentinel
+ *   1 B (0; first-boot marker, see vr_default_on) at +0x77 -- plus the
+ *   0xA5 magic byte at +0xFF that proves on camera that the boot segment
+ *   loader really copies the window from the image (zero-initialized RAM
+ *   cannot read 0xA5 back).  The window is ordinary EL0-writable RAM: the
+ *   stock crash was the sentinel/latch stores hitting the read-only cave.
+ *   The labels are addressed through `ldr =` literals injected via -D
+ *   (VR_*_RAM from patcher.asm_defines, the z8log asm_defines precedent);
+ *   a naked assemble without the defines fails at link.  The cave keeps
+ *   only code, its literal pool and vr_row_events 44x32 B (the cloned
+ *   stock transition table of the template row, see vr_row_hook).
  *
  * vr_row_hook -- T6: the OK/0x28B/touch action of the synthesized row
  *   0x315B in the video shooting menu.  Cloned from the stock audio
@@ -158,12 +171,17 @@
 #define VR_COPY_B2  0x0A03D5C80A    /* bank B storage record +2 */
 #define VR_COPY_B3  0x0A03D5CADA    /* bank C storage record +2 */
 #define VR_COPY_B4  0x0A03D5CDAA    /* bank D storage record +2 */
+/* State window RAM VAs of the five unit data labels: injected via -D from
+ * patcher.asm_defines (the window layout is frozen there); no local default,
+ * so a naked assemble without the defines cannot silently target the cave. */
+/* VR_MATRICES_RAM, VR_THRESHOLD_RAM, VR_AXIS_CODES_RAM, VR_LATCH_RAM,
+ * VR_SENTINEL_RAM -- provided by the build. */
 
 .text
 .balign 16
 .global vr_matrix_hook
 vr_matrix_hook:
-    adr  x10, vr_latch
+    ldr  x10, =VR_LATCH_RAM        // one-shot latch in the state window
     ldrb w8, [x10]
     strb wzr, [x10]                // one-shot: consume the latch on every pass
     ldr  x11, =VR_VALUE            // per-bank switch byte (TIER-style literal read)
@@ -172,7 +190,7 @@ vr_matrix_hook:
     sub  w8, w8, #1
     cmp  w8, #2
     b.hi 2f                        // latch not in 1..3: passthrough
-    adr  x10, vr_matrices
+    ldr  x10, =VR_MATRICES_RAM     // display matrices in the state window
     mov  w9, #36
     umaddl x1, w8, w9, x10         // x1 = &vr_matrices[(latch-1)*36]
 2:  b    original_40ce3fdc         // tail branch; x30 still 0x40cefd64
@@ -186,7 +204,7 @@ vr_latch_hook:                     // entered via b from 0x40d17728; x0/w1 pass 
     b    vr_default_on
 2:  adr  x17, 3f                   // manual call: x30 must stay the caller's
     b    vr_classify
-3:  adr  x9, vr_latch
+3:  ldr  x9, =VR_LATCH_RAM
     strb w8, [x9]                  // pose code; 0 = no mark / invalid
 1:                                  // displaced pair from 0x40d17728 (t2 report)
 vr_latch_displaced:
@@ -256,7 +274,7 @@ vr_refresh_hook:                   // shared_refresh fifth callback; x0 = state
 
 .balign 16
 vr_default_on:                     // b in / br x17 out; first-boot init
-    adr  x10, vr_sentinel
+    ldr  x10, =VR_SENTINEL_RAM     // first-boot marker in the state window
     ldrb w8, [x10]
     cbnz w8, 9f                    // already armed this boot: change nothing
     mov  w8, #VR_SENTINEL_VALUE
@@ -300,35 +318,27 @@ vr_classify:                       // b in / br x17 out; returns w8 = code 0..3
     cmp  w15, w14
     csel w15, w15, w14, hs         // overall dominant magnitude
     csel w16, w16, w9, hs          // axis 2 = z (needs to be strictly larger)
-    adr  x9, vr_threshold
-    ldr  w9, [x9]                  // cave threshold bits (0.70f)
+    ldr  x9, =VR_THRESHOLD_RAM     // threshold word in the state window
+    ldr  w9, [x9]                  // threshold bits (0.70f)
     cmp  w15, w9
     b.lo 8f                        // no dominant axis: no mark
     lsr  w9, w10, w16              // winner's sign bit to bit 0
     and  w9, w9, #1
     add  w16, w16, w16
     orr  w16, w16, w9              // vr_axis_codes index = axis*2 + sign (0..5)
-    adr  x9, vr_axis_codes
+    ldr  x9, =VR_AXIS_CODES_RAM    // pose-code table in the state window
     ldrb w8, [x9, x16]             // own pose code 0..3
     b    9f
 8:  mov  w8, wzr                   // gate off / no dominant axis / invalid
 9:  br   x17
 
 .ltorg
-.balign 4
-vr_axis_codes:                     /* 6 bytes: [axis*2 + sign] -> pose code; T11 flip = bytes only */
-    .space 6
-.balign 4                          /* keep the threshold word aligned for its ldr */
-vr_threshold:                      /* u32 IEEE754 bits (0.70f = 0x3F333333); patcher-filled */
-    .space 4
-.balign 8
-vr_matrices:                       /* 3 x 36 B big-endian 16.16 matrices, codes 1..3; patcher-filled */
-    .space 108
-vr_latch:                          /* latched pose code at recording open; 0 = none */
-    .space 1
-vr_sentinel:                       /* first-boot marker; loader re-copies 0 each boot */
-    .space 1
-.balign 8
+/* The five .space data labels that used to sit here (120 B) moved to the
+ * state window; advance to the pre-migration address so vr_row_events
+ * keeps its cave slot 0x40A082F0 and the frozen transition-pointer recipe
+ * rows stay byte-identical across the migration.  build_main pins the
+ * address, so a literal pool that outgrows the slot fails loudly. */
+.org 0x2F0
 .global vr_row_events
 vr_row_events:                     /* 44 x 32 B transition table cloned from 0x2FC0; patcher-filled */
     .space 44*32

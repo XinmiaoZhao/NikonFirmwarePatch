@@ -20,6 +20,17 @@ Builds the hooks from z8vrotate/src/hooks.S into the stock EG:
   tables and gates the build on them; the first-boot sentinel init
   (vr_default_on in hooks.S, mirrored by default_on()) defaults every
   bank to On.
+
+A+ migration (2026-11-09 vrotate-fix t1 report): the five unit data
+labels (vr_matrices, vr_axis_codes, vr_threshold, vr_latch, vr_sentinel)
+live in a 256 B window of the boot-loaded data mirror segment, not in
+the read-only cave.  The window was picked by a four-leg zero-writer
+census of the stock image; the boot segment loader record
+{len=0x2AD000, dst=0xA02808000} re-copies it from the image every power
+cycle, so the latch and sentinel mirror bytes ship 0 (fresh-boot state)
+and the window tail carries the 0xA5 magic byte that witnesses a real
+boot copy.  hooks.S receives the label VAs through -D defines
+(asm_defines, the z8log asm_defines precedent).
 """
 import struct
 
@@ -41,6 +52,20 @@ THRESHOLD_BITS = 0x3F333333        # IEEE754 bits of 0.70f (dominant-axis gate)
 SENTINEL_VALUE = 0x5A              # must equal VR_SENTINEL_VALUE in hooks.S;
                                     # test_unit_builds pins both materializations
 NOP = struct.pack('<I', 0xD503201F)
+
+# A+ state window (t1 report design facts, four-leg zero-writer census):
+# RAM [0xA0281A800,0xA0281A900) inside the boot-loaded data mirror segment,
+# EG image [0x4B25800,0x4B25900).  The boot segment loader re-copies the
+# window from the image every power cycle; EL0 code can write it.  The
+# offsets below are the frozen window layout (facts.state_window, pinned
+# by tests/test_vrotate.py StateWindowTests).
+VR_STATE_VA, VR_STATE_SIZE = 0xA0281A800, 0x100
+VR_STATE_END = VR_STATE_VA + VR_STATE_SIZE
+VR_STATE_IMG_OFF = 0x4B25800       # = VR_STATE_VA - DATA_VA + DATA_OFF; build_main pins it
+VR_MATRICES_OFF, VR_THRESHOLD_OFF = 0x00, 0x6C
+VR_AXIS_CODES_OFF, VR_LATCH_OFF, VR_SENTINEL_OFF = 0x70, 0x76, 0x77
+VR_MAGIC_OFF, VR_MAGIC = 0xFF, 0xA5  # power-cycle boot-copy witness byte
+STATE_LABELS = ('vr_matrices', 'vr_axis_codes', 'vr_threshold', 'vr_latch', 'vr_sentinel')
 
 # T6 menu row: cloned from the stock audio attenuator row (item 0x2FC0,
 # row index 35 of the 44-row video menu table, class word 0x20901005).
@@ -82,14 +107,26 @@ VR_MATRICES = (matrices.ORIENT_TO_MATRIX[1] + matrices.ORIENT_TO_MATRIX[2]
                + matrices.ORIENT_TO_MATRIX[3])
 
 
+def asm_defines():
+    """-D defines for hooks.S: the absolute RAM VAs of the five unit data
+    labels inside the state window (z8patch.compiled injects these when it
+    compiles the vrotate unit, the z8log asm_defines precedent)."""
+    return dict(VR_MATRICES_RAM=VR_STATE_VA + VR_MATRICES_OFF,
+                VR_THRESHOLD_RAM=VR_STATE_VA + VR_THRESHOLD_OFF,
+                VR_AXIS_CODES_RAM=VR_STATE_VA + VR_AXIS_CODES_OFF,
+                VR_LATCH_RAM=VR_STATE_VA + VR_LATCH_OFF,
+                VR_SENTINEL_RAM=VR_STATE_VA + VR_SENTINEL_OFF)
+
+
 def classify(gate, x, y, z):
     """Mirror of the vr_classify cave routine; returns the pose code 0..3.
 
-    Same algorithm and cave constants as the assembled unit: gate word must
-    be 1, sign bits stripped, magnitudes compared as unsigned float bits,
-    argmax with the x-beats-y-beats-z tie-break, dominant axis at or above
-    THRESHOLD_BITS, code = AXIS_CODES[axis*2 + sign].  Byte-level agreement
-    with the unit is asserted by the T10 emulation round.
+    Same algorithm and state-window constants as the assembled unit: gate
+    word must be 1, sign bits stripped, magnitudes compared as unsigned
+    float bits, argmax with the x-beats-y-beats-z tie-break, dominant axis
+    at or above THRESHOLD_BITS, code = AXIS_CODES[axis*2 + sign].  Byte-level
+    agreement with the unit is asserted by the T10 emulation round and the
+    StateWindowTests mirror-parity vectors.
     """
     if gate != 1:
         return 0
@@ -148,9 +185,10 @@ def default_on(copies, sentinel):
     """Mirror of the vr_default_on first-boot init (hooks.S).
 
     copies models the five record bytes (active record first, then bank
-    storages A-D).  A zero sentinel (fresh boot: the text loader re-copies
-    the patched cave, so vr_sentinel starts 0 every power cycle) defaults
-    every copy to 1 and arms the sentinel; an armed sentinel changes
+    storages A-D).  A zero sentinel (fresh boot: the boot segment loader
+    re-copies the data mirror state window from the image, so the sentinel
+    byte starts 0 every power cycle) defaults every copy to 1 and arms the
+    sentinel; an armed sentinel changes
     nothing, which is what keeps a user's Off alive for the session.
     """
     if sentinel == 0:
@@ -205,44 +243,76 @@ def strings(eg, context):
 
 
 def build_main(eg, code, entries, context):
-    """Emit the vrotate unit, its two gated edits and the synthesized menu row."""
-    require(len(VR_MATRICES) == 108 and len(AXIS_CODES) == 6, 'vrotate cave constants')
+    """Emit the vrotate unit, its two gated edits, the state window and the synthesized menu row."""
+    require(len(VR_MATRICES) == 108 and len(AXIS_CODES) == 6, 'vrotate unit constants')
     require(not any(eg[CODE_AT - BASE:CODE_END - BASE]), 'vrotate cave not free in stock image')
+    require(data_off(VR_STATE_VA) == VR_STATE_IMG_OFF
+            and VR_STATE_IMG_OFF + VR_STATE_SIZE == 0x4B25900, 'vrotate state window image offset')
+    require(not any(eg[VR_STATE_IMG_OFF:VR_STATE_IMG_OFF + VR_STATE_SIZE]),
+            'vrotate state window not free in stock image')
     records = bank_records(eg)
     img = Image(eg)
     code = bytearray(code)
+    # A+ migration guards: the data labels must not live in the cave unit
+    # any more, and the unit must address the window through pool literals.
+    for name in STATE_LABELS:
+        require(name not in entries, 'vrotate state label must not stay in the cave: ' + name)
+    for off in (VR_MATRICES_OFF, VR_THRESHOLD_OFF, VR_AXIS_CODES_OFF, VR_LATCH_OFF,
+                VR_SENTINEL_OFF):
+        require(struct.pack('<Q', VR_STATE_VA + off) in code,
+                'vrotate state window literal missing from the unit: +%#x' % off)
+    # The row-events clone keeps its pre-migration cave slot so the frozen
+    # transition-pointer recipe rows stay byte-identical (the pool must not
+    # outgrow the 0x2F0 slot in hooks.S).
+    require(entries['vr_row_events'] == 0x40A082F0, 'vrotate row-events slot moved')
 
     def fill(name, data):
         at = entries[name] - CODE_AT
         require(code[at:at + len(data)] == bytes(len(data)), 'vrotate fill not zero: ' + name)
         code[at:at + len(data)] = data
 
-    fill('vr_matrices', VR_MATRICES)
-    fill('vr_axis_codes', AXIS_CODES)
-    fill('vr_threshold', struct.pack('<I', THRESHOLD_BITS))
-    fill('vr_latch', b'\x00')
-    fill('vr_sentinel', b'\x00')
     template, pointer = menu_row(eg)
     fill('vr_row_events', row_events(eg, pointer, entries['vr_row_hook']))
     text = strings(eg, context)
     row = struct.pack('<11I', TITLE_ID, *template[1:6], ROW_ITEM, *template[7:])
     require(CODE_AT + len(code) <= CODE_END, 'vrotate code capacity')
+    # State window fill: constants land in the boot-copied data mirror image;
+    # the one-shot latch and the first-boot sentinel ship 0 (fresh boot), and
+    # the window tail byte is the 0xA5 magic (a power-cycle boot-copy
+    # witness -- zero-initialized RAM cannot read 0xA5 back).
+    window = bytearray(VR_STATE_SIZE)
+    window[VR_MATRICES_OFF:VR_MATRICES_OFF + len(VR_MATRICES)] = VR_MATRICES
+    window[VR_THRESHOLD_OFF:VR_THRESHOLD_OFF + 4] = struct.pack('<I', THRESHOLD_BITS)
+    window[VR_AXIS_CODES_OFF:VR_AXIS_CODES_OFF + len(AXIS_CODES)] = AXIS_CODES
+    window[VR_LATCH_OFF] = 0
+    window[VR_SENTINEL_OFF] = 0
+    window[VR_MAGIC_OFF] = VR_MAGIC
     img.put(MATRIX_SITE, branch(MATRIX_SITE, entries['vr_matrix_hook'], link=True),
             'movie tkhd matrix copy: bl 0x40ce3fdc -> bl vr_matrix_hook',
             expect=struct.pack('<I', MATRIX_STOCK_WORD))
     img.put(LATCH_SITE, branch(LATCH_SITE, entries['vr_latch_hook']) + NOP,
             'record file open trampoline: mov/movk x8 pair -> b vr_latch_hook + nop',
             expect=LATCH_STOCK)
-    img.put(CODE_AT, code, 'vrotate unit: matrix hook, latch hook, classifier, row hooks, default-on init, cave constants',
+    img.put(CODE_AT, code, 'vrotate unit: matrix hook, latch hook, classifier, row hooks, default-on init',
             expect_zero=True)
+    img.put(VR_STATE_IMG_OFF, bytes(window),
+            'vrotate state window: display matrices, threshold, axis codes, one-shot latch, first-boot sentinel and magic byte (boot-copied data mirror segment)',
+            expect_zero=True, offset=True)
     return img, dict(entries={k: hex(v) for k, v in entries.items()}, code_bytes=len(code),
                      cave=[hex(CODE_AT), hex(CODE_AT + len(code))],
+                     state_window=[hex(VR_STATE_VA), hex(VR_STATE_VA + VR_STATE_SIZE)],
+                     state=dict(matrices=hex(VR_STATE_VA + VR_MATRICES_OFF),
+                                threshold=hex(VR_STATE_VA + VR_THRESHOLD_OFF),
+                                axis_codes=hex(VR_STATE_VA + VR_AXIS_CODES_OFF),
+                                latch=hex(VR_STATE_VA + VR_LATCH_OFF),
+                                sentinel=hex(VR_STATE_VA + VR_SENTINEL_OFF),
+                                magic='%s@+%#x' % (hex(VR_MAGIC), VR_MAGIC_OFF)),
                      axis_codes=list(AXIS_CODES), threshold=hex(THRESHOLD_BITS),
                      sentinel=hex(SENTINEL_VALUE), matrix_bytes=len(VR_MATRICES),
                      storage=dict(item=hex(BANK_ITEM), value_off=VALUE_OFF,
                                   value_addr=hex(VALUE_ADDR),
                                   records=[hex(a) for a in records],
-                                  power_off='default on (loader re-copies the cave each boot)'),
+                                  power_off='default on (the boot loader re-copies the state window each power cycle)'),
                      strings=text,
                      menu=dict(item=hex(ROW_ITEM), title_id=TITLE_ID, value_ids=(ON_ID, OFF_ID),
                                row_hex=row.hex(), row_table=hex(entries['vr_row_events']),

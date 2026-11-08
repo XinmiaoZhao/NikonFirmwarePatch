@@ -85,14 +85,26 @@ def verify_contract(old,new,features):
         need(cave<=branch_target(0x40d17728,read(new,'<I',0x40d17728-base)[0])<unit_end,'vrotate latch hook branch into the cave')
         need(read(new,'<I',0x40d1772C-base)[0]==0xD503201F,'vrotate latch site trailing nop')
         need(struct.pack('<Q',0xA03D5C26A) in new[cave-base:unit_end-base],'vrotate active value byte literal in the unit')
-        need(new[0x40A082EC-base]==0 and new[0x40A082ED-base]==0,'vrotate one-shot latch and sentinel ship zero')
+        # A+ migration (2026-11-09 vrotate-fix t1 report): the unit state
+        # lives in the boot-copied data mirror window EG [0x4B25800,0x4B25900)
+        # (RAM 0xA0281A800).  Fixed facts: the window base literal rides in
+        # the unit, the threshold and axis codes sit at the frozen offsets,
+        # the one-shot latch and first-boot sentinel mirror bytes ship 0 and
+        # the window tail byte is the 0xA5 magic (a boot-copy witness that
+        # zero-initialized RAM cannot fake).
+        need(struct.pack('<Q',0xA0281A800) in new[cave-base:unit_end-base],'vrotate state window literal in the unit')
+        window=new[0x4B25800:0x4B25900]
+        need(struct.unpack_from('<I',window,0x6C)[0]==0x3F333333,'vrotate threshold in the state window')
+        need(window[0x70:0x76]==bytes((1,2,0,0,0,3)),'vrotate axis codes in the state window')
+        need(window[0x76]==0 and window[0x77]==0,'vrotate one-shot latch and sentinel mirror bytes ship zero')
+        need(window[0xFF]==0xA5,'vrotate state window magic byte')
         imms={ (w>>5)&0xFFFF for w in struct.unpack_from(f'<{(0x2EC)//4}I',new,cave-base) if w&0xFFE00000==0x52800000 }
         need({2466,2467}<=imms,'vrotate On/Off value ids in cave code')
         row_at=rows-base+44*ids.index(0x315B)
         need(read(new,'<I',row_at)[0]==3225,'vrotate row title id 3225')
         need(read(new,'<I',row_at+16)[0]==0x20901005,'vrotate row class word')
         need(read(new,'<I',row_at+20)[0]==0x1327,'vrotate row value sub-widget')
-        vrotate=dict(cave=hex(cave),unit_end=hex(unit_end),row='0x315b',title_id=3225,value_ids=[2466,2467],sentinel='0x5A armed at first boot, ships 0')
+        vrotate=dict(cave=hex(cave),unit_end=hex(unit_end),state_window='0xa0281a800-0xa0281a900 (boot-copied data mirror, EG 0x4b25800)',row='0x315b',title_id=3225,value_ids=[2466,2467],sentinel='0x5A armed at first boot, mirror byte ships 0')
         need(end>=0x40A10000,'copy boundary covers the vrotate cave')
     return dict(status='PASS',video_menu=video,language_tables=36,offsets_per_language=entries,
                 exact_group_visibility=True,zero_state=True,loader_end=hex(end),vrotate=vrotate)

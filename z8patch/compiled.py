@@ -46,6 +46,9 @@ def compile_unit(name, compiler='clang'):
     if name=='log':
         from z8log.patcher import asm_defines
         spec['flags']=[*spec['flags'],*[f'-D{k}={v:#x}' for k,v in sorted(asm_defines().items())]]
+    if name=='vrotate':
+        from z8vrotate.patcher import asm_defines
+        spec['flags']=[*spec['flags'],*[f'-D{k}={v:#x}' for k,v in sorted(asm_defines().items())]]
     with tempfile.TemporaryDirectory(prefix='nikon-patch-compile-') as folder:
         obj = Path(folder)/'patch.o'
         cmd = [compiler,*spec['flags'],'-c',str(ROOT/spec['source']),'-o',str(obj)]

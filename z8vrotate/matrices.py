@@ -39,7 +39,7 @@ anchor is the T1 boot observation that a level camera at rest reads
 +Z = code 0, -Z = code 3 (rolled 180), +X = code 1 (rolled 90 deg CW as seen
 from behind the camera), -X = code 2, and +/-Y (assumed parallel to the lens
 axis) carries no roll code.  This assignment cannot be pinned in emulation
-and ships as the cave constant vr_axis_codes (z8vrotate/patcher.py
+and ships as the state-window constant vr_axis_codes (z8vrotate/patcher.py
 AXIS_CODES); the T11 on-camera calibration flips individual bytes only, as
 documented in the hooks.S header.
 
@@ -128,8 +128,8 @@ ROTATE_180_MATRIX = bytes.fromhex(
 )
 
 # Own pose code (gravity-vector classification, see above) -> 36-byte tkhd
-# matrix.  The cave table vr_matrices carries only codes 1..3; code 0 is the
-# passthrough identity.
+# matrix.  The state-window table vr_matrices carries only codes 1..3;
+# code 0 is the passthrough identity.
 ORIENT_TO_MATRIX = {
     0: IDENTITY_MATRIX,
     1: ROTATE_90_CW_MATRIX,
