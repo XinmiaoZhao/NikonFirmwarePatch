@@ -1277,5 +1277,335 @@ class ContractPinTests(unittest.TestCase):
             verify_contract(bytes(doctored), new, ['video-orientation'])
 
 
+class BuildTimeGuardTests(unittest.TestCase):
+    """T3 build-time guards (2026-11-09 vrotate-fix): the three architecture
+    iron rules become standing assertions that refuse the build.
+
+    * A -- the vrotate unit store census: every data write in the assembled
+      unit must resolve its base register to a non-cave target (the cave is
+      read-only at EL0; a store into it is the original crash class).
+    * C -- window-fact doctored negatives: verify_contract must reject a
+      corrupted state-window magic byte and a corrupted window base literal.
+    * D1 -- unit assembly sources must not use .org (unit source pinning is
+      the bright-line ban; .balign/.space stay legal for in-unit data).
+    * D2 -- cross-region pointer sweep: emit-region qwords outside unit
+      spans may only name registered entry symbols of a unit.
+    """
+
+    CAVE_WINDOW = (0x40A08000, 0x40A10000)
+
+    # --- minimal AArch64 encoders for synthetic census units (self-checking:
+    # every test that uses one also round-trips it through capstone).
+    @staticmethod
+    def _adr(rd, delta):
+        immlo, immhi = delta & 3, (delta >> 2) & 0x7FFFF
+        return struct.pack('<I', (immlo << 29) | (0x10 << 24) | (immhi << 5) | rd)
+
+    @staticmethod
+    def _ldr_literal(rt, delta):
+        return struct.pack('<I', 0x58000000 | ((delta // 4) << 5) | rt)
+
+    @staticmethod
+    def _movz(rd, imm, shift=0):
+        return struct.pack('<I', 0xD2800000 | ((shift // 16) << 21) | (imm << 5) | rd)
+
+    @staticmethod
+    def _movk(rd, imm, shift):
+        return struct.pack('<I', 0xF2800000 | ((shift // 16) << 21) | (imm << 5) | rd)
+
+    @staticmethod
+    def _strb(rt, rn, imm=0):
+        return struct.pack('<I', 0x39000000 | (imm << 10) | (rn << 5) | rt)
+
+    @staticmethod
+    def _decode(code):
+        from capstone import Cs, CS_ARCH_ARM64, CS_MODE_LITTLE_ENDIAN
+        md = Cs(CS_ARCH_ARM64, CS_MODE_LITTLE_ENDIAN)
+        return [i.mnemonic + ' ' + i.op_str for i in md.disasm(bytes(code), 0)]
+
+    def _census(self, code):
+        from z8patch.contract import assert_no_cave_store_targets
+        return assert_no_cave_store_targets(bytes(code), self.CAVE_WINDOW[0], self.CAVE_WINDOW)
+
+    def test_store_census_rejects_adr_into_cave(self):
+        """A store whose base register is an in-block adr of a cave target
+        (the original T2 crash shape: adr of an in-unit data label) must
+        fail the build."""
+        code = self._adr(10, 8) + self._strb(8, 10)
+        self.assertEqual(self._decode(code)[0], 'adr x10, #8')
+        with self.assertRaisesRegex(ValueError, 'cave window'):
+            self._census(code)
+
+    def test_store_census_rejects_literal_pool_cave_address(self):
+        """A store fed by an ldr = literal naming a cave VA must fail; the
+        same shape with an outside-cave literal (the DS record byte family)
+        passes."""
+        from z8patch.contract import assert_no_cave_store_targets
+        bad = self._ldr_literal(10, 8) + self._strb(8, 10) + struct.pack('<Q', 0x40A08080)
+        with self.assertRaisesRegex(ValueError, 'cave window'):
+            assert_no_cave_store_targets(bad, self.CAVE_WINDOW[0], self.CAVE_WINDOW)
+        good = self._ldr_literal(10, 8) + self._strb(8, 10) + struct.pack('<Q', 0xA03D5C26A)
+        assert_no_cave_store_targets(good, self.CAVE_WINDOW[0], self.CAVE_WINDOW)
+        # A non-cave 0x40xxxxxx stock-table literal passes too.
+        stock = self._ldr_literal(10, 8) + self._strb(8, 10) + struct.pack('<Q', 0x43C33EF0)
+        assert_no_cave_store_targets(stock, self.CAVE_WINDOW[0], self.CAVE_WINDOW)
+
+    def test_store_census_rejects_movz_movk_cave_chain(self):
+        """A movz/movk chain materializing a cave VA must fail even though no
+        literal pool is involved; an immediate offset folds into the check."""
+        chain = (self._movz(10, 0x8000) + self._movk(10, 0x40A0, 16)
+                 + self._strb(8, 10))
+        with self.assertRaisesRegex(ValueError, 'cave window'):
+            self._census(chain)
+        offset = (self._movz(10, 0x8000) + self._movk(10, 0x40A0, 16)
+                  + self._strb(8, 10, 0x10))          # 0x40A08010, still the cave
+        with self.assertRaisesRegex(ValueError, 'cave window'):
+            self._census(offset)
+
+    def test_store_census_argument_and_stack_stores_pass(self):
+        """Stores based on incoming argument registers and on the stack are
+        the two pass-through classes (the hooks never own those targets)."""
+        arg = self._strb(8, 0)                        # strb w8, [x0]: parameter
+        self._census(arg)
+        stack = struct.pack('<I', 0xA9BE7BFD)        # stp x29, x30, [sp, #-0x20]!
+        self.assertEqual(self._decode(stack)[0], 'stp x29, x30, [sp, #-0x20]!')
+        self._census(stack)
+
+    def test_store_census_unresolvable_base_is_conservative(self):
+        """A store whose base cannot be resolved in-block (register loaded
+        from memory, or a live-in non-argument register) is rejected unless
+        the address is explicitly whitelisted with a reason."""
+        from z8patch.contract import assert_no_cave_store_targets
+        indirect = struct.pack('<I', 0xF9400009) + self._strb(31, 9)   # ldr x9,[x0]; strb wzr,[x9]
+        with self.assertRaisesRegex(ValueError, 'cannot resolve'):
+            assert_no_cave_store_targets(indirect, self.CAVE_WINDOW[0], self.CAVE_WINDOW)
+        whitelist = {self.CAVE_WINDOW[0] + 4: 'test-only: proven-safe store shape'}
+        assert_no_cave_store_targets(indirect, self.CAVE_WINDOW[0], self.CAVE_WINDOW,
+                                      whitelist=whitelist)
+        live_in = self._strb(8, 9)                   # strb w8,[x9], x9 never defined
+        with self.assertRaisesRegex(ValueError, 'cannot resolve'):
+            assert_no_cave_store_targets(live_in, self.CAVE_WINDOW[0], self.CAVE_WINDOW)
+
+    def test_store_census_passes_the_real_vrotate_unit(self):
+        """The shipped vrotate unit (664 B pure code + pool) passes the
+        census: its ten data stores all ride state-window/DS-record literals
+        and its two stp go to the stack."""
+        from z8patch import compiled
+        compiler = _clang()
+        if not compiler:
+            self.skipTest('no clang for the aarch64 unit build')
+        code, _ = compiled.compile_unit('vrotate', compiler)
+        self._census(code)
+
+    def test_org_directive_rejected_in_unit_sources(self):
+        """D1: any .org in the unit assembly sources refuses the build;
+        .balign/.space (legal in-unit padding/data) stay tolerated."""
+        import tempfile
+        from z8patch.contract import assert_no_org_directives
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            (root / 'z8probe' / 'src').mkdir(parents=True)
+            (root / 'z8probe' / 'src' / 'clean.S').write_text(
+                '.balign 4\n.space 16\nlabel:\n nop\n')
+            self.assertGreaterEqual(assert_no_org_directives(root), 1)
+            (root / 'z8probe' / 'src' / 'pinned.S').write_text(
+                'start:\n nop\n.org 0x2F0\ntable:\n nop\n')
+            with self.assertRaisesRegex(ValueError, 'pinned.S.*\\.org'):
+                assert_no_org_directives(root)
+
+    def test_repo_assembly_sources_are_org_free(self):
+        """The real tree passes D1 today and the scan reaches every unit
+        source folder (14 files across seven folders at freeze time)."""
+        from z8patch.contract import assert_no_org_directives
+        count = assert_no_org_directives()
+        self.assertGreaterEqual(count, 14)
+
+    def test_cross_region_pointer_rejects_non_entry_target(self):
+        """D2: an emit-region qword inside a unit span that does not name a
+        registered entry symbol refuses the build; the same qword naming a
+        registered entry passes."""
+        from z8patch.contract import assert_no_cross_region_pointers
+        placements = [('vrotate', 0x40A08000, 0x40A08298,
+                       {'vr_row_hook': 0x40A08070})]
+        rows = [dict(offset=0x40A09000 - EG_BASE, end=0x40A09008 - EG_BASE,
+                     new=struct.pack('<Q', 0x40A08074))]     # unit interior, not an entry
+        with self.assertRaisesRegex(ValueError, '0x40a09000.*0x40a08074.*vrotate'):
+            assert_no_cross_region_pointers(rows, placements)
+        good = [dict(offset=0x40A09000 - EG_BASE, end=0x40A09008 - EG_BASE,
+                     new=struct.pack('<Q', 0x40A08070))]     # vr_row_hook
+        assert_no_cross_region_pointers(good, placements)
+
+    def test_cross_region_pointer_skips_unit_span_bytes(self):
+        """Qwords inside a unit's own span are the unit's business (internal
+        self-references); only emit-region bytes outside unit spans sweep."""
+        from z8patch.contract import assert_no_cross_region_pointers
+        placements = [('vrotate', 0x40A08000, 0x40A08298,
+                       {'vr_row_hook': 0x40A08070})]
+        rows = [dict(offset=0x40A08000 - EG_BASE, end=0x40A08008 - EG_BASE,
+                     new=struct.pack('<Q', 0x40A08074))]     # inside the unit span
+        assert_no_cross_region_pointers(rows, placements)
+
+    def test_registered_entry_mechanism(self):
+        """Asm units register their .global hook labels; the C-unit contract
+        names all exist in the frozen symbol tables inside their spans."""
+        import json
+        from z8patch import compiled
+        from z8patch.contract import (C_UNIT_ENTRY_CONTRACT, asm_global_declarations,
+                                      registered_unit_entries)
+        sources = compiled.unit_sources('vrotate')
+        self.assertTrue(all(p.name.endswith('.S') for p in sources))
+        declared = asm_global_declarations(sources)
+        self.assertEqual(sorted(n for n in declared if n.startswith('vr_')),
+                         ['vr_latch_hook', 'vr_matrix_hook', 'vr_refresh_hook',
+                          'vr_row_hook'])
+        units = json.loads((ROOT / 'resources' / 'compiled.json').read_text())['units']
+        for name, contract in C_UNIT_ENTRY_CONTRACT.items():
+            symbols = {k: int(v['va'], 16) for k, v in units[name]['symbols'].items()}
+            base = compiled.unit_base(name)
+            registered = registered_unit_entries(name, symbols, compiled.unit_sources(name))
+            self.assertEqual(sorted(registered), sorted(contract), name)
+            for symbol, va in registered.items():
+                self.assertTrue(base <= va < base + units[name]['bytes'], (name, symbol))
+
+    def test_state_window_magic_doctored(self):
+        """C: corrupting the fresh-boot magic byte in the built image must
+        fail the composition contract."""
+        from features import compose
+        from z8prores.package import Package
+        from z8patch.contract import verify_contract
+        if not FIRMWARE.is_file():
+            self.skipTest('stock firmware fixture not present: %s' % FIRMWARE)
+        compiler = _clang()
+        if not compiler:
+            self.skipTest('no clang for the aarch64 unit build')
+        old = Package(FIRMWARE.read_bytes()).eg
+        img, _, _ = compose(old, ['video-orientation'], compiler, 'source',
+                            check_recipe=False)
+        doctored = bytearray(img.new)
+        doctored[VR_STATE_IMG_OFF + VR_MAGIC_OFF] ^= 1
+        with self.assertRaisesRegex(ValueError, 'state window magic byte'):
+            verify_contract(old, bytes(doctored), ['video-orientation'])
+
+    def test_state_window_literal_doctored(self):
+        """C: replacing the state-window base literal in the unit pool must
+        fail the composition contract."""
+        from features import compose
+        from z8prores.package import Package
+        from z8patch.contract import verify_contract
+        if not FIRMWARE.is_file():
+            self.skipTest('stock firmware fixture not present: %s' % FIRMWARE)
+        compiler = _clang()
+        if not compiler:
+            self.skipTest('no clang for the aarch64 unit build')
+        old = Package(FIRMWARE.read_bytes()).eg
+        img, _, _ = compose(old, ['video-orientation'], compiler, 'source',
+                            check_recipe=False)
+        doctored = bytearray(img.new)
+        unit = doctored[CAVE_BASE - EG_BASE:CAVE_BASE - EG_BASE + 664]
+        needle = struct.pack('<Q', VR_STATE_VA)
+        at = bytes(unit).find(needle)
+        self.assertGreaterEqual(at, 0)
+        doctored[CAVE_BASE - EG_BASE + at:CAVE_BASE - EG_BASE + at + 8] = \
+            struct.pack('<Q', 0xDEAD0000DEAD0000)
+        with self.assertRaisesRegex(ValueError, 'state window literal in the unit'):
+            verify_contract(old, bytes(doctored), ['video-orientation'])
+
+
+class DataMirrorReservationTests(unittest.TestCase):
+    """T3 B: the two vrotate windows registered in the patcher-level
+    reservation census (cave dimension and data-mirror segment dimension).
+
+    The data-mirror table transcribes the t1 report Step 0b window census
+    (33 documented module windows in EG [0x4B13000,0x4DC0000)); the vrotate
+    state window must be disjoint from all of them, and both vrotate windows
+    must be stock zero at 8 B and 4 B granularity (dual caliber).
+    """
+
+    # (eg_start, eg_end, owner) -- data-mirror segment windows (t1 report
+    # Step 0b, cross-checked against each owning patcher's constants).
+    DATA_MIRROR_CENSUS = (
+        (0x4B68258, 0x4B68298, 'opengate spare groups 22..25 (z8opengate/imenu.py)'),
+        (0x4B75AC8, 0x4B75B08, 'opengate spare groups, second set (z8opengate/imenu.py)'),
+        (0x4B95110, 0x4B95118, 'opengate i-menu title widget (z8opengate/imenu.py)'),
+        (0x4B95150, 0x4B95318, 'opengate config read/write base (z8opengate/imenu.py)'),
+        (0x4B95320, 0x4B95718, 'opengate N-RAW widget config pointers (z8opengate/imenu.py)'),
+        (0x4B95748, 0x4B95B40, 'opengate widget config pointers 2 (z8opengate/imenu.py)'),
+        (0x4B95B68, 0x4B95D30, 'opengate config base 2 (z8opengate/imenu.py)'),
+        (0x4B95D30, 0x4B95EF8, 'opengate config base 3 (z8opengate/imenu.py)'),
+        (0x4BB1770, 0x4BB1778, 'opengate title widget 2 (z8opengate/imenu.py)'),
+        (0x4BB17B8, 0x4BB1BB0, 'opengate widget cfg pointers 3 (z8opengate/imenu.py)'),
+        (0x4BB1BE0, 0x4BB1FD8, 'opengate widget cfg pointers 4 (z8opengate/imenu.py)'),
+        (0x4BCC2C0, 0x4BCC2D0, 'shared video menu page rows/pointers/count (z8patch/shared.py PAGE+0x10)'),
+        (0x4BCC720, 0x4BCC732, 'opengate frame-size page (z8opengate/patcher.py)'),
+        (0x4BDAA40, 0x4BDAA90, 'pixelshift C5 page record (z8pixelshift/patcher.py)'),
+        (0x4BF1670, 0x4BF1678, 'pixelshift photo menu entry callback (z8pixelshift/patcher.py)'),
+        (0x4BF1690, 0x4BF1698, 'pixelshift refresh callback (z8pixelshift/patcher.py)'),
+        (0x4BF1850, 0x4BF1878, 'pixelshift PS8 browser state callbacks (z8pixelshift/patcher.py)'),
+        (0x4BF3380, 0x4BF33A8, 'pixelshift modal state callbacks (z8pixelshift/patcher.py)'),
+        (0x4BF3A80, 0x4BF3A88, 'video 0xfe state refresh slot (z8prores/menu.py)'),
+        (0x4BFFCC0, 0x4C08C00, 'menu state table, 0x60B x 0x17E records (z8prores/menu.py)'),
+        (0x4C007F0, 0x4C007F8, 'pixelshift state 1Dh page pointer (z8pixelshift/patcher.py)'),
+        (0x4C040C8, 0x4C040D0, 'log state B5h callbacks (z8log/patcher.py)'),
+        (0x4C040F0, 0x4C040F8, 'log state B5h page pointer (z8log/patcher.py)'),
+        (0x4C04128, 0x4C04130, 'anamorphic state B6h callbacks (z8anamorphic/patcher.py)'),
+        (0x4C04150, 0x4C04158, 'anamorphic state B6h page pointer (z8anamorphic/patcher.py)'),
+        (0x4C05DA8, 0x4C05DB0, 'prores state 0x102 callbacks (z8prores/menu.py)'),
+        (0x4C05DD0, 0x4C05DD8, 'prores state 0x102 page pointer (z8prores/menu.py)'),
+        (0x4C08BC8, 0x4C08BD0, 'h265 state 17Dh callbacks (z8h265/patcher.py)'),
+        (0x4C08BE8, 0x4C08BF0, 'h265 state 17Dh page pointer (z8h265/patcher.py)'),
+        (0x4C69B50, 0x4C6AA60, 'precapture callback slots 93,112..117,129,130 (z8precapture/patcher.py)'),
+        (0x4D2FFC0, 0x4D2FFC4, 'precapture config word (z8precapture/patcher.py)'),
+        (0x4D2FFCC, 0x4D2FFD0, 'precapture config word 2 (z8precapture/patcher.py)'),
+    )
+
+    def test_vrotate_state_window_disjoint_and_stock_zero(self):
+        """The state window is inside the boot-copied data mirror segment,
+        disjoint from every documented module window, and stock zero at both
+        granularities; the patcher facts carry the same window."""
+        from z8patch.image import DATA_OFF, DATA_END
+        from z8vrotate import patcher
+        self.assertEqual(patcher.VR_STATE_IMG_OFF, 0x4B25800)
+        window = (patcher.VR_STATE_IMG_OFF,
+                  patcher.VR_STATE_IMG_OFF + patcher.VR_STATE_SIZE)
+        self.assertTrue(DATA_OFF <= window[0] and window[1] <= DATA_END)
+        for start, end, owner in self.DATA_MIRROR_CENSUS:
+            with self.subTest(owner=owner.split(' (')[0]):
+                self.assertTrue(window[1] <= start or end <= window[0],
+                                f'state window {window[0]:#x}-{window[1]:#x} overlaps {owner}')
+        self.assertEqual(patcher.VR_STATE_VA + VR_STATE_SIZE, VR_STATE_END)
+        if FIRMWARE.is_file():
+            from z8prores.package import Package
+            eg = Package(FIRMWARE.read_bytes()).eg
+            span = eg[window[0]:window[1]]
+            self.assertEqual(struct.unpack(f'<{len(span) // 8}Q', span),
+                             (0,) * (len(span) // 8))
+            self.assertEqual(struct.unpack(f'<{len(span) // 4}I', span),
+                             (0,) * (len(span) // 4))
+
+    def test_events_sub_window_registered_and_stock_zero(self):
+        """The row-events fixed sub-window sits inside the vrotate cave
+        reservation (a sub-window of it, so disjointness with other modules
+        follows from the cave census row), is stock zero at both
+        granularities, and the patcher facts carry the same window."""
+        from z8vrotate import patcher
+        self.assertEqual((patcher.VR_EVENTS_AT, patcher.VR_EVENTS_END),
+                         (VR_EVENTS_AT, VR_EVENTS_END))
+        self.assertTrue(patcher.CODE_AT < VR_EVENTS_AT
+                        and VR_EVENTS_END <= patcher.CODE_END)
+        # The sub-window must not eat into the unit's own capacity region:
+        # it starts past every emitted unit end observed so far.
+        self.assertGreaterEqual(VR_EVENTS_AT, patcher.CODE_AT + 664)
+        if FIRMWARE.is_file():
+            from z8prores.package import Package
+            eg = Package(FIRMWARE.read_bytes()).eg
+            span = eg[VR_EVENTS_AT - EG_BASE:VR_EVENTS_END - EG_BASE]
+            self.assertEqual(struct.unpack(f'<{len(span) // 8}Q', span),
+                             (0,) * (len(span) // 8))
+            self.assertEqual(struct.unpack(f'<{len(span) // 4}I', span),
+                             (0,) * (len(span) // 4))
+            tail = eg[VR_EVENTS_END - EG_BASE:patcher.CODE_END - EG_BASE]
+            self.assertEqual(tail, bytes(len(tail)))
+
+
 if __name__ == '__main__':
     unittest.main(verbosity=2)
