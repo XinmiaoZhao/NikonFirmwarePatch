@@ -28,6 +28,11 @@ def verify_contract(old,new,features):
         need(mask==int(framing)+2*int(quality)+4*int(log)+8*int(vr),'shared feature mask')
         ptrs=read(new,'<5Q',0x40980F08-base)
         need([bool(p) for p in ptrs]==[quality,quality,framing,log,vr],'shared callback presence')
+        # The unfrozen shared unit runs an unconditional five-slot callback
+        # ring reading CONFIG+0x28 even in four-group builds, where that
+        # slot keeps its stock bytes -- pin the stock firmware fact those
+        # builds rely on (a nonzero stock byte would be blr'd as a callback).
+        need(not any(old[0x40980F28-base:0x40980F30-base]),'fifth callback slot stock zero')
         need(0x40980000<=read(new,'<Q',0x4BF3A80)[0]<0x40980F00,'shared refresh entry')
     else:
         need(new[0x4BCC2B0:0x4BCC300]==old[0x4BCC2B0:0x4BCC300],'photo-only video page preservation')

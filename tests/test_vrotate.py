@@ -908,5 +908,36 @@ class IntegrationTests(unittest.TestCase):
         self.assertGreater(len(rows), 0)
 
 
+class ContractPinTests(unittest.TestCase):
+    """T8 review carry-item M1: the fifth-slot stock-zero build gate.
+
+    The unfrozen shared unit runs an unconditional five-slot callback ring
+    reading CONFIG+0x28 (0x40980F28) even in four-group builds, where the
+    fifth slot keeps its stock bytes; a nonzero stock byte there would be
+    blr'd as a callback.  The contract pins the stock fact at build time
+    instead of leaving it to manual verification.
+    """
+
+    def test_fifth_slot_stock_zero_pin(self):
+        from features import compose
+        from z8prores.package import Package
+        from z8patch.contract import verify_contract
+        if not FIRMWARE.is_file():
+            self.skipTest('stock firmware fixture not present: %s' % FIRMWARE)
+        compiler = _clang()
+        if not compiler:
+            self.skipTest('no clang for the aarch64 unit build')
+        old = Package(FIRMWARE.read_bytes()).eg
+        img, _, _ = compose(old, ['video-orientation'], compiler, 'source',
+                            check_recipe=False)
+        new = bytes(img.new)
+        contract = verify_contract(old, new, ['video-orientation'])
+        self.assertEqual(contract['status'], 'PASS')
+        doctored = bytearray(old)
+        doctored[0x40980F28 - 0x40160000] = 1
+        with self.assertRaisesRegex(ValueError, 'fifth callback slot stock zero'):
+            verify_contract(bytes(doctored), new, ['video-orientation'])
+
+
 if __name__ == '__main__':
     unittest.main(verbosity=2)
