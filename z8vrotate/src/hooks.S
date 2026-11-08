@@ -125,9 +125,15 @@
  *   stock crash was the sentinel/latch stores hitting the read-only cave.
  *   The labels are addressed through `ldr =` literals injected via -D
  *   (VR_*_RAM from patcher.asm_defines, the z8log asm_defines precedent);
- *   a naked assemble without the defines fails at link.  The cave keeps
- *   only code, its literal pool and vr_row_events 44x32 B (the cloned
- *   stock transition table of the template row, see vr_row_hook).
+ *   a naked assemble without the defines fails at link.
+ *
+ * Cave layout (T2b, 2026-11-09 user ruling): the unit is pure code plus its
+ *   literal pool from 0x40A08000, capacity-checked against VR_EVENTS_AT
+ *   (patcher.py).  The read-only vr_row_events 44x32 B transition-table
+ *   clone lives at the patcher-constant fixed sub-window VR_EVENTS_AT =
+ *   0x40A09000 (the z8h265 MENU_AT form), emitted as its own image edit --
+ *   unit growth no longer moves any external frozen byte that names the
+ *   table (the 8 B emit-region transition pointer is the only one).
  *
  * vr_row_hook -- T6: the OK/0x28B/touch action of the synthesized row
  *   0x315B in the video shooting menu.  Cloned from the stock audio
@@ -137,8 +143,9 @@
  *   In stock, events 0x286/0x28B/0x2AE all dispatch to 0x405707D4, which
  *   flips DS setting 0x700123C (0x405121EC -> write 0x410D61D0) and then
  *   redraws the focused row through 0x40512068 -> 0x405120E8 (boolean
- *   value widget) + 0x403B3DDC + 0x403B26C0.  The cave clone replaces
- *   only those three action words: it flips the active-record value byte
+ *   value widget) + 0x403B3DDC + 0x403B26C0.  The events-window clone
+ *   replaces only those three action words: it flips the active-record value
+ *   byte
  *   at VR_VALUE, then shows the official localized On/Off pair by driving
  *   the row's value child (child id 0x4BA7, the same lookup the stock
  *   refresh 0x40572B2C uses for every row: 0x4050A6F0) with string id 2466
@@ -333,12 +340,7 @@ vr_classify:                       // b in / br x17 out; returns w8 = code 0..3
 9:  br   x17
 
 .ltorg
-/* The five .space data labels that used to sit here (120 B) moved to the
- * state window; advance to the pre-migration address so vr_row_events
- * keeps its cave slot 0x40A082F0 and the frozen transition-pointer recipe
- * rows stay byte-identical across the migration.  build_main pins the
- * address, so a literal pool that outgrows the slot fails loudly. */
-.org 0x2F0
-.global vr_row_events
-vr_row_events:                     /* 44 x 32 B transition table cloned from 0x2FC0; patcher-filled */
-    .space 44*32
+/* End of the unit: pure code plus the literal pool above.  The row-events
+ * transition-table clone moved to the fixed sub-window VR_EVENTS_AT
+ * (0x40A09000, see the header); patcher.py emits it as its own image edit
+ * and capacity-checks the unit against that window. */

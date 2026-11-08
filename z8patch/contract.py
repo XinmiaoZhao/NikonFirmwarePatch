@@ -73,7 +73,11 @@ def verify_contract(old,new,features):
         units=json.loads((Path(__file__).resolve().parents[1]/'resources/compiled.json').read_text())['units']
         cave=0x40A08000;unit_end=cave+units['vrotate']['bytes']
         need(not any(old[cave-base:0x40A10000-base]),'vrotate cave free in stock')
-        need(not any(new[unit_end-base:0x40A10000-base]),'vrotate reservation tail stays stock zero')
+        # T2b: the row-events clone rides its own fixed sub-window
+        # 0x40A09000-0x40A09580; the gap between the unit and that window and
+        # the tail past it stay stock zero.
+        need(not any(new[unit_end-base:0x40A09000-base]),'vrotate cave gap stays stock zero')
+        need(not any(new[0x40A09580-base:0x40A10000-base]),'vrotate cave tail stays stock zero')
         def branch_target(site,word):
             need(word>>26 in (0x05,0x25),f'vrotate hook branch shape at {site:#x}')
             delta=word&0x3FFFFFF
@@ -98,13 +102,23 @@ def verify_contract(old,new,features):
         need(window[0x70:0x76]==bytes((1,2,0,0,0,3)),'vrotate axis codes in the state window')
         need(window[0x76]==0 and window[0x77]==0,'vrotate one-shot latch and sentinel mirror bytes ship zero')
         need(window[0xFF]==0xA5,'vrotate state window magic byte')
+        # T2b fixed events sub-window: the 44-record clone with its 0x3BB
+        # terminator, three actions into the unit code, and the 8 B
+        # emit-region pointer naming the window (the only external byte that
+        # carries the table address).  `events` above is the VIDEO_EVENTS
+        # pointer-table VA.
+        table=new[0x40A09000-base:0x40A09580-base]
+        need(read(table,'<Q',32*43)[0]==0x3BB,'vrotate events window terminator')
+        need(sum(1 for i in range(44) if read(table,'<Q',32*i+8)[0] in range(cave,unit_end))==3,
+            'vrotate events window toggle actions into the unit')
+        need(read(new,'<Q',events-base+8*ids.index(0x315B))[0]==0x40A09000,'vrotate row transition table at the fixed events window')
         imms={ (w>>5)&0xFFFF for w in struct.unpack_from(f'<{(0x2EC)//4}I',new,cave-base) if w&0xFFE00000==0x52800000 }
         need({2466,2467}<=imms,'vrotate On/Off value ids in cave code')
         row_at=rows-base+44*ids.index(0x315B)
         need(read(new,'<I',row_at)[0]==3225,'vrotate row title id 3225')
         need(read(new,'<I',row_at+16)[0]==0x20901005,'vrotate row class word')
         need(read(new,'<I',row_at+20)[0]==0x1327,'vrotate row value sub-widget')
-        vrotate=dict(cave=hex(cave),unit_end=hex(unit_end),state_window='0xa0281a800-0xa0281a900 (boot-copied data mirror, EG 0x4b25800)',row='0x315b',title_id=3225,value_ids=[2466,2467],sentinel='0x5A armed at first boot, mirror byte ships 0')
+        vrotate=dict(cave=hex(cave),unit_end=hex(unit_end),events_window='0x40a09000-0x40a09580 (fixed cave sub-window)',state_window='0xa0281a800-0xa0281a900 (boot-copied data mirror, EG 0x4b25800)',row='0x315b',title_id=3225,value_ids=[2466,2467],sentinel='0x5A armed at first boot, mirror byte ships 0')
         need(end>=0x40A10000,'copy boundary covers the vrotate cave')
     return dict(status='PASS',video_menu=video,language_tables=36,offsets_per_language=entries,
                 exact_group_visibility=True,zero_state=True,loader_end=hex(end),vrotate=vrotate)

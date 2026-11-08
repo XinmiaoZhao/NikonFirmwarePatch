@@ -135,9 +135,9 @@ class ClassifyMirrorTests(unittest.TestCase):
     The latch hook classifies the normalised gravity vector (f32 x3 at
     0x0A02E560E0) itself; z8vrotate.patcher.classify mirrors the assembly
     algorithm (sign-bit strip, unsigned magnitude compare, argmax with the
-    x > y > z tie-break, cave threshold, axis*2+sign table lookup) against
-    the same cave constants.  Byte-level agreement with the assembled unit
-    is exercised by the T10 emulation round.
+    x > y > z tie-break, state-window threshold, axis*2+sign table lookup)
+    against the same state-window constants.  Byte-level agreement with
+    the assembled unit is exercised by the T10 emulation round.
     """
 
     def test_six_canonical_vectors(self):

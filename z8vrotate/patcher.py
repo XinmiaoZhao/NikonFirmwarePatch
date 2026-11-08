@@ -11,7 +11,8 @@ Builds the hooks from z8vrotate/src/hooks.S into the stock EG:
 * T6: the synthesized inline-toggle menu row 0x315B (title id 3225,
   36-language table in translations.py, value pair = official ids
   2466/2467) cloned field-for-field from the stock attenuator row 0x2FC0,
-  with its transition table cloned into the cave and the three toggle
+  with its transition table cloned into the fixed cave sub-window and the
+  three toggle
   actions rerouted to vr_row_hook.
 * T7: the row value is stored per movie shooting bank in byte +2 of the
   DS item 0x1257 record family (copy type 0, registered size 1 -- the
@@ -31,6 +32,12 @@ cycle, so the latch and sentinel mirror bytes ship 0 (fresh-boot state)
 and the window tail carries the 0xA5 magic byte that witnesses a real
 boot copy.  hooks.S receives the label VAs through -D defines
 (asm_defines, the z8log asm_defines precedent).
+
+T2b (2026-11-09 user ruling): the row-events transition-table clone
+rides its own image edit at the fixed cave sub-window VR_EVENTS_AT =
+0x40A09000 (the z8h265 MENU_AT form) instead of an organic in-unit
+slot -- unit growth is decoupled from the frozen external rows that
+name the table.
 """
 import struct
 
@@ -66,6 +73,14 @@ VR_MATRICES_OFF, VR_THRESHOLD_OFF = 0x00, 0x6C
 VR_AXIS_CODES_OFF, VR_LATCH_OFF, VR_SENTINEL_OFF = 0x70, 0x76, 0x77
 VR_MAGIC_OFF, VR_MAGIC = 0xFF, 0xA5  # power-cycle boot-copy witness byte
 STATE_LABELS = ('vr_matrices', 'vr_axis_codes', 'vr_threshold', 'vr_latch', 'vr_sentinel')
+
+# Fixed sub-window for the row-events transition-table clone (T2b, the
+# z8h265 MENU_AT form): the 44x32 B table rides its own expect_zero image
+# edit at a patcher-constant cave address, so unit code/pool growth can
+# never move any external frozen byte that names the table.  4K-aligned,
+# inside the vrotate cave, stock zero.
+VR_EVENTS_AT = 0x40A09000
+VR_EVENTS_END = VR_EVENTS_AT + 44 * 32
 
 # T6 menu row: cloned from the stock audio attenuator row (item 0x2FC0,
 # row index 35 of the 44-row video menu table, class word 0x20901005).
@@ -207,7 +222,7 @@ def menu_row(eg):
 
 
 def row_events(eg, pointer, hook):
-    """Clone the template transition table; only the toggle action moves to the cave."""
+    """Clone the template transition table; only the toggle action moves to vr_row_hook."""
     seen = []
 
     def change(event, action, guard, target):
@@ -261,21 +276,19 @@ def build_main(eg, code, entries, context):
                 VR_SENTINEL_OFF):
         require(struct.pack('<Q', VR_STATE_VA + off) in code,
                 'vrotate state window literal missing from the unit: +%#x' % off)
-    # The row-events clone keeps its pre-migration cave slot so the frozen
-    # transition-pointer recipe rows stay byte-identical (the pool must not
-    # outgrow the 0x2F0 slot in hooks.S).
-    require(entries['vr_row_events'] == 0x40A082F0, 'vrotate row-events slot moved')
-
-    def fill(name, data):
-        at = entries[name] - CODE_AT
-        require(code[at:at + len(data)] == bytes(len(data)), 'vrotate fill not zero: ' + name)
-        code[at:at + len(data)] = data
+    # The row-events clone rides its own fixed sub-window (T2b); the unit is
+    # pure code + pool and must stop short of that window, whose tail stays
+    # stock zero.
+    require(VR_EVENTS_AT % 0x1000 == 0 and CODE_AT < VR_EVENTS_AT
+            and VR_EVENTS_END <= CODE_END, 'vrotate events window placement')
+    require(not any(eg[VR_EVENTS_AT - BASE:CODE_END - BASE]),
+            'vrotate events window not free in stock image')
 
     template, pointer = menu_row(eg)
-    fill('vr_row_events', row_events(eg, pointer, entries['vr_row_hook']))
+    events = row_events(eg, pointer, entries['vr_row_hook'])
     text = strings(eg, context)
     row = struct.pack('<11I', TITLE_ID, *template[1:6], ROW_ITEM, *template[7:])
-    require(CODE_AT + len(code) <= CODE_END, 'vrotate code capacity')
+    require(CODE_AT + len(code) <= VR_EVENTS_AT, 'vrotate code capacity')
     # State window fill: constants land in the boot-copied data mirror image;
     # the one-shot latch and the first-boot sentinel ship 0 (fresh boot), and
     # the window tail byte is the 0xA5 magic (a power-cycle boot-copy
@@ -295,11 +308,15 @@ def build_main(eg, code, entries, context):
             expect=LATCH_STOCK)
     img.put(CODE_AT, code, 'vrotate unit: matrix hook, latch hook, classifier, row hooks, default-on init',
             expect_zero=True)
+    img.put(VR_EVENTS_AT, events,
+            'vrotate row transition table: 44-record clone of the 0x2FC0 table, three toggle actions -> vr_row_hook (fixed cave sub-window)',
+            expect_zero=True)
     img.put(VR_STATE_IMG_OFF, bytes(window),
             'vrotate state window: display matrices, threshold, axis codes, one-shot latch, first-boot sentinel and magic byte (boot-copied data mirror segment)',
             expect_zero=True, offset=True)
     return img, dict(entries={k: hex(v) for k, v in entries.items()}, code_bytes=len(code),
                      cave=[hex(CODE_AT), hex(CODE_AT + len(code))],
+                     events_window=[hex(VR_EVENTS_AT), hex(VR_EVENTS_END)],
                      state_window=[hex(VR_STATE_VA), hex(VR_STATE_VA + VR_STATE_SIZE)],
                      state=dict(matrices=hex(VR_STATE_VA + VR_MATRICES_OFF),
                                 threshold=hex(VR_STATE_VA + VR_THRESHOLD_OFF),
@@ -315,6 +332,6 @@ def build_main(eg, code, entries, context):
                                   power_off='default on (the boot loader re-copies the state window each power cycle)'),
                      strings=text,
                      menu=dict(item=hex(ROW_ITEM), title_id=TITLE_ID, value_ids=(ON_ID, OFF_ID),
-                               row_hex=row.hex(), row_table=hex(entries['vr_row_events']),
+                               row_hex=row.hex(), row_table=hex(VR_EVENTS_AT),
                                toggle_events=[hex(e) for e in TOGGLE_EVENTS],
                                template=hex(ATTEN_ITEM)))
