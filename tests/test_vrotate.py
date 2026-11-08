@@ -902,6 +902,11 @@ class IntegrationTests(unittest.TestCase):
         self.assertTrue(any('movie tkhd matrix copy' in p for p in purposes))
         self.assertTrue(any('record file open trampoline' in p for p in purposes))
 
+    def test_vrotate_recipe_frozen(self):
+        """The vrotate-only composition matches the frozen recipe (T8 freeze)."""
+        _, _, rows = self._compose(check_recipe=True)
+        self.assertGreater(len(rows), 0)
+
 
 if __name__ == '__main__':
     unittest.main(verbosity=2)
