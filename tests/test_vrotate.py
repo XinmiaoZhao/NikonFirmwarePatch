@@ -1,12 +1,20 @@
 #!/usr/bin/env python3
 """Calibrated tkhd display matrices for the video-orientation feature (T4).
 
-Plus T5 unit tests (classify mirror, one-shot latch, unit build) and the
-T6 menu-row tests: the 36-language title table, the 0x2FC0 transition-table
-clone, the z8patch/shared.py extensions, and -- when the stock firmware
+Plus T5 unit tests (classify mirror, one-shot latch, unit build), the
+T6 menu-row tests (the 36-language title table, the 0x2FC0 transition-table
+clone, the z8patch/shared.py extensions) and -- when the stock firmware
 fixture and an aarch64-capable clang are present -- compilation, linking
 and patcher edit generation for the vrotate cave unit with its synthesized
 inline-toggle menu row.
+
+T7 adds the per-bank storage tests: the pure-Python default-on mirror
+(first-boot sentinel init, idempotence, user-off preservation), the value
+byte wiring (row toggle and matrix hook reference the active DS record
+byte; the T6 cave vr_value/vr_enable bytes are retired), and the Step-0
+candidate-byte evidence encoded as test data (pinned bank-record addresses
+plus a fresh writer scan over the stock image, so a firmware change that
+touches the record bytes fails loudly).
 
 The expected byte strings below are pinned offline evidence, independent of
 z8vrotate.matrices itself, so a regression in the module cannot also rewrite
@@ -435,6 +443,208 @@ class SharedExtensionTests(unittest.TestCase):
         self.assertEqual(items, menu.items)     # stock order untouched
 
 
+class DefaultOnTests(unittest.TestCase):
+    """Pure-Python mirror of the vr_default_on first-boot init (T7).
+
+    The cave sentinel byte boots 0 (the text loader re-copies the patched
+    image every boot); the first hook pass -- from either the latch hook
+    or the row-refresh hook, whichever runs first -- writes 1 to the value
+    byte in the active record and all four bank storage records, then
+    arms the sentinel.  Later passes must be no-ops, so a user's Off
+    survives the whole session; a power cycle resets the sentinel and
+    re-defaults every bank to On.
+    """
+
+    def test_default_on_mirror(self):
+        from z8vrotate import patcher
+        # Boot: sentinel 0, all five record bytes start from zeroed RAM.
+        copies, sentinel = patcher.default_on([0] * 5, 0)
+        self.assertEqual(copies, [1] * 5)
+        self.assertEqual(sentinel, patcher.SENTINEL_VALUE)
+        # Same boot, second pass (either entry point): nothing changes.
+        copies, sentinel = patcher.default_on(copies, sentinel)
+        self.assertEqual(copies, [1] * 5)
+        self.assertEqual(sentinel, patcher.SENTINEL_VALUE)
+        # The user turns the feature off in the active record and in bank
+        # C's storage (record 3); no later pass may overwrite either.
+        copies[0] = 0
+        copies[3] = 0
+        copies, sentinel = patcher.default_on(copies, sentinel)
+        self.assertEqual(copies, [0, 1, 1, 0, 1])
+        self.assertEqual(sentinel, patcher.SENTINEL_VALUE)
+        # Even garbage record contents (a corrupted byte) stay untouched
+        # once the sentinel is armed: the init is strictly first-boot.
+        copies[1] = 0xFF
+        copies, sentinel = patcher.default_on(copies, sentinel)
+        self.assertEqual(copies[1], 0xFF)
+        # A fresh boot (sentinel back to 0) re-defaults everything to 1.
+        copies, sentinel = patcher.default_on(copies, 0)
+        self.assertEqual(copies, [1] * 5)
+        self.assertEqual(sentinel, patcher.SENTINEL_VALUE)
+
+
+class CandidateByteEvidenceTests(unittest.TestCase):
+    """Step-0 candidate-byte evidence encoded as test data (T7).
+
+    The vrotate value byte is byte +2 of the DS item 0x1257 record family.
+    The five record addresses below are pinned from the stock bank tables
+    (category record at 0x440244C8 + 0x12*0x30 -> bank descriptor ->
+    record-pointer array; the same tables the stock bank-copy engine
+    indexes at 0x410157e0).  Bank 0 is the active/working record -- the
+    4-byte slot whose +1 byte already hosts the shipped H.265 tier
+    constant 0xA03D5C269 -- and banks 1..4 are the movie-shooting-bank
+    storages A-D (bank-switch call sites at 0x410dd2ec..0x410dd958 pass
+    (w0, w1) source/target bank ids with 0 = active).
+
+    Spareness: the item is registered with copy type 0 and size 1, so the
+    DS engine only ever reads/writes byte +0 of each record; the writer
+    scan re-proves per run that no code path materializes any of the
+    +1/+2/+3 byte addresses (u64 literal or movz/movk chain -- ADRP
+    cannot reach the 0xa03d5cxxx RAM window from EG code, ~0x5F0000000
+    beyond its +-4 GiB range).  See reports/t7-report.md for the full
+    evidence chain including the negative controls.
+    """
+
+    def test_candidate_byte_evidence(self):
+        import struct as _struct
+        from z8vrotate import patcher
+        if not FIRMWARE.is_file():
+            self.skipTest('stock firmware fixture not present: %s' % FIRMWARE)
+        from z8prores.package import Package
+        from z8patch.image import movz
+        eg = Package(FIRMWARE.read_bytes()).eg
+        # 1) The pinned record addresses re-derive from the stock tables.
+        self.assertEqual(patcher.BANK_ITEM, 0x1257)
+        self.assertEqual(patcher.VALUE_OFF, 2)
+        self.assertEqual(patcher.VALUE_ADDR, 0xA03D5C26A)
+        self.assertEqual(tuple(patcher.bank_records(eg)), patcher.BANK_RECORDS)
+        self.assertEqual(patcher.BANK_RECORDS,
+                         (0xA03D5C268, 0xA03D5C538, 0xA03D5C808, 0xA03D5CAD8, 0xA03D5CDA8))
+        # 2) Record-base pointers appear only inside the two stock data
+        #    tables that hold them by design (item type records and the
+        #    per-bank record-pointer arrays) -- never in a code pool.
+        tables = ((0x4400A000, 0x44012000), (0x44DB8000, 0x44DE0000))
+        for record in patcher.BANK_RECORDS:
+            needle = _struct.pack('<Q', record)
+            at = eg.find(needle)
+            self.assertNotEqual(at, -1, hex(record))   # pinned in the tables
+            while at != -1:
+                va = EG_BASE + at
+                self.assertTrue(any(lo <= va < hi for lo, hi in tables),
+                                'record base literal outside data tables: %#x' % va)
+                at = eg.find(needle, at + 1)
+        # 3) No spare byte (+1 tier neighborhood, +2 our candidate, +3) of
+        #    any copy appears as a u64 literal anywhere in the image.
+        spare = [r + off for r in patcher.BANK_RECORDS for off in (1, 2, 3)]
+        for address in spare:
+            self.assertEqual(eg.find(_struct.pack('<Q', address)), -1, hex(address))
+        # 4) No movz/movk chain builds any spare byte address (the other
+        #    way stock code could materialize a 64-bit RAM constant).
+        for address in spare:
+            low = address & 0xFFFF
+            for reg in range(31):
+                needle = movz(reg, low)
+                at = eg.find(needle)
+                while at != -1:
+                    if at % 4 == 0:
+                        value = low
+                        for step in (1, 2, 3):
+                            word = _struct.unpack_from('<I', eg, at + 4 * step)[0]
+                            if word & 0xFF800000 == 0xF2800000 and (word & 0x1F) == reg \
+                                    and (word >> 21) & 3 == step:
+                                value |= ((word >> 5) & 0xFFFF) << (16 * step)
+                                if value == address:
+                                    self.fail('movz/movk chain builds %s at %#x'
+                                              % (hex(address), EG_BASE + at))
+                                break
+                    at = eg.find(needle, at + 1)
+
+
+class StorageWiringTests(unittest.TestCase):
+    """The value byte wiring: DS record byte in, cave bytes out (T7).
+
+    The row toggle flips and the value text reads the ACTIVE record byte
+    (literal-address access like the H.265 TIER byte); the matrix hook's
+    enable check reads the same byte; the first-boot init writes 1 to the
+    active record and all four bank storages.  The T6 cave bytes vr_value
+    and vr_enable are retired: one byte, one source of truth.
+    """
+
+    def _unit_instructions(self, code):
+        from capstone import Cs, CS_ARCH_ARM64, CS_MODE_LITTLE_ENDIAN
+        md = Cs(CS_ARCH_ARM64, CS_MODE_LITTLE_ENDIAN)
+        md.skipdata = True
+        return list(md.disasm(bytes(code), CAVE_BASE))
+
+    def test_value_byte_wiring(self):
+        import struct as _struct
+        from z8patch.shared import Strings
+        from z8vrotate import patcher
+        from z8patch import compiled
+        from z8prores.package import Package
+        if not FIRMWARE.is_file():
+            self.skipTest('stock firmware fixture not present: %s' % FIRMWARE)
+        compiler = _clang()
+        if not compiler:
+            self.skipTest('no clang for the aarch64 unit build')
+        eg = Package(FIRMWARE.read_bytes()).eg
+        code, observed = compiled.compile_unit('vrotate', compiler)
+        entries = {name: int(sym['va'], 16) for name, sym in observed['symbols'].items()}
+        # The retired cave bytes are gone from the unit.
+        self.assertNotIn('vr_value', entries)
+        self.assertNotIn('vr_enable', entries)
+        code_bytes = bytes(code)
+        for name in ('vr_value', 'vr_enable'):
+            self.assertNotIn(name.encode(), code_bytes)
+        # The active-record byte and all four bank copies ride as 64-bit
+        # literals: the default-on init needs all five, the toggle and
+        # the matrix hook the active byte.
+        self.assertIn(_struct.pack('<Q', patcher.VALUE_ADDR), code_bytes)
+        for record in patcher.BANK_RECORDS[1:]:
+            self.assertIn(_struct.pack('<Q', record + patcher.VALUE_OFF), code_bytes)
+        # Disassemble and follow every 64-bit literal load: at least one
+        # load of the active byte feeds an ldrb (matrix-hook enable read
+        # / row value read) and at least one feeds a strb (row toggle /
+        # default-on write); every bank-copy literal feeds a strb.
+        insns = self._unit_instructions(code)
+        readers, writers = [], []
+        bank_writers = 0
+        for i, ins in enumerate(insns):
+            if ins.mnemonic != 'ldr' or not ins.op_str.startswith('x') or '#' not in ins.op_str:
+                continue
+            reg = ins.op_str.split(',')[0]
+            try:
+                literal_va = int(ins.op_str.split('#')[1], 16)
+            except ValueError:
+                continue
+            slot = literal_va - CAVE_BASE
+            if not 0 <= slot <= len(code_bytes) - 8:
+                continue
+            value = _struct.unpack_from('<Q', code_bytes, slot)[0]
+            following = insns[i + 1:i + 5]
+            for nxt in following:
+                base = '[%s]' % reg
+                if nxt.mnemonic == 'ldrb' and nxt.op_str.split(', ')[-1] == base \
+                        and value == patcher.VALUE_ADDR:
+                    readers.append(nxt.address)
+                if nxt.mnemonic == 'strb' and nxt.op_str.split(', ')[-1] == base:
+                    if value == patcher.VALUE_ADDR:
+                        writers.append(nxt.address)
+                    if value in [r + patcher.VALUE_OFF for r in patcher.BANK_RECORDS[1:]]:
+                        bank_writers += 1
+        self.assertTrue(readers, 'no literal-address read of the value byte')
+        self.assertTrue(writers, 'no literal-address write of the value byte')
+        self.assertGreaterEqual(bank_writers, 4, 'bank copies are not written')
+        # The build gates on the pinned record addresses and reports them.
+        img, meta = patcher.build_main(eg, code, entries, Strings())
+        storage = meta['storage']
+        self.assertEqual(storage['item'], hex(patcher.BANK_ITEM))
+        self.assertEqual(storage['value_off'], patcher.VALUE_OFF)
+        self.assertEqual(storage['value_addr'], hex(patcher.VALUE_ADDR))
+        self.assertEqual([int(a, 16) for a in storage['records']], list(patcher.BANK_RECORDS))
+        self.assertEqual(len(img.edits), 3)
+
+
 class MenuRowBuildTests(unittest.TestCase):
     """Full T6 build: unit + synthesized row + 36-language string (Step 1)."""
 
@@ -469,10 +679,10 @@ class MenuRowBuildTests(unittest.TestCase):
         at = entries['vr_row_events'] - CAVE_BASE
         self.assertEqual(unit[at:at + 32 * 44], patcher.row_events(
             eg, patcher.menu_row(eg)[1], entries['vr_row_hook']))
-        # The row value byte boots enabled; the string provider is registered
-        # at id 3225 with the frozen title table.
-        at = entries['vr_value'] - CAVE_BASE
-        self.assertEqual(unit[at], 1)
+        # The value byte now lives in the DS record family (T7): the build
+        # pins the five record addresses and reports the storage wiring.
+        self.assertEqual(meta['storage']['value_addr'], hex(patcher.VALUE_ADDR))
+        self.assertEqual(meta['storage']['item'], hex(patcher.BANK_ITEM))
         from z8vrotate import translations
         self.assertEqual(meta['strings']['ids'], [3225])
         self.assertEqual(context.groups['vrotate'], [[t] for t in translations.TITLES])
@@ -510,9 +720,12 @@ class UnitBuildTests(unittest.TestCase):
         self.assertLessEqual(CAVE_BASE + len(code), CAVE_LIMIT)   # cave bounds
         entries = {name: int(sym['va'], 16) for name, sym in observed['symbols'].items()}
         for name in ('vr_matrix_hook', 'vr_latch_hook', 'vr_latch_displaced', 'vr_latch',
-                     'vr_enable', 'vr_sentinel', 'vr_matrices', 'vr_axis_codes', 'vr_threshold'):
+                     'vr_sentinel', 'vr_matrices', 'vr_axis_codes', 'vr_threshold'):
             self.assertIn(name, entries, name)
             self.assertTrue(CAVE_BASE <= entries[name] < CAVE_LIMIT, name)
+        # T7: the retired cave bytes must stay out of the unit.
+        for name in ('vr_value', 'vr_enable'):
+            self.assertNotIn(name, entries, name)
         # Stock gate bytes (t2/t3 reports) are present in the fixture.
         self.assertEqual(eg[MATRIX_SITE - EG_BASE:MATRIX_SITE - EG_BASE + 4],
                          struct.pack('<I', MATRIX_STOCK_WORD))

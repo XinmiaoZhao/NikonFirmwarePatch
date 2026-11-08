@@ -12,11 +12,18 @@ Builds the hooks from z8vrotate/src/hooks.S into the stock EG:
   36-language table in translations.py, value pair = official ids
   2466/2467) cloned field-for-field from the stock attenuator row 0x2FC0,
   with its transition table cloned into the cave and the three toggle
-  actions rerouted to vr_row_hook.  Bank storage is T7.
+  actions rerouted to vr_row_hook.
+* T7: the row value is stored per movie shooting bank in byte +2 of the
+  DS item 0x1257 record family (copy type 0, registered size 1 -- the
+  same 4-byte slot whose +1 byte hosts the shipped H.265 tier constant).
+  bank_records() re-pins the five record addresses from the stock bank
+  tables and gates the build on them; the first-boot sentinel init
+  (vr_default_on in hooks.S, mirrored by default_on()) defaults every
+  bank to On.
 """
 import struct
 
-from z8patch.image import Image, BASE, branch, table_copy
+from z8patch.image import Image, BASE, branch, table_copy, data_off
 from z8patch.shared import STRING_IDS
 from z8prores.package import require
 
@@ -48,6 +55,20 @@ TOGGLE_EVENTS = (0x286, 0x28B, 0x2AE)   # OK / press-and-hold / touch
 ROW_EVENT_COUNT = 44               # transition records incl. the 0x3BB terminator
 ROWS_AT, EVENTS_AT = 0x3AA4758, 0x3AA4EE8   # stock row / pointer tables (EG offsets)
 TABLE_DIR, BLOB_DIR, STOCK_IDS = 0x311C5A0, 0x387AF58, 3137
+
+# T7 per-bank storage: byte +2 of the DS item 0x1257 record family.  The
+# item is registered with copy type 0 and size 1, so the stock bank-copy
+# engine and the settings engine only ever touch byte +0; +1 already hosts
+# the shipped H.265 tier byte (0xA03D5C269) and +2 is proven stock-unused
+# in every copy (t7 report Step 0: zero literal / movz-chain materializations
+# of any spare byte address across the whole EG).  Bank 0 is the active
+# working record the menu reads and writes; banks 1..4 are the movie
+# shooting-bank storages A-D (0x2d0 apart).  bank_records() re-derives
+# these five addresses from the stock tables at build time.
+BANK_ITEM, VALUE_OFF = 0x1257, 2
+BANK_RECORDS = (0xA03D5C268, 0xA03D5C538, 0xA03D5C808, 0xA03D5CAD8, 0xA03D5CDA8)
+VALUE_ADDR = BANK_RECORDS[0] + VALUE_OFF   # the active-record byte (0xA03D5C26A)
+CATEGORY_TABLE, ITEM_TYPE_TABLE = 0x440244C8, 0x4400A5C0
 
 # [axis*2 + sign] -> own pose code (hooks.S header derives the assignment):
 # +X=1 (90 deg CW roll), -X=2 (90 deg CCW), +Y/-Y=0 (lens-axis family, no
@@ -94,6 +115,47 @@ def matrix_decision(latch, enable=1):
     if enable and 1 <= code <= 3:
         return VR_MATRICES[(code - 1) * 36:code * 36], latch
     return None, latch
+
+
+def bank_records(eg):
+    """Pin the five DS BANK_ITEM record addresses from the stock tables.
+
+    Walks exactly what the stock bank machinery walks: the category record
+    at CATEGORY_TABLE + (item >> 8) * 0x30 holds the bank descriptor at
+    +0x20 (first byte = bank count, +0x10 = the record-pointer array, both
+    RAM addresses inside the loader-copied data window); the resolver at
+    0x410157e0 indexes that array with (item & 0xff) * banks + bank.  The
+    item's type record (ITEM_TYPE_TABLE, 0x18-byte stride, global index =
+    category base + item index) must stay copy type 0 size 1 -- the proof
+    that only byte +0 of every record is stock-managed.
+    """
+    category, index = (BANK_ITEM >> 8) & 0xFF, BANK_ITEM & 0xFF
+    record = CATEGORY_TABLE - BASE + category * 0x30
+    first, count = struct.unpack_from('<HH', eg, record + 0x18)
+    kind, size = struct.unpack_from('<II', eg,
+                                    ITEM_TYPE_TABLE - BASE + (first + index) * 0x18)
+    require(kind == 0 and size == 1, 'vrotate bank item is no longer one byte')
+    descriptor = struct.unpack_from('<Q', eg, record + 0x20)[0]
+    banks = eg[data_off(descriptor)]
+    array = data_off(struct.unpack_from('<Q', eg, data_off(descriptor) + 0x10)[0])
+    require(index < count and banks == len(BANK_RECORDS), 'vrotate bank category shape')
+    records = struct.unpack_from('<%dQ' % banks, eg, array + 8 * (index * banks))
+    require(records == BANK_RECORDS, 'vrotate bank record addresses moved')
+    return records
+
+
+def default_on(copies, sentinel):
+    """Mirror of the vr_default_on first-boot init (hooks.S).
+
+    copies models the five record bytes (active record first, then bank
+    storages A-D).  A zero sentinel (fresh boot: the text loader re-copies
+    the patched cave, so vr_sentinel starts 0 every power cycle) defaults
+    every copy to 1 and arms the sentinel; an armed sentinel changes
+    nothing, which is what keeps a user's Off alive for the session.
+    """
+    if sentinel == 0:
+        return [1] * len(copies), SENTINEL_VALUE
+    return list(copies), sentinel
 
 
 def menu_row(eg):
@@ -146,6 +208,7 @@ def build_main(eg, code, entries, context):
     """Emit the vrotate unit, its two gated edits and the synthesized menu row."""
     require(len(VR_MATRICES) == 108 and len(AXIS_CODES) == 6, 'vrotate cave constants')
     require(not any(eg[CODE_AT - BASE:CODE_END - BASE]), 'vrotate cave not free in stock image')
+    records = bank_records(eg)
     img = Image(eg)
     code = bytearray(code)
 
@@ -158,9 +221,7 @@ def build_main(eg, code, entries, context):
     fill('vr_axis_codes', AXIS_CODES)
     fill('vr_threshold', struct.pack('<I', THRESHOLD_BITS))
     fill('vr_latch', b'\x00')
-    fill('vr_enable', b'\x01')
     fill('vr_sentinel', b'\x00')
-    fill('vr_value', b'\x01')
     template, pointer = menu_row(eg)
     fill('vr_row_events', row_events(eg, pointer, entries['vr_row_hook']))
     text = strings(eg, context)
@@ -172,14 +233,18 @@ def build_main(eg, code, entries, context):
     img.put(LATCH_SITE, branch(LATCH_SITE, entries['vr_latch_hook']) + NOP,
             'record file open trampoline: mov/movk x8 pair -> b vr_latch_hook + nop',
             expect=LATCH_STOCK)
-    img.put(CODE_AT, code, 'vrotate unit: matrix hook, latch hook, classifier, row hooks, cave constants',
+    img.put(CODE_AT, code, 'vrotate unit: matrix hook, latch hook, classifier, row hooks, default-on init, cave constants',
             expect_zero=True)
     return img, dict(entries={k: hex(v) for k, v in entries.items()}, code_bytes=len(code),
                      cave=[hex(CODE_AT), hex(CODE_AT + len(code))],
                      axis_codes=list(AXIS_CODES), threshold=hex(THRESHOLD_BITS),
                      sentinel=hex(SENTINEL_VALUE), matrix_bytes=len(VR_MATRICES),
+                     storage=dict(item=hex(BANK_ITEM), value_off=VALUE_OFF,
+                                  value_addr=hex(VALUE_ADDR),
+                                  records=[hex(a) for a in records],
+                                  power_off='default on (loader re-copies the cave each boot)'),
                      strings=text,
                      menu=dict(item=hex(ROW_ITEM), title_id=TITLE_ID, value_ids=(ON_ID, OFF_ID),
                                row_hex=row.hex(), row_table=hex(entries['vr_row_events']),
                                toggle_events=[hex(e) for e in TOGGLE_EVENTS],
-                               template=hex(ATTEN_ITEM), value_byte=1))
+                               template=hex(ATTEN_ITEM)))
