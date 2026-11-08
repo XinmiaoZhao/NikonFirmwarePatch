@@ -2120,8 +2120,8 @@
       "resource": "resources/shared.bin"
     },
     "vrotate": {
-      "bytes": 2160,
-      "sha256": "aba2037111eb4f99bf547215988b486d37ce4dfe411cfbf7defc15424fa490b6",
+      "bytes": 664,
+      "sha256": "4e2b39336894a76814a0d0f1f5cf7f6d6706ca4811b9978b5f59792aaa748fd9",
       "symbols": {
         "vr_default_on": {
           "va": "0x40a08150",
@@ -2150,17 +2150,13 @@
         "vr_refresh_hook": {
           "va": "0x40a080f0",
           "bytes": 0
-        },
-        "vr_row_events": {
-          "va": "0x40a082f0",
-          "bytes": 0
         }
       },
       "source_sha256": {
         "z8vrotate/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
         "z8vrotate/matrices.py": "3fa3f88ea388482f28cd9fae2f7c4e66602fb99a17ee405dac07ba96bacfcf51",
-        "z8vrotate/patcher.py": "1029965d4f91a9b4353033a1b4a378c044776d5b08fc2daa080f61a30f7efcb9",
-        "z8vrotate/src/hooks.S": "2ae646a2ea2be1260c7bbe07d57d14d1c949df89e53eaf97038cbee0d77465cf",
+        "z8vrotate/patcher.py": "5307cf7f5c29f3919037cbe7149f323812d7841ba5886f4e54e62cd70dbc4286",
+        "z8vrotate/src/hooks.S": "8dd44101aa3d8741633793764aa0f8e6a2b2f27c121433ba234168f3f17fe6dc",
         "z8vrotate/translations.py": "80802fbcb7b491806fae989665dacf169b026359b520da7317dca7101f1d09b8"
       },
       "compiler": "clang version 19.1.7 (/home/runner/work/llvm-project/llvm-project/clang cd708029e0b2869e80abe31ddb175f7c35361f90)",
