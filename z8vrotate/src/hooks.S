@@ -82,10 +82,41 @@
  *   vr_matrices 108 B = ORIENT_TO_MATRIX[1..3] big-endian 16.16 words,
  *   vr_axis_codes 6 B, vr_threshold 4 B (0x3F333333), vr_latch 1 B (0),
  *   vr_enable 1 B (1; T7 wires it into the menu/bank storage),
- *   vr_sentinel 1 B (0; first-run marker, see the latch hook).
+ *   vr_sentinel 1 B (0; first-run marker, see the latch hook),
+ *   vr_value 1 B (1 = on; the inline-toggle row byte, T7 relocates it
+ *   into the per-bank storage), vr_row_events 44x32 B (the cloned stock
+ *   transition table of the template row, see vr_row_hook).
+ *
+ * vr_row_hook -- T6: the OK/0x28B/touch action of the synthesized row
+ *   0x315B in the video shooting menu.  Cloned from the stock audio
+ *   attenuator row 0x2FC0 (row index 35 of the 44-row table at EG offset
+ *   0x3AA4758; class word 0x20901005 = inline On/Off toggle; transition
+ *   table at 0x43C33EF0 with 44 records ending in the 0x3BB terminator).
+ *   In stock, events 0x286/0x28B/0x2AE all dispatch to 0x405707D4, which
+ *   flips DS setting 0x700123C (0x405121EC -> write 0x410D61D0) and then
+ *   redraws the focused row through 0x40512068 -> 0x405120E8 (boolean
+ *   value widget) + 0x403B3DDC + 0x403B26C0.  The cave clone replaces
+ *   only those three action words: it flips the cave byte vr_value, mirrors
+ *   it into vr_enable so the matrix hook follows immediately, then shows
+ *   the official localized On/Off pair by driving the row's value child
+ *   (child id 0x4BA7, the same lookup the stock refresh 0x40572B2C uses
+ *   for every row: 0x4050A6F0) with string id 2466 (On) or 2467 (Off)
+ *   through 0x403F645C -- the value-child call the stock refresh uses for
+ *   language-table ids (e.g. the 0x2E48 row feeding id 0x371).  The
+ *   immediate redraw copies the stock tail of 0x40512068.  Entered as a
+ *   transition action: x0 = action context, [x0] = menu state; saves
+ *   x19/x20, otherwise AAPCS caller-saved only.
+ *
+ * vr_refresh_hook -- T6: the fifth shared-refresh row callback (CONFIG
+ *   +0x28, dispatched after the native refresh 0x40572B2C).  Performs the
+ *   sentinel fallback init (the latch hook holds the other check; the
+ *   patcher also fills the defaults, so this only repairs a cleared
+ *   sentinel with a corrupt value byte), then rewrites the row's value
+ *   child exactly like vr_row_hook does, so nothing stale survives a bank
+ *   switch or page re-entry.  x0 = menu state.
  */
 
-#define VR_SENTINEL_VALUE 0x5A
+#define VR_SENTINEL_VALUE 0x5A      /* must equal patcher.SENTINEL_VALUE; test_unit_builds pins it */
 
 .text
 .balign 16
@@ -124,6 +155,76 @@ vr_latch_displaced:
     mov  x8, #0x6f0
     movk x8, #0x31c, lsl #16
     b    original_40d17730         // back into the stock trampoline
+
+.balign 16
+.global vr_row_hook
+vr_row_hook:                       // transition action of row 0x315B; x0 = ctx
+    stp  x29, x30, [sp, #-32]!
+    stp  x19, x20, [sp, #16]
+    ldr  x19, [x0]                 // x0 = action context, [x0] = menu state
+    adr  x10, vr_value
+    ldrb w11, [x10]
+    eor  w11, w11, #1
+    strb w11, [x10]                // flip the row value byte 0 <-> 1
+    adr  x10, vr_enable
+    strb w11, [x10]                // the matrix hook follows at once (T7: banks)
+    mov  x0, x19
+    mov  w1, #0x315B               // our row item
+    mov  w2, #0x4BA7               // the row's value child id
+    bl   original_4050A6F0         // stock row-child lookup
+    cbz  x0, 1f
+    mov  x20, x0                   // value child widget
+    adr  x10, vr_value
+    ldrb w1, [x10]
+    cmp  w1, #1
+    b.ne 2f
+    mov  w1, #2466                 // official localized On (id 2466)
+    b    3f
+2:  mov  w1, #2467                 // official localized Off (id 2467)
+3:  mov  x0, x20
+    bl   original_403F645C         // set the value child's display id
+1:  mov  x0, x19
+    mov  w1, #0x315B
+    bl   original_403B3DDC         // mark the row value changed (stock tail)
+    mov  x0, x19
+    bl   original_403B26C0         // repaint the page (stock tail)
+    ldp  x19, x20, [sp, #16]
+    ldp  x29, x30, [sp], #32
+    ret
+
+.balign 16
+.global vr_refresh_hook
+vr_refresh_hook:                   // shared_refresh fifth callback; x0 = state
+    stp  x29, x30, [sp, #-32]!
+    stp  x19, x20, [sp, #16]
+    mov  x19, x0
+    adr  x10, vr_sentinel          // sentinel fallback init (idempotent)
+    ldrb w11, [x10]
+    cbnz w11, 1f
+    mov  w11, #VR_SENTINEL_VALUE
+    strb w11, [x10]
+    adr  x10, vr_value
+    mov  w12, #1
+    strb w12, [x10]                // default on
+    adr  x10, vr_enable
+    strb w12, [x10]
+1:  cbz  x19, 9f
+    mov  x0, x19
+    mov  w1, #0x315B
+    mov  w2, #0x4BA7
+    bl   original_4050A6F0
+    cbz  x0, 9f
+    adr  x10, vr_value
+    ldrb w1, [x10]
+    cmp  w1, #1
+    b.ne 2f
+    mov  w1, #2466
+    b    8f
+2:  mov  w1, #2467
+8:  bl   original_403F645C         // x0 still holds the value child
+9:  ldp  x19, x20, [sp, #16]
+    ldp  x29, x30, [sp], #32
+    ret
 
 .balign 16
 vr_classify:                       // b in / br x17 out; returns w8 = code 0..3
@@ -169,6 +270,7 @@ vr_classify:                       // b in / br x17 out; returns w8 = code 0..3
 .balign 4
 vr_axis_codes:                     /* 6 bytes: [axis*2 + sign] -> pose code; T11 flip = bytes only */
     .space 6
+.balign 4                          /* keep the threshold word aligned for its ldr */
 vr_threshold:                      /* u32 IEEE754 bits (0.70f = 0x3F333333); patcher-filled */
     .space 4
 .balign 8
@@ -180,3 +282,9 @@ vr_enable:                         /* feature switch byte; 1 = on (T7 wires the 
     .space 1
 vr_sentinel:                       /* first-run marker; boots 0, set to VR_SENTINEL_VALUE */
     .space 1
+vr_value:                          /* inline-toggle row byte; 1 = on; T7 moves it to bank storage */
+    .space 1
+.balign 8
+.global vr_row_events
+vr_row_events:                     /* 44 x 32 B transition table cloned from 0x2FC0; patcher-filled */
+    .space 44*32

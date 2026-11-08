@@ -4,9 +4,15 @@ from z8prores.package import require
 from z8patch.image import BASE, branch
 
 STRING_IDS = {'opengate-nraw': (3137,5), 'pixelshift': (3142,5), 'prores': (3147,6),
-              'anamorphic': (3153,8), 'h265': (3161,56), 'log': (3217,8)}
+              'anamorphic': (3153,8), 'h265': (3161,56), 'log': (3217,8), 'vrotate': (3225,1)}
 TEXT, TABLES, TABLES_END = 0x40A50000, 0x40A70000, 0x40AF0000
-STRING_END = 3225
+# Highest allocated id + 1.  Compositions without vrotate keep the
+# reviewed four-group string-table length (their unused ids stay empty
+# strings, exactly as before), so their recipe bytes are unchanged until
+# the vrotate release freezes the regenerated recipes (T8).
+STRING_END = max(first + count for first, count in STRING_IDS.values())
+LEGACY_END = max(first + count for name, (first, count) in STRING_IDS.items()
+                 if name != 'vrotate')
 BANK, CONFIG = 0x40980000, 0x40980F00
 ROWS, EVENTS, PAGE, CALLBACK = 0x3AA4758, 0x3AA4EE8, 0x4BCC2B0, 0x4BF3A80
 VIDEO_ROWS, VIDEO_EVENTS = 0x40A30000, 0x40A31000
@@ -26,12 +32,13 @@ class Strings:
     def emit(self,img):
         if not self.groups:
             return {}
+        end=STRING_END if 'vrotate' in self.groups else LEGACY_END
         text,tables=bytearray(),bytearray()
         for language in range(36):
             table=img.u64(0x311C5A0+8*language)-BASE
             blob=img.u64(0x387AF58+8*language)-BASE
             offsets=list(struct.unpack_from('<3137i',img.old,table))
-            for ident in range(3137,STRING_END):
+            for ident in range(3137,end):
                 value=''
                 for name,translations in self.groups.items():
                     first,count=STRING_IDS[name]
@@ -40,14 +47,14 @@ class Strings:
                 offsets.append(TEXT+len(text)-BASE-blob)
                 text.extend(value.encode('utf-16le'))
             offsets.append(TEXT+len(text)-BASE-blob)
-            require(len(offsets)==STRING_END+1,'Shared string shape')
+            require(len(offsets)==end+1,'Shared string shape')
             at=TABLES+len(tables)
             tables.extend(struct.pack(f'<{len(offsets)}i',*offsets))
             img.put(0x311C5A0+8*language,struct.pack('<Q',at),f'shared language directory {language}')
         require(TEXT+len(text)<=TABLES and TABLES+len(tables)<=TABLES_END,'Shared strings overflow')
         img.put(TEXT-BASE,text,'shared selected-feature strings',expect_zero=True)
         img.put(TABLES-BASE,tables,'shared 36 language offset tables',expect_zero=True)
-        return dict(features=sorted(self.groups),entries=STRING_END+1,text_bytes=len(text),table_bytes=len(tables),text=hex(TEXT),tables=hex(TABLES))
+        return dict(features=sorted(self.groups),entries=end+1,text_bytes=len(text),table_bytes=len(tables),text=hex(TEXT),tables=hex(TABLES))
 
 
 class VideoMenu:
@@ -84,7 +91,7 @@ class VideoMenu:
         return False
 
     def emit(self,img,chosen,code,entries,callbacks):
-        mask=sum(bit for name,bit in (('framing',1),('video-quality',2),('log-colour',4)) if name in chosen)
+        mask=sum(bit for name,bit in (('framing',1),('video-quality',2),('log-colour',4),('video-orientation',8)) if name in chosen)
         if not mask:
             require(not self.replacements,'Unexpected video menu without video features')
             return None
@@ -96,6 +103,9 @@ class VideoMenu:
         if 'video-quality' in chosen:
             order.remove(0x311B);pos=order.index(0x3118)+1
             order[pos:pos]=[0x311B,0x315A]
+        if 'video-orientation' in chosen:
+            require(0x315B in self.replacements and callbacks.get('vrotate'),'vrotate row or refresh callback missing')
+            order.insert(order.index(0x30A6),0x315B)   # before the image-area row
         require(set(order)==set(records) and len(order)==len(set(order)),'Video menu loses or duplicates an item')
         rows=b''.join(records[i][0] for i in order)
         pointers=struct.pack(f'<{len(order)}Q',*(records[i][1] for i in order))
@@ -111,8 +121,12 @@ class VideoMenu:
                 hides.append(hex(item))
         require(len(code)<=CONFIG-BANK,'Shared code reaches configuration')
         img.put(BANK-BASE,code,'shared bank and refresh code',expect_zero=True)
-        ptrs=[callbacks.get(k,0) for k in ('prores','h265','anamorphic','log')]
-        img.put(CONFIG-BASE,struct.pack('<II4Q',mask,0,*ptrs),'shared feature mask and row callbacks',expect_zero=True)
+        # Row-callback slots at CONFIG+8: prores, h265, anamorphic, log, and --
+        # only for video-orientation compositions, whose recipe freezes with
+        # the vrotate release -- the fifth vrotate slot at CONFIG+0x28.
+        slots=('prores','h265','anamorphic','log')+(('vrotate',) if 'video-orientation' in chosen else ())
+        ptrs=[callbacks.get(k,0) for k in slots]
+        img.put(CONFIG-BASE,struct.pack(f'<II{len(slots)}Q',mask,0,*ptrs),'shared feature mask and row callbacks',expect_zero=True)
         img.put(CALLBACK,struct.pack('<Q',entries['shared_refresh']),'shared video refresh dispatcher',expect=struct.pack('<Q',0x40572B2C))
         img.put(0x410162EC-BASE,branch(0x410162EC,entries['shared_bank']),'shared menu-bank copy dispatcher',expect=bytes.fromhex('ea2340a9'))
         return dict(items=[hex(i) for i in order],count=len(order),visible_custom_items=hides,rows=hex(VIDEO_ROWS),events=hex(VIDEO_EVENTS),mask=mask,
