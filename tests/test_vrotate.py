@@ -322,7 +322,7 @@ class RowEventsTests(unittest.TestCase):
         from z8prores.package import Package
         eg = Package(FIRMWARE.read_bytes()).eg
         template, pointer = patcher.menu_row(eg)
-        hook = 0x40A20080                       # arbitrary in-cave stand-in
+        hook = CAVE_BASE + 0x1080              # arbitrary in-cave stand-in (never emitted)
         table = patcher.row_events(eg, pointer, hook)
         self.assertEqual(len(table), 32 * 44)
         seen = []
@@ -392,9 +392,9 @@ class SharedExtensionTests(unittest.TestCase):
         from z8vrotate import patcher
         template, pointer = patcher.menu_row(eg)
         row = struct.pack('<11I', 3225, *template[1:6], 0x315B, *template[7:])
-        events_va = 0x40A20800
+        events_va = CAVE_BASE + 0x1800
         entries = {'shared_refresh': 0x40980100, 'shared_bank': 0x40980200}
-        callbacks = {'vrotate': 0x40A20300}
+        callbacks = {'vrotate': CAVE_BASE + 0x1300}
         menu = VideoMenu(eg)
         menu.add(0x315B, row, events_va)
         img = Image(eg)

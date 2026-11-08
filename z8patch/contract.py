@@ -1,8 +1,11 @@
 """Independent structural checks, using fixed firmware facts and group semantics.
 
-No composer, assembler, linker or resource-generator imports.
+No composer, assembler, linker or resource-generator imports; the only
+inputs are the two images, the feature list and (for the vrotate unit
+bound) the frozen reviewed recipe resources/compiled.json.
 """
-import struct
+import json, struct
+from pathlib import Path
 
 
 def verify_contract(old,new,features):
@@ -63,9 +66,12 @@ def verify_contract(old,new,features):
     if framing:need(not any(new[0x4097F000-base:0x40980000-base]),'AP state initialized')
     vrotate=None
     if vr:
-        # Fixed facts of the vrotate unit (cave 0x40A08000-0x40A10000, unit
-        # bytes 0x870 long; symbol offsets from the reviewed compiled.json).
-        cave,unit_end=0x40A08000,0x40A08870
+        # Fixed facts of the vrotate unit (cave 0x40A08000-0x40A10000;
+        # symbol offsets below are fixed facts of the reviewed recipe).
+        # The unit length comes from the frozen compiled.json itself, so
+        # the reservation-tail bound cannot drift from the shipped bytes.
+        units=json.loads((Path(__file__).resolve().parents[1]/'resources/compiled.json').read_text())['units']
+        cave=0x40A08000;unit_end=cave+units['vrotate']['bytes']
         need(not any(old[cave-base:0x40A10000-base]),'vrotate cave free in stock')
         need(not any(new[unit_end-base:0x40A10000-base]),'vrotate reservation tail stays stock zero')
         def branch_target(site,word):

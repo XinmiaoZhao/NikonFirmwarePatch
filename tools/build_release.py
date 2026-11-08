@@ -1,10 +1,13 @@
 #!/usr/bin/env python3
-"""Package committed source and nine reviewed original patch units; never reads firmware."""
+"""Package committed source and the reviewed original patch units; never reads firmware."""
 import argparse,hashlib,json,re,subprocess,sys,zipfile
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[1];sys.path.insert(0,str(ROOT))
-from tools.check_release import SOURCE_FILES,MANIFEST,TAG,check_release,need
+from tools.check_release import CODE_FILES,SOURCE_FILES,MANIFEST,TAG,check_release,need
 from z8patch.compiled import compile_unit
+# The unit count rides on the checked-in code allowlist, which check_release
+# keeps equal to the compiled.json unit set ("Code allowlist differs").
+__doc__=f'Package committed source and {len(CODE_FILES)} reviewed original patch units; never reads firmware.'
 
 def git(*args):return subprocess.check_output(['git','-C',str(ROOT),*args])
 def main():
