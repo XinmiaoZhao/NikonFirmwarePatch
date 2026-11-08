@@ -124,6 +124,13 @@
       ],
       "independent_package_verification": "PASS",
       "bounded_startup": "PASS"
+    },
+    {
+      "features": [
+        "video-orientation"
+      ],
+      "independent_package_verification": "PASS",
+      "bounded_startup": "PASS"
     }
   ],
   "body": {

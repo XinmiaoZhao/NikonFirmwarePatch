@@ -6,11 +6,19 @@
 
 - **第五组构建选项 `video-orientation`（记录视频方向）。** 视频拍摄菜单新增“记录视频方向”行（标题逐字对齐经用户确认的 36 语言表，取值复用原厂开／关文案），插入在“图像区域”之前，按视频拍摄菜单库 A–D 保存，默认开。开启时在录像开始锁存竖拍（两个方向）与 180° 倒置姿态，并经相机唯一的封装路径把旋转元数据（tkhd 显示矩阵）写入全部录像格式（MP4/H.264、H.265、ProRes 422 HQ、ProRes RAW、N-RAW）；关闭时容器与原厂输出逐字节一致。断电后回到默认“开”（与 H.265 档位同一类会话语义），会话内关闭随菜单库分别保持。非空组合增至 31 种并冻结全部配方；离线检查通过，仿真与实机验收项见[验证记录](docs/validation.md)。此组尚未随 v0.4.0-rc.2 发布。
 
+### 修复
+
+- **修复开发分支 `video-orientation` 打开菜单即崩溃的问题。** 单元运行期状态字节（哨兵／锁存等）此前位于只读代码洞，任何菜单页打开即触发 EL0 权限异常终止 APPMENU。全部状态已迁入每次上电由 boot 按镜像重载的数据镜像窗口，行事件表改置洞内固定只读子窗；同时新增构建期护栏（写目标普查、保留区登记、地址耦合静态断言）与三腿 QEMU 回归，修复镜像全部通过。行值渲染仍待用户人工验收，实机验证项不变。
+
 ### English
 
 **Added**
 
 - A fifth build group, `video-orientation` (record video orientation), not part of the v0.4.0-rc.2 release. It inserts a "Record video orientation" row before "Image area" in the video shooting menu — titles verbatim from the user-confirmed 36-language table, values reuse the camera's own On/Off texts — stored per movie shooting bank A–D and defaulting to On. When On, the roll latched at recording start (either portrait direction or 180° upside-down) is written as rotation metadata (the tkhd display matrix) through the camera's single muxing path into every recorded format (MP4/H.264, H.265, ProRes 422 HQ, ProRes RAW, N-RAW); when Off, containers are byte-identical to stock. A power cycle returns every bank to the default On (the same session semantics as the H.265 tier); a manual Off persists per bank within the session. Nonempty combinations grow to 31 with all recipes frozen; offline checks pass, and the pending emulation and camera items are listed in the [validation record](docs/validation.md).
+
+**Fixed**
+
+- Opening any menu page no longer crashes APPMENU on development-branch `video-orientation` builds. The unit's runtime state bytes (sentinel, latch and friends) lived in the read-only code cave and triggered an EL0 permission fault on first use. All state now migrates to a data-mirror window that boot reloads from the image at every power-up, and the row-events table moved to a fixed read-only cave sub-window. New build-time guards (store-target census, reservation registry, address-coupling assertions) and a three-leg QEMU regression cover the fix; the fixed images pass all legs. Value rendering still awaits manual acceptance, and the camera validation items are unchanged.
 
 ## v0.4.0 — 四组补丁 / Four feature groups
 
