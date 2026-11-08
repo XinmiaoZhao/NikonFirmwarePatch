@@ -1314,6 +1314,18 @@ class BuildTimeGuardTests(unittest.TestCase):
         return struct.pack('<I', 0xF2800000 | ((shift // 16) << 21) | (imm << 5) | rd)
 
     @staticmethod
+    def _movzw(rd, imm, shift=0):
+        return struct.pack('<I', 0x52800000 | ((shift // 16) << 21) | (imm << 5) | rd)
+
+    @staticmethod
+    def _movkw(rd, imm, shift):
+        return struct.pack('<I', 0x72800000 | ((shift // 16) << 21) | (imm << 5) | rd)
+
+    @staticmethod
+    def _cbnz(rt, delta):
+        return struct.pack('<I', 0x35000000 | ((delta // 4) << 5) | rt)
+
+    @staticmethod
     def _strb(rt, rn, imm=0):
         return struct.pack('<I', 0x39000000 | (imm << 10) | (rn << 5) | rt)
 
@@ -1371,6 +1383,52 @@ class BuildTimeGuardTests(unittest.TestCase):
         self.assertEqual(self._decode(stack)[0], 'stp x29, x30, [sp, #-0x20]!')
         self._census(stack)
 
+    def test_store_census_rejects_w_view_argument_alias_chain(self):
+        """I-1: a cave address built through the W view of an argument
+        register (movz/movk w0, store through x0) must be rejected -- the
+        zero-extended X view carries the same value, so the store is a
+        resolved in-block redefinition, never a pass-through parameter."""
+        chain = (self._movzw(0, 0x8000) + self._movkw(0, 0x40A0, 16)
+                 + self._strb(31, 0))          # strb wzr, [x0]
+        self.assertEqual(self._decode(chain),
+                         ['mov w0, #0x8000', 'movk w0, #0x40a0, lsl #16',
+                          'strb wzr, [x0]'])
+        with self.assertRaisesRegex(ValueError, 'cave window'):
+            self._census(chain)
+
+    def test_store_census_conditional_branch_ends_the_window(self):
+        """M-1: a conditional branch between the base def and the store
+        ends the basic block -- the def is outside the window and the
+        store is conservatively rejected (whitelist escape applies)."""
+        from z8patch.contract import assert_no_cave_store_targets
+        code = (self._ldr_literal(10, 12) + self._cbnz(8, 8) + self._strb(8, 10)
+                + struct.pack('<Q', 0x40A08080))
+        self.assertEqual(self._decode(code)[:3],
+                         ['ldr x10, #0xc', 'cbnz w8, #0xc', 'strb w8, [x10]'])
+        with self.assertRaisesRegex(ValueError, 'cannot resolve'):
+            assert_no_cave_store_targets(code, self.CAVE_WINDOW[0], self.CAVE_WINDOW)
+        whitelist = {self.CAVE_WINDOW[0] + 8: 'test-only: proven-safe store shape'}
+        assert_no_cave_store_targets(code, self.CAVE_WINDOW[0], self.CAVE_WINDOW,
+                                      whitelist=whitelist)
+
+    def test_store_census_treats_every_store_family_member_as_a_store(self):
+        """M-2: unscaled/exclusive/atomic store forms (sturb, sttrb, swp,
+        cas, stadd) are stores -- an unresolvable base is rejected, never
+        silently passed.  Encodings verified against clang + capstone."""
+        from z8patch.contract import assert_no_cave_store_targets
+        forms = ((0x3800013F, 'sturb wzr, [x9]'),
+                 (0x38000943, 'sttrb w3, [x10]'),
+                 (0xF8218120, 'swp x1, x0, [x9]'),
+                 (0xC8A17D20, 'cas x1, x0, [x9]'),
+                 (0xF825017F, 'stadd x5, [x11]'))
+        for word, text in forms:
+            code = struct.pack('<I', word)
+            self.assertEqual(self._decode(code), [text])
+            with self.subTest(store=text):
+                with self.assertRaisesRegex(ValueError, 'cannot resolve'):
+                    assert_no_cave_store_targets(code, self.CAVE_WINDOW[0],
+                                                 self.CAVE_WINDOW)
+
     def test_store_census_unresolvable_base_is_conservative(self):
         """A store whose base cannot be resolved in-block (register loaded
         from memory, or a live-in non-argument register) is rejected unless
@@ -1388,14 +1446,28 @@ class BuildTimeGuardTests(unittest.TestCase):
 
     def test_store_census_passes_the_real_vrotate_unit(self):
         """The shipped vrotate unit (664 B pure code + pool) passes the
-        census: its ten data stores all ride state-window/DS-record literals
-        and its two stp go to the stack."""
+        census: its data stores ride state-window/DS-record literals and
+        the stack, plus exactly ONE whitelisted store -- the sentinel arm,
+        whose literal def is separated from the store by a forward cbnz
+        that skips past the whole init series (dominance proof in the
+        whitelist entry)."""
         from z8patch import compiled
+        from z8vrotate import patcher
         compiler = _clang()
         if not compiler:
             self.skipTest('no clang for the aarch64 unit build')
         code, _ = compiled.compile_unit('vrotate', compiler)
-        self._census(code)
+        self.assertEqual(sorted(patcher.STORE_TARGET_WHITELIST), [0x40A08160])
+        self.assertIn('state-window sentinel',
+                      patcher.STORE_TARGET_WHITELIST[0x40A08160])
+        from z8patch.contract import assert_no_cave_store_targets
+        assert_no_cave_store_targets(bytes(code), CAVE_BASE, (CAVE_BASE, CAVE_LIMIT),
+                                      patcher.STORE_TARGET_WHITELIST)
+        # Without the whitelist the conservative window rejects exactly the
+        # sentinel-arm store (its def sits before the forward cbnz).
+        with self.assertRaisesRegex(ValueError, '0x40a08160'):
+            assert_no_cave_store_targets(bytes(code), CAVE_BASE,
+                                         (CAVE_BASE, CAVE_LIMIT))
 
     def test_org_directive_rejected_in_unit_sources(self):
         """D1: any .org in the unit assembly sources refuses the build;
@@ -1408,10 +1480,19 @@ class BuildTimeGuardTests(unittest.TestCase):
             (root / 'z8probe' / 'src' / 'clean.S').write_text(
                 '.balign 4\n.space 16\nlabel:\n nop\n')
             self.assertGreaterEqual(assert_no_org_directives(root), 1)
-            (root / 'z8probe' / 'src' / 'pinned.S').write_text(
-                'start:\n nop\n.org 0x2F0\ntable:\n nop\n')
-            with self.assertRaisesRegex(ValueError, 'pinned.S.*\\.org'):
-                assert_no_org_directives(root)
+        # Each offending shape gets its own tree: the scan raises on the
+        # first hit, so shared trees would couple the assertions.
+        for name, source in (('pinned.S', 'start:\n nop\n.org 0x2F0\ntable:\n nop\n'),
+                             # M-4: a label on the same line must not hide
+                             # the directive.
+                             ('inlined.S', 'entry: nop\ntable: .org 0x100\n nop\n')):
+            with tempfile.TemporaryDirectory() as folder, \
+                    self.subTest(source=name):
+                root = Path(folder)
+                (root / 'z8probe' / 'src').mkdir(parents=True)
+                (root / 'z8probe' / 'src' / name).write_text(source)
+                with self.assertRaisesRegex(ValueError, name + r'.*\.org'):
+                    assert_no_org_directives(root)
 
     def test_repo_assembly_sources_are_org_free(self):
         """The real tree passes D1 today and the scan reaches every unit
@@ -1516,9 +1597,11 @@ class DataMirrorReservationTests(unittest.TestCase):
     reservation census (cave dimension and data-mirror segment dimension).
 
     The data-mirror table transcribes the t1 report Step 0b window census
-    (33 documented module windows in EG [0x4B13000,0x4DC0000)); the vrotate
-    state window must be disjoint from all of them, and both vrotate windows
-    must be stock zero at 8 B and 4 B granularity (dual caliber).
+    (32 documented module windows in EG [0x4B13000,0x4DC0000); the t1
+    prose counted 33 but its own table holds 32 -- 28 rows, four of them
+    dual-entry) -- the vrotate state window must be disjoint from all of
+    them, and both vrotate windows must be stock zero at 8 B and 4 B
+    granularity (dual caliber).
     """
 
     # (eg_start, eg_end, owner) -- data-mirror segment windows (t1 report
