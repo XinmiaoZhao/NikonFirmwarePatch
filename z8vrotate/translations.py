@@ -1,30 +1,25 @@
 """Frozen 36-language title table for the vrotate menu row (T6).
 
-Derivation rule (run offline against the stock C3.11 string tables; the
-result is this static table, fingerprinted below):
+The table is the user-confirmed verbatim baseline of 2026-11-08,
+transcribed from docs/t14-video-orientation-re.md §7 "用户确认的 36
+语言行标题表" (outer repo); any deviation from that table is a spec
+defect.  The strings were originally derived offline from the official
+stock strings (provenance notes below) and then corrected against the
+confirmed baseline in the slots where the user's wording differs:
 
 * Base string: official id 2458 "Record camera orientation" -- the photo
   menu row with the same function, translated by Nikon into all 36 slots.
 * Per language, the camera/photo word is swapped for that language's video
-  word taken from official id 2214 "Video quality (N-RAW)":
-  en camera->video, de Kamera->Video (hyphen kept from the compound),
-  fr appareil->vidéo, es cámara->vídeo, it fotocamera->video,
-  sv kamera->film, nl camera->video, zh-CN 照相机->视频, zh-TW 相機->短片,
-  ko 카메라->동영상, th กล้อง->วิดีโอ, id kamera->film,
-  pt câmara->filmagem, pl aparatu->video, fi kameran->videon (genitive as in
-  id 2214 "Videon laatu"), da kamera->video, no kamera->film,
-  cs fotoaparátu->videa, tr Kamera->Video, hu Fgép->Videó (Nikon spells the
-  video word with a plain o, as in id 2214 "Videominőség"),
-  el φωτ μηχ->video, ro aparat foto->video, uk фотокам.->відео,
-  hi कैमरा->वीडियो, bg Фотоапарата->филма (definite singular, from
-  филмите), hr fotoaparata->filma, ar الكاميرا->الفيلم (the trailing
-  right-to-left mark of id 2458 is kept).
-* Russian editorial case: id 2458 ru "Ориентация при записи" carries no
-  camera word to swap, so the video word is inserted where the camera word
-  sits in the sibling languages: "Ориентация видео при записи".
+  word taken from official id 2214 "Video quality (N-RAW)": e.g. en
+  camera->video, de Kamera->Video (hyphen kept), zh-CN 照相机->视频,
+  zh-TW 相機->短片, ko 카메라->동영상, th กล้อง->วิดีโอ, sv kamera->film.
 * Japanese builds its own phrase with the 動画の prefix on the stock words:
   動画の縦横位置情報の記録.  Slots 25/26/28-31/35 are Japanese fallbacks in
   the stock language directory and repeat slot 0.
+* Confirmed-baseline wording overrides the mechanical derivation in slots
+  11 (ru drops "при записи"), 14 (pt "do vídeo"), 21 (hu plain-o "Video"),
+  22 (el "Καταγρ. προσανατ." with periods and the fuller word), 32 (bg "на
+  видеото"), 33 (hr "videa") and 34 (ar الفيديو and no trailing RLM).
 
 Every glyph is drawn from the same language's own stock strings (ids 2458
 and 2214 among them); z8vrotate.patcher.strings() re-proves that against
@@ -49,18 +44,18 @@ TITLES = (
     '记录视频方向',                        # 8  zh-CN
     '記錄短片方向',                        # 9  zh-TW
     '동영상 방향 기록',                    # 10 ko
-    'Ориентация видео при записи',        # 11 ru
+    'Ориентация видео',                  # 11 ru (confirmed table)
     'บันทึกมุมวิดีโอ',                   # 12 th
     'Rekam orientasi film',               # 13 id
-    'Gravar orientação da filmagem',      # 14 pt
+    'Gravar orientação do vídeo',         # 14 pt (confirmed table)
     'Rejestruj orientację video',         # 15 pl
     'Tallenna videon suunta',             # 16 fi
     'Optag videoretning',                 # 17 da
     'Registrer filmretning',              # 18 no
     'Záznam orientace videa',             # 19 cs
     'Video yönünü kaydet',                # 20 tr
-    'Videó tájolásának rögzítése',        # 21 hu
-    'Καταγρ προσαν/σμού video',           # 22 el
+    'Video tájolásának rögzítése',        # 21 hu (confirmed table)
+    'Καταγρ. προσανατ. video',            # 22 el (confirmed table)
     'Înregistrare orientare video',       # 23 ro
     'Зберігати орієнт. відео',            # 24 uk
     '動画の縦横位置情報の記録',            # 25 ja fallback
@@ -70,14 +65,14 @@ TITLES = (
     '動画の縦横位置情報の記録',            # 29 ja fallback
     '動画の縦横位置情報の記録',            # 30 ja fallback
     '動画の縦横位置情報の記録',            # 31 ja fallback
-    'Запис ориент. филма',                # 32 bg
-    'Smer snimanja filma',                # 33 hr
-    'تسجيل اتجاه الفيلم\u200f',            # 34 ar (trailing RLM as in id 2458)
+    'Запис ориент. на видеото',           # 32 bg (confirmed table)
+    'Smer snimanja videa',                # 33 hr (confirmed table)
+    'تسجيل اتجاه الفيديو',                 # 34 ar (confirmed table; no RLM)
     '動画の縦横位置情報の記録',            # 35 ja fallback
 )
 
 assert len(TITLES) == 36 and all(TITLES[i] == TITLES[0] for i in JAPANESE_SLOTS)
 # Fingerprint of the frozen table (sha256 of the newline-joined titles);
 # tests recompute this so the table cannot drift silently.
-FINGERPRINT = '1b09a633ac370e98f891eb6858261f6f22a78b88c51768d4bcb9820f6bef3716'
+FINGERPRINT = '317418fe64b91753c3fda9d438a418215a1353cd3f976069a4c8421340ddd18a'
 assert hashlib.sha256('\n'.join(TITLES).encode()).hexdigest() == FINGERPRINT

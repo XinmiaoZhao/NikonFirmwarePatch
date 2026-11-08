@@ -196,26 +196,75 @@ class OneShotLatchTests(unittest.TestCase):
 
 
 class TranslationTests(unittest.TestCase):
-    """36-language title table for the vrotate row (T6 Step 1).
+    """36-language title table for the vrotate row (T6).
 
-    The titles derive offline from the official id 2458 ("Record camera
-    orientation", the photo-side row of the same function) by swapping each
-    language's camera word for its video word from id 2214 ("Video quality
-    (N-RAW)"); the Japanese slot takes the 動画の prefix instead, and the
-    seven Japanese fallback slots repeat it.  z8vrotate/translations.py
-    documents the per-language derivation and carries the frozen-table
-    fingerprint.
+    The table is the user-confirmed verbatim baseline of 2026-11-08
+    (docs/t14-video-orientation-re.md §7 in the outer repo); it descends
+    from the official id 2458 "Record camera orientation" translations
+    with each language's video word from id 2214, and z8vrotate/
+    translations.py documents the derivation plus the confirmed-table
+    overrides and carries the frozen-table fingerprint.
     """
 
     def test_spec_baseline_verbatim(self):
-        """The four spec-baseline languages are pinned verbatim."""
+        """All 36 titles equal the user-confirmed table verbatim.
+
+        The expected strings below are transcribed from docs/
+        t14-video-orientation-re.md §7 "用户确认的 36 语言行标题表"
+        (outer repo, 2026-11-08 session confirmation) as literal test
+        data; any deviation from that table is a spec defect.  Slot 34
+        (Arabic) must carry no trailing right-to-left mark.
+        """
         from z8vrotate import translations
+        confirmed = (
+            '動画の縦横位置情報の記録',            # 0  ja
+            'Record video orientation',           # 1  en
+            'Video-Ausrichtung speichern',        # 2  de
+            'Enreg. orientation vidéo',           # 3  fr
+            'Grabar orientación vídeo',           # 4  es
+            'Registra orient. video',             # 5  it
+            'Spara filmorientering',              # 6  sv
+            'Videorichting vastleggen',           # 7  nl
+            '记录视频方向',                        # 8  zh-CN
+            '記錄短片方向',                        # 9  zh-TW
+            '동영상 방향 기록',                    # 10 ko
+            'Ориентация видео',                   # 11 ru
+            'บันทึกมุมวิดีโอ',                   # 12 th
+            'Rekam orientasi film',               # 13 id
+            'Gravar orientação do vídeo',         # 14 pt
+            'Rejestruj orientację video',         # 15 pl
+            'Tallenna videon suunta',             # 16 fi
+            'Optag videoretning',                 # 17 da
+            'Registrer filmretning',              # 18 no
+            'Záznam orientace videa',             # 19 cs
+            'Video yönünü kaydet',                # 20 tr
+            'Video tájolásának rögzítése',        # 21 hu
+            'Καταγρ. προσανατ. video',            # 22 el
+            'Înregistrare orientare video',       # 23 ro
+            'Зберігати орієнт. відео',            # 24 uk
+            '動画の縦横位置情報の記録',            # 25 ja fallback
+            '動画の縦横位置情報の記録',            # 26 ja fallback
+            'वीडियो समन्वयन रिकॉर्ड करें',          # 27 hi
+            '動画の縦横位置情報の記録',            # 28 ja fallback
+            '動画の縦横位置情報の記録',            # 29 ja fallback
+            '動画の縦横位置情報の記録',            # 30 ja fallback
+            '動画の縦横位置情報の記録',            # 31 ja fallback
+            'Запис ориент. на видеото',           # 32 bg
+            'Smer snimanja videa',                # 33 hr
+            'تسجيل اتجاه الفيديو',                 # 34 ar (no trailing RLM)
+            '動画の縦横位置情報の記録',            # 35 ja fallback
+        )
         titles = translations.TITLES
+        self.assertEqual(len(confirmed), 36)
         self.assertEqual(len(titles), 36)
-        self.assertEqual(titles[0], '動画の縦横位置情報の記録')            # ja
-        self.assertEqual(titles[1], 'Record video orientation')   # en
-        self.assertEqual(titles[8], '记录视频方向')                # zh-CN
-        self.assertEqual(titles[9], '記錄短片方向')                 # zh-TW
+        for index, (title, expected) in enumerate(zip(titles, confirmed)):
+            self.assertEqual(title, expected, (index, title, expected))
+        # No hidden control or bidirectional-format characters anywhere.
+        import unicodedata
+        for index, title in enumerate(titles):
+            self.assertNotIn(
+                [c for c in title if unicodedata.category(c) in ('Cf', 'Cc')],
+                (index, title))
 
     def test_lengths_fallbacks_and_fingerprint(self):
         """Every title fits the row, fallback slots are Japanese, no drift."""
