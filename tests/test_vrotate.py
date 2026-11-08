@@ -62,6 +62,14 @@ VR_MATRICES_OFF, VR_THRESHOLD_OFF = 0x00, 0x6C
 VR_AXIS_CODES_OFF, VR_LATCH_OFF, VR_SENTINEL_OFF = 0x70, 0x76, 0x77
 VR_MAGIC_OFF, VR_MAGIC = 0xFF, 0xA5
 
+# T2b (2026-11-09 user ruling): the row-events clone lives at a patcher-
+# constant fixed sub-window of the cave (the z8h265 MENU_AT form), not at an
+# organic in-unit slot behind .org padding -- unit growth is decoupled from
+# the frozen transition-pointer recipe rows.  4K-aligned, inside the cave,
+# stock zero; table body 44x32 B incl. the 0x3BB terminator.
+VR_EVENTS_AT, VR_EVENTS_SIZE = 0x40A09000, 44 * 32
+VR_EVENTS_END = VR_EVENTS_AT + VR_EVENTS_SIZE
+
 
 def _clang():
     """Locate the maintainer clang for the aarch64 unit build, or None."""
@@ -656,7 +664,7 @@ class StorageWiringTests(unittest.TestCase):
         self.assertEqual(storage['value_off'], patcher.VALUE_OFF)
         self.assertEqual(storage['value_addr'], hex(patcher.VALUE_ADDR))
         self.assertEqual([int(a, 16) for a in storage['records']], list(patcher.BANK_RECORDS))
-        self.assertEqual(len(img.edits), 4)   # unit, two hook sites, state window
+        self.assertEqual(len(img.edits), 5)   # unit, two hook sites, state window, events window
 
 
 class MenuRowBuildTests(unittest.TestCase):
@@ -687,12 +695,14 @@ class MenuRowBuildTests(unittest.TestCase):
         template, _ = patcher.menu_row(eg)
         self.assertEqual(row, (3225, *template[1:6], 0x315B, *template[7:]))
         self.assertEqual(row[4], 0x20901005)
-        # The transition table clone landed in the cave and is registered.
-        self.assertEqual(menu['row_table'], hex(entries['vr_row_events']))
-        unit = bytes(img.new[CAVE_BASE - EG_BASE:CAVE_BASE - EG_BASE + len(code)])
-        at = entries['vr_row_events'] - CAVE_BASE
-        self.assertEqual(unit[at:at + 32 * 44], patcher.row_events(
+        # The transition table clone lands at the fixed events sub-window and
+        # is registered there (T2b: no organic in-unit slot any more).
+        self.assertEqual(menu['row_table'], hex(VR_EVENTS_AT))
+        events = next(e for e in img.edits if e['offset'] == VR_EVENTS_AT - EG_BASE)
+        self.assertEqual(len(events['new']), VR_EVENTS_SIZE)
+        self.assertEqual(events['new'], patcher.row_events(
             eg, patcher.menu_row(eg)[1], entries['vr_row_hook']))
+        unit = bytes(img.new[CAVE_BASE - EG_BASE:CAVE_BASE - EG_BASE + len(code)])
         # The value byte now lives in the DS record family (T7): the build
         # pins the five record addresses and reports the storage wiring.
         self.assertEqual(meta['storage']['value_addr'], hex(patcher.VALUE_ADDR))
@@ -731,15 +741,18 @@ class UnitBuildTests(unittest.TestCase):
         eg = pkg.eg
         code, observed = compiled.compile_unit('vrotate', compiler)
         self.assertEqual(compiled.SPECS['vrotate']['asm_base'], CAVE_BASE)
-        self.assertLessEqual(CAVE_BASE + len(code), CAVE_LIMIT)   # cave bounds
+        # Pure code + literal pool unit: it must stop short of the fixed
+        # events sub-window (T2b capacity bound; no .org slot any more).
+        self.assertLessEqual(CAVE_BASE + len(code), VR_EVENTS_AT)
         entries = {name: int(sym['va'], 16) for name, sym in observed['symbols'].items()}
-        for name in ('vr_matrix_hook', 'vr_latch_hook', 'vr_latch_displaced', 'vr_row_events'):
+        for name in ('vr_matrix_hook', 'vr_latch_hook', 'vr_latch_displaced'):
             self.assertIn(name, entries, name)
             self.assertTrue(CAVE_BASE <= entries[name] < CAVE_LIMIT, name)
         # A+ migration: the five data labels left the cave for the data
-        # mirror state window; they must not come back as unit symbols.
+        # mirror state window; T2b moves the row-events clone to the fixed
+        # events sub-window -- neither may come back as unit symbols.
         for name in ('vr_matrices', 'vr_axis_codes', 'vr_threshold', 'vr_latch',
-                     'vr_sentinel'):
+                     'vr_sentinel', 'vr_row_events'):
             self.assertNotIn(name, entries, name)
         # T7: the retired cave bytes must stay out of the unit.
         for name in ('vr_value', 'vr_enable'):
@@ -755,10 +768,11 @@ class UnitBuildTests(unittest.TestCase):
         # gates and the zero-cave / zero-window checks all pass.
         from z8patch.shared import Strings
         img, meta = patcher.build_main(eg, code, entries, Strings())
-        self.assertEqual(len(img.edits), 4)
+        self.assertEqual(len(img.edits), 5)
         sites = sorted(e['offset'] for e in img.edits)
         self.assertEqual(sites, sorted((MATRIX_SITE - EG_BASE, LATCH_SITE - EG_BASE,
-                                        CAVE_BASE - EG_BASE, VR_STATE_IMG_OFF)))
+                                        CAVE_BASE - EG_BASE, VR_STATE_IMG_OFF,
+                                        VR_EVENTS_AT - EG_BASE)))
         # Offline disassembly (capstone) of the edited sites and the unit.
         from capstone import Cs, CS_ARCH_ARM64, CS_MODE_LITTLE_ENDIAN
         md = Cs(CS_ARCH_ARM64, CS_MODE_LITTLE_ENDIAN)
@@ -878,16 +892,13 @@ class StateWindowTests(unittest.TestCase):
         for off in (VR_MATRICES_OFF, VR_THRESHOLD_OFF, VR_AXIS_CODES_OFF,
                     VR_LATCH_OFF, VR_SENTINEL_OFF):
             self.assertIn(_struct.pack('<Q', VR_STATE_VA + off), code, hex(off))
-        # No qword anywhere in the code+pool region (everything before the
-        # read-only row-events clone, which keeps its pre-migration cave
-        # address) may point into the cave: the five labels used to ride
-        # there, and any in-cave pointer in the pool would be a residual or
-        # reappeared data reference.  The clone keeps the only legitimate
-        # cave pointers (its three vr_row_hook action slots).
-        limit = entries['vr_row_events'] - CAVE_BASE
-        self.assertGreater(limit, 0)
-        self.assertEqual(entries['vr_row_events'], 0x40A082F0)
-        for at in range(0, limit - 7):
+        # The unit is pure code + literal pool (T2b: the row-events clone is
+        # gone to the fixed events sub-window), so no qword anywhere in the
+        # unit may point into the cave: the five labels and the events table
+        # used to ride there, and any in-cave pointer in the pool would be a
+        # residual or reappeared data reference.
+        self.assertNotIn('vr_row_events', entries)
+        for at in range(0, len(code) - 7):
             q = _struct.unpack_from('<Q', code, at)[0]
             self.assertFalse(CAVE_BASE <= q < CAVE_LIMIT,
                              'cave pointer %#x at unit+%#x' % (q, at))
@@ -964,6 +975,100 @@ class StateWindowTests(unittest.TestCase):
         if stock is not None:
             self.assertEqual(stock[VR_STATE_IMG_OFF:VR_STATE_IMG_OFF + VR_STATE_SIZE],
                              bytes(VR_STATE_SIZE))
+
+
+class EventsWindowTests(unittest.TestCase):
+    """T2b (2026-11-09 user ruling): the row-events clone lives at a
+    patcher-constant fixed sub-window of the cave (the z8h265 MENU_AT form)
+    instead of an organic in-unit slot behind .org padding.
+
+    VR_EVENTS_AT = 0x40A09000 (4K-aligned, stock zero, table 44x32 B with the
+    0x3BB terminator).  This decouples unit code/pool growth from the frozen
+    transition-pointer recipe rows: the unit stops at its own end, the table
+    rides its own expect_zero image edit, and the only external bytes that
+    name the table are the 8 B emit-region pointer (pinned below).
+    """
+
+    def _build(self):
+        from z8patch.shared import Strings
+        from z8vrotate import patcher
+        from z8patch import compiled
+        from z8prores.package import Package
+        if not FIRMWARE.is_file():
+            self.skipTest('stock firmware fixture not present: %s' % FIRMWARE)
+        compiler = _clang()
+        if not compiler:
+            self.skipTest('no clang for the aarch64 unit build')
+        eg = Package(FIRMWARE.read_bytes()).eg
+        code, observed = compiled.compile_unit('vrotate', compiler)
+        entries = {name: int(sym['va'], 16) for name, sym in observed['symbols'].items()}
+        img, meta = patcher.build_main(eg, code, entries, Strings())
+        return patcher, bytes(code), entries, img, meta
+
+    def test_events_window_constants_and_stock_state(self):
+        """Pinned constants; the window and the whole cave tail past the
+        table are stock zero; the unit stops short of the window."""
+        from z8prores.package import Package
+        patcher, code, _, _, meta = self._build()
+        self.assertEqual((patcher.VR_EVENTS_AT, patcher.VR_EVENTS_END),
+                         (VR_EVENTS_AT, VR_EVENTS_END))
+        self.assertEqual(VR_EVENTS_SIZE, 44 * 32)
+        self.assertEqual(VR_EVENTS_AT % 0x1000, 0)
+        self.assertTrue(CAVE_BASE < VR_EVENTS_AT and VR_EVENTS_END <= CAVE_LIMIT)
+        # The unit is pure code + pool and must stop before the window; the
+        # gap between them stays stock zero in the built image.
+        self.assertLess(CAVE_BASE + len(code), VR_EVENTS_AT)
+        self.assertEqual(meta['events_window'], [hex(VR_EVENTS_AT), hex(VR_EVENTS_END)])
+        if FIRMWARE.is_file():
+            eg = Package(FIRMWARE.read_bytes()).eg
+            self.assertEqual(eg[VR_EVENTS_AT - EG_BASE:VR_EVENTS_END - EG_BASE],
+                             bytes(VR_EVENTS_SIZE))
+            self.assertEqual(eg[VR_EVENTS_END - EG_BASE:CAVE_LIMIT - EG_BASE],
+                             bytes(CAVE_LIMIT - VR_EVENTS_END))
+
+    def test_events_table_rides_its_own_image_edit(self):
+        """The 0x580-byte clone is a dedicated expect_zero edit at the fixed
+        window, registered as the menu row table, and the cave gap plus tail
+        stay zero in the built image."""
+        from z8vrotate import patcher
+        patcher, code, entries, img, meta = self._build()
+        events = next(e for e in img.edits if e['offset'] == VR_EVENTS_AT - EG_BASE)
+        self.assertEqual(len(events['new']), VR_EVENTS_SIZE)
+        self.assertEqual(events['new'], patcher.row_events(
+            img.old, patcher.menu_row(img.old)[1], entries['vr_row_hook']))
+        self.assertEqual(meta['menu']['row_table'], hex(VR_EVENTS_AT))
+        # Terminator record last and untouched; the three toggle actions are
+        # the only in-cave pointers (they name vr_row_hook code).
+        import struct as _struct
+        self.assertEqual(_struct.unpack_from('<Q', events['new'], 32 * 43)[0], 0x3BB)
+        hook_slots = [i for i in range(44)
+                      if _struct.unpack_from('<Q', events['new'], 32 * i + 8)[0]
+                      == entries['vr_row_hook']]
+        self.assertEqual(len(hook_slots), 3)
+        # Gap and tail zero in the new image.
+        gap = img.new[CAVE_BASE - EG_BASE + len(code):VR_EVENTS_AT - EG_BASE]
+        tail = img.new[VR_EVENTS_END - EG_BASE:CAVE_LIMIT - EG_BASE]
+        self.assertEqual(gap, bytes(VR_EVENTS_AT - CAVE_BASE - len(code)))
+        self.assertEqual(tail, bytes(CAVE_LIMIT - VR_EVENTS_END))
+
+    def test_emit_region_pointer_targets_the_events_window(self):
+        """The shared transition-pointer emit names VR_EVENTS_AT (the one
+        external frozen row that carries the table address)."""
+        import struct as _struct
+        import features
+        from z8patch.shared import VIDEO_EVENTS
+        from z8prores.package import Package
+        if not FIRMWARE.is_file():
+            self.skipTest('stock firmware fixture not present: %s' % FIRMWARE)
+        compiler = _clang()
+        if not compiler:
+            self.skipTest('no clang for the aarch64 unit build')
+        eg = Package(FIRMWARE.read_bytes()).eg
+        img, detail, rows = features.compose(eg, ['video-orientation'], compiler,
+                                             'source', check_recipe=False)
+        items = [int(i, 16) for i in detail['menu']['items']]
+        at = VIDEO_EVENTS - EG_BASE + 8 * items.index(0x315B)
+        self.assertEqual(_struct.unpack_from('<Q', img.new, at)[0], VR_EVENTS_AT)
 
 
 class OldCombinationFreezeTests(unittest.TestCase):
@@ -1110,6 +1215,14 @@ class IntegrationTests(unittest.TestCase):
             self.assertNotIn(name, entries, name)
         self.assertEqual(detail['vrotate']['state_window'],
                          [hex(VR_STATE_VA), hex(VR_STATE_END)])
+        # T2b: the row-events clone rides its own edit at the fixed events
+        # sub-window and is absent from the unit symbols.
+        events = next(e for e in img.edits if e['offset'] == VR_EVENTS_AT - EG_BASE)
+        self.assertEqual(len(events['new']), VR_EVENTS_SIZE)
+        self.assertNotIn('vr_row_events', entries)
+        self.assertEqual(detail['vrotate']['events_window'],
+                         [hex(VR_EVENTS_AT), hex(VR_EVENTS_END)])
+        self.assertEqual(detail['vrotate']['menu']['row_table'], hex(VR_EVENTS_AT))
         self.assertEqual(detail['vrotate']['state'],
                          dict(matrices=hex(VR_STATE_VA + VR_MATRICES_OFF),
                               threshold=hex(VR_STATE_VA + VR_THRESHOLD_OFF),
