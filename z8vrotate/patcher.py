@@ -84,11 +84,17 @@ VR_EVENTS_AT = 0x40A09000
 VR_EVENTS_END = VR_EVENTS_AT + 44 * 32
 
 # Guard A whitelist (t3): store addresses whose base cannot be resolved in
-# their basic block but are proven safe.  Empty since the migration -- every
-# data store in the shipped unit rides a same-block state-window/DS-record
-# literal or the stack.  Any new entry needs a reason string that names the
-# proof (see z8patch.contract.assert_no_cave_store_targets).
-STORE_TARGET_WHITELIST = {}
+# their basic block (the window ends at every control transfer) but are
+# proven safe.  The shipped unit has exactly one such store: the sentinel-
+# arm write at 0x40A08160 (strb w8, [x10]) -- its base def
+# `ldr x10, #0x40a08250` at 0x40a08150 loads the STATE-WINDOW sentinel byte
+# (0xA0281A877, outside the cave), and the only intervening transfer,
+# `cbnz w8, #0x40a08190`, forwards past the whole 0x40a0815c..0x40a0818c
+# init series -- every path reaching the store flows through the def.
+# Any new entry needs a reason string that names the proof; a stale entry
+# simply stops matching when unit code shifts (the shifted store then gets
+# full checking again).  See z8patch.contract.assert_no_cave_store_targets.
+STORE_TARGET_WHITELIST = {0x40A08160: 'sentinel-arm store: base is the state-window sentinel literal 0xA0281A877 loaded at 0x40a08150; the intervening cbnz (0x40a08158) forwards to 0x40a08190 past the entire init store series, so the def dominates the store on every path'}
 
 # T6 menu row: cloned from the stock audio attenuator row (item 0x2FC0,
 # row index 35 of the 44-row video menu table, class word 0x20901005).

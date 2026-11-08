@@ -134,7 +134,7 @@ def verify_contract(old,new,features):
 
 # ---- Build-time address-coupling guards (2026-11-09 vrotate-fix t3) ----
 
-ORG_DIRECTIVE = re.compile(r'(?m)^[ \t]*\.org\b')
+ORG_DIRECTIVE = re.compile(r'(?m)^[ \t]*(?:(?:[\w.$]+|\d+):[ \t]*)?\.org\b')
 
 
 def assert_no_org_directives(root=ROOT):
@@ -251,26 +251,31 @@ def assert_no_cave_store_targets(code, base, window, whitelist=None):
 
     Disassembles the assembled unit (capstone; literal-pool bytes surface
     as skipdata, not instructions) and checks every data-writing
-    instruction (str/strb/strh/stp family).  The store's base register is
-    resolved inside its basic block:
+    instruction -- the whole st* family plus the LSE atomic writes
+    (swp*/cas*); unknown store shapes are never a silent pass class.  The
+    store's base register is resolved inside its basic block:
 
     * adr / adrp / ldr =literal / movz(+movk) / add-immediate chains give
-      an absolute address; window hits raise;
+      an absolute address (32-bit writes keep the paired X view in sync:
+      zero-extension makes the X view take the same value); window hits
+      raise;
     * an immediate addressing offset folds into the resolved address;
-    * the stack (sp/wsp/x29) and incoming argument registers (x0..x7) are
-      pass-through classes (the hook never owns those targets);
+    * the stack (sp/wsp/x29) and incoming argument registers (x0..x7)
+      are pass-through classes (the hook never owns those targets; an
+      argument register REDEFINED inside the block is resolved, not
+      passed through);
     * anything else (base loaded from memory, register-offset addressing,
-      live-in non-argument registers) is conservatively rejected: prefer a
-      false alarm over a missed cave write.
+      live-in non-argument registers) is conservatively rejected: prefer
+      a false alarm over a missed cave write.
 
     whitelist maps a store's absolute address to a documented reason and
     is the explicit escape hatch for proven-safe unresolvable shapes.
-    The resolution window is the straight-line run since the last
-    UNCONDITIONAL transfer (b/br/blr/bl/ret -- calls clobber caller-saved
-    registers): conditional branches keep tracked definitions, the
-    conservative cut.  Divergent redefinitions across a conditional
-    branch and its join are not modeled; that control flow does not occur
-    in the leaf hook units and the whitelist remains the escape hatch.
+    The resolution window is the store's basic block -- the straight-line
+    run since the last control transfer of ANY kind (b/b.cond,
+    cbz/cbnz/tbz/tbnz, br/blr/bl, ret; calls also clobber caller-saved
+    registers).  Divergent redefinitions across a conditional branch and
+    its join therefore cannot produce a false pass: any def outside the
+    window is unresolvable and lands in the whitelist path.
     """
     from capstone import Cs, CS_ARCH_ARM64, CS_MODE_LITTLE_ENDIAN
     whitelist = whitelist or {}
@@ -278,11 +283,33 @@ def assert_no_cave_store_targets(code, base, window, whitelist=None):
     md = Cs(CS_ARCH_ARM64, CS_MODE_LITTLE_ENDIAN)
     md.skipdata = True
     insns = list(md.disasm(code, base))
-    stores = ('str', 'strb', 'strh', 'stp', 'stnp', 'stur', 'sttr', 'stlr')
-    terminators = ('ret', 'br', 'blr', 'bl')
     argument = {'x%d' % r for r in range(8)} | {'w%d' % r for r in range(8)}
     stack = {'sp', 'wsp', 'x29', 'w29'}
     defs = {}                       # register -> ('abs', value) | None
+
+    def is_store(mnemonic):
+        # Every AArch64 memory write: the st* family (str/strb/strh/stp/
+        # stnp/stur/sttr/stlr plus sturb/sttrb/stadd/... variants) and the
+        # LSE atomic exchanges -- an unrecognized store mnemonic is still
+        # a store, never a silent pass.
+        return (mnemonic.startswith('st') or mnemonic.startswith('swp')
+                or mnemonic.startswith('cas'))
+
+    def is_transfer(mnemonic):
+        # Any control transfer ends the basic block (conservative window).
+        return (mnemonic in ('ret', 'br', 'blr', 'bl', 'cbz', 'cbnz',
+                             'tbz', 'tbnz')
+                or mnemonic == 'b' or mnemonic.startswith('b.'))
+
+    def paired(reg):
+        return ('x' if reg[0] == 'w' else 'w') + reg[1:] \
+            if reg[:1] in ('x', 'w') else None
+
+    def lookup(reg):
+        state = defs.get(reg)
+        if state is None and paired(reg):
+            state = defs.get(paired(reg))
+        return state
 
     def clear(reg):
         defs[reg] = None
@@ -290,9 +317,12 @@ def assert_no_cave_store_targets(code, base, window, whitelist=None):
             defs['x' + reg[1:]] = None
 
     def define(reg, state):
+        # A 32-bit write zero-extends into the paired X register, so the
+        # X view takes the SAME tracked value (I-1: dropping the alias
+        # back to an "untouched argument register" was a silent pass).
         defs[reg] = state
         if reg.startswith('w'):
-            defs.pop('x' + reg[1:], None)   # a 32-bit def redefines the pair
+            defs['x' + reg[1:]] = state
 
     def fail(address, message):
         if address in whitelist or hex(address) in whitelist:
@@ -301,7 +331,7 @@ def assert_no_cave_store_targets(code, base, window, whitelist=None):
 
     for ins in insns:
         mnemonic, operands = ins.mnemonic, ins.op_str
-        if mnemonic in stores:
+        if is_store(mnemonic):
             inner = operands[operands.index('[') + 1:operands.rindex(']')]
             parts = [p.strip() for p in inner.split(',')]
             base_reg, offset = parts[0], None
@@ -342,8 +372,10 @@ def assert_no_cave_store_targets(code, base, window, whitelist=None):
         elif mnemonic == 'ldr' and '[' not in operands and '#' in operands:
             dest = operands.split(',')[0].strip()
             slot = int(operands.split('#')[1], 0) - base
-            if 0 <= slot <= len(code) - 8:
-                define(dest, ('abs', struct.unpack_from('<Q', code, slot)[0]))
+            width = 4 if dest.startswith('w') else 8
+            fmt = '<I' if width == 4 else '<Q'
+            if 0 <= slot <= len(code) - width:
+                define(dest, ('abs', struct.unpack_from(fmt, code, slot)[0]))
             else:
                 clear(dest)
         elif mnemonic in ('movz', 'mov') and '#' in operands and '[' not in operands:
@@ -368,23 +400,29 @@ def assert_no_cave_store_targets(code, base, window, whitelist=None):
         elif mnemonic in ('add', 'sub') and operands.count(',') == 2:
             dest, source, immediate = [p.strip() for p in operands.split(',')]
             if immediate.startswith('#'):
-                prior = defs.get(source)
+                prior = lookup(source)
                 delta = int(immediate[1:], 0) * (1 if mnemonic == 'add' else -1)
                 if isinstance(prior, tuple):
-                    define(dest, ('abs', prior[1] + delta))
+                    value = prior[1] + delta
+                    if dest.startswith('w'):
+                        value &= 0xFFFFFFFF     # 32-bit wrap, zero-extended
+                    define(dest, ('abs', value))
                 else:
                     clear(dest)
             else:
                 clear(dest)
         elif mnemonic == 'mov' and '#' not in operands and '[' not in operands:
             dest, source = [p.strip() for p in operands.split(',', 1)]
-            if source in defs:
-                defs[dest] = defs[source]
+            state = lookup(source)
+            if isinstance(state, tuple) and dest.startswith('w') and state[1] >> 32:
+                state = None      # 64-bit source truncated into a 32-bit view
+            if isinstance(state, tuple):
+                define(dest, state)     # keeps the paired X/W view in sync
             else:
                 clear(dest)
-        elif mnemonic not in terminators and not (mnemonic == 'b' or mnemonic.startswith('b.')):
+        elif not is_transfer(mnemonic):
             first = operands.split(',')[0].strip() if operands else ''
             if first.startswith(('x', 'w')) or first in ('sp', 'wsp'):
                 clear(first)
-        if mnemonic in terminators or mnemonic == 'b' or mnemonic.startswith('b.'):
-            defs.clear()          # unconditional transfer ends the window
+        if is_transfer(mnemonic):
+            defs.clear()          # any control transfer ends the basic block
