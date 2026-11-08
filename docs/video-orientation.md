@@ -1,0 +1,81 @@
+# 记录视频方向 / Record video orientation
+
+[简体中文](#简体中文) · [English](#english)
+
+## 简体中文
+
+### 功能
+
+`--features video-orientation` 是开发分支新增的第五个构建组，尚未包含在 v0.4.0-rc.2 发布工具包中。它在视频拍摄菜单中新增一行**“记录视频方向”**（英文 Record video orientation，日文 動画の縦横位置情報の記録；标题覆盖相机全部 36 个语言槽位），插入在“图像区域”一行之前。取值为行内**开／关**切换，直接复用原厂的开／关文案。设置按视频拍摄菜单库 A–D 分别保存，**默认开**。
+
+开启时，相机在**开始录像的一刻**锁定持机姿态（由姿态传感器的重力向量判定）：两个方向的竖拍与 180° 倒置会在录像容器中写入 QuickTime **tkhd 显示矩阵**（旋转元数据）；横拍不写入，与原厂一致。写入经由相机唯一的视频封装路径，设计上覆盖相机录制的全部格式——MP4（H.264）、H.265（MP4 或 MOV 容器）、ProRes 422 HQ（MOV；视频品质组的其余 ProRes 档位走同一录制路径）、ProRes RAW 与 N-RAW。姿态只在录制开始时判定一次：录制中途改变握持不影响本次录像的标记，回放或传送时对文件的分析也不会复用过期姿态。
+
+关闭（或横拍）时不写入矩阵，容器与原厂输出逐字节一致。不选择该组的构建中，视频拍摄菜单保持原厂行集不变。
+
+### 使用步骤
+
+1. 构建时选择 `video-orientation`，可与其他组任意组合（含该组共 31 种非空组合）。
+2. 在视频拍摄菜单找到“记录视频方向”，位于视频画质各行之后、“图像区域”之前。
+3. 按 OK 键、转动指令拨盘或触摸该行，即可在开／关之间切换；需要不同菜单库使用不同设置时，切换到相应菜单库分别设置。
+
+### 断电与菜单库
+
+- **默认开。** 安装后首次开机即为开；断电重启后各菜单库回到默认“开”。
+- **会话内持久。** 手动关闭在本次开机期间一直有效，并按菜单库 A–D 分别记忆；切换菜单库时取值随库切换。
+- 该取值字节与已发布的 H.265 码率档位字节同属一个相机设置记录的空位，断电后均不保留——本功能重启后回到默认“开”，与 H.265 档位的会话语义属同一类。
+- “重设视频拍摄菜单”对该行取值的影响未测试。
+
+### 兼容性
+
+ffmpeg（ffplay／ffprobe）、Adobe Premiere Pro、DaVinci Resolve、Final Cut Pro、VLC 与 QuickTime Player 均读取 tkhd 显示矩阵并按其旋转画面。N-RAW 是尼康自有封装：静态分析表明相机全部录像格式共用同一封装路径（矩阵写入点唯一），但**第三方 N-RAW 工具是否读取该矩阵未经验证**；NX Studio 列为实机测试项。
+
+### 验证状态
+
+- **离线检查通过**：全量单元测试；含该组的 31 种组合配方冻结（15 组真实构建逐字节复验，16 组含照片工具的组合经混合装配与结构审计冻结）；`verify.py` 对单选与“四视频组＋视频方向”产物独立核验通过。
+- **仿真验收待进行**：行内开／关取值文本的渲染路径尚未经仿真取证；若失败，将改走原厂布尔取值路径（已文档化的两处 movz 常量回退，不影响开关与存储）。
+- **实机验收待进行**：重力向量到姿态的轴向指派目前是文档化假设，未经实机标定——最坏情形是两个竖拍方向镜像互换，届时仅需修改补丁常量字节即可修正，无需改代码。各录像格式的矩阵写入、播放器与 NX Studio 的实际读取、断电与菜单库行为均待实机确认。
+
+### 已知问题
+
+断电回到默认“开”、会话内持久、N-RAW 第三方工具兼容未知等限制见[已知问题](known-issues.md)。
+
+## English
+
+### Overview
+
+`--features video-orientation` is a fifth build group on the development branch; it is not part of the v0.4.0-rc.2 release toolkit. It adds one row, **Record video orientation** (Japanese 動画の縦横位置情報の記録; the title ships in all 36 camera language slots), to the video shooting menu, directly before **Image area**. The row is an inline **On/Off** toggle reusing the camera's own localized On/Off texts. The setting is stored per movie shooting bank A–D and **defaults to On**.
+
+When On, the camera locks its grip orientation **at the moment recording starts** (classified from the orientation sensor's gravity vector): both portrait directions and 180° upside-down write a QuickTime **tkhd display matrix** (rotation metadata) into the movie container; landscape writes nothing, exactly like stock. The write goes through the camera's single movie-muxing path, so by design it covers every format the camera records: MP4 (H.264), H.265 (MP4 or MOV container), ProRes 422 HQ (MOV; the video-quality group's other ProRes grades use the same recording path), ProRes RAW and N-RAW. Orientation is decided once at recording start: changing grip mid-take does not alter the mark for that clip, and playback- or transfer-side analysis of the file cannot reuse a stale pose.
+
+When Off (or when recording in landscape), no matrix is written and the container is byte-identical to the stock output. Builds that do not select this group keep the video shooting menu at its stock row set.
+
+### Steps
+
+1. Select `video-orientation` when building; it combines freely with the other groups (31 nonempty combinations with it included).
+2. Find Record video orientation in the video shooting menu, after the video-quality rows and before Image area.
+3. Press OK, turn the command dial or touch the row to switch between On and Off. To use different settings in different banks, select each bank and set its value.
+
+### Power cycle and banks
+
+- **Default On.** The feature is On from the first boot after installation; after a power cycle every bank returns to the default On.
+- **Session persistence.** A manual Off stays in effect for the whole session and is remembered separately for banks A–D; switching banks switches the value with it.
+- The value byte occupies a spare byte of the same camera-settings record as the shipped H.265 tier byte. Neither survives a power cycle, so this row shares the H.265 tier's session semantics: the default returns after a restart.
+- The effect of Reset movie shooting menu on this row has not been tested.
+
+### Compatibility
+
+ffmpeg (ffplay/ffprobe), Adobe Premiere Pro, DaVinci Resolve, Final Cut Pro, VLC and QuickTime Player all read the tkhd display matrix and rotate accordingly. N-RAW is Nikon's own container: static analysis shows all recording formats share the one muxing path (a single matrix write site), but whether third-party N-RAW tools honour the matrix is unverified; NX Studio is on the camera-test list.
+
+### Validation status
+
+- **Offline checks pass**: the full unit-test suite; the 31 combination recipes containing this group are frozen (15 rebuilt and re-verified byte-exactly, the 16 photo-tools combinations frozen via hybrid assembly with a structural audit); `verify.py` independently passes the single-group and four-video-groups-plus-orientation outputs.
+- **Emulation acceptance pending**: the rendering path of the inline On/Off value text has not yet been captured in emulation; if it fails, the documented fallback switches two movz constants to the stock boolean value path, leaving the toggle and storage untouched.
+- **Camera acceptance pending**: the gravity-vector-to-pose axis assignment is a documented hypothesis, not yet calibrated on a camera; in the worst case the two portrait directions come out mirrored, which is corrected by changing patch constant bytes only, with no code change. Matrix writes in each recording format, what players and NX Studio actually read, and power-cycle and bank behaviour all await camera confirmation.
+
+### Known issues
+
+See [known issues](known-issues.md) for the power-cycle default, session persistence, the unverified N-RAW third-party compatibility and other limits.
+
+## 相关文档 / Related documents
+
+[构建与截图 / Build and screenshots](../README.md) · [已知问题 / Known issues](known-issues.md) · [验证记录 / Validation](validation.md) · [致谢与许可 / Attribution](../NOTICE.md)

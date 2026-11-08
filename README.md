@@ -18,7 +18,7 @@
 
 ## 简体中文
 
-Nikon Z8 C 3.11 实验补丁的离线构建工具。提供四组可独立选择的功能，并可一次构建任意组合。本版为 **v0.4.0-rc.2 预发布版**。[下载完整工具包与校验清单](https://github.com/XinmiaoZhao/NikonFirmwarePatch/releases/tag/v0.4.0-rc.2)。使用本轮补丁构建的全选固件，已实机验证新录与旧录 N-RAW 的 Log 回放名称和辅助观感。
+Nikon Z8 C 3.11 实验补丁的离线构建工具。提供四组可独立选择的功能，并可一次构建任意组合；开发分支另含第五组 `video-orientation`（[记录视频方向](docs/video-orientation.md)），含该组的非空组合共 31 种，此组尚未随 v0.4.0-rc.2 发布。本版为 **v0.4.0-rc.2 预发布版**。[下载完整工具包与校验清单](https://github.com/XinmiaoZhao/NikonFirmwarePatch/releases/tag/v0.4.0-rc.2)。使用本轮补丁构建的全选固件，已实机验证新录与旧录 N-RAW 的 Log 回放名称和辅助观感。
 
 **使用风险。** 这是实验固件，构建或安装可能造成数据丢失、卡损坏或相机故障。离线检查不等于实机安全保证，请勿用于不可替代的工作。无担保及责任条款见 [LICENSE](LICENSE) 和 [NOTICE](NOTICE.md)。
 
@@ -28,6 +28,7 @@ Nikon Z8 C 3.11 实验补丁的离线构建工具。提供四组可独立选择�
 | `video-quality` | ProRes HQ／422／LT／Proxy 及 HQ 星标；H.265 五档码率、星标与保护计时修正 |
 | `log-colour` | Log 菜单选择 N-Log／BT.2020、S-Log3／S-Gamut3.Cine、Log3G10／REDWideGamutRGB，含标签、图标和显示辅助 |
 | `photo-tools` | C15/C30 RAW 预拍（FX/DX，无损选择回退 HE★）与像素偏移合成（修复任意起始编号的组识别） |
+| `video-orientation` | 视频拍摄菜单新增“记录视频方向”行（开发版）：录像开始锁存竖拍／倒置姿态并写入录像容器的旋转元数据；按视频拍摄菜单库保存，默认开 |
 
 N-RAW 四档始终与开放门在同一组；`video-quality` 指 ProRes＋H.265。反挤压可关闭，开放门只在选择相应画幅时启用。照片组的两项功能各有机内入口。像素位移合成需要完整的 FX 无损 NEF 组，预拍输出不适用。Log 录像使用经实拍标定的矩阵与常量 Cpxs；S-Log3 沿用原厂截零，Log3G10 录像不含 RED 的 F 映射。
 
@@ -106,7 +107,7 @@ python verify.py Z_8_0311.bin build/all/Z_8_0406.bin --features framing video-qu
 
 - [四组结构与迁移](docs/feature-groups.md)
 - [开放门／N-RAW](docs/opengate-nraw.md)、[反挤压](docs/anamorphic.md)
-- [ProRes](docs/prores.md)、[H.265](docs/h265.md)
+- [ProRes](docs/prores.md)、[H.265](docs/h265.md)、[记录视频方向](docs/video-orientation.md)（开发版）
 - [Log 设置与后期流程](docs/log-colour.md)、[色彩报告：中文](docs/log-colour-report.md)／[English](docs/log-colour-report.en.md)、[后期 F LUT](luts/README.md)
 - [RAW 预拍](docs/raw-precapture.md)、[像素偏移](docs/pixelshift.md)
 - [当前验证](docs/validation.md)、[已知问题](docs/known-issues.md)、[更新日志](CHANGELOG.md)
@@ -125,7 +126,7 @@ python verify.py Z_8_0311.bin build/all/Z_8_0406.bin --features framing video-qu
 
 ## English
 
-This offline toolkit builds experimental patches for the original Nikon Z8 C 3.11 firmware. Select any of four feature groups or combine them in one build. The current pre-release is **v0.4.0-rc.2**. [Download the toolkit and checksums](https://github.com/XinmiaoZhao/NikonFirmwarePatch/releases/tag/v0.4.0-rc.2). On a Z8, the all-feature firmware built with this update showed the expected Log names and assist rendering when playing both newly recorded and existing N-RAW clips.
+This offline toolkit builds experimental patches for the original Nikon Z8 C 3.11 firmware. Select any of four feature groups or combine them in one build; the development branch adds a fifth group, `video-orientation` ([record video orientation](docs/video-orientation.md)), for 31 nonempty combinations with it included. That group is not part of the v0.4.0-rc.2 release. The current pre-release is **v0.4.0-rc.2**. [Download the toolkit and checksums](https://github.com/XinmiaoZhao/NikonFirmwarePatch/releases/tag/v0.4.0-rc.2). On a Z8, the all-feature firmware built with this update showed the expected Log names and assist rendering when playing both newly recorded and existing N-RAW clips.
 
 **Risk of use.** Building or installing experimental firmware can cause data loss, card corruption or camera malfunction. Offline checks cannot guarantee safe operation on a camera. Avoid using experimental firmware for irreplaceable work. See the warranty and liability terms in [LICENSE](LICENSE) and [NOTICE](NOTICE.md).
 
@@ -135,6 +136,7 @@ This offline toolkit builds experimental patches for the original Nikon Z8 C 3.1
 | `video-quality` | ProRes HQ/422/LT/Proxy with an HQ star, plus five H.265 bitrate settings, star indication and a protection-timer fix |
 | `log-colour` | N-Log / BT.2020, S-Log3 / S-Gamut3.Cine or Log3G10 / REDWideGamutRGB, with labels, icons and view assist |
 | `photo-tools` | C15/C30 RAW pre-capture in FX/DX with lossless selection falling back to HE★, and pixel-shift merging with any starting file number |
+| `video-orientation` | New "Record video orientation" row in the movie menu (development builds): latches portrait or upside-down pose at recording start and writes rotation metadata into recorded containers; saved per movie bank, default On |
 
 The four N-RAW tiers belong to the open-gate group. ProRes and H.265 belong to `video-quality`. Desqueeze can be disabled, and open gate applies only when the corresponding frame size is selected. The two photo tools have separate camera controls. Pixel-shift merging requires a complete group of lossless FX NEFs, which excludes pre-capture outputs. Log recording uses camera-calibrated matrices and constant chroma compensation (Cpxs). S-Log3 retains stock clipping at zero; Log3G10 recording omits RED’s F mapping.
 
@@ -213,7 +215,7 @@ The version format is `NN.NN`; the internal tag is one lowercase letter followed
 
 - [Four feature groups and migration](docs/feature-groups.md)
 - [Open gate / N-RAW](docs/opengate-nraw.md) and [desqueeze](docs/anamorphic.md)
-- [ProRes](docs/prores.md) and [H.265](docs/h265.md)
+- [ProRes](docs/prores.md), [H.265](docs/h265.md) and [video orientation](docs/video-orientation.md) (development builds)
 - [Log settings and grading workflow](docs/log-colour.md#english), colour report in [Chinese](docs/log-colour-report.md) or [English](docs/log-colour-report.en.md), and [F LUT for post](luts/README.md)
 - [RAW pre-capture](docs/raw-precapture.md) and [pixel shift](docs/pixelshift.md)
 - [Current validation](docs/validation.md), [known limits](docs/known-issues.md) and [changelog](CHANGELOG.md)

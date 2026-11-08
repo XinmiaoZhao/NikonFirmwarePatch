@@ -94,6 +94,7 @@ SOURCE_FILES=(
     'docs/validation-v0.3.1.json',
     'docs/validation-v0.3.1.md',
     'docs/validation.md',
+    'docs/video-orientation.md',
     'features.py',
     'patch.py',
     'requirements.txt',

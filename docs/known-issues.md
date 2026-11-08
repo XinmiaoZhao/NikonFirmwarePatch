@@ -52,6 +52,16 @@
 
 模式选择与各档码率预算见[开放门／N-RAW 指南](opengate-nraw.md)。
 
+## 记录视频方向（开发组）
+
+以下适用于开发分支的第五组 `video-orientation`，尚未随 v0.4.0-rc.2 发布；功能说明见[记录视频方向指南](video-orientation.md)。
+
+- **断电后回到默认“开”。** 取值按视频拍摄菜单库 A–D 分别记忆，会话内切换菜单库时随库切换，手动关闭在本次开机期间保持；断电重启后各库重新初始化为“开”。该字节与已发布的 H.265 档位字节同属一个相机设置记录的空位，断电语义一致。“重设视频拍摄菜单”对该行的影响未测试。
+- **行值文本渲染待仿真验收。** 行内开／关取值复用原厂文案，但其渲染路径（合成行的取值子件×语言表字符串）尚未经仿真取证；若验收失败将改走原厂布尔取值路径（已文档化的两处 movz 常量回退，不影响开关与存储）。
+- **N-RAW 第三方工具兼容未知。** 旋转元数据的写入路径覆盖相机全部录像格式（含 N-RAW），但第三方 N-RAW 工具是否读取显示矩阵未经验证；NX Studio 列为实机测试项。
+- **轴向指派为文档化假设。** 重力向量到姿态的对应关系未经实机标定；最坏情形为两个竖拍方向镜像互换，届时仅改补丁常量字节即可修正，无需改代码。
+- **维护者事项。** 16 个含 `photo-tools` 的组合配方经混合装配与结构审计冻结，待具备完整工具包的机器跑全量 31 腿验证；`resources/compiled.json` 中 shared/vrotate 单元的编译器出处记为 LLVM 19.1.7，待发布机重建确认字节一致后更新。
+
 ## English
 
 ### Windows toolkit revision
@@ -92,3 +102,13 @@ The camera tester confirmed per-clip labels and view assist on previously record
 - Open gate is limited to FX 3:2 N-RAW 8.3K 30/25/24p, with 8256×5504 active pixels. It adds neither 50/60p open gate nor ProRes/H.265 3:2. Open gate and the four N-RAW tiers form one build option.
 - Compatibility metadata maps Fine to High and Basic to Normal for two-tier readers. Those labels cannot distinguish all four actual encoding grades.
 - Basic uses a 1.0-bit/pixel budget, with reduced fine texture observed in camera samples. Open-gate High uses 2.5 bits/pixel versus 3.0 for ordinary 8.3K 30/25/24p High.
+
+### Record video orientation (development group)
+
+Applies to the development-branch fifth group `video-orientation`, which is not part of the v0.4.0-rc.2 release. See the [video-orientation guide](video-orientation.md).
+
+- **A power cycle returns every bank to the default On.** The value is remembered per movie shooting bank, follows bank switches within the session and a manual Off persists until power-off; after a restart each bank is re-initialized to On. The byte occupies a spare byte of the same camera-settings record as the shipped H.265 tier byte, with identical restart semantics. The effect of Reset movie shooting menu has not been tested.
+- **Row value-text rendering awaits emulation acceptance.** The inline On/Off values reuse the camera's own texts, but the rendering path (the synthesized row's value child with a language-table string) has not been captured in emulation; on failure the documented fallback switches two movz constants to the stock boolean value path, leaving the toggle and storage untouched.
+- **N-RAW third-party compatibility is unverified.** The rotation-metadata write path covers every recording format including N-RAW, but whether third-party N-RAW tools read the display matrix is untested; NX Studio is on the camera-test list.
+- **The axis assignment is a documented hypothesis.** The gravity-vector-to-pose mapping is not yet calibrated on a camera; in the worst case the two portrait directions are mirrored, corrected by changing patch constant bytes only.
+- **Maintainer notes.** The 16 photo-tools combinations were frozen via hybrid assembly with a structural audit, pending the full 31-leg validator run on a complete-toolkit machine; the compiler provenance of the shared/vrotate units in `resources/compiled.json` records LLVM 19.1.7, to be confirmed against the release machine's bytes.
