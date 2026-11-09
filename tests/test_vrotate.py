@@ -709,7 +709,7 @@ class MenuRowBuildTests(unittest.TestCase):
         menu = meta['menu']
         self.assertEqual(menu['item'], '0x315b')
         self.assertEqual(menu['title_id'], 3225)
-        self.assertEqual(tuple(menu['value_ids']), (2466, 2467))
+        self.assertEqual(menu['value_widget'], hex(patcher.VALUE_WIDGET))
         row = struct.unpack_from('<11I', bytes.fromhex(menu['row_hex']))
         # The synthesized row clones the 0x2FC0 template field-for-field
         # (behavior class 0x20901005 incl.) with the new title and item ids.
@@ -731,15 +731,76 @@ class MenuRowBuildTests(unittest.TestCase):
         from z8vrotate import translations
         self.assertEqual(meta['strings']['ids'], [3225])
         self.assertEqual(context.groups['vrotate'], [[t] for t in translations.TITLES])
-        # The value pair ids ride as immediates in the cave hooks (both the
-        # toggle and the refresh path must show them, sourced from patcher).
+        # T4 value-render fallback: both the toggle and the refresh path
+        # drive the row's value child through the stock boolean widget; the
+        # retired string-id pair (2466/2467) must be gone from the unit.
         from capstone import Cs, CS_ARCH_ARM64, CS_MODE_LITTLE_ENDIAN
         md = Cs(CS_ARCH_ARM64, CS_MODE_LITTLE_ENDIAN)
         md.skipdata = True                  # step over the zero-filled cave data
         immediates = {int(i.op_str.split('#')[-1], 16) for i in md.disasm(unit, CAVE_BASE)
                       if i.mnemonic in ('mov', 'movz') and '#' in i.op_str}
-        for value in (patcher.ON_ID, patcher.OFF_ID, patcher.ROW_ITEM):
-            self.assertIn(value, immediates, value)
+        self.assertIn(patcher.ROW_ITEM, immediates)
+        for retired in (2466, 2467):
+            self.assertNotIn(retired, immediates, retired)
+
+
+class BooleanValuePathTests(unittest.TestCase):
+    """T4 value-render fallback: both hooks feed the value byte itself to
+    the stock boolean value widget.
+
+    The T6 string-id design (0x403F645C(child, 2466/2467)) renders broken
+    content on the synthesized row: the 0x1327 value-child template runs
+    mode==3 and truncates string ids above 299 (2026-11-08 arc t6 report
+    section 2), which the 2026-11-09 leg-0 menu probe confirmed live (OFF-
+    styled text unselected, hourglass icon highlighted, toggle and storage
+    byte still working).  The fix keeps the toggle/storage/sentinel paths
+    untouched and only re-targets the two value renders: each hook loads
+    the value byte, feeds 1 (On) or 0 (Off) as the w1 argument and calls
+    the stock boolean widget 0x405121E4 -- the attenuator row's own path
+    (internal ids 0x125A/0x125C).
+    """
+
+    def _unit(self):
+        from z8patch import compiled
+        if not FIRMWARE.is_file():
+            self.skipTest('stock firmware fixture not present: %s' % FIRMWARE)
+        compiler = _clang()
+        if not compiler:
+            self.skipTest('no clang for the aarch64 unit build')
+        code, observed = compiled.compile_unit('vrotate', compiler)
+        entries = {name: int(sym['va'], 16) for name, sym in observed['symbols'].items()}
+        return code, entries
+
+    def _hook(self, insns, start):
+        """Instructions of one hook: from its entry down to the first ret."""
+        region = []
+        for ins in insns:
+            if ins.address >= start:
+                region.append(ins)
+                if ins.mnemonic == 'ret':
+                    break
+        self.assertTrue(region and region[-1].mnemonic == 'ret', hex(start))
+        return region
+
+    def test_boolean_value_widget_path(self):
+        from capstone import Cs, CS_ARCH_ARM64, CS_MODE_LITTLE_ENDIAN
+        from z8vrotate import patcher
+        code, entries = self._unit()
+        md = Cs(CS_ARCH_ARM64, CS_MODE_LITTLE_ENDIAN)
+        md.skipdata = True
+        insns = list(md.disasm(bytes(code), CAVE_BASE))
+        for name in ('vr_row_hook', 'vr_refresh_hook'):
+            with self.subTest(hook=name):
+                region = self._hook(insns, entries[name])
+                calls = [int(i.op_str.removeprefix('#'), 16) for i in region
+                         if i.mnemonic == 'bl']
+                self.assertEqual(calls.count(patcher.VALUE_WIDGET), 1, calls)
+                self.assertNotIn(patcher.RETIRED_VALUE_ID_CALL, calls, calls)
+                # The byte pair itself rides as the two w1 immediates of the
+                # value select (1 = On, 0 = Off), next to the row item id.
+                w1 = {int(i.op_str.split('#')[-1], 16) for i in region
+                      if i.mnemonic in ('mov', 'movz') and i.op_str.startswith('w1, #')}
+                self.assertEqual(w1, {0, 1, patcher.ROW_ITEM}, w1)
 
 
 class UnitBuildTests(unittest.TestCase):
