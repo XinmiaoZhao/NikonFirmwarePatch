@@ -1632,6 +1632,33 @@ class BuildTimeGuardTests(unittest.TestCase):
             # .org then fails the D1 scan itself, covered above).
             assert_asm_sources_declared([declared, stray], [unit_dir])
 
+    def test_unit_asm_sources_runs_the_directory_consistency_check(self):
+        """M-A: the directory completeness check is mounted inside
+        unit_asm_sources() itself -- an undeclared source under a SPECS
+        unit's source directory is refused through the real entry point,
+        not only when assert_asm_sources_declared is invoked directly.
+        Dropping the internal mount call leaves this red even though the
+        parameterized check above stays green."""
+        import tempfile
+        from z8patch import compiled
+        with tempfile.TemporaryDirectory() as folder:
+            unit_dir = Path(folder) / 'z8probe' / 'src'
+            unit_dir.mkdir(parents=True)
+            hooks = unit_dir / 'hooks.S'
+            hooks.write_text('start:\n nop\n')
+            stray = unit_dir / 'stray.S'
+            stray.write_text('start:\n nop\n')
+            # Absolute spec paths win over the repo ROOT join, so the fake
+            # SPECS registry drives the real mount over the temp tree.
+            real_specs = compiled.SPECS
+            compiled.SPECS = {'probe': dict(source=str(hooks),
+                                            asm_sources=(str(hooks),))}
+            try:
+                with self.assertRaisesRegex(ValueError, r'stray\.S.*z8probe'):
+                    compiled.unit_asm_sources()
+            finally:
+                compiled.SPECS = real_specs
+
     def test_nested_asm_source_under_unit_directory_rejected(self):
         """M-B: the completeness check sweeps the unit directory TREE --
         a *.S nested in a subdirectory is refused exactly like a
@@ -1712,8 +1739,10 @@ class BuildTimeGuardTests(unittest.TestCase):
         assert_no_cross_region_pointers(rows, placements)
 
     def test_registered_entry_mechanism(self):
-        """Asm units register their .global hook labels; the C-unit contract
-        names all exist in the frozen symbol tables inside their spans."""
+        """Asm units register their .global hook labels -- exactly those and
+        nothing else (M-C bidirectional equality below); the C-unit
+        contract names all exist in the frozen symbol tables inside their
+        spans."""
         import json
         from z8patch import compiled
         from z8patch.contract import (C_UNIT_ENTRY_CONTRACT, asm_global_declarations,
@@ -1725,6 +1754,26 @@ class BuildTimeGuardTests(unittest.TestCase):
                          ['vr_latch_hook', 'vr_matrix_hook', 'vr_refresh_hook',
                           'vr_row_hook'])
         units = json.loads((ROOT / 'resources' / 'compiled.json').read_text())['units']
+        # M-C: for every asm unit the registration is EXACTLY the .global
+        # declarations intersected with the frozen symbol table, in both
+        # directions.  A registration weakened to the full symbol table
+        # would let D2 pass emit-region qwords naming unit-internal data
+        # labels (vr_classify, tier_nominals and friends), and this
+        # equality goes red.
+        asm_units = sorted(set(units) - set(C_UNIT_ENTRY_CONTRACT))
+        for name in asm_units:
+            symbols = {k: int(v['va'], 16) for k, v in units[name]['symbols'].items()}
+            sources = compiled.unit_sources(name)
+            registered = registered_unit_entries(name, symbols, sources)
+            expected = asm_global_declarations(sources) & set(symbols)
+            self.assertEqual(sorted(registered), sorted(expected), name)
+        # The equality only bites where a frozen table carries non-.global
+        # unit-internal labels; at least one shipped unit does, so a
+        # full-table regression cannot hide behind an all-exports fleet.
+        self.assertTrue(any(
+            set(units[name]['symbols'])
+            - asm_global_declarations(compiled.unit_sources(name))
+            for name in asm_units))
         for name, contract in C_UNIT_ENTRY_CONTRACT.items():
             symbols = {k: int(v['va'], 16) for k, v in units[name]['symbols'].items()}
             base = compiled.unit_base(name)
