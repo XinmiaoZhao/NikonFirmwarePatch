@@ -24,29 +24,45 @@
  *   latch holds a valid code 1..3, x1 is redirected to
  *   vr_matrices+(code-1)*36 (36-byte big-endian 16.16 QuickTime display
  *   matrix; 1 = 90 deg CW, 2 = 90 deg CCW, 3 = 180; 0/invalid =
- *   passthrough).  Either way the latch byte is read and cleared first
- *   (one-shot read-and-clear), so a later playback-side finalize that
- *   reuses this site (the 0x4034412c/0x403494d8 families ->
- *   movie_finalize_stop, t3 section 5.3) can never reuse a stale pose.
- *   Tail-branches to 0x40ce3fdc with x30 still 0x40cefd64, preserving
- *   x0/x2.  Touches only w8/w9/x10/x11 (x8-x17 scratch budget; x18
- *   platform register untouched); NZCV is clobbered, which the post-BL
- *   continuation at 0x40cefd64 cannot observe (condition flags do not
- *   survive calls under the AArch64 PCS).
+ *   passthrough).  The latch is STICKY (2026-11-10 t15 fix): the hook
+ *   reads it but never clears it, so every moov build of the same take
+ *   (placeholder/recovery rebuilds into the reserved front-slot, a proxy
+ *   writer finalising in the same stop window, a staged remux) sees the
+ *   same pose -- the file's final bytes come from the LAST pass and the
+ *   retired read-and-clear fed every pass after the first the stock
+ *   identity matrix (the on-camera H.265/H.264/MP4/ProRes loss while
+ *   single-build N-RAW kept its mark).  Stale-pose protection moved to
+ *   the recording-session boundaries in vr_latch_hook: a later
+ *   non-recording finalize that reuses this site (the MOVF transcode
+ *   family 0x4034407c/0x403494d8 -> movie_finalize_stop) sees latch 0
+ *   because the take tail clears the byte and its own session never
+ *   passes w1==1.  Tail-branches to 0x40ce3fdc with x30 still 0x40cefd64,
+ *   preserving x0/x2.  Touches only w8/w9/x10/x11 (x8-x17 scratch
+ *   budget; x18 platform register untouched); NZCV is clobbered, which
+ *   the post-BL continuation at 0x40cefd64 cannot observe (condition
+ *   flags do not survive calls under the AArch64 PCS).
  *
  * vr_latch_hook -- replaces the first 8 bytes of the recording-side file
  *   open marshaling trampoline at 0x40d17728 (stock: mov x8,#0x6f0 ;
  *   movk x8,#0x31c,lsl#16 -- two pure x8 scratch loads, bytes
  *   08de80d2 8863a0f2) with `b vr_latch_hook` + nop; no branch enters the
- *   trampoline mid-body (t2 report).  w1 is the open mode: 0 = read-back
- *   parse, 1 = main movie write (the two recording-start callers 0x40d1b3b8
- *   and 0x40d17c34), 2 = second file.  Latching fires only on w1 == 1
- *   (t2 ruling) so a stop-time second-file open cannot overwrite the pose
- *   captured at recording start.  The w1==1 path first runs the idempotent
- *   first-boot default-on init (vr_default_on below), then calls the
- *   classifier through an x17 manual call: x30 must keep the original
- *   caller's return address because the stock trampoline tail-jumps at
- *   0x40d17748 and the service returns through x30.  The displaced pair is
+ *   trampoline mid-body (t2 report).  w1 is the open mode: 0 = read-parse
+ *   (the engine's bit-0 session init and bit-7 post-take parse), 1 = main
+ *   movie write (the two recording-start callers 0x40d1b3b8 and
+ *   0x40d17c34), 2 = the post-finalize udta-patch open (engine bit-8;
+ *   FUN_40ceecc4 walks the FINALISED atom layout of the take's
+ *   deliverable, and every container family's file carries moov/udta/NCDT,
+ *   so it always runs after all finalizes of the take).  w1 == 1
+ *   REFRESHES the latch: the idempotent first-boot default-on init
+ *   (vr_default_on below) runs first, then the classifier through an x17
+ *   manual call: x30 must keep the original caller's return address
+ *   because the stock trampoline tail-jumps at 0x40d17748 and the service
+ *   returns through x30.  w1 != 1 CLEARS the latch (t15 fix): those opens
+ *   are recording-session boundaries -- read-parse brackets the recording
+ *   and the udta patch is the take tail -- so the sticky pose never leaks
+ *   past the take into a later non-recording finalize.  The clear path
+ *   clobbers only x9: the resumed stock trampoline reloads w9 from w1 at
+ *   0x40d17738.  The displaced pair is
  *   replayed verbatim under vr_latch_displaced and execution resumes at
  *   0x40d17730 with x0/x1 passed through untouched; NZCV may differ, but
  *   none of the resumed instructions consumes flags.
@@ -55,8 +71,10 @@
  *   (f32 x3 at 0x0A02E560E0/E4/E8, published by the sensor fusion task at
  *   ~1 kHz) instead of reading the orientation enum (pinned to 3 by the
  *   all-zero factory calibration in emulation; the EXIF ctx+0x2500 lane is
- *   capture-scoped and unusable as an anchor).  The sensor-subsystem gate
- *   word 0x0A02E56018 must equal 1.  Each component's sign bit is stripped
+ *   capture-scoped and unusable as an anchor).  The sensor-subsystem
+ *   enable byte 0x0A02E56018 must equal 1, read as a BYTE exactly like
+ *   every stock consumer (ldrb + compare; the bytes past +0 are not part
+ *   of the contract).  Each component's sign bit is stripped
  *   and magnitudes are compared as unsigned integers (IEEE754 non-negative
  *   ordering) -- no FPU needed.  The dominant axis (argmax with the
  *   x-beats-y-beats-z tie-break) must reach the threshold vr_threshold
@@ -66,27 +84,27 @@
  *   no mark).  Returns w8; manual-call linkage (b in, br x17 out) so x30
  *   stays intact; clobbers only w8..w16.
  *
- * Axis assignment derivation (documented hypothesis; the T1 report shows the
- * pose->axis mapping cannot be pinned in emulation because the stock
- * classifier output is pinned by the zero calibration):
- *   The only anchor is the T1 boot observation: a level camera at rest
- *   reads (0, 0, +1), so +Z is the baseplate normal with the camera level
- *   in the normal landscape grip.
- *     code 0: +Z  level landscape grip (no mark, matches the boot anchor)
- *     code 3: -Z  rolled 180 deg (baseplate normal flips)
- *     code 1: +X  rolled 90 deg CW as seen from behind the camera; the
- *                stored image then needs a 90 deg CW rotation to display
- *                upright (EXIF-6 semantics -> ROTATE_90_CW_MATRIX)
- *     code 2: -X  rolled 90 deg CCW (EXIF-8 semantics -> ROTATE_90_CCW)
- *     no mark: +/-Y  assumed parallel to the lens axis (chip-mounting
- *                guess): a Y-dominant reading means the lens points up or
- *                down, which no roll code can express.
- *   T11 flip procedure: after on-camera ffprobe calibration, correct any
- *   pose by editing only vr_axis_codes bytes (swap bytes 0/1 if the
- *   portrait pair is mirrored, 4/5 if 180 lands on the wrong Z sign, move
- *   the pair onto the Y axis if the mounting guess is wrong); the threshold
- *   rides in vr_threshold the same way.  Calibration never needs a code
- *   change.
+ * Axis assignment (2026-11-10 t15 on-camera evidence; the retired T1
+ *   "boot anchor" was circular -- the QEMU orientation model injected the
+ *   very vector the guess assumed).  The first hardware truth is the NEV
+ *   take set: the tkhd matrices of landscape/upside-down/portrait takes
+ *   identify the fired lanes exactly, so the chip's real convention is
+ *     code 3: +X  upside-down grip (landscape rolled 180 deg) -> 180
+ *     code 0: -X  level landscape grip (no mark)
+ *     code 2: +Y  portrait, shutter-top (EXIF-8 semantics -> 90 deg CCW)
+ *     code 1: -Y  portrait, shutter-bottom (EXIF-6 semantics -> 90 deg CW)
+ *     no mark: +/-Z  lens axis (pointing straight up/down: no roll code
+ *                can express it)
+ *   i.e. chip X = the camera vertical axis (sign inverted vs the old
+ *   guess), chip Y = the roll axis the guess had zeroed (which is why both
+ *   portrait takes carried no mark at all), chip Z = the lens axis.
+ *   The portrait pair order (+Y/-Y -> 2/1) is the derived tentative; a
+ *   single on-camera calibration clip settles it and only ever swaps
+ *   bytes 2/3 of vr_axis_codes.  T11 flip procedure (updated): correct a
+ *   pose by editing only vr_axis_codes bytes -- swap bytes 2/3 if the
+ *   portrait pair is mirrored, 0/1 if the vertical pair is inverted; the
+ *   threshold rides in vr_threshold the same way.  Calibration never
+ *   needs a code change.
  *
  * Per-bank value storage (T7): the value byte is byte +2 of the DS item
  *   0x1257 record family -- the 4-byte slot whose +1 byte hosts the shipped
@@ -189,10 +207,9 @@
 .balign 16
 .global vr_matrix_hook
 vr_matrix_hook:
-    ldr  x10, =VR_LATCH_RAM        // one-shot latch in the state window
-    ldrb w8, [x10]
-    strb wzr, [x10]                // one-shot: consume the latch on every pass
-    ldr  x11, =VR_VALUE            // per-bank switch byte (TIER-style literal read)
+    ldr  x10, =VR_LATCH_RAM        // sticky latch in the state window (t15:
+    ldrb w8, [x10]                 // never cleared here -- every moov build
+    ldr  x11, =VR_VALUE            // of the take must see the same pose)
     ldrb w9, [x11]
     cbz  w9, 2f                    // feature disabled: stock matrix
     sub  w8, w8, #1
@@ -207,14 +224,17 @@ vr_matrix_hook:
 .global vr_latch_hook
 vr_latch_hook:                     // entered via b from 0x40d17728; x0/w1 pass through
     cmp  w1, #1
-    b.ne 1f                        // only the main-movie write open latches
+    b.ne 1f                        // read-parse (0) / udta-patch (2) opens
     adr  x17, 2f                   // first-boot default-on (idempotent)
     b    vr_default_on
 2:  adr  x17, 3f                   // manual call: x30 must stay the caller's
     b    vr_classify
 3:  ldr  x9, =VR_LATCH_RAM
     strb w8, [x9]                  // pose code; 0 = no mark / invalid
-1:                                  // displaced pair from 0x40d17728 (t2 report)
+    b    4f
+1:  ldr  x9, =VR_LATCH_RAM         // session boundary (t15): the sticky
+    strb wzr, [x9]                 // pose never outlives the take
+4:                                  // displaced pair from 0x40d17728 (t2 report)
 vr_latch_displaced:
     mov  x8, #0x6f0
     movk x8, #0x31c, lsl #16
@@ -302,8 +322,8 @@ vr_default_on:                     // b in / br x17 out; first-boot init
 
 .balign 16
 vr_classify:                       // b in / br x17 out; returns w8 = code 0..3
-    ldr  x9, =0x0A02E56018         // sensor-subsystem gate word (t1 report)
-    ldr  w10, [x9]
+    ldr  x9, =0x0A02E56018         // sensor-subsystem enable byte (t1 report)
+    ldrb w10, [x9]                 // stock consumers read the BYTE (ldrb)
     cmp  w10, #1
     b.ne 8f                        // subsystem invalid: no mark
     ldr  x11, =0x0A02E560E0        // normalised gravity vector f32 x3 (t1)

@@ -4,10 +4,14 @@ Builds the hooks from z8vrotate/src/hooks.S into the stock EG:
 
 * 0x40cefd60: the single video-track tkhd matrix copy (`bl 0x40ce3fdc`)
   becomes `bl vr_matrix_hook`; the hook redirects x1 to a cave matrix when
-  the one-shot latch holds a valid pose code, otherwise passes x1 through.
+  the sticky latch holds a valid pose code, otherwise passes x1 through
+  (2026-11-10 t15: the latch is no longer read-and-cleared here -- every
+  moov build of the take must see the same pose).
 * 0x40d17728: the recording-side file open marshaling trampoline entry
-  becomes `b vr_latch_hook` + nop; on the main-movie write open (w1 == 1)
-  the hook classifies the gravity vector and latches the pose code.
+  becomes `b vr_latch_hook` + nop; the main-movie write open (w1 == 1)
+  classifies the gravity vector and refreshes the pose latch, and the
+  session-boundary opens (w1 == 0 read-parse, w1 == 2 post-finalize udta
+  patch) clear it, so the sticky pose never outlives the take.
 * T6: the synthesized inline-toggle menu row 0x315B (title id 3225,
   36-language table in translations.py) cloned field-for-field from
   the stock attenuator row 0x2FC0, with its transition table cloned
@@ -139,11 +143,16 @@ BANK_RECORDS = (0xA03D5C268, 0xA03D5C538, 0xA03D5C808, 0xA03D5CAD8, 0xA03D5CDA8)
 VALUE_ADDR = BANK_RECORDS[0] + VALUE_OFF   # the active-record byte (0xA03D5C26A)
 CATEGORY_TABLE, ITEM_TYPE_TABLE = 0x440244C8, 0x4400A5C0
 
-# [axis*2 + sign] -> own pose code (hooks.S header derives the assignment):
-# +X=1 (90 deg CW roll), -X=2 (90 deg CCW), +Y/-Y=0 (lens-axis family, no
-# mark), +Z=0 (level landscape, the T1 boot anchor), -Z=3 (upside down).
-# T11 on-camera calibration flips individual bytes only, never code.
-AXIS_CODES = bytes((1, 2, 0, 0, 0, 3))
+# [axis*2 + sign] -> own pose code.  2026-11-10 t15 on-camera evidence
+# (the retired T1 assignment was a circular QEMU-model guess): chip X is the
+# camera vertical axis (sign inverted vs the guess) and chip Y is the roll
+# axis the guess had zeroed -- the NEV take matrices identify the fired
+# lanes exactly:
+#   +X=3 (upside-down grip -> 180 deg), -X=0 (level landscape, no mark),
+#   +Y=2 / -Y=1 (the two portrait grips; EXIF-8/-6 semantics).
+# The portrait pair order (+Y/-Y -> 2/1) is the derived tentative: a single
+# on-camera calibration clip settles it and only ever swaps bytes 2/3.
+AXIS_CODES = bytes((3, 0, 2, 1, 0, 0))
 
 # Codes 1..3 only: code 0 / invalid is a passthrough, the stock identity
 # blob already on the stack covers it.  Big-endian 16.16 words as written.
@@ -186,16 +195,37 @@ def classify(gate, x, y, z):
 
 
 def matrix_decision(latch, enable=1):
-    """Mirror of vr_matrix_hook's one-shot read-and-clear decision.
+    """Mirror of vr_matrix_hook's sticky-latch decision (2026-11-10 t15 fix).
 
-    Returns (matrix or None, new_latch): the latch is consumed whatever it
-    holds, so playback-side finalizes reusing 0x40cefd60 can never emit a
-    stale pose; None means the hook passes the stock identity x1 through.
+    Returns (matrix or None, latch): the latch is returned UNCHANGED --
+    every moov build of the same take (placeholder/recovery rebuilds into
+    the reserved front-slot, a proxy writer finalising in the same stop
+    window, a staged remux) must see the same pose, because the file's
+    final bytes come from the LAST pass (the retired read-and-clear fed
+    every pass after the first the stock identity -- the on-camera
+    H.265/H.264/MP4/ProRes loss).  Stale-pose protection lives in
+    latch_open(): the recording-session boundaries (read-parse open
+    w1==0, post-finalize udta-patch open w1==2) clear the byte, so
+    non-recording finalizes that reuse the matrix site see 0.
+    None means the hook passes the stock identity x1 through.
     """
-    code, latch = latch, 0
-    if enable and 1 <= code <= 3:
-        return VR_MATRICES[(code - 1) * 36:code * 36], latch
+    if enable and 1 <= latch <= 3:
+        return VR_MATRICES[(latch - 1) * 36:latch * 36], latch
     return None, latch
+
+
+def latch_open(mode, gate, x, y, z):
+    """Mirror of vr_latch_hook's session-scoped refresh/clear (t15 fix).
+
+    mode is the open mode word (w1 at 0x40d17728): 1 = main-movie write
+    open (recording start) refreshes the pose through the classifier;
+    0 = read-parse and 2 = the post-finalize udta-patch open are
+    recording-session boundaries and clear the sticky latch so the pose
+    never leaks into a later non-recording finalize.
+    """
+    if mode != 1:
+        return 0
+    return classify(gate, x, y, z)
 
 
 def bank_records(eg):
@@ -323,7 +353,7 @@ def build_main(eg, code, entries, context):
     row = struct.pack('<11I', TITLE_ID, *template[1:6], ROW_ITEM, *template[7:])
     require(CODE_AT + len(code) <= VR_EVENTS_AT, 'vrotate code capacity')
     # State window fill: constants land in the boot-copied data mirror image;
-    # the one-shot latch and the first-boot sentinel ship 0 (fresh boot), and
+    # the sticky latch and the first-boot sentinel ship 0 (fresh boot), and
     # the window tail byte is the 0xA5 magic (a power-cycle boot-copy
     # witness -- zero-initialized RAM cannot read 0xA5 back).
     window = bytearray(VR_STATE_SIZE)
@@ -345,7 +375,7 @@ def build_main(eg, code, entries, context):
             'vrotate row transition table: 44-record clone of the 0x2FC0 table, three toggle actions -> vr_row_hook (fixed cave sub-window)',
             expect_zero=True)
     img.put(VR_STATE_IMG_OFF, bytes(window),
-            'vrotate state window: display matrices, threshold, axis codes, one-shot latch, first-boot sentinel and magic byte (boot-copied data mirror segment)',
+            'vrotate state window: display matrices, threshold, axis codes, sticky latch, first-boot sentinel and magic byte (boot-copied data mirror segment)',
             expect_zero=True, offset=True)
     return img, dict(entries={k: hex(v) for k, v in entries.items()}, code_bytes=len(code),
                      cave=[hex(CODE_AT), hex(CODE_AT + len(code))],

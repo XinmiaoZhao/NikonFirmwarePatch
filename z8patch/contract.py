@@ -100,15 +100,16 @@ def verify_contract(old,new,features):
         # A+ migration (2026-11-09 vrotate-fix t1 report): the unit state
         # lives in the boot-copied data mirror window EG [0x4B25800,0x4B25900)
         # (RAM 0xA0281A800).  Fixed facts: the window base literal rides in
-        # the unit, the threshold and axis codes sit at the frozen offsets,
-        # the one-shot latch and first-boot sentinel mirror bytes ship 0 and
-        # the window tail byte is the 0xA5 magic (a boot-copy witness that
+        # the unit, the threshold and axis codes sit at the frozen offsets
+        # (t15 on-camera evidence: +X=180 grip, -X=landscape, +Y/-Y=portrait
+        # pair), the sticky latch and first-boot sentinel mirror bytes ship 0
+        # and the window tail byte is the 0xA5 magic (a boot-copy witness that
         # zero-initialized RAM cannot fake).
         need(struct.pack('<Q',0xA0281A800) in new[cave-base:unit_end-base],'vrotate state window literal in the unit')
         window=new[0x4B25800:0x4B25900]
         need(struct.unpack_from('<I',window,0x6C)[0]==0x3F333333,'vrotate threshold in the state window')
-        need(window[0x70:0x76]==bytes((1,2,0,0,0,3)),'vrotate axis codes in the state window')
-        need(window[0x76]==0 and window[0x77]==0,'vrotate one-shot latch and sentinel mirror bytes ship zero')
+        need(window[0x70:0x76]==bytes((3,0,2,1,0,0)),'vrotate axis codes in the state window')
+        need(window[0x76]==0 and window[0x77]==0,'vrotate sticky latch and sentinel mirror bytes ship zero')
         need(window[0xFF]==0xA5,'vrotate state window magic byte')
         # T2b fixed events sub-window: the 44-record clone with its 0x3BB
         # terminator, three actions into the unit code, and the 8 B
