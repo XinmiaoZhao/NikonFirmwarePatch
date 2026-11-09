@@ -56,11 +56,10 @@
 
 以下适用于开发分支的第五组 `video-orientation`，尚未随 v0.4.0-rc.2 发布；功能说明见[记录视频方向指南](video-orientation.md)。
 
-- **断电后回到默认“开”。** 取值按视频拍摄菜单库 A–D 分别记忆，会话内切换菜单库时随库切换，手动关闭在本次开机期间保持；断电重启后各库重新初始化为“开”。该字节与已发布的 H.265 档位字节同属一个相机设置记录的空位，断电语义一致。菜单项的保存、菜单库切换、断电重启与菜单重设行为均已实机验证，与已发布的 H.265 档位功能完全一致；唯一待验点为录像旋转方向正确性。
+- **断电后回到默认“开”。** 取值按视频拍摄菜单库 A–D 分别记忆，会话内切换菜单库时随库切换，手动关闭在本次开机期间保持；断电重启后各库重新初始化为“开”。该字节与已发布的 H.265 档位字节同属一个相机设置记录的空位，断电语义一致。菜单项的保存、菜单库切换、断电重启与菜单重设行为均已实机验证，与已发布的 H.265 档位功能完全一致；唯一开问题：功能开启时录制的视频在电脑上播放不旋转，原因排查中。
 - **双格式同时录制时第二个文件不带方向标记。** 一次性锁存只标记同一次竖拍录制中最先收尾的文件；双格式同时记录（如 N-RAW/ProRes RAW 主文件 + MP4 第二文件）中后收尾的文件保持原厂恒等矩阵、不写入旋转标记。单格式录制不受影响；在代码修复发布前保持此现状。实机取证见验收清单 M9 腿。
-- **行值文本渲染待仿真验收。** 行内开／关取值复用原厂文案，但其渲染路径（合成行的取值子件×语言表字符串）尚未经仿真取证；若验收失败将改走原厂布尔取值路径（已文档化的两处 movz 常量回退，不影响开关与存储）。
 - **N-RAW 第三方工具兼容未知。** 旋转元数据的写入路径覆盖相机全部录像格式（含 N-RAW），但第三方 N-RAW 工具是否读取显示矩阵未经验证；NX Studio 列为实机测试项。
-- **轴向指派为文档化假设。** 重力向量到姿态的对应关系未经实机标定；最坏情形为两个竖拍方向镜像互换，届时仅改补丁常量字节即可修正，无需改代码。
+- **轴向指派为文档化假设。** 重力向量到姿态的对应关系未经实机标定，是“输出视频不旋转”开问题的候选成因之一，不作定论；若确证两竖拍方向镜像互换，仅改补丁常量字节即可修正，无需改代码。
 - **维护者事项。** 16 个含 `photo-tools` 的组合配方经混合装配与结构审计冻结，待具备完整工具包的机器跑全量 31 腿验证；`resources/compiled.json` 中 shared/vrotate 单元的编译器出处记为 LLVM 19.1.7，待发布机重建确认字节一致后更新。
 
 ## English
@@ -108,9 +107,8 @@ The camera tester confirmed per-clip labels and view assist on previously record
 
 Applies to the development-branch fifth group `video-orientation`, which is not part of the v0.4.0-rc.2 release. See the [video-orientation guide](video-orientation.md).
 
-- **A power cycle returns every bank to the default On.** The value is remembered per movie shooting bank, follows bank switches within the session and a manual Off persists until power-off; after a restart each bank is re-initialized to On. The byte occupies a spare byte of the same camera-settings record as the shipped H.265 tier byte, with identical restart semantics. The row's save, power-cycle and reset-menu behaviour is verified on the camera and matches the shipped H.265 tier feature exactly.
+- **A power cycle returns every bank to the default On.** The value is remembered per movie shooting bank, follows bank switches within the session and a manual Off persists until power-off; after a restart each bank is re-initialized to On. The byte occupies a spare byte of the same camera-settings record as the shipped H.265 tier byte, with identical restart semantics. The row's save, menu-bank switching, power-cycle and reset-menu behaviour is verified on the camera and matches the shipped H.265 tier feature exactly. One issue is open: video recorded with the feature on does not play rotated on a computer; the cause is under investigation.
 - **In simultaneous dual-format recording the second file carries no orientation mark.** The one-shot latch marks only the first file of a portrait take to finalize; in simultaneous dual-format recording (an N-RAW/ProRes RAW main file plus an MP4 second file) the later file keeps the stock identity matrix and is not marked. Single-format recording is unaffected; this stands until a code fix ships. See camera leg M9 in the acceptance checklist.
-- **Row value-text rendering awaits emulation acceptance.** The inline On/Off values reuse the camera's own texts, but the rendering path (the synthesized row's value child with a language-table string) has not been captured in emulation; on failure the documented fallback switches two movz constants to the stock boolean value path, leaving the toggle and storage untouched.
 - **N-RAW third-party compatibility is unverified.** The rotation-metadata write path covers every recording format including N-RAW, but whether third-party N-RAW tools read the display matrix is untested; NX Studio is on the camera-test list.
-- **The axis assignment is a documented hypothesis.** The gravity-vector-to-pose mapping is not yet calibrated on a camera; in the worst case the two portrait directions are mirrored, corrected by changing patch constant bytes only.
+- **The axis assignment is a documented hypothesis.** The gravity-vector-to-pose mapping is not yet calibrated on a camera; it is one candidate cause of the open "output video does not rotate" issue, not a confirmed one. If the two portrait directions turn out mirrored, the correction is patch constant bytes only, with no code change.
 - **Maintainer notes.** The 16 photo-tools combinations were frozen via hybrid assembly with a structural audit, pending the full 31-leg validator run on a complete-toolkit machine; the compiler provenance of the shared/vrotate units in `resources/compiled.json` records LLVM 19.1.7, to be confirmed against the release machine's bytes.
