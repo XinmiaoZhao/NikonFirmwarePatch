@@ -8331,7 +8331,7 @@
       "bytes": 664,
       "purpose": "vrotate: vrotate unit: matrix hook, latch hook, classifier, row hooks, default-on init",
       "old_sha256": "a9696dcbc2bef81a08d6b1a798091d2b1a49654218d3ebdb12f9b255cbb1476f",
-      "new_sha256": "4e2b39336894a76814a0d0f1f5cf7f6d6706ca4811b9978b5f59792aaa748fd9"
+      "new_sha256": "19a62291ff95007125aeb4c21d3eefb12d0d6d063aa93280ec2f8e00f3826cd3"
     },
     {
       "offset": "0x8a9000",
