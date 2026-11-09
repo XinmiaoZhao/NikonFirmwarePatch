@@ -8331,7 +8331,7 @@
       "bytes": 664,
       "purpose": "vrotate: vrotate unit: matrix hook, latch hook, classifier, row hooks, default-on init",
       "old_sha256": "a9696dcbc2bef81a08d6b1a798091d2b1a49654218d3ebdb12f9b255cbb1476f",
-      "new_sha256": "19a62291ff95007125aeb4c21d3eefb12d0d6d063aa93280ec2f8e00f3826cd3"
+      "new_sha256": "bf7c9646b0933341f64fba803a4ea87416ac27cc6a54b12ff7ccad76d8875a7f"
     },
     {
       "offset": "0x8a9000",
@@ -8380,7 +8380,7 @@
       "bytes": 8,
       "purpose": "vrotate: record file open trampoline: mov/movk x8 pair -> b vr_latch_hook + nop",
       "old_sha256": "459ccc860a92a2367b7490e670e621913d16b9f700f4536b6b26f0118ee5bf00",
-      "new_sha256": "0f7b6a3df5c7c9fc2d620fa25f39fcaf3e5824c7709555e822265e298a81d853"
+      "new_sha256": "2a3b1b5061ec9009fcf074cffabe25496abb054fd37a9ab7afdf614e29d27d9b"
     },
     {
       "offset": "0xeb62ec",
@@ -8651,9 +8651,9 @@
     {
       "offset": "0x4b25800",
       "bytes": 256,
-      "purpose": "vrotate: vrotate state window: display matrices, threshold, axis codes, one-shot latch, first-boot sentinel and magic byte (boot-copied data mirror segment)",
+      "purpose": "vrotate: vrotate state window: display matrices, threshold, axis codes, sticky latch, first-boot sentinel and magic byte (boot-copied data mirror segment)",
       "old_sha256": "5341e6b2646979a70e57653007a1f310169421ec9bdd9f1a5648f75ade005af1",
-      "new_sha256": "9ad238fa501958ffc3088b1c0eabc32dbb69d0f5767a8e672d9b3f139bca8c13"
+      "new_sha256": "aa2cf34314cfb7607f5f2dedce9276b9b4848f716e8121eeb50f19079ceffdce"
     },
     {
       "offset": "0x4bcc2c0",
