@@ -102,17 +102,22 @@ def unit_sources(name):
 
 
 def assert_asm_sources_declared(declared, directories):
-    """A1 completeness: every *.S under a registered unit's source
-    directory must be declared in some unit's SPECS asm_sources.
+    """A1 completeness: every *.S anywhere under a registered unit's
+    source directory tree must be declared in some unit's SPECS
+    asm_sources.
 
     An undeclared source would silently escape the D1 .org scan while
     still reaching the image through .include or a future SPECS edit,
-    so the build refuses instead of skipping it.  Parameterized for
-    tests; the build mount goes through unit_asm_sources().
+    so the build refuses instead of skipping it.  The sweep is
+    recursive (rglob, the folder-keyed source-fingerprint precedent):
+    a *.S nested in a subdirectory has no directory shape to hide in,
+    and the directory set covers C-unit directories (z8precapture and
+    friends) the same way.  Parameterized for tests; the build mount
+    goes through unit_asm_sources().
     """
     declared = set(declared)
     for directory in directories:
-        for path in sorted(directory.glob('*.S')):
+        for path in sorted(directory.rglob('**/*.S')):
             if path not in declared:
                 raise ValueError(
                     'Address coupling: %s is an assembly source under the '
@@ -130,7 +135,8 @@ def unit_asm_sources():
     unit enters the build only through SPECS, so scanning the declared
     sets leaves no escape for sources placed outside z8*/src.  The
     completeness check above runs first, so a source sitting undeclared
-    in a unit directory is refused rather than silently skipped.
+    anywhere in a unit directory tree is refused rather than silently
+    skipped.
     """
     declared = sorted(ROOT / rel for spec in SPECS.values()
                       for rel in spec.get('asm_sources', ()))
