@@ -9,10 +9,9 @@ Builds the hooks from z8vrotate/src/hooks.S into the stock EG:
   becomes `b vr_latch_hook` + nop; on the main-movie write open (w1 == 1)
   the hook classifies the gravity vector and latches the pose code.
 * T6: the synthesized inline-toggle menu row 0x315B (title id 3225,
-  36-language table in translations.py, value pair = official ids
-  2466/2467) cloned field-for-field from the stock attenuator row 0x2FC0,
-  with its transition table cloned into the fixed cave sub-window and the
-  three toggle
+  36-language table in translations.py) cloned field-for-field from
+  the stock attenuator row 0x2FC0, with its transition table cloned
+  into the fixed cave sub-window and the three toggle
   actions rerouted to vr_row_hook.
 * T7: the row value is stored per movie shooting bank in byte +2 of the
   DS item 0x1257 record family (copy type 0, registered size 1 -- the
@@ -38,6 +37,16 @@ rides its own image edit at the fixed cave sub-window VR_EVENTS_AT =
 0x40A09000 (the z8h265 MENU_AT form) instead of an organic in-unit
 slot -- unit growth is decoupled from the frozen external rows that
 name the table.
+
+T4 (2026-11-09 vrotate-a2 arc): the row value renders through the
+stock boolean value widget 0x405121E4(child, byte) -- the attenuator
+row's own path -- instead of the retired string-id call
+0x403F645C(child, 2466/2467): the 0x1327 value-child template runs
+mode==3 and truncates string ids above 299 (2026-11-08 arc t6 report
+section 2), which the leg-0 menu probe confirmed live on the
+synthesized row (broken value render with the toggle and storage byte
+still working).  Only the two value renders retarget; the toggle,
+storage and sentinel paths are untouched.
 """
 import struct
 
@@ -99,7 +108,13 @@ STORE_TARGET_WHITELIST = {0x40A08160: 'sentinel-arm store: base is the state-win
 # T6 menu row: cloned from the stock audio attenuator row (item 0x2FC0,
 # row index 35 of the 44-row video menu table, class word 0x20901005).
 ROW_ITEM, TITLE_ID = 0x315B, 3225
-ON_ID, OFF_ID = 2466, 2467          # official localized On/Off, all 36 languages
+# T4 value-render path: the stock boolean value widget takes the row's
+# value child and the value byte itself (1 = On / 0 = Off; internal ids
+# 0x125A/0x125C) -- the attenuator row's own path.  The retired string-id
+# call truncated ids above 299 on the mode==3 0x1327 child template
+# (2026-11-08 arc t6 report section 2; broken render confirmed live by
+# the 2026-11-09 leg-0 menu probe).
+VALUE_WIDGET, RETIRED_VALUE_ID_CALL = 0x405121E4, 0x403F645C
 ATTEN_ITEM = 0x2FC0
 ATTEN_ROW = (0x567, 0xFFFF, 0xFFFF, 0, 0x20901005, 0x1327, 0x2FC0,
              0x40004, 0xFFFFFFFF, 0xFFFFFFFF, 2)
@@ -349,7 +364,8 @@ def build_main(eg, code, entries, context):
                                   records=[hex(a) for a in records],
                                   power_off='default on (the boot loader re-copies the state window each power cycle)'),
                      strings=text,
-                     menu=dict(item=hex(ROW_ITEM), title_id=TITLE_ID, value_ids=(ON_ID, OFF_ID),
+                     menu=dict(item=hex(ROW_ITEM), title_id=TITLE_ID,
+                               value_widget=hex(VALUE_WIDGET),
                                row_hex=row.hex(), row_table=hex(VR_EVENTS_AT),
                                toggle_events=[hex(e) for e in TOGGLE_EVENTS],
                                template=hex(ATTEN_ITEM)))

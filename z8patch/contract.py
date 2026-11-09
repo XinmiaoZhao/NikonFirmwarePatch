@@ -120,13 +120,18 @@ def verify_contract(old,new,features):
         need(sum(1 for i in range(44) if read(table,'<Q',32*i+8)[0] in range(cave,unit_end))==3,
             'vrotate events window toggle actions into the unit')
         need(read(new,'<Q',events-base+8*ids.index(0x315B))[0]==0x40A09000,'vrotate row transition table at the fixed events window')
-        imms={ (w>>5)&0xFFFF for w in struct.unpack_from(f'<{(0x2EC)//4}I',new,cave-base) if w&0xFFE00000==0x52800000 }
-        need({2466,2467}<=imms,'vrotate On/Off value ids in cave code')
+        # T4 value render: both row hooks call the stock boolean value
+        # widget with the value byte itself; the retired string-id call
+        # must be gone from the unit.
+        words = struct.unpack_from(f'<{(unit_end - cave)//4}I', new, cave - base)
+        bls = [branch_target(cave + 4 * i, w) for i, w in enumerate(words) if w >> 26 == 0x25]
+        need(bls.count(0x405121E4) == 2, 'vrotate boolean value widget calls in cave code')
+        need(0x403F645C not in bls, 'vrotate retired string-id value call still present')
         row_at=rows-base+44*ids.index(0x315B)
         need(read(new,'<I',row_at)[0]==3225,'vrotate row title id 3225')
         need(read(new,'<I',row_at+16)[0]==0x20901005,'vrotate row class word')
         need(read(new,'<I',row_at+20)[0]==0x1327,'vrotate row value sub-widget')
-        vrotate=dict(cave=hex(cave),unit_end=hex(unit_end),events_window='0x40a09000-0x40a09580 (fixed cave sub-window)',state_window='0xa0281a800-0xa0281a900 (boot-copied data mirror, EG 0x4b25800)',row='0x315b',title_id=3225,value_ids=[2466,2467],sentinel='0x5A armed at first boot, mirror byte ships 0')
+        vrotate=dict(cave=hex(cave),unit_end=hex(unit_end),events_window='0x40a09000-0x40a09580 (fixed cave sub-window)',state_window='0xa0281a800-0xa0281a900 (boot-copied data mirror, EG 0x4b25800)',row='0x315b',title_id=3225,value_widget='0x405121e4 (stock boolean widget; string-id path 0x403f645c retired)',sentinel='0x5A armed at first boot, mirror byte ships 0')
         need(end>=0x40A10000,'copy boundary covers the vrotate cave')
     return dict(status='PASS',video_menu=video,language_tables=36,offsets_per_language=entries,
                 exact_group_visibility=True,zero_state=True,loader_end=hex(end),vrotate=vrotate)

@@ -144,25 +144,26 @@
  *   flips DS setting 0x700123C (0x405121EC -> write 0x410D61D0) and then
  *   redraws the focused row through 0x40512068 -> 0x405120E8 (boolean
  *   value widget) + 0x403B3DDC + 0x403B26C0.  The events-window clone
- *   replaces only those three action words: it flips the active-record value
- *   byte
- *   at VR_VALUE, then shows the official localized On/Off pair by driving
- *   the row's value child (child id 0x4BA7, the same lookup the stock
- *   refresh 0x40572B2C uses for every row: 0x4050A6F0) with string id 2466
- *   (On) or 2467 (Off) through 0x403F645C -- the value-child call the
- *   stock refresh uses for language-table ids (e.g. the 0x2E48 row
- *   feeding id 0x371).  The immediate redraw copies the stock tail of
- *   0x40512068.  Entered as a transition action: x0 = action context,
- *   [x0] = menu state; saves x19/x20, otherwise AAPCS caller-saved only.
+ *   replaces only those three action words: it flips the active-record
+ *   value byte at VR_VALUE, then renders the value through the stock
+ *   boolean widget 0x405121E4(child, byte) -- the attenuator row's own
+ *   path (internal ids 0x125A = On / 0x125C = Off) -- after looking up the
+ *   row's value child (child id 0x4BA7, the same lookup the stock refresh
+ *   0x40572B2C uses for every row: 0x4050A6F0).  The immediate redraw
+ *   copies the stock tail of 0x40512068.  Entered as a transition action:
+ *   x0 = action context, [x0] = menu state; saves x19/x20, otherwise AAPCS
+ *   caller-saved only.
  *
- *   Dormant path note (T6 review carry-item): value rendering through
- *   0x403F645C on the 0x1327 value-child template is the unproven half of
- *   this row -- the stock row family feeds that call label-library ids,
- *   and a mode==3 child truncates ids above 299 (t6 report section 2).
- *   T10's menu-probe is the acceptance gate; if it shows a wrong or empty
- *   value text, fall back to the stock boolean widget path by changing the
- *   two movz immediates below to call 0x405121E4 with the byte value (the
- *   attenuator row's own path).  The toggle and the storage are unaffected.
+ *   Value-render path history (T4, adopted 2026-11-09): the original T6
+ *   design drove the value child through 0x403F645C(child, 2466/2467) --
+ *   the value-child call the stock refresh uses for language-table ids
+ *   (e.g. the 0x2E48 row feeding id 0x371) -- but the 0x1327 value-child
+ *   template runs mode==3 and truncates string ids above 299 (2026-11-08
+ *   arc t6 report section 2), and the 2026-11-09 leg-0 menu probe showed
+ *   the broken render live (OFF-styled text unselected, hourglass icon
+ *   highlighted) while the toggle and the storage byte kept working.
+ *   The hooks now feed the value byte itself (1/0) to 0x405121E4.  The
+ *   toggle and the storage are unaffected.
  *
  * vr_refresh_hook -- T6: the fifth shared-refresh row callback (CONFIG
  *   +0x28, dispatched after the native refresh 0x40572B2C).  Runs the
@@ -235,15 +236,15 @@ vr_row_hook:                       // transition action of row 0x315B; x0 = ctx
     bl   original_4050A6F0         // stock row-child lookup
     cbz  x0, 1f
     mov  x20, x0                   // value child widget
-    ldr  x10, =VR_VALUE            // dormant path: see the header note -- if
-    ldrb w1, [x10]                 // T10 finds 0x403F645C unusable on the
-    cmp  w1, #1                    // 0x1327 child, feed the byte itself (0/1)
-    b.ne 2f                        // through 0x405121E4 instead: the two movz
-    mov  w1, #2466                 // immediates below become the byte value and
-    b    3f                        // the call at 3f retargets to the boolean
-2:  mov  w1, #2467                 // widget (the attenuator row's own path)
+    ldr  x10, =VR_VALUE            // value render (T4): drive the row's own
+    ldrb w1, [x10]                 // boolean widget with the byte itself
+    cmp  w1, #1                    // (1 = On, 0 = Off).  The retired T6
+    b.ne 2f                        // string-id call 0x403F645C(child,
+    mov  w1, #1                    // 2466/2467) truncated ids above 299 on
+    b    3f                        // the mode==3 0x1327 child template
+2:  mov  w1, #0                    // (2026-11-08 t6 report section 2)
 3:  mov  x0, x20
-    bl   original_403F645C         // set the value child's display id
+    bl   original_405121E4         // stock boolean widget: the attenuator row's own path
 1:  mov  x0, x19
     mov  w1, #0x315B
     bl   original_403B3DDC         // mark the row value changed (stock tail)
@@ -267,14 +268,14 @@ vr_refresh_hook:                   // shared_refresh fifth callback; x0 = state
     mov  w2, #0x4BA7
     bl   original_4050A6F0
     cbz  x0, 9f
-    ldr  x10, =VR_VALUE            // same value read as vr_row_hook
-    ldrb w1, [x10]
-    cmp  w1, #1
+    ldr  x10, =VR_VALUE            // same boolean value render as vr_row_hook
+    ldrb w1, [x10]                 // (T4): the byte itself through the stock
+    cmp  w1, #1                    // boolean widget, not string ids
     b.ne 2f
-    mov  w1, #2466
+    mov  w1, #1
     b    8f
-2:  mov  w1, #2467
-8:  bl   original_403F645C         // x0 still holds the value child
+2:  mov  w1, #0
+8:  bl   original_405121E4         // x0 still holds the value child
 9:  ldp  x19, x20, [sp, #16]
     ldp  x29, x30, [sp], #32
     ret
