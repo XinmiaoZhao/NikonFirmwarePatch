@@ -1632,6 +1632,48 @@ class BuildTimeGuardTests(unittest.TestCase):
             # .org then fails the D1 scan itself, covered above).
             assert_asm_sources_declared([declared, stray], [unit_dir])
 
+    def test_nested_asm_source_under_unit_directory_rejected(self):
+        """M-B: the completeness check sweeps the unit directory TREE --
+        a *.S nested in a subdirectory is refused exactly like a
+        top-level stray, both through the parameterized check and through
+        the unit_asm_sources() mount.  The mount leg covers asm-style
+        specs (declared asm_sources) and C-style specs (source only)
+        alike: every spec contributes its source directory to the
+        recursive sweep, so a nested .S has no directory shape to hide
+        in."""
+        import tempfile
+        from z8patch import compiled
+        from z8patch.compiled import assert_asm_sources_declared
+        with tempfile.TemporaryDirectory() as folder:
+            unit_dir = Path(folder) / 'z8probe' / 'src'
+            (unit_dir / 'tables').mkdir(parents=True)
+            declared = unit_dir / 'hooks.S'
+            declared.write_text('start:\n nop\n')
+            rogue = unit_dir / 'tables' / 'rogue.S'
+            rogue.write_text('entry: nop\n.org 0x100\n nop\n')
+            with self.assertRaisesRegex(ValueError, r'rogue\.S.*z8probe'):
+                assert_asm_sources_declared([declared], [unit_dir])
+            # Declared, the nested source passes the completeness check
+            # (its .org then fails the D1 scan itself, covered above).
+            assert_asm_sources_declared([declared, rogue], [unit_dir])
+            # C-unit shape: a source-only spec (no asm_sources, like
+            # z8precapture) whose directory holds no top-level .S at all
+            # still contributes that directory to the recursive sweep.
+            c_dir = Path(folder) / 'z8cprobe'
+            (c_dir / 'gen').mkdir(parents=True)
+            (c_dir / 'firmware.c').write_text('int main(void){return 0;}\n')
+            (c_dir / 'gen' / 'rogue.S').write_text('entry: nop\n nop\n')
+            real_specs = compiled.SPECS
+            for spec in (dict(source=str(declared),
+                              asm_sources=(str(declared),)),
+                         dict(source=str(c_dir / 'firmware.c'))):
+                compiled.SPECS = {'probe': dict(spec)}
+                try:
+                    with self.assertRaisesRegex(ValueError, r'rogue\.S'):
+                        compiled.unit_asm_sources()
+                finally:
+                    compiled.SPECS = real_specs
+
     def test_repo_assembly_sources_are_org_free(self):
         """The SPECS-driven scan list is exactly the 14 shipped unit
         sources (pinned above as transcribed evidence, independent of
