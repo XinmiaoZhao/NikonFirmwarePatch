@@ -6,7 +6,7 @@ from pathlib import Path
 from z8prores.package import require, sha
 from z8prores.patcher import public_words
 from z8prores.menu import Image
-from z8patch.compiled import load, unit_base, unit_sources
+from z8patch.compiled import load, unit_base, unit_sources, unit_asm_sources
 from z8patch.contract import (assert_no_cross_region_pointers, assert_no_org_directives,
                               registered_unit_entries)
 from z8patch.shared import Strings, VideoMenu, loader
@@ -39,10 +39,11 @@ def compose(eg, features, compiler='clang', code_source='prebuilt', *, check_rec
     img = Image(eg)
     strings,menu=Strings(),VideoMenu(eg)
     detail,callbacks={},{}
-    # T3 build-time address-coupling guards: D1 refuses any .org in the unit
-    # assembly sources on every build; D2 placements accumulate below and the
-    # cross-region pointer sweep runs once the emit region is complete.
-    assert_no_org_directives()
+    # T3 build-time address-coupling guards: D1 refuses any .org in the
+    # SPECS-declared unit assembly sources on every build; D2 placements
+    # accumulate below and the cross-region pointer sweep runs once the
+    # emit region is complete.
+    assert_no_org_directives(unit_asm_sources())
     placements=[]
 
     def record(name,size,entries):

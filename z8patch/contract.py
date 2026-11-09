@@ -137,20 +137,24 @@ def verify_contract(old,new,features):
 ORG_DIRECTIVE = re.compile(r'(?m)^[ \t]*(?:(?:[\w.$]+|\d+):[ \t]*)?\.org\b')
 
 
-def assert_no_org_directives(root=ROOT):
+def assert_no_org_directives(sources):
     """D1: unit assembly sources must not pin their own layout.
 
-    Scans every z8*/src/*.S under root (all assembly inputs of the build
-    path, including the opengate include closure) and refuses the build on
-    any .org directive: unit sources carry only code + literal pool, and
-    placement is owned by patcher-constant windows (the AGENTS.md iron
-    rule).  .balign/.space stay legal -- in-unit padding and self-referenced
-    data do not freeze external bytes.  Returns the number of sources
-    scanned.
+    sources is the SPECS-declared unit source list (z8patch.compiled.
+    unit_asm_sources, which also enforces that every *.S under a
+    registered unit's source directory carries a declaration): scanning
+    the declared set instead of a filesystem glob means an assembly
+    source must be registered in SPECS to be built or scanned at all.
+    Every source is refused on any .org directive: unit sources carry
+    only code + literal pool, and placement is owned by patcher-constant
+    windows (the AGENTS.md iron rule).  .balign/.space stay legal --
+    in-unit padding and self-referenced data do not freeze external
+    bytes.  Returns the number of sources scanned.
     """
-    sources = sorted(root.glob('z8*/src/*.S'))
+    sources = sorted(sources)
     if not sources:
-        raise ValueError('Address coupling: no unit assembly sources under ' + str(root))
+        raise ValueError('Address coupling: no unit assembly sources '
+                         'declared by SPECS')
     for path in sources:
         text = path.read_text()
         hit = ORG_DIRECTIVE.search(text)
