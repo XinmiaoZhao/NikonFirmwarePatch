@@ -310,23 +310,35 @@ def assert_no_cave_store_targets(code, base, window, whitelist=None):
             if reg[:1] in ('x', 'w') else None
 
     def lookup(reg):
-        state = defs.get(reg)
-        if state is None and paired(reg):
-            state = defs.get(paired(reg))
-        return state
+        # An explicit None entry is a tracked-unresolvable state and must
+        # not resurrect through the paired register: after an X write of
+        # a value >= 2^32 the W view is dead, not inheritable.
+        if reg in defs:
+            return defs[reg]
+        pair = paired(reg)
+        return defs.get(pair) if pair else None
 
     def clear(reg):
         defs[reg] = None
         if reg.startswith('w'):
             defs['x' + reg[1:]] = None
+        elif reg.startswith('x'):
+            defs['w' + reg[1:]] = None
 
     def define(reg, state):
         # A 32-bit write zero-extends into the paired X register, so the
         # X view takes the SAME tracked value (I-1: dropping the alias
         # back to an "untouched argument register" was a silent pass).
+        # A 64-bit write destroys the paired W view: a value below 2^32
+        # keeps it exact (reading Wn after writing Xn yields the same
+        # value), anything larger leaves the W view stale by construction
+        # and must drop to unresolvable (A3: the stale value was readable
+        # back through a W-view copy and fed a store base).
         defs[reg] = state
         if reg.startswith('w'):
             defs['x' + reg[1:]] = state
+        elif reg.startswith('x'):
+            defs['w' + reg[1:]] = state if not state[1] >> 32 else None
 
     def fail(address, message):
         if address in whitelist or hex(address) in whitelist:
