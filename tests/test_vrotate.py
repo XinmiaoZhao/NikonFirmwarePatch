@@ -1673,6 +1673,74 @@ class BuildTimeGuardTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'state window literal in the unit'):
             verify_contract(old, bytes(doctored), ['video-orientation'])
 
+    def test_compose_path_mounts_the_build_guards(self):
+        """A2: the compose path itself must run the build-time guards -- a
+        doctored declared source (.org), a doctored emit-region edit (a
+        qword naming a non-entry unit interior address) and a removed
+        Guard A census call each leave this red; the guards are mounted,
+        not optional decoration beside the pipeline."""
+        import tempfile
+        import features
+        import z8vrotate.patcher as vr_patcher
+        from z8prores.package import Package
+        from features import compose
+        if not FIRMWARE.is_file():
+            self.skipTest('stock firmware fixture not present: %s' % FIRMWARE)
+        compiler = _clang()
+        if not compiler:
+            self.skipTest('no clang for the aarch64 unit build')
+        old = Package(FIRMWARE.read_bytes()).eg
+        # D1 leg: a doctored entry in the declared source list must make
+        # the full compose path raise (the scan mount consumes the list).
+        with tempfile.TemporaryDirectory() as folder:
+            doctored = Path(folder) / 'doctored.S'
+            doctored.write_text('start:\n nop\n.org 0x100\n nop\n')
+            real_sources = features.unit_asm_sources
+            features.unit_asm_sources = \
+                lambda: real_sources() + [doctored]
+            try:
+                with self.assertRaisesRegex(ValueError,
+                                            r'doctored\.S.*banned \.org'):
+                    compose(old, ['video-orientation'], compiler, 'source',
+                            check_recipe=False)
+            finally:
+                features.unit_asm_sources = real_sources
+        # D2 leg: an injected emit-region edit at a stock-zero cave-tail
+        # address naming a unit interior non-entry address must make the
+        # full compose path raise (the sweep mount runs over img.edits).
+        real_build = vr_patcher.build_main
+
+        def doctored_build(eg, code, entries, context):
+            part, detail = real_build(eg, code, entries, context)
+            part.put(0x40A09600, struct.pack('<Q', CAVE_BASE + 4),
+                     'test-only doctored pointer', expect_zero=True)
+            return part, detail
+
+        vr_patcher.build_main = doctored_build
+        try:
+            with self.assertRaisesRegex(ValueError, 'not a registered entry'):
+                compose(old, ['video-orientation'], compiler, 'source',
+                        check_recipe=False)
+        finally:
+            vr_patcher.build_main = real_build
+        # Guard A leg: the vrotate build must run the store census on the
+        # assembled unit with the cave window (call recording; a removed
+        # mount in z8vrotate.patcher leaves the list empty).
+        calls = []
+        real_census = vr_patcher.assert_no_cave_store_targets
+
+        def counting_census(code, base, window, whitelist=None):
+            calls.append((base, window))
+            return real_census(code, base, window, whitelist)
+
+        vr_patcher.assert_no_cave_store_targets = counting_census
+        try:
+            compose(old, ['video-orientation'], compiler, 'source',
+                    check_recipe=False)
+            self.assertEqual(calls, [(CAVE_BASE, (CAVE_BASE, CAVE_LIMIT))])
+        finally:
+            vr_patcher.assert_no_cave_store_targets = real_census
+
 
 class DataMirrorReservationTests(unittest.TestCase):
     """T3 B: the two vrotate windows registered in the patcher-level
