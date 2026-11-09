@@ -1417,6 +1417,40 @@ class BuildTimeGuardTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'cave window'):
             self._census(chain)
 
+    def test_store_census_x_write_syncs_the_paired_w_view(self):
+        """A3: an X-register write must not leave the paired W view stale.
+        Pre-fix, a 64-bit redefinition kept the old W tracking alive, and
+        the dead value was read back through a W-view copy, letting a
+        store resolve against an address the hardware no longer holds
+        (the stale chains below silently pass -- that is the residual)."""
+        mov_w9_w10 = struct.pack('<I', 0x2A0A03E9)   # mov w9, w10 (orr alias)
+        self.assertEqual(self._decode(mov_w9_w10), ['mov w9, w10'])
+        # Stale define: w10 tracked, then x10 redefined >= 2^32 -- the W
+        # view must drop, so the copy leaves the store base unresolvable
+        # (the three-step mixed-view chain: x define -> stale w -> w copy
+        # -> store, must raise).
+        stale_define = (self._movzw(10, 0x43C3, 16)      # w10 = x10 = 0x43C30000
+                        + self._movz(10, 1, 32)          # x10 = 0x1_00000000
+                        + mov_w9_w10 + self._strb(31, 9))
+        self.assertEqual(self._decode(stale_define),
+                         ['mov w10, #0x43c30000', 'mov x10, #0x100000000',
+                          'mov w9, w10', 'strb wzr, [x9]'])
+        with self.assertRaisesRegex(ValueError, 'not statically resolvable'):
+            self._census(stale_define)
+        # Stale clear: an x10 clobber (here a memory load, the generic
+        # clear path) must drop the W view the same way.
+        stale_clear = (self._movzw(10, 0x43C3, 16)
+                       + struct.pack('<I', 0xF940000A)   # ldr x10, [x0]
+                       + mov_w9_w10 + self._strb(31, 9))
+        with self.assertRaisesRegex(ValueError, 'not statically resolvable'):
+            self._census(stale_clear)
+        # Positive control: a 64-bit write below 2^32 keeps the paired W
+        # view exact (reading Wn after writing Xn yields the same value),
+        # so the identical copy-and-store shape still resolves and passes
+        # against an outside-cave address.
+        small_keep = (self._movz(10, 0x43C3, 16) + mov_w9_w10 + self._strb(31, 9))
+        self._census(small_keep)
+
     def test_store_census_conditional_branch_ends_the_window(self):
         """M-1: a conditional branch between the base def and the store
         ends the basic block -- the def is outside the window and the
