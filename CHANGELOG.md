@@ -8,7 +8,8 @@
 
 ### 修复
 
-- **修复开发分支 `video-orientation` 打开菜单即崩溃的问题。** 单元运行期状态字节（哨兵／锁存等）此前位于只读代码洞，任何菜单页打开即触发 EL0 权限异常终止 APPMENU。全部状态已迁入每次上电由 boot 按镜像重载的数据镜像窗口，行事件表改置洞内固定只读子窗；同时新增构建期护栏（写目标普查、保留区登记、地址耦合静态断言）与三腿 QEMU 回归，修复镜像全部通过。行值渲染仍待用户人工验收，实机验证项不变。
+- **修复开发分支 `video-orientation` 打开菜单即崩溃的问题。** 单元运行期状态字节（哨兵／锁存等）此前位于只读代码洞，任何菜单页打开即触发 EL0 权限异常终止 APPMENU。全部状态已迁入每次上电由 boot 按镜像重载的数据镜像窗口，行事件表改置洞内固定只读子窗；同时新增构建期护栏（写目标普查、保留区登记、地址耦合静态断言）与三腿 QEMU 回归，修复镜像全部通过。实机验证项不变。
+- **修复行值渲染路径。**取值渲染原设计走字符串 id 路径，受取值子件高位 id 截断限制，首次仿真人工验收显示异常（文字样式／沙漏图标）；已改走原厂布尔控件路径（衰减器行同款，复用原厂本地化开／关文案），开关与存储行为不变。仿真人工复验通过（2026-11-09）：On／Off 开关样式与原厂布尔行同款、翻值即时切换；五组合配方第五次再冻结（不含本组的 15 份组合零漂移）。
 
 ### English
 
@@ -18,7 +19,8 @@
 
 **Fixed**
 
-- Opening any menu page no longer crashes APPMENU on development-branch `video-orientation` builds. The unit's runtime state bytes (sentinel, latch and friends) lived in the read-only code cave and triggered an EL0 permission fault on first use. All state now migrates to a data-mirror window that boot reloads from the image at every power-up, and the row-events table moved to a fixed read-only cave sub-window. New build-time guards (store-target census, reservation registry, address-coupling assertions) and a three-leg QEMU regression cover the fix; the fixed image passes all three legs. Value rendering still awaits manual acceptance, and the camera validation items are unchanged.
+- Opening any menu page no longer crashes APPMENU on development-branch `video-orientation` builds. The unit's runtime state bytes (sentinel, latch and friends) lived in the read-only code cave and triggered an EL0 permission fault on first use. All state now migrates to a data-mirror window that boot reloads from the image at every power-up, and the row-events table moved to a fixed read-only cave sub-window. New build-time guards (store-target census, reservation registry, address-coupling assertions) and a three-leg QEMU regression cover the fix; the fixed image passes all three legs. The camera validation items are unchanged.
+- The row value now renders through the stock boolean widget path. The original string-id path hit the value child's high-id truncation and rendered wrongly at the first manual emulator check (a text-style value when unselected, an hourglass icon when highlighted). The adopted fallback reuses the attenuator row's own boolean path and the camera's localized On/Off texts; toggle and storage behaviour are unchanged. Manual emulator re-acceptance passed (2026-11-09): the value shows the stock On/Off switch style and toggles immediately. Recipes were refrozen a fifth time; the fifteen combinations without this group stay byte-identical.
 
 ## v0.4.0 — 四组补丁 / Four feature groups
 
