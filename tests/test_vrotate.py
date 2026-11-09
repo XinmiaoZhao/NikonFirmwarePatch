@@ -71,6 +71,27 @@ VR_EVENTS_AT, VR_EVENTS_SIZE = 0x40A09000, 44 * 32
 VR_EVENTS_END = VR_EVENTS_AT + VR_EVENTS_SIZE
 
 
+# The SPECS-declared unit assembly sources at the A1 freeze (14 files
+# across seven folders; pinned independently of SPECS so a registry edit
+# cannot silently reshape the D1 scan list).
+UNIT_ASM_SOURCE_LIST = [
+    'z8anamorphic/src/hooks.S',
+    'z8h265/src/hooks.S',
+    'z8log/src/hooks.S',
+    'z8opengate/src/d10_hooks.S',
+    'z8opengate/src/d5_hooks.S',
+    'z8opengate/src/d6_hooks.S',
+    'z8opengate/src/d7_hooks.S',
+    'z8opengate/src/d8_hooks.S',
+    'z8opengate/src/d9_hooks.S',
+    'z8opengate/src/menu_repair_hooks.S',
+    'z8opengate/src/ui_hooks.S',
+    'z8patch/src/shared.S',
+    'z8quality/src/hooks.S',
+    'z8vrotate/src/hooks.S',
+]
+
+
 def _clang():
     """Locate the maintainer clang for the aarch64 unit build, or None."""
     import shutil
@@ -1470,36 +1491,63 @@ class BuildTimeGuardTests(unittest.TestCase):
                                          (CAVE_BASE, CAVE_LIMIT))
 
     def test_org_directive_rejected_in_unit_sources(self):
-        """D1: any .org in the unit assembly sources refuses the build;
-        .balign/.space (legal in-unit padding/data) stay tolerated."""
+        """D1 (A1 negative 1): any .org in a SPECS-declared unit source
+        refuses the build; .balign/.space (legal in-unit padding/data)
+        stay tolerated.  The scan takes the declared source set itself,
+        never a filesystem glob."""
         import tempfile
         from z8patch.contract import assert_no_org_directives
         with tempfile.TemporaryDirectory() as folder:
-            root = Path(folder)
-            (root / 'z8probe' / 'src').mkdir(parents=True)
-            (root / 'z8probe' / 'src' / 'clean.S').write_text(
-                '.balign 4\n.space 16\nlabel:\n nop\n')
-            self.assertGreaterEqual(assert_no_org_directives(root), 1)
-        # Each offending shape gets its own tree: the scan raises on the
-        # first hit, so shared trees would couple the assertions.
+            clean = Path(folder) / 'clean.S'
+            clean.write_text('.balign 4\n.space 16\nlabel:\n nop\n')
+            self.assertEqual(assert_no_org_directives([clean]), 1)
+        # Each offending shape gets its own file: the scan raises on the
+        # first hit, so shared files would couple the assertions.
         for name, source in (('pinned.S', 'start:\n nop\n.org 0x2F0\ntable:\n nop\n'),
                              # M-4: a label on the same line must not hide
                              # the directive.
                              ('inlined.S', 'entry: nop\ntable: .org 0x100\n nop\n')):
             with tempfile.TemporaryDirectory() as folder, \
                     self.subTest(source=name):
-                root = Path(folder)
-                (root / 'z8probe' / 'src').mkdir(parents=True)
-                (root / 'z8probe' / 'src' / name).write_text(source)
+                doctored = Path(folder) / name
+                doctored.write_text(source)
                 with self.assertRaisesRegex(ValueError, name + r'.*\.org'):
-                    assert_no_org_directives(root)
+                    assert_no_org_directives([doctored])
+        # An empty declared set is a broken registry, not a clean scan.
+        with self.assertRaisesRegex(ValueError, 'no unit assembly sources'):
+            assert_no_org_directives([])
+
+    def test_undeclared_asm_source_in_unit_directory_rejected(self):
+        """D1 (A1 negative 2): a *.S sitting under a registered unit's
+        source directory without a SPECS asm_sources declaration refuses
+        the build -- an undeclared source silently escapes the .org scan
+        even while carrying .org itself."""
+        import tempfile
+        from z8patch.compiled import assert_asm_sources_declared
+        with tempfile.TemporaryDirectory() as folder:
+            unit_dir = Path(folder) / 'z8probe' / 'src'
+            unit_dir.mkdir(parents=True)
+            declared = unit_dir / 'hooks.S'
+            declared.write_text('start:\n nop\n')
+            stray = unit_dir / 'extra.S'
+            stray.write_text('entry: nop\n.org 0x100\n nop\n')
+            with self.assertRaisesRegex(ValueError, r'extra\.S.*z8probe'):
+                assert_asm_sources_declared([declared], [unit_dir])
+            # Declared, the same file passes the completeness check (its
+            # .org then fails the D1 scan itself, covered above).
+            assert_asm_sources_declared([declared, stray], [unit_dir])
 
     def test_repo_assembly_sources_are_org_free(self):
-        """The real tree passes D1 today and the scan reaches every unit
-        source folder (14 files across seven folders at freeze time)."""
+        """The SPECS-driven scan list is exactly the 14 shipped unit
+        sources (pinned above as transcribed evidence, independent of
+        SPECS) and the real tree passes D1 on all of them."""
+        from z8patch import compiled
         from z8patch.contract import assert_no_org_directives
-        count = assert_no_org_directives()
-        self.assertGreaterEqual(count, 14)
+        sources = compiled.unit_asm_sources()
+        self.assertEqual([p.relative_to(ROOT).as_posix() for p in sources],
+                         UNIT_ASM_SOURCE_LIST)
+        self.assertEqual(len(UNIT_ASM_SOURCE_LIST), 14)
+        self.assertEqual(assert_no_org_directives(sources), 14)
 
     def test_cross_region_pointer_rejects_non_entry_target(self):
         """D2: an emit-region qword inside a unit span that does not name a
