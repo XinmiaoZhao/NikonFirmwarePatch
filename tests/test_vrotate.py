@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Calibrated tkhd display matrices for the video-orientation feature (T4).
 
-Plus T5 unit tests (classify mirror, one-shot latch, unit build), the
+Plus T5 unit tests (classify mirror, sticky session latch, unit build), the
 T6 menu-row tests (the 36-language title table, the 0x2FC0 transition-table
 clone, the z8patch/shared.py extensions) and -- when the stock firmware
 fixture and an aarch64-capable clang are present -- compilation, linking
@@ -162,22 +162,23 @@ class ClassifyMirrorTests(unittest.TestCase):
     """
 
     def test_six_canonical_vectors(self):
-        """The T1 report's six single-axis vectors map to pose codes."""
+        """The six single-axis vectors map to pose codes through the t15
+        on-camera axis table (chip X = camera vertical, Y = roll, Z = lens)."""
         from z8vrotate import patcher
         canonical = (
-            ((0.0, 0.0, 1.0), patcher.AXIS_CODES[4]),   # level rest (T1 anchor)
-            ((1.0, 0.0, 0.0), patcher.AXIS_CODES[0]),   # X+
-            ((-1.0, 0.0, 0.0), patcher.AXIS_CODES[1]),   # X-
-            ((0.0, 1.0, 0.0), patcher.AXIS_CODES[2]),   # Y+
-            ((0.0, -1.0, 0.0), patcher.AXIS_CODES[3]),   # Y-
-            ((0.0, 0.0, -1.0), patcher.AXIS_CODES[5]),   # Z- (upside down)
+            ((0.0, 0.0, 1.0), patcher.AXIS_CODES[4]),   # +Z lens axis (no mark)
+            ((1.0, 0.0, 0.0), patcher.AXIS_CODES[0]),   # X+ upside-down grip
+            ((-1.0, 0.0, 0.0), patcher.AXIS_CODES[1]),   # X- level landscape
+            ((0.0, 1.0, 0.0), patcher.AXIS_CODES[2]),   # Y+ portrait (tentative)
+            ((0.0, -1.0, 0.0), patcher.AXIS_CODES[3]),   # Y- portrait (tentative)
+            ((0.0, 0.0, -1.0), patcher.AXIS_CODES[5]),   # -Z lens axis (no mark)
         )
         for vector, expected in canonical:
             self.assertEqual(patcher.classify(1, *vector), expected, vector)
-        # The shipped assignment is the documented hypothesis from the T1
-        # boot anchor (+Z = level landscape); a T11 calibration flip must
-        # change these bytes deliberately.
-        self.assertEqual(patcher.AXIS_CODES, bytes((1, 2, 0, 0, 0, 3)))
+        # The shipped assignment is the t15 on-camera evidence (NEV take
+        # matrices); only the portrait pair order is a derived tentative
+        # that a calibration clip may flip (swap bytes 2/3 deliberately).
+        self.assertEqual(patcher.AXIS_CODES, bytes((3, 0, 2, 1, 0, 0)))
 
     def test_threshold_and_argmax(self):
         """Dominant-axis argmax plus the 0.70 threshold gate."""
@@ -206,41 +207,63 @@ class ClassifyMirrorTests(unittest.TestCase):
             self.assertEqual(patcher.classify(gate, 0.0, 0.0, -1.0), 0, hex(gate))
 
 
-class OneShotLatchTests(unittest.TestCase):
-    """One-shot latch hygiene (review carry-item T3-F1): read-and-clear.
+class StickyLatchTests(unittest.TestCase):
+    """Sticky session latch (2026-11-10 t15 fix) -- the retired one-shot
+    read-and-clear lost the mark on every QuickTime-family recording.
 
-    Playback/transfer-side finalises reuse the matrix site
-    (0x4034412c/0x403494d8 families -> movie_finalize_stop), so the matrix
-    hook must consume the latch byte on every pass; a stale portrait latch
-    must never leak into a later non-recording finalise.
+    Recorded files carry ftyp + moov + free + mdat with the moov written
+    back into a reserved front slot, so the matrix site can run more than
+    once per take (recovery rebuilds, a proxy writer finalising in the
+    same stop window, a staged remux); the file's final bytes come from
+    the LAST pass, so the latch must stay valid for every pass of the
+    take.  Stale-pose hygiene moved to the latch hook's session
+    boundaries (read-parse w1==0 / post-finalize udta-patch w1==2 clear;
+    non-recording finalizes never see a live pose).
     """
 
-    def test_stale_latch_cleared(self):
+    def test_matrix_passes_do_not_consume_the_latch(self):
         from z8vrotate import patcher
-        # Portrait recording opened: the latch hook stores the pose code.
-        latch = patcher.classify(1, 1.0, 0.0, 0.0)
+        # Recording started in a portrait-equivalent grip (Y- dominant):
+        # the latch hook stored the pose code 1.
+        latch = patcher.classify(1, 0.0, -1.0, 0.0)
         self.assertEqual(latch, 1)
-        # Stop-recording finalise: the matrix hook consumes and clears.
-        used, latch = patcher.matrix_decision(latch, enable=1)
-        self.assertEqual(used, matrices.ROTATE_90_CW_MATRIX)
-        self.assertEqual(latch, 0)
-        # A later playback-side finalise through the same site sees identity.
-        used, latch = patcher.matrix_decision(latch, enable=1)
-        self.assertIsNone(used)
-        self.assertEqual(latch, 0)
+        # Every moov build of the take sees the same pose -- including the
+        # LAST pass that lands in the delivered file.
+        for _ in range(3):
+            used, latch = patcher.matrix_decision(latch, enable=1)
+            self.assertEqual(used, matrices.ROTATE_90_CW_MATRIX)
+            self.assertEqual(latch, 1)
 
-    def test_read_and_clear_always(self):
+    def test_invalid_and_disabled_passes_keep_the_latch(self):
         from z8vrotate import patcher
-        # An invalid/stale value is consumed too, not just valid codes.
         for stale in (0, 4, 0xFF):
             used, latch = patcher.matrix_decision(stale, enable=1)
             self.assertIsNone(used, stale)
-            self.assertEqual(latch, 0, stale)
-        # Feature disabled: no matrix, but the latch is still cleared so a
-        # later re-enable cannot emit a pose captured while disabled.
+            self.assertEqual(latch, stale)
+        # Feature disabled: passthrough, but the latch is preserved (the
+        # switch byte may be re-armed mid-session; the pose is still the
+        # last recording start's, never a stale pre-disable capture).
         used, latch = patcher.matrix_decision(3, enable=0)
         self.assertIsNone(used)
-        self.assertEqual(latch, 0)
+        self.assertEqual(latch, 3)
+
+    def test_session_boundaries_clear_and_refresh(self):
+        from z8vrotate import patcher
+        # Recording start (main-movie write open, w1==1) refreshes the pose.
+        latch = patcher.latch_open(1, 1, 0.0, -1.0, 0.0)
+        self.assertEqual(latch, 1)
+        used, latch = patcher.matrix_decision(latch, enable=1)
+        self.assertEqual(used, matrices.ROTATE_90_CW_MATRIX)
+        self.assertEqual(latch, 1)
+        # The take tail (post-finalize udta-patch open, w1==2) clears, so
+        # later non-recording finalizes through the shared site see 0.
+        self.assertEqual(patcher.latch_open(2, 1, 0.0, -1.0, 0.0), 0)
+        # Read-parse opens (w1==0: session init before the recording and
+        # post-take parse after stop) clear as well.
+        self.assertEqual(patcher.latch_open(0, 1, 0.0, -1.0, 0.0), 0)
+        # An invalid open mode also clears (conservative: only w1==1
+        # refreshes; classify never runs for other modes).
+        self.assertEqual(patcher.latch_open(3, 1, 0.0, -1.0, 0.0), 0)
 
 
 class TranslationTests(unittest.TestCase):
@@ -1003,7 +1026,7 @@ class StateWindowTests(unittest.TestCase):
         codes = window[VR_AXIS_CODES_OFF:VR_AXIS_CODES_OFF + 6]
         self.assertEqual(threshold, patcher.THRESHOLD_BITS)
         self.assertEqual(bytes(codes), patcher.AXIS_CODES)
-        self.assertEqual(codes, bytes((1, 2, 0, 0, 0, 3)))
+        self.assertEqual(codes, bytes((3, 0, 2, 1, 0, 0)))
 
         def mirror_classify(gate, x, y, z):
             # vr_classify's algorithm with the window as the only constant
@@ -1022,12 +1045,12 @@ class StateWindowTests(unittest.TestCase):
             return codes[axis * 2 + signs[axis]]
 
         canonical = (
-            ((0.0, 0.0, 1.0), codes[4]),   # level rest (t1 anchor)
-            ((1.0, 0.0, 0.0), codes[0]),   # X+
-            ((-1.0, 0.0, 0.0), codes[1]),   # X-
-            ((0.0, 1.0, 0.0), codes[2]),   # Y+
-            ((0.0, -1.0, 0.0), codes[3]),   # Y-
-            ((0.0, 0.0, -1.0), codes[5]),   # Z- (upside down)
+            ((0.0, 0.0, 1.0), codes[4]),   # +Z lens axis (no mark)
+            ((1.0, 0.0, 0.0), codes[0]),   # X+ upside-down grip
+            ((-1.0, 0.0, 0.0), codes[1]),   # X- level landscape
+            ((0.0, 1.0, 0.0), codes[2]),   # Y+ portrait (tentative)
+            ((0.0, -1.0, 0.0), codes[3]),   # Y- portrait (tentative)
+            ((0.0, 0.0, -1.0), codes[5]),   # -Z lens axis (no mark)
         )
         for vector, expected in canonical:
             self.assertEqual(mirror_classify(1, *vector), expected, vector)
@@ -1279,7 +1302,7 @@ class IntegrationTests(unittest.TestCase):
         refresh = int(detail['menu']['callbacks']['vrotate'], 16)
         self.assertEqual(slots[4], refresh)
         # Fresh-boot state fill: the five labels live in the data mirror
-        # window; the one-shot latch and first-boot sentinel mirror bytes
+        # window; the sticky latch and first-boot sentinel mirror bytes
         # ship 0 and the window tail carries the 0xA5 magic byte.
         window = next(e for e in img.edits if e['offset'] == VR_STATE_IMG_OFF)
         self.assertEqual(len(window['new']), VR_STATE_SIZE)
