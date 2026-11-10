@@ -130,16 +130,10 @@
         "video-orientation"
       ],
       "independent_package_verification": "PASS",
-      "bounded_startup": "PASS"
-    },
-    {
-      "features": [
-        "video-orientation"
-      ],
-      "independent_package_verification": "PASS",
+      "bounded_startup": "PASS",
       "value_rendering_acceptance": "PASS",
       "menu_bank_switching": "PASS",
-      "mirror": "vr-only-t4 (boolean value-render path)"
+      "mirror": "vr-only image (boolean value-render path)"
     }
   ],
   "body": {
