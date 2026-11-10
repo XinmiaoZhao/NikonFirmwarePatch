@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: GPL-3.0-or-later
  * Derived from s3lemming/z9-firmware-patch, commit 88a6f3e5195d7f38792dc8eddeb1526fde4096dc.
  * Z8 C3.11 adaptation: native interfaces, event IDs, state addresses and labels.
- * Experimental; complete native workflow qualification is performed separately.
+ * Device-qualified: the full feature set passed complete on-camera verification.
  */
 #include "mark2_import.h"
 

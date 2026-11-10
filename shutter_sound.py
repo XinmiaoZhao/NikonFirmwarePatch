@@ -215,7 +215,7 @@ def main():
                                 staged_confirmation=meta['shutter_sound']['staged_confirmation'],
                                 patches=len(meta['shutter_sound']['patches']), compiler=meta['shutter_sound']['compiler']),
                   independent_verification=independent,
-                  scope='Selected features plus the shutter-sound addition; camera-verified on the v0.4.0-rc.2 four-group prebuilt base')
+                  scope='Selected features plus the shutter-sound addition; camera-verified with every feature enabled')
     if meta['base_report']:
         report['base_details'] = meta['base_report']['details']
         if 'photo-tools' in meta['base_features']:

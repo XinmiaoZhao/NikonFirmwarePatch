@@ -265,7 +265,7 @@ if '--staged-only' not in sys.argv:
     self.injected=False
     super().__init__()
    def hook(self,u,a,size,user):
-    # In 04.23 inject at the second import boundary before publishing staging.
+    # Inject at the second import boundary before publishing staging.
     if STAGED and a==SYMS['m2_native_import_buffered'] and self.import_calls==1 and not self.injected:
      ptr=self.pointer('confirm_first',True);old=bytes(u.mem_read(ptr+64,1))
      u.mem_write(ptr+64,bytes([old[0]^1]));self.injected=True

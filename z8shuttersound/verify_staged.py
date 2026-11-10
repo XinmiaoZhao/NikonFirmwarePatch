@@ -1,4 +1,4 @@
-"""04.23 staged PCM/IO regressions using the exact compiled ARM payload.
+"""Staged PCM/IO regressions using the exact compiled ARM payload.
 
 Run: python -m z8shuttersound.verify_staged PATH_TO_SHUTTER_SOUND_BUILD
 Importing verify_integration first runs its shared integration scenarios.

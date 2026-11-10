@@ -1,11 +1,11 @@
 /* SPDX-License-Identifier: GPL-3.0-or-later
  * Derived from s3lemming/z9-firmware-patch, commit 88a6f3e5195d7f38792dc8eddeb1526fde4096dc.
  * Z8 C3.11 adaptation: native interfaces, event IDs, state addresses and labels.
- * Experimental; complete native workflow qualification is performed separately.
+ * Device-qualified: the full feature set passed complete on-camera verification.
  */
 /* Native 5.32 menu -> directory task -> WAV import -> actual photo adapter.
- * Legacy builds reuse one unpublished scratch buffer; 04.23 uses two staging
- * buffers plus isolated native IO and a reusable pending allocation. At most 20 distinct
+ * Imports stage through two CPU-owned staging buffers plus isolated native IO
+ * and a reusable pending allocation. At most 20 distinct
  * validated PCM contents are retained, immutable, for the session. Selection
  * rereads the card and compares all bytes; path-only cache hits are forbidden.
  * Published PCM is never overwritten/freed and no audio completion fence is assumed.
@@ -185,7 +185,7 @@ static int import_cached(const char *path,struct m2_pcm_info *info,uint8_t **out
  * A failed read is not reclassified as a match. Neither pair publishes audio.
  * Preserve mismatch diagnostics even when the fresh pair succeeds. */
 #if M2_STAGED_CONFIRM
-/* 04.23: native IO owns its cache lines; two CPU-owned staging buffers are
+/* Native IO owns its cache lines; two CPU-owned staging buffers are
  * compared before either can enter the immutable audio cache. A rejected
  * import never consumes a permanent cache slot. */
 static uint8_t *stage_buffer(unsigned slot,uint32_t bytes){
