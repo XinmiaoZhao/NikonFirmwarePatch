@@ -5,19 +5,19 @@ Plus the unit tests (classify mirror, sticky session latch, unit build), the
 menu-row tests (the 36-language title table, the 0x2FC0 transition-table
 clone, the z8patch/shared.py extensions) and -- when the stock firmware
 fixture and an aarch64-capable clang are present -- compilation, linking
-and patcher edit generation for the vrotate cave unit with its synthesized
+and patcher edit generation for the video-orientation cave unit with its synthesized
 inline-toggle menu row.
 
 The per-bank storage tests add: the pure-Python default-on mirror
 (first-boot sentinel init, idempotence, user-off preservation), the value
 byte wiring (row toggle and matrix hook reference the active DS record
-byte; the retired cave vr_value/vr_enable bytes are gone), and the
+byte; the retired cave orient_value/orient_enable bytes are gone), and the
 candidate-byte evidence encoded as test data (pinned bank-record addresses
 plus a fresh writer scan over the stock image, so a firmware change that
 touches the record bytes fails loudly).
 
 The expected byte strings below are pinned offline evidence, independent of
-z8vrotate.matrices itself, so a regression in the module cannot also rewrite
+z8videoorientation.matrices itself, so a regression in the module cannot also rewrite
 the reference:
 
 * Apple iPhone files hosted by the Internet Archive (see matrices.py for the
@@ -38,7 +38,7 @@ sys.dont_write_bytecode = True
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-from z8vrotate import matrices
+from z8videoorientation import matrices
 
 # Stock EG addresses used by the unit tests (BASE = 0x40160000).
 EG_BASE = 0x40160000
@@ -58,20 +58,20 @@ CAVE_BASE, CAVE_LIMIT = 0x40A08000, 0x40A10000
 # census): the five unit data labels moved out of the read-only cave into a
 # 256 B window of the boot-loaded data mirror segment.  RAM window and its
 # EG image offsets below are pinned literals, independent of the patcher.
-VR_STATE_VA, VR_STATE_END = 0xA0281A800, 0xA0281A900
-VR_STATE_IMG_OFF, VR_STATE_SIZE = 0x4B25800, 0x100
+ORIENT_STATE_VA, ORIENT_STATE_END = 0xA0281A800, 0xA0281A900
+ORIENT_STATE_IMG_OFF, ORIENT_STATE_SIZE = 0x4B25800, 0x100
 # Frozen window layout (facts.state_window in the build facts):
-VR_MATRICES_OFF, VR_THRESHOLD_OFF = 0x00, 0x6C
-VR_AXIS_CODES_OFF, VR_LATCH_OFF, VR_SENTINEL_OFF = 0x70, 0x76, 0x77
-VR_MAGIC_OFF, VR_MAGIC = 0xFF, 0xA5
+ORIENT_MATRICES_OFF, ORIENT_THRESHOLD_OFF = 0x00, 0x6C
+ORIENT_AXIS_CODES_OFF, ORIENT_LATCH_OFF, ORIENT_SENTINEL_OFF = 0x70, 0x76, 0x77
+ORIENT_MAGIC_OFF, ORIENT_MAGIC = 0xFF, 0xA5
 
 # Fixed events sub-window: the row-events clone lives at a patcher-
 # constant fixed sub-window of the cave (the z8h265 MENU_AT form), not at an
 # organic in-unit slot behind .org padding -- unit growth is decoupled from
 # the frozen transition-pointer recipe rows.  4K-aligned, inside the cave,
 # stock zero; table body 44x32 B incl. the 0x3BB terminator.
-VR_EVENTS_AT, VR_EVENTS_SIZE = 0x40A09000, 44 * 32
-VR_EVENTS_END = VR_EVENTS_AT + VR_EVENTS_SIZE
+ORIENT_EVENTS_AT, ORIENT_EVENTS_SIZE = 0x40A09000, 44 * 32
+ORIENT_EVENTS_END = ORIENT_EVENTS_AT + ORIENT_EVENTS_SIZE
 
 
 # The SPECS-declared unit assembly sources at the A1 freeze (14 files
@@ -91,7 +91,7 @@ UNIT_ASM_SOURCE_LIST = [
     'z8opengate/src/ui_hooks.S',
     'z8patch/src/shared.S',
     'z8quality/src/hooks.S',
-    'z8vrotate/src/hooks.S',
+    'z8videoorientation/src/hooks.S',
 ]
 
 
@@ -154,10 +154,10 @@ class MatrixTests(unittest.TestCase):
 
 
 class ClassifyMirrorTests(unittest.TestCase):
-    """Python mirror of the vr_classify routine.
+    """Python mirror of the orient_classify routine.
 
     The latch hook classifies the normalised gravity vector (f32 x3 at
-    0x0A02E560E0) itself; z8vrotate.patcher.classify mirrors the assembly
+    0x0A02E560E0) itself; z8videoorientation.patcher.classify mirrors the assembly
     algorithm (sign-bit strip, unsigned magnitude compare, argmax with the
     x > y > z tie-break, state-window threshold, axis*2+sign table lookup)
     against the same state-window constants.  Byte-level agreement with
@@ -167,7 +167,7 @@ class ClassifyMirrorTests(unittest.TestCase):
     def test_six_canonical_vectors(self):
         """The six single-axis vectors map to pose codes through the
         on-camera axis table (chip X = camera vertical, Y = roll, Z = lens)."""
-        from z8vrotate import patcher
+        from z8videoorientation import patcher
         canonical = (
             ((0.0, 0.0, 1.0), patcher.AXIS_CODES[4]),   # +Z lens axis (no mark)
             ((1.0, 0.0, 0.0), patcher.AXIS_CODES[0]),   # X+ upside-down grip
@@ -185,7 +185,7 @@ class ClassifyMirrorTests(unittest.TestCase):
 
     def test_threshold_and_argmax(self):
         """Dominant-axis argmax plus the 0.70 threshold gate."""
-        from z8vrotate import patcher
+        from z8videoorientation import patcher
         # Every axis below 0.70 after normalisation: no dominant axis.
         self.assertEqual(patcher.classify(1, 0.58, 0.58, 0.58), 0)
         # 45-degree edge: BOTH X and Y stay at/above 0.70 (float32 bits of 0.71 and
@@ -205,7 +205,7 @@ class ClassifyMirrorTests(unittest.TestCase):
 
     def test_enable_gate(self):
         """The sensor-subsystem gate word must read 1 for any mark."""
-        from z8vrotate import patcher
+        from z8videoorientation import patcher
         for gate in (0, 2, 0xFFFFFFFF):
             self.assertEqual(patcher.classify(gate, 0.0, 0.0, -1.0), 0, hex(gate))
 
@@ -225,7 +225,7 @@ class StickyLatchTests(unittest.TestCase):
     """
 
     def test_matrix_passes_do_not_consume_the_latch(self):
-        from z8vrotate import patcher
+        from z8videoorientation import patcher
         # Recording started in a portrait-equivalent grip (+Y dominant):
         # the latch hook stored the pose code 1.
         latch = patcher.classify(1, 0.0, 1.0, 0.0)
@@ -238,7 +238,7 @@ class StickyLatchTests(unittest.TestCase):
             self.assertEqual(latch, 1)
 
     def test_invalid_and_disabled_passes_keep_the_latch(self):
-        from z8vrotate import patcher
+        from z8videoorientation import patcher
         for stale in (0, 4, 0xFF):
             used, latch = patcher.matrix_decision(stale, enable=1)
             self.assertIsNone(used, stale)
@@ -251,7 +251,7 @@ class StickyLatchTests(unittest.TestCase):
         self.assertEqual(latch, 3)
 
     def test_session_boundaries_clear_and_refresh(self):
-        from z8vrotate import patcher
+        from z8videoorientation import patcher
         # Recording start (main-movie write open, w1==1) refreshes the pose.
         latch = patcher.latch_open(1, 1, 0.0, 1.0, 0.0)
         self.assertEqual(latch, 1)
@@ -270,11 +270,11 @@ class StickyLatchTests(unittest.TestCase):
 
 
 class TranslationTests(unittest.TestCase):
-    """36-language title table for the vrotate row.
+    """36-language title table for the video-orientation row.
 
     The table is the user-confirmed verbatim baseline; it descends
     from the official id 2458 "Record camera orientation" translations
-    with each language's video word from id 2214, and z8vrotate/
+    with each language's video word from id 2214, and z8videoorientation/
     translations.py documents the derivation plus the confirmed-table
     overrides and carries the frozen-table fingerprint.
     """
@@ -287,7 +287,7 @@ class TranslationTests(unittest.TestCase):
         data; any deviation from that table is a spec defect.  Slot 34
         (Arabic) must carry no trailing right-to-left mark.
         """
-        from z8vrotate import translations
+        from z8videoorientation import translations
         confirmed = (
             '動画の縦横位置情報の記録',            # 0  ja
             'Record video orientation',           # 1  en
@@ -341,7 +341,7 @@ class TranslationTests(unittest.TestCase):
     def test_lengths_fallbacks_and_fingerprint(self):
         """Every title fits the row, fallback slots are Japanese, no drift."""
         import hashlib
-        from z8vrotate import translations
+        from z8videoorientation import translations
         for index, title in enumerate(translations.TITLES):
             self.assertGreater(len(title), 0, index)
             self.assertLessEqual(len(title), 32, (index, title))
@@ -365,7 +365,7 @@ class RowEventsTests(unittest.TestCase):
     """
 
     def test_template_row_and_table(self):
-        from z8vrotate import patcher
+        from z8videoorientation import patcher
         if not FIRMWARE.is_file():
             self.skipTest('stock firmware fixture not present: %s' % FIRMWARE)
         from z8prores.package import Package
@@ -379,7 +379,7 @@ class RowEventsTests(unittest.TestCase):
         self.assertEqual(template[6], 0x2FC0)
 
     def test_row_events_clone(self):
-        from z8vrotate import patcher
+        from z8videoorientation import patcher
         if not FIRMWARE.is_file():
             self.skipTest('stock firmware fixture not present: %s' % FIRMWARE)
         import struct
@@ -408,8 +408,8 @@ class RowEventsTests(unittest.TestCase):
 class SharedExtensionTests(unittest.TestCase):
     """z8patch/shared.py extensions for the fifth feature group.
 
-    STRING_IDS gains 'vrotate': (3225, 1); the shared string table only
-    grows when the vrotate provider is actually composed, so every existing
+    STRING_IDS gains 'video-orientation': (3225, 1); the shared string table only
+    grows when the video-orientation provider is actually composed, so every existing
     combination keeps its reviewed recipe bytes; VideoMenu.emit inserts the
     synthesized row 0x315B immediately before the stock image-area row
     0x30A6; CONFIG gains the fifth row-callback slot at +0x28, written only
@@ -418,16 +418,16 @@ class SharedExtensionTests(unittest.TestCase):
 
     def test_string_allocation(self):
         from z8patch.shared import STRING_IDS, Strings
-        from z8vrotate import translations
-        self.assertEqual(STRING_IDS['vrotate'], (3225, 1))
+        from z8videoorientation import translations
+        self.assertEqual(STRING_IDS['video-orientation'], (3225, 1))
         context = Strings()
-        ids = context.add('vrotate', [[t] for t in translations.TITLES])
+        ids = context.add('video-orientation', [[t] for t in translations.TITLES])
         self.assertEqual(ids, [3225])
         with self.assertRaises(ValueError):
-            context.add('vrotate', [[t] for t in translations.TITLES])
+            context.add('video-orientation', [[t] for t in translations.TITLES])
 
     def test_emit_end_follows_providers(self):
-        """Without vrotate the shared string table keeps its old shape."""
+        """Without video-orientation the shared string table keeps its old shape."""
         from z8patch.shared import Strings
         from z8prores.menu import Image
         if not FIRMWARE.is_file():
@@ -437,13 +437,13 @@ class SharedExtensionTests(unittest.TestCase):
         context = Strings()
         context.add('log', [['Log'] * 8 for _ in range(36)])
         meta = context.emit(Image(eg))
-        self.assertEqual(meta['entries'], 3226)   # pre-vrotate end 3225 + 1
-        self.assertNotIn('vrotate', meta['features'])
+        self.assertEqual(meta['entries'], 3226)   # pre-video-orientation end 3225 + 1
+        self.assertNotIn('video-orientation', meta['features'])
         context = Strings()
-        context.add('vrotate', [['X'] for _ in range(36)])
+        context.add('video-orientation', [['X'] for _ in range(36)])
         meta = context.emit(Image(eg))
-        self.assertEqual(meta['entries'], 3227)   # vrotate end 3226 + 1
-        self.assertEqual(meta['features'], ['vrotate'])
+        self.assertEqual(meta['entries'], 3227)   # video-orientation end 3226 + 1
+        self.assertEqual(meta['features'], ['video-orientation'])
 
     def test_video_menu_insertion_and_config(self):
         import struct
@@ -453,12 +453,12 @@ class SharedExtensionTests(unittest.TestCase):
             self.skipTest('stock firmware fixture not present: %s' % FIRMWARE)
         from z8prores.package import Package
         eg = Package(FIRMWARE.read_bytes()).eg
-        from z8vrotate import patcher
+        from z8videoorientation import patcher
         template, pointer = patcher.menu_row(eg)
         row = struct.pack('<11I', 3225, *template[1:6], 0x315B, *template[7:])
         events_va = CAVE_BASE + 0x1800
         entries = {'shared_refresh': 0x40980100, 'shared_bank': 0x40980200}
-        callbacks = {'vrotate': CAVE_BASE + 0x1300}
+        callbacks = {'video-orientation': CAVE_BASE + 0x1300}
         menu = VideoMenu(eg)
         menu.add(0x315B, row, events_va)
         img = Image(eg)
@@ -474,15 +474,15 @@ class SharedExtensionTests(unittest.TestCase):
         # (PAGE is an EG offset, not a VA).
         page_rows, page_events, page_count = struct.unpack_from('<QQH', img.new, PAGE + 0x10)
         self.assertEqual((page_rows, page_events, page_count), (VIDEO_ROWS, VIDEO_EVENTS, 45))
-        # CONFIG layout: +0 mask, +8 four stock slots, +0x28 the vrotate slot.
+        # CONFIG layout: +0 mask, +8 four stock slots, +0x28 the video-orientation slot.
         config = img.new[CONFIG - EG_BASE:CONFIG - EG_BASE + 48]
         self.assertEqual(struct.unpack_from('<I', config)[0], 8)
-        for offset, value in ((8, 0), (16, 0), (24, 0), (32, 0), (40, callbacks['vrotate'])):
+        for offset, value in ((8, 0), (16, 0), (24, 0), (32, 0), (40, callbacks['video-orientation'])):
             self.assertEqual(struct.unpack_from('<Q', config, offset)[0], value, offset)
         self.assertEqual(struct.unpack_from('<Q', img.new, VIDEO_EVENTS - EG_BASE
                                             + 8 * items.index(0x315B))[0], events_va)
 
-    def test_video_menu_unchanged_without_vrotate(self):
+    def test_video_menu_unchanged_without_orientation(self):
         """Without video-orientation the emitted layout stays four slots."""
         import struct
         from z8patch.shared import CONFIG, PAGE, VIDEO_ROWS, VideoMenu
@@ -508,7 +508,7 @@ class SharedExtensionTests(unittest.TestCase):
 
 
 class DefaultOnTests(unittest.TestCase):
-    """Pure-Python mirror of the vr_default_on first-boot init.
+    """Pure-Python mirror of the orient_default_on first-boot init.
 
     The cave sentinel byte boots 0 (the text loader re-copies the patched
     image every boot); the first hook pass -- from either the latch hook
@@ -523,7 +523,7 @@ class DefaultOnTests(unittest.TestCase):
     """
 
     def test_default_on_mirror(self):
-        from z8vrotate import patcher
+        from z8videoorientation import patcher
         # Boot: sentinel 0, all five record bytes start from zeroed RAM.
         copies, sentinel = patcher.default_on([0] * 5, 0)
         self.assertEqual(copies, [1] * 5)
@@ -553,7 +553,7 @@ class DefaultOnTests(unittest.TestCase):
 class CandidateByteEvidenceTests(unittest.TestCase):
     """Candidate-byte evidence encoded as test data.
 
-    The vrotate value byte is byte +2 of the DS item 0x1257 record family.
+    The video-orientation value byte is byte +2 of the DS item 0x1257 record family.
     The five record addresses below are pinned from the stock bank tables
     (category record at 0x440244C8 + 0x12*0x30 -> bank descriptor ->
     record-pointer array; the same tables the stock bank-copy engine
@@ -574,7 +574,7 @@ class CandidateByteEvidenceTests(unittest.TestCase):
 
     def test_candidate_byte_evidence(self):
         import struct as _struct
-        from z8vrotate import patcher
+        from z8videoorientation import patcher
         if not FIRMWARE.is_file():
             self.skipTest('stock firmware fixture not present: %s' % FIRMWARE)
         from z8prores.package import Package
@@ -633,8 +633,8 @@ class StorageWiringTests(unittest.TestCase):
     The row toggle flips and the value text reads the ACTIVE record byte
     (literal-address access like the H.265 TIER byte); the matrix hook's
     enable check reads the same byte; the first-boot init writes 1 to the
-    active record and all four bank storages.  The retired cave bytes vr_value
-    and vr_enable are retired: one byte, one source of truth.
+    active record and all four bank storages.  The retired cave bytes orient_value
+    and orient_enable are retired: one byte, one source of truth.
     """
 
     def _unit_instructions(self, code):
@@ -646,7 +646,7 @@ class StorageWiringTests(unittest.TestCase):
     def test_value_byte_wiring(self):
         import struct as _struct
         from z8patch.shared import Strings
-        from z8vrotate import patcher
+        from z8videoorientation import patcher
         from z8patch import compiled
         from z8prores.package import Package
         if not FIRMWARE.is_file():
@@ -655,13 +655,13 @@ class StorageWiringTests(unittest.TestCase):
         if not compiler:
             self.skipTest('no clang for the aarch64 unit build')
         eg = Package(FIRMWARE.read_bytes()).eg
-        code, observed = compiled.compile_unit('vrotate', compiler)
+        code, observed = compiled.compile_unit('video-orientation', compiler)
         entries = {name: int(sym['va'], 16) for name, sym in observed['symbols'].items()}
         # The retired cave bytes are gone from the unit.
-        self.assertNotIn('vr_value', entries)
-        self.assertNotIn('vr_enable', entries)
+        self.assertNotIn('orient_value', entries)
+        self.assertNotIn('orient_enable', entries)
         code_bytes = bytes(code)
-        for name in ('vr_value', 'vr_enable'):
+        for name in ('orient_value', 'orient_enable'):
             self.assertNotIn(name.encode(), code_bytes)
         # The active-record byte and all four bank copies ride as 64-bit
         # literals: the default-on init needs all five, the toggle and
@@ -717,7 +717,7 @@ class MenuRowBuildTests(unittest.TestCase):
 
     def test_menu_row(self):
         from z8patch.shared import Strings
-        from z8vrotate import patcher
+        from z8videoorientation import patcher
         from z8patch import compiled
         from z8prores.package import Package
         if not FIRMWARE.is_file():
@@ -726,7 +726,7 @@ class MenuRowBuildTests(unittest.TestCase):
         if not compiler:
             self.skipTest('no clang for the aarch64 unit build')
         eg = Package(FIRMWARE.read_bytes()).eg
-        code, observed = compiled.compile_unit('vrotate', compiler)
+        code, observed = compiled.compile_unit('video-orientation', compiler)
         entries = {name: int(sym['va'], 16) for name, sym in observed['symbols'].items()}
         context = Strings()
         img, meta = patcher.build_main(eg, code, entries, context)
@@ -742,19 +742,19 @@ class MenuRowBuildTests(unittest.TestCase):
         self.assertEqual(row[4], 0x20901005)
         # The transition table clone lands at the fixed events sub-window and
         # is registered there (no organic in-unit slot any more).
-        self.assertEqual(menu['row_table'], hex(VR_EVENTS_AT))
-        events = next(e for e in img.edits if e['offset'] == VR_EVENTS_AT - EG_BASE)
-        self.assertEqual(len(events['new']), VR_EVENTS_SIZE)
+        self.assertEqual(menu['row_table'], hex(ORIENT_EVENTS_AT))
+        events = next(e for e in img.edits if e['offset'] == ORIENT_EVENTS_AT - EG_BASE)
+        self.assertEqual(len(events['new']), ORIENT_EVENTS_SIZE)
         self.assertEqual(events['new'], patcher.row_events(
-            eg, patcher.menu_row(eg)[1], entries['vr_row_hook']))
+            eg, patcher.menu_row(eg)[1], entries['orient_row_hook']))
         unit = bytes(img.new[CAVE_BASE - EG_BASE:CAVE_BASE - EG_BASE + len(code)])
         # The value byte now lives in the DS record family: the build
         # pins the five record addresses and reports the storage wiring.
         self.assertEqual(meta['storage']['value_addr'], hex(patcher.VALUE_ADDR))
         self.assertEqual(meta['storage']['item'], hex(patcher.BANK_ITEM))
-        from z8vrotate import translations
+        from z8videoorientation import translations
         self.assertEqual(meta['strings']['ids'], [3225])
-        self.assertEqual(context.groups['vrotate'], [[t] for t in translations.TITLES])
+        self.assertEqual(context.groups['video-orientation'], [[t] for t in translations.TITLES])
         # Value-render fallback: both the toggle and the refresh path
         # drive the row's value child through the stock boolean widget; the
         # retired string-id pair (2466/2467) must be gone from the unit.
@@ -791,7 +791,7 @@ class BooleanValuePathTests(unittest.TestCase):
         compiler = _clang()
         if not compiler:
             self.skipTest('no clang for the aarch64 unit build')
-        code, observed = compiled.compile_unit('vrotate', compiler)
+        code, observed = compiled.compile_unit('video-orientation', compiler)
         entries = {name: int(sym['va'], 16) for name, sym in observed['symbols'].items()}
         return code, entries
 
@@ -808,12 +808,12 @@ class BooleanValuePathTests(unittest.TestCase):
 
     def test_boolean_value_widget_path(self):
         from capstone import Cs, CS_ARCH_ARM64, CS_MODE_LITTLE_ENDIAN
-        from z8vrotate import patcher
+        from z8videoorientation import patcher
         code, entries = self._unit()
         md = Cs(CS_ARCH_ARM64, CS_MODE_LITTLE_ENDIAN)
         md.skipdata = True
         insns = list(md.disasm(bytes(code), CAVE_BASE))
-        for name in ('vr_row_hook', 'vr_refresh_hook'):
+        for name in ('orient_row_hook', 'orient_refresh_hook'):
             with self.subTest(hook=name):
                 region = self._hook(insns, entries[name])
                 calls = [int(i.op_str.removeprefix('#'), 16) for i in region
@@ -828,14 +828,14 @@ class BooleanValuePathTests(unittest.TestCase):
 
 
 class UnitBuildTests(unittest.TestCase):
-    """Compile, link and patch-generate the vrotate unit.
+    """Compile, link and patch-generate the video-orientation unit.
 
     Needs the stock firmware fixture plus clang; skipped otherwise so the
     suite stays green on machines without them.
     """
 
     def test_unit_builds(self):
-        from z8vrotate import patcher
+        from z8videoorientation import patcher
         from z8patch import compiled
         from z8prores.package import Package
         if not FIRMWARE.is_file():
@@ -845,24 +845,24 @@ class UnitBuildTests(unittest.TestCase):
             self.skipTest('no clang for the aarch64 unit build')
         pkg = Package(FIRMWARE.read_bytes())
         eg = pkg.eg
-        code, observed = compiled.compile_unit('vrotate', compiler)
-        self.assertEqual(compiled.SPECS['vrotate']['asm_base'], CAVE_BASE)
+        code, observed = compiled.compile_unit('video-orientation', compiler)
+        self.assertEqual(compiled.SPECS['video-orientation']['asm_base'], CAVE_BASE)
         # Pure code + literal pool unit: it must stop short of the fixed
         # events sub-window (capacity bound; no .org slot any more).
-        self.assertLessEqual(CAVE_BASE + len(code), VR_EVENTS_AT)
+        self.assertLessEqual(CAVE_BASE + len(code), ORIENT_EVENTS_AT)
         entries = {name: int(sym['va'], 16) for name, sym in observed['symbols'].items()}
-        for name in ('vr_matrix_hook', 'vr_latch_hook', 'vr_latch_displaced',
-                     'vr_track_hook'):
+        for name in ('orient_matrix_hook', 'orient_latch_hook', 'orient_latch_displaced',
+                     'orient_track_hook'):
             self.assertIn(name, entries, name)
             self.assertTrue(CAVE_BASE <= entries[name] < CAVE_LIMIT, name)
         # State-window migration: the five data labels left the cave for the data
         # mirror state window; the row-events clone moved to the fixed
         # events sub-window -- neither may come back as unit symbols.
-        for name in ('vr_matrices', 'vr_axis_codes', 'vr_threshold', 'vr_latch',
-                     'vr_sentinel', 'vr_row_events'):
+        for name in ('orient_matrices', 'orient_axis_codes', 'orient_threshold', 'orient_latch',
+                     'orient_sentinel', 'orient_row_events'):
             self.assertNotIn(name, entries, name)
         # The retired cave bytes must stay out of the unit.
-        for name in ('vr_value', 'vr_enable'):
+        for name in ('orient_value', 'orient_enable'):
             self.assertNotIn(name, entries, name)
         # Stock gate bytes are present in the fixture.
         self.assertEqual(eg[MATRIX_SITE - EG_BASE:MATRIX_SITE - EG_BASE + 4],
@@ -871,12 +871,12 @@ class UnitBuildTests(unittest.TestCase):
         self.assertEqual(eg[TRACK_SITE - EG_BASE:TRACK_SITE - EG_BASE + 4],
                          struct.pack('<I', TRACK_STOCK_WORD))
         # The displaced pair replayed in the cave equals the stock bytes.
-        at = entries['vr_latch_displaced'] - CAVE_BASE
+        at = entries['orient_latch_displaced'] - CAVE_BASE
         self.assertEqual(bytes(code[at:at + 8]), LATCH_STOCK)
         # The displaced add-track first instruction replayed in the track hook
         # equals the stock word.
-        hook = code[entries['vr_track_hook'] - CAVE_BASE:
-                    entries['vr_track_hook'] - CAVE_BASE + 32]
+        hook = code[entries['orient_track_hook'] - CAVE_BASE:
+                    entries['orient_track_hook'] - CAVE_BASE + 32]
         self.assertIn(struct.pack('<I', TRACK_STOCK_WORD), hook)
         # Patch generation applies to the stock image: the two expect-byte
         # gates and the zero-cave / zero-window checks all pass.
@@ -886,7 +886,7 @@ class UnitBuildTests(unittest.TestCase):
         sites = sorted(e['offset'] for e in img.edits)
         self.assertEqual(sites, sorted((MATRIX_SITE - EG_BASE, LATCH_SITE - EG_BASE,
                                         TRACK_SITE - EG_BASE, CAVE_BASE - EG_BASE,
-                                        VR_STATE_IMG_OFF, VR_EVENTS_AT - EG_BASE)))
+                                        ORIENT_STATE_IMG_OFF, ORIENT_EVENTS_AT - EG_BASE)))
         # Offline disassembly (capstone) of the edited sites and the unit.
         from capstone import Cs, CS_ARCH_ARM64, CS_MODE_LITTLE_ENDIAN
         md = Cs(CS_ARCH_ARM64, CS_MODE_LITTLE_ENDIAN)
@@ -894,25 +894,25 @@ class UnitBuildTests(unittest.TestCase):
         by_va = {e['offset'] + EG_BASE: bytes(e['new']) for e in img.edits}
         bl = next(md.disasm(by_va[MATRIX_SITE], MATRIX_SITE))
         self.assertEqual(bl.mnemonic, 'bl')
-        self.assertEqual(int(bl.op_str.removeprefix('#'), 16), entries['vr_matrix_hook'])
+        self.assertEqual(int(bl.op_str.removeprefix('#'), 16), entries['orient_matrix_hook'])
         b = next(md.disasm(by_va[LATCH_SITE], LATCH_SITE))
         self.assertEqual(b.mnemonic, 'b')
-        self.assertEqual(int(b.op_str.removeprefix('#'), 16), entries['vr_latch_hook'])
+        self.assertEqual(int(b.op_str.removeprefix('#'), 16), entries['orient_latch_hook'])
         self.assertEqual(by_va[LATCH_SITE][4:], b'\x1f\x20\x03\xd5')    # trailing nop
         tb = next(md.disasm(by_va[TRACK_SITE], TRACK_SITE))
         self.assertEqual(tb.mnemonic, 'b')
-        self.assertEqual(int(tb.op_str.removeprefix('#'), 16), entries['vr_track_hook'])
+        self.assertEqual(int(tb.op_str.removeprefix('#'), 16), entries['orient_track_hook'])
         # Inside the unit: the matrix hook tail-branches to write_bytes and
         # only ever redirects x1; the latch hook gates on w1 and resumes at
         # 0x40d17730.
         def region(start, end):
             return list(md.disasm(bytes(code[start - CAVE_BASE:end - CAVE_BASE]), start))
-        matrix_ins = region(entries['vr_matrix_hook'], entries['vr_latch_hook'])
+        matrix_ins = region(entries['orient_matrix_hook'], entries['orient_latch_hook'])
         self.assertTrue(any(i.mnemonic == 'umaddl' and i.op_str.startswith('x1,')
                             for i in matrix_ins))
         self.assertTrue(any(i.mnemonic == 'b' and i.op_str == '#0x40ce3fdc'
                             for i in matrix_ins))
-        latch_ins = region(entries['vr_latch_hook'], CAVE_BASE + len(code))
+        latch_ins = region(entries['orient_latch_hook'], CAVE_BASE + len(code))
         self.assertTrue(any(i.mnemonic == 'cmp' and i.op_str == 'w1, #1'
                             for i in latch_ins))
         self.assertTrue(any(i.mnemonic == 'b' and i.op_str == '#0x40d17730'
@@ -922,12 +922,12 @@ class UnitBuildTests(unittest.TestCase):
         # state-window literals in the pool must equal the patcher constants;
         # the assembled sentinel immediate must equal patcher.SENTINEL_VALUE
         # (both 0x5A materializations agree).
-        self.assertEqual((VR_STATE_VA + VR_THRESHOLD_OFF) % 4, 0, VR_THRESHOLD_OFF)
+        self.assertEqual((ORIENT_STATE_VA + ORIENT_THRESHOLD_OFF) % 4, 0, ORIENT_THRESHOLD_OFF)
         self.assertIn(struct.pack('<Q', patcher.ORIENT_VALID), code)
         self.assertIn(struct.pack('<Q', patcher.GRAVITY_VEC), code)
-        for off in (VR_MATRICES_OFF, VR_THRESHOLD_OFF, VR_AXIS_CODES_OFF,
-                    VR_LATCH_OFF, VR_SENTINEL_OFF):
-            self.assertIn(struct.pack('<Q', VR_STATE_VA + off), code, hex(off))
+        for off in (ORIENT_MATRICES_OFF, ORIENT_THRESHOLD_OFF, ORIENT_AXIS_CODES_OFF,
+                    ORIENT_LATCH_OFF, ORIENT_SENTINEL_OFF):
+            self.assertIn(struct.pack('<Q', ORIENT_STATE_VA + off), code, hex(off))
         movz_immediates = set()
         from capstone import Cs as _Cs, CS_ARCH_ARM64 as _ARM64, CS_MODE_LITTLE_ENDIAN as _LE
         scan = _Cs(_ARM64, _LE)
@@ -961,7 +961,7 @@ class StateWindowTests(unittest.TestCase):
 
     def _build(self):
         from z8patch.shared import Strings
-        from z8vrotate import patcher
+        from z8videoorientation import patcher
         from z8patch import compiled
         from z8prores.package import Package
         if not FIRMWARE.is_file():
@@ -970,7 +970,7 @@ class StateWindowTests(unittest.TestCase):
         if not compiler:
             self.skipTest('no clang for the aarch64 unit build')
         eg = Package(FIRMWARE.read_bytes()).eg
-        code, observed = compiled.compile_unit('vrotate', compiler)
+        code, observed = compiled.compile_unit('video-orientation', compiler)
         entries = {name: int(sym['va'], 16) for name, sym in observed['symbols'].items()}
         img, meta = patcher.build_main(eg, code, entries, Strings())
         return patcher, bytes(code), entries, img, meta
@@ -980,41 +980,41 @@ class StateWindowTests(unittest.TestCase):
         with the pinned literals and the window maps into the segment."""
         from z8patch.image import DATA_OFF, DATA_END, DATA_VA, data_off
         patcher, _, _, _, _ = self._build()
-        labels = dict(matrices=VR_MATRICES_OFF, threshold=VR_THRESHOLD_OFF,
-                      axis_codes=VR_AXIS_CODES_OFF, latch=VR_LATCH_OFF,
-                      sentinel=VR_SENTINEL_OFF)
+        labels = dict(matrices=ORIENT_MATRICES_OFF, threshold=ORIENT_THRESHOLD_OFF,
+                      axis_codes=ORIENT_AXIS_CODES_OFF, latch=ORIENT_LATCH_OFF,
+                      sentinel=ORIENT_SENTINEL_OFF)
         for name, off in labels.items():
-            self.assertTrue(VR_STATE_VA <= VR_STATE_VA + off < VR_STATE_END, name)
-        self.assertEqual((patcher.VR_STATE_VA, patcher.VR_STATE_END,
-                          patcher.VR_STATE_SIZE, patcher.VR_STATE_IMG_OFF),
-                         (VR_STATE_VA, VR_STATE_END, VR_STATE_SIZE, VR_STATE_IMG_OFF))
-        self.assertEqual((patcher.VR_MATRICES_OFF, patcher.VR_THRESHOLD_OFF,
-                          patcher.VR_AXIS_CODES_OFF, patcher.VR_LATCH_OFF,
-                          patcher.VR_SENTINEL_OFF, patcher.VR_MAGIC_OFF),
-                         (VR_MATRICES_OFF, VR_THRESHOLD_OFF, VR_AXIS_CODES_OFF,
-                          VR_LATCH_OFF, VR_SENTINEL_OFF, VR_MAGIC_OFF))
-        self.assertEqual(patcher.VR_MAGIC, VR_MAGIC)
+            self.assertTrue(ORIENT_STATE_VA <= ORIENT_STATE_VA + off < ORIENT_STATE_END, name)
+        self.assertEqual((patcher.ORIENT_STATE_VA, patcher.ORIENT_STATE_END,
+                          patcher.ORIENT_STATE_SIZE, patcher.ORIENT_STATE_IMG_OFF),
+                         (ORIENT_STATE_VA, ORIENT_STATE_END, ORIENT_STATE_SIZE, ORIENT_STATE_IMG_OFF))
+        self.assertEqual((patcher.ORIENT_MATRICES_OFF, patcher.ORIENT_THRESHOLD_OFF,
+                          patcher.ORIENT_AXIS_CODES_OFF, patcher.ORIENT_LATCH_OFF,
+                          patcher.ORIENT_SENTINEL_OFF, patcher.ORIENT_MAGIC_OFF),
+                         (ORIENT_MATRICES_OFF, ORIENT_THRESHOLD_OFF, ORIENT_AXIS_CODES_OFF,
+                          ORIENT_LATCH_OFF, ORIENT_SENTINEL_OFF, ORIENT_MAGIC_OFF))
+        self.assertEqual(patcher.ORIENT_MAGIC, ORIENT_MAGIC)
         # The window sits inside the boot-copied data mirror segment and the
         # EG image offset is the segment arithmetic of the boot data segment.
-        self.assertTrue(DATA_VA <= VR_STATE_VA and VR_STATE_END <= DATA_VA + DATA_END - DATA_OFF)
-        self.assertEqual(data_off(VR_STATE_VA), VR_STATE_IMG_OFF)
-        self.assertEqual(VR_STATE_VA - DATA_VA + DATA_OFF, VR_STATE_IMG_OFF)
-        self.assertEqual(VR_STATE_IMG_OFF + VR_STATE_SIZE, 0x4B25900)
+        self.assertTrue(DATA_VA <= ORIENT_STATE_VA and ORIENT_STATE_END <= DATA_VA + DATA_END - DATA_OFF)
+        self.assertEqual(data_off(ORIENT_STATE_VA), ORIENT_STATE_IMG_OFF)
+        self.assertEqual(ORIENT_STATE_VA - DATA_VA + DATA_OFF, ORIENT_STATE_IMG_OFF)
+        self.assertEqual(ORIENT_STATE_IMG_OFF + ORIENT_STATE_SIZE, 0x4B25900)
 
     def test_unit_addresses_the_window_not_the_cave(self):
         """The assembled unit carries the five window literals and no
         residual cave data reference."""
         import struct as _struct
         patcher, code, entries, _, _ = self._build()
-        for off in (VR_MATRICES_OFF, VR_THRESHOLD_OFF, VR_AXIS_CODES_OFF,
-                    VR_LATCH_OFF, VR_SENTINEL_OFF):
-            self.assertIn(_struct.pack('<Q', VR_STATE_VA + off), code, hex(off))
+        for off in (ORIENT_MATRICES_OFF, ORIENT_THRESHOLD_OFF, ORIENT_AXIS_CODES_OFF,
+                    ORIENT_LATCH_OFF, ORIENT_SENTINEL_OFF):
+            self.assertIn(_struct.pack('<Q', ORIENT_STATE_VA + off), code, hex(off))
         # The unit is pure code + literal pool (the row-events clone is
         # gone to the fixed events sub-window), so no qword anywhere in the
         # unit may point into the cave: the five labels and the events table
         # used to ride there, and any in-cave pointer in the pool would be a
         # residual or reappeared data reference.
-        self.assertNotIn('vr_row_events', entries)
+        self.assertNotIn('orient_row_events', entries)
         for at in range(0, len(code) - 7):
             q = _struct.unpack_from('<Q', code, at)[0]
             self.assertFalse(CAVE_BASE <= q < CAVE_LIMIT,
@@ -1026,22 +1026,22 @@ class StateWindowTests(unittest.TestCase):
 
         Reclassifies the six single-axis canonical vectors using ONLY
         bytes taken from the built state window edit, exactly the way
-        vr_classify consumes them (threshold word at +0x6C, axis codes at
+        orient_classify consumes them (threshold word at +0x6C, axis codes at
         +0x70), and checks the matrices the matrix hook would redirect to.
         """
         import struct as _struct
-        from z8vrotate import matrices
+        from z8videoorientation import matrices
         patcher, code, entries, img, _ = self._build()
-        window = next(e for e in img.edits if e['offset'] == VR_STATE_IMG_OFF)['new']
-        self.assertEqual(len(window), VR_STATE_SIZE)
-        threshold = _struct.unpack_from('<I', window, VR_THRESHOLD_OFF)[0]
-        codes = window[VR_AXIS_CODES_OFF:VR_AXIS_CODES_OFF + 6]
+        window = next(e for e in img.edits if e['offset'] == ORIENT_STATE_IMG_OFF)['new']
+        self.assertEqual(len(window), ORIENT_STATE_SIZE)
+        threshold = _struct.unpack_from('<I', window, ORIENT_THRESHOLD_OFF)[0]
+        codes = window[ORIENT_AXIS_CODES_OFF:ORIENT_AXIS_CODES_OFF + 6]
         self.assertEqual(threshold, patcher.THRESHOLD_BITS)
         self.assertEqual(bytes(codes), patcher.AXIS_CODES)
         self.assertEqual(codes, bytes((3, 0, 1, 2, 0, 0)))
 
         def mirror_classify(gate, x, y, z):
-            # vr_classify's algorithm with the window as the only constant
+            # orient_classify's algorithm with the window as the only constant
             # source: gate, sign strip, unsigned argmax with the
             # x-beats-y-beats-z tie-break, threshold, axis*2+sign lookup.
             if gate != 1:
@@ -1069,29 +1069,29 @@ class StateWindowTests(unittest.TestCase):
         self.assertEqual(mirror_classify(0, 0.0, 0.0, -1.0), 0)
         # The matrices the hook would select for the latched codes ride in
         # the same window, at the offset the pool literal points to.
-        self.assertEqual(bytes(window[VR_MATRICES_OFF:VR_MATRICES_OFF + 108]),
-                         patcher.VR_MATRICES)
-        self.assertEqual(patcher.VR_MATRICES,
+        self.assertEqual(bytes(window[ORIENT_MATRICES_OFF:ORIENT_MATRICES_OFF + 108]),
+                         patcher.ORIENT_MATRICES)
+        self.assertEqual(patcher.ORIENT_MATRICES,
                          matrices.ORIENT_TO_MATRIX[1] + matrices.ORIENT_TO_MATRIX[2]
                          + matrices.ORIENT_TO_MATRIX[3])
 
     def test_window_ships_fresh_boot_state(self):
         """Latch and sentinel mirror bytes ship 0; the magic byte ships 0xA5."""
         patcher, code, entries, img, _ = self._build()
-        window = next(e for e in img.edits if e['offset'] == VR_STATE_IMG_OFF)['new']
-        self.assertEqual(window[VR_LATCH_OFF], 0)
-        self.assertEqual(window[VR_SENTINEL_OFF], 0)
-        self.assertEqual(window[VR_MAGIC_OFF], VR_MAGIC)
+        window = next(e for e in img.edits if e['offset'] == ORIENT_STATE_IMG_OFF)['new']
+        self.assertEqual(window[ORIENT_LATCH_OFF], 0)
+        self.assertEqual(window[ORIENT_SENTINEL_OFF], 0)
+        self.assertEqual(window[ORIENT_MAGIC_OFF], ORIENT_MAGIC)
         # Everything past the 121 B payload up to the magic byte stays zero
         # (window headroom), and the stock image bytes were zero there.
-        self.assertEqual(window[VR_SENTINEL_OFF + 1:VR_MAGIC_OFF], bytes(VR_MAGIC_OFF - VR_SENTINEL_OFF - 1))
+        self.assertEqual(window[ORIENT_SENTINEL_OFF + 1:ORIENT_MAGIC_OFF], bytes(ORIENT_MAGIC_OFF - ORIENT_SENTINEL_OFF - 1))
         stock = None
         from z8prores.package import Package
         if FIRMWARE.is_file():
             stock = Package(FIRMWARE.read_bytes()).eg
         if stock is not None:
-            self.assertEqual(stock[VR_STATE_IMG_OFF:VR_STATE_IMG_OFF + VR_STATE_SIZE],
-                             bytes(VR_STATE_SIZE))
+            self.assertEqual(stock[ORIENT_STATE_IMG_OFF:ORIENT_STATE_IMG_OFF + ORIENT_STATE_SIZE],
+                             bytes(ORIENT_STATE_SIZE))
 
 
 class EventsWindowTests(unittest.TestCase):
@@ -1099,7 +1099,7 @@ class EventsWindowTests(unittest.TestCase):
     patcher-constant fixed sub-window of the cave (the z8h265 MENU_AT form)
     instead of an organic in-unit slot behind .org padding.
 
-    VR_EVENTS_AT = 0x40A09000 (4K-aligned, stock zero, table 44x32 B with the
+    ORIENT_EVENTS_AT = 0x40A09000 (4K-aligned, stock zero, table 44x32 B with the
     0x3BB terminator).  This decouples unit code/pool growth from the frozen
     transition-pointer recipe rows: the unit stops at its own end, the table
     rides its own expect_zero image edit, and the only external bytes that
@@ -1108,7 +1108,7 @@ class EventsWindowTests(unittest.TestCase):
 
     def _build(self):
         from z8patch.shared import Strings
-        from z8vrotate import patcher
+        from z8videoorientation import patcher
         from z8patch import compiled
         from z8prores.package import Package
         if not FIRMWARE.is_file():
@@ -1117,7 +1117,7 @@ class EventsWindowTests(unittest.TestCase):
         if not compiler:
             self.skipTest('no clang for the aarch64 unit build')
         eg = Package(FIRMWARE.read_bytes()).eg
-        code, observed = compiled.compile_unit('vrotate', compiler)
+        code, observed = compiled.compile_unit('video-orientation', compiler)
         entries = {name: int(sym['va'], 16) for name, sym in observed['symbols'].items()}
         img, meta = patcher.build_main(eg, code, entries, Strings())
         return patcher, bytes(code), entries, img, meta
@@ -1127,49 +1127,49 @@ class EventsWindowTests(unittest.TestCase):
         table are stock zero; the unit stops short of the window."""
         from z8prores.package import Package
         patcher, code, _, _, meta = self._build()
-        self.assertEqual((patcher.VR_EVENTS_AT, patcher.VR_EVENTS_END),
-                         (VR_EVENTS_AT, VR_EVENTS_END))
-        self.assertEqual(VR_EVENTS_SIZE, 44 * 32)
-        self.assertEqual(VR_EVENTS_AT % 0x1000, 0)
-        self.assertTrue(CAVE_BASE < VR_EVENTS_AT and VR_EVENTS_END <= CAVE_LIMIT)
+        self.assertEqual((patcher.ORIENT_EVENTS_AT, patcher.ORIENT_EVENTS_END),
+                         (ORIENT_EVENTS_AT, ORIENT_EVENTS_END))
+        self.assertEqual(ORIENT_EVENTS_SIZE, 44 * 32)
+        self.assertEqual(ORIENT_EVENTS_AT % 0x1000, 0)
+        self.assertTrue(CAVE_BASE < ORIENT_EVENTS_AT and ORIENT_EVENTS_END <= CAVE_LIMIT)
         # The unit is pure code + pool and must stop before the window; the
         # gap between them stays stock zero in the built image.
-        self.assertLess(CAVE_BASE + len(code), VR_EVENTS_AT)
-        self.assertEqual(meta['events_window'], [hex(VR_EVENTS_AT), hex(VR_EVENTS_END)])
+        self.assertLess(CAVE_BASE + len(code), ORIENT_EVENTS_AT)
+        self.assertEqual(meta['events_window'], [hex(ORIENT_EVENTS_AT), hex(ORIENT_EVENTS_END)])
         if FIRMWARE.is_file():
             eg = Package(FIRMWARE.read_bytes()).eg
-            self.assertEqual(eg[VR_EVENTS_AT - EG_BASE:VR_EVENTS_END - EG_BASE],
-                             bytes(VR_EVENTS_SIZE))
-            self.assertEqual(eg[VR_EVENTS_END - EG_BASE:CAVE_LIMIT - EG_BASE],
-                             bytes(CAVE_LIMIT - VR_EVENTS_END))
+            self.assertEqual(eg[ORIENT_EVENTS_AT - EG_BASE:ORIENT_EVENTS_END - EG_BASE],
+                             bytes(ORIENT_EVENTS_SIZE))
+            self.assertEqual(eg[ORIENT_EVENTS_END - EG_BASE:CAVE_LIMIT - EG_BASE],
+                             bytes(CAVE_LIMIT - ORIENT_EVENTS_END))
 
     def test_events_table_rides_its_own_image_edit(self):
         """The 0x580-byte clone is a dedicated expect_zero edit at the fixed
         window, registered as the menu row table, and the cave gap plus tail
         stay zero in the built image."""
-        from z8vrotate import patcher
+        from z8videoorientation import patcher
         patcher, code, entries, img, meta = self._build()
-        events = next(e for e in img.edits if e['offset'] == VR_EVENTS_AT - EG_BASE)
-        self.assertEqual(len(events['new']), VR_EVENTS_SIZE)
+        events = next(e for e in img.edits if e['offset'] == ORIENT_EVENTS_AT - EG_BASE)
+        self.assertEqual(len(events['new']), ORIENT_EVENTS_SIZE)
         self.assertEqual(events['new'], patcher.row_events(
-            img.old, patcher.menu_row(img.old)[1], entries['vr_row_hook']))
-        self.assertEqual(meta['menu']['row_table'], hex(VR_EVENTS_AT))
+            img.old, patcher.menu_row(img.old)[1], entries['orient_row_hook']))
+        self.assertEqual(meta['menu']['row_table'], hex(ORIENT_EVENTS_AT))
         # Terminator record last and untouched; the three toggle actions are
-        # the only in-cave pointers (they name vr_row_hook code).
+        # the only in-cave pointers (they name orient_row_hook code).
         import struct as _struct
         self.assertEqual(_struct.unpack_from('<Q', events['new'], 32 * 43)[0], 0x3BB)
         hook_slots = [i for i in range(44)
                       if _struct.unpack_from('<Q', events['new'], 32 * i + 8)[0]
-                      == entries['vr_row_hook']]
+                      == entries['orient_row_hook']]
         self.assertEqual(len(hook_slots), 3)
         # Gap and tail zero in the new image.
-        gap = img.new[CAVE_BASE - EG_BASE + len(code):VR_EVENTS_AT - EG_BASE]
-        tail = img.new[VR_EVENTS_END - EG_BASE:CAVE_LIMIT - EG_BASE]
-        self.assertEqual(gap, bytes(VR_EVENTS_AT - CAVE_BASE - len(code)))
-        self.assertEqual(tail, bytes(CAVE_LIMIT - VR_EVENTS_END))
+        gap = img.new[CAVE_BASE - EG_BASE + len(code):ORIENT_EVENTS_AT - EG_BASE]
+        tail = img.new[ORIENT_EVENTS_END - EG_BASE:CAVE_LIMIT - EG_BASE]
+        self.assertEqual(gap, bytes(ORIENT_EVENTS_AT - CAVE_BASE - len(code)))
+        self.assertEqual(tail, bytes(CAVE_LIMIT - ORIENT_EVENTS_END))
 
     def test_emit_region_pointer_targets_the_events_window(self):
-        """The shared transition-pointer emit names VR_EVENTS_AT (the one
+        """The shared transition-pointer emit names ORIENT_EVENTS_AT (the one
         external frozen row that carries the table address)."""
         import struct as _struct
         import features
@@ -1185,11 +1185,11 @@ class EventsWindowTests(unittest.TestCase):
                                              'source', check_recipe=False)
         items = [int(i, 16) for i in detail['menu']['items']]
         at = VIDEO_EVENTS - EG_BASE + 8 * items.index(0x315B)
-        self.assertEqual(_struct.unpack_from('<Q', img.new, at)[0], VR_EVENTS_AT)
+        self.assertEqual(_struct.unpack_from('<Q', img.new, at)[0], ORIENT_EVENTS_AT)
 
 
 class OldCombinationFreezeTests(unittest.TestCase):
-    """The 15 non-vrotate combinations keep their frozen recipes byte-exact.
+    """The 15 non-video-orientation combinations keep their frozen recipes byte-exact.
 
     The eight selections that also contain photo-tools cannot build on this
     machine (the Apple-clang-reviewed precapture/pixelshift units do not
@@ -1221,13 +1221,13 @@ class OldCombinationFreezeTests(unittest.TestCase):
 
 
 class ReservationCensusTests(unittest.TestCase):
-    """The text-gap reservation census: the vrotate cave must be disjoint
+    """The text-gap reservation census: the video-orientation cave must be disjoint
     from every other feature's reserved window.
 
     Both former cave collisions (0x40A20000 with the quality icon PNG area,
     0x40A12000 with the H.265 menu-data area) were patcher-level reservations
     invisible to any single registry.  This census hardcodes the windows as
-    documented by their owning modules and asserts the vrotate reservation is
+    documented by their owning modules and asserts the video-orientation reservation is
     disjoint from each, so a third collision of the same class fails loudly
     here -- before any build or recipe freeze.
     """
@@ -1253,35 +1253,35 @@ class ReservationCensusTests(unittest.TestCase):
         (0x40B08000, 0x40B10000, 'log private state (loader floor region beyond the unit)'),
     )
 
-    def test_vrotate_cave_disjoint_from_reservation_census(self):
-        from z8vrotate import patcher
-        cave = (patcher.CODE_AT, patcher.CODE_END, 'vrotate unit (z8vrotate/patcher.py CODE_AT/CODE_END)')
+    def test_orientation_cave_disjoint_from_reservation_census(self):
+        from z8videoorientation import patcher
+        cave = (patcher.CODE_AT, patcher.CODE_END, 'video-orientation unit (z8videoorientation/patcher.py CODE_AT/CODE_END)')
         for start, end, owner in self.CENSUS:
             with self.subTest(owner=owner.split(' (')[0]):
                 self.assertTrue(cave[1] <= start or end <= cave[0],
-                                f'vrotate cave {cave[0]:#x}-{cave[1]:#x} overlaps {owner}')
+                                f'video-orientation cave {cave[0]:#x}-{cave[1]:#x} overlaps {owner}')
 
-    def test_vrotate_cave_disjoint_from_other_unit_caves(self):
-        from z8vrotate import patcher
+    def test_orientation_cave_disjoint_from_other_unit_caves(self):
+        from z8videoorientation import patcher
         from z8patch.compiled import SPECS
         for name, spec in SPECS.items():
-            if 'asm_base' not in spec or name == 'vrotate':
+            if 'asm_base' not in spec or name == 'video-orientation':
                 continue
             base, limit = spec['asm_base'], spec['limit']
             with self.subTest(unit=name):
                 self.assertTrue(patcher.CODE_END <= base or limit <= patcher.CODE_AT,
-                                f'vrotate cave overlaps SPECS unit {name} {base:#x}-{limit:#x}')
+                                f'video-orientation cave overlaps SPECS unit {name} {base:#x}-{limit:#x}')
 
 
 class IntegrationTests(unittest.TestCase):
     """End-to-end composition of the video-orientation feature group.
 
-    Full features.compose of the vrotate-only selection in source mode:
+    Full features.compose of the video-orientation-only selection in source mode:
     the five-group FEATURES tuple, the shared five-slot CONFIG with mask 8,
     the 0x315B row inserted immediately before the image-area row, the
     state window bytes (constants, zero latch/sentinel, 0xA5 magic) in the
     boot-copied data mirror segment, and the loader boundary covering the
-    vrotate cave.  Needs the stock firmware fixture and an aarch64 clang;
+    video-orientation cave.  Needs the stock firmware fixture and an aarch64 clang;
     skipped otherwise like the other build legs.
     """
 
@@ -1297,9 +1297,9 @@ class IntegrationTests(unittest.TestCase):
         return features.compose(eg, ['video-orientation'], compiler, 'source',
                                 check_recipe=check_recipe)
 
-    def test_vrotate_only_composition(self):
+    def test_orientation_only_composition(self):
         import struct
-        from z8vrotate import patcher
+        from z8videoorientation import patcher
         img, detail, rows = self._compose(check_recipe=False)
         self.assertEqual(detail['menu']['mask'], 8)
         self.assertEqual(detail['menu']['count'], 45)
@@ -1311,55 +1311,55 @@ class IntegrationTests(unittest.TestCase):
         self.assertEqual(len(config['new']), 48)   # five callback slots
         slots = struct.unpack_from('<5Q', config['new'], 8)
         self.assertEqual(slots[:4], (0, 0, 0, 0))
-        refresh = int(detail['menu']['callbacks']['vrotate'], 16)
+        refresh = int(detail['menu']['callbacks']['video-orientation'], 16)
         self.assertEqual(slots[4], refresh)
         # Fresh-boot state fill: the five labels live in the data mirror
         # window; the sticky latch and first-boot sentinel mirror bytes
         # ship 0 and the window tail carries the 0xA5 magic byte.
-        window = next(e for e in img.edits if e['offset'] == VR_STATE_IMG_OFF)
-        self.assertEqual(len(window['new']), VR_STATE_SIZE)
-        self.assertEqual(window['new'][VR_MATRICES_OFF:VR_MATRICES_OFF + 108],
-                         patcher.VR_MATRICES)
-        self.assertEqual(struct.unpack_from('<I', window['new'], VR_THRESHOLD_OFF)[0],
+        window = next(e for e in img.edits if e['offset'] == ORIENT_STATE_IMG_OFF)
+        self.assertEqual(len(window['new']), ORIENT_STATE_SIZE)
+        self.assertEqual(window['new'][ORIENT_MATRICES_OFF:ORIENT_MATRICES_OFF + 108],
+                         patcher.ORIENT_MATRICES)
+        self.assertEqual(struct.unpack_from('<I', window['new'], ORIENT_THRESHOLD_OFF)[0],
                          patcher.THRESHOLD_BITS)
-        self.assertEqual(window['new'][VR_AXIS_CODES_OFF:VR_AXIS_CODES_OFF + 6],
+        self.assertEqual(window['new'][ORIENT_AXIS_CODES_OFF:ORIENT_AXIS_CODES_OFF + 6],
                          patcher.AXIS_CODES)
-        self.assertEqual(window['new'][VR_LATCH_OFF], 0)
-        self.assertEqual(window['new'][VR_SENTINEL_OFF], 0)
-        self.assertEqual(window['new'][VR_MAGIC_OFF], VR_MAGIC)
-        entries = detail['vrotate']['entries']
-        for name in ('vr_sentinel', 'vr_latch'):
+        self.assertEqual(window['new'][ORIENT_LATCH_OFF], 0)
+        self.assertEqual(window['new'][ORIENT_SENTINEL_OFF], 0)
+        self.assertEqual(window['new'][ORIENT_MAGIC_OFF], ORIENT_MAGIC)
+        entries = detail['video-orientation']['entries']
+        for name in ('orient_sentinel', 'orient_latch'):
             self.assertNotIn(name, entries, name)
-        self.assertEqual(detail['vrotate']['state_window'],
-                         [hex(VR_STATE_VA), hex(VR_STATE_END)])
+        self.assertEqual(detail['video-orientation']['state_window'],
+                         [hex(ORIENT_STATE_VA), hex(ORIENT_STATE_END)])
         # The row-events clone rides its own edit at the fixed events
         # sub-window and is absent from the unit symbols.
-        events = next(e for e in img.edits if e['offset'] == VR_EVENTS_AT - EG_BASE)
-        self.assertEqual(len(events['new']), VR_EVENTS_SIZE)
-        self.assertNotIn('vr_row_events', entries)
-        self.assertEqual(detail['vrotate']['events_window'],
-                         [hex(VR_EVENTS_AT), hex(VR_EVENTS_END)])
-        self.assertEqual(detail['vrotate']['menu']['row_table'], hex(VR_EVENTS_AT))
-        self.assertEqual(detail['vrotate']['state'],
-                         dict(matrices=hex(VR_STATE_VA + VR_MATRICES_OFF),
-                              threshold=hex(VR_STATE_VA + VR_THRESHOLD_OFF),
-                              axis_codes=hex(VR_STATE_VA + VR_AXIS_CODES_OFF),
-                              latch=hex(VR_STATE_VA + VR_LATCH_OFF),
-                              sentinel=hex(VR_STATE_VA + VR_SENTINEL_OFF),
+        events = next(e for e in img.edits if e['offset'] == ORIENT_EVENTS_AT - EG_BASE)
+        self.assertEqual(len(events['new']), ORIENT_EVENTS_SIZE)
+        self.assertNotIn('orient_row_events', entries)
+        self.assertEqual(detail['video-orientation']['events_window'],
+                         [hex(ORIENT_EVENTS_AT), hex(ORIENT_EVENTS_END)])
+        self.assertEqual(detail['video-orientation']['menu']['row_table'], hex(ORIENT_EVENTS_AT))
+        self.assertEqual(detail['video-orientation']['state'],
+                         dict(matrices=hex(ORIENT_STATE_VA + ORIENT_MATRICES_OFF),
+                              threshold=hex(ORIENT_STATE_VA + ORIENT_THRESHOLD_OFF),
+                              axis_codes=hex(ORIENT_STATE_VA + ORIENT_AXIS_CODES_OFF),
+                              latch=hex(ORIENT_STATE_VA + ORIENT_LATCH_OFF),
+                              sentinel=hex(ORIENT_STATE_VA + ORIENT_SENTINEL_OFF),
                               magic='0xa5@+0xff'))
         loader_end = int(detail['loader']['end'], 16)
-        self.assertGreaterEqual(loader_end, 0x40A10000)   # covers the vrotate cave
+        self.assertGreaterEqual(loader_end, 0x40A10000)   # covers the video-orientation cave
         self.assertEqual(loader_end % 4096, 0)
         self.assertEqual(detail['strings']['entries'], 3227)
-        self.assertIn('vrotate', detail['strings']['features'])
+        self.assertIn('video-orientation', detail['strings']['features'])
         # The two gated stock hook sites are part of the composition.
         purposes = [r['purpose'] for r in rows]
         self.assertTrue(any('movie tkhd matrix copy' in p for p in purposes))
         self.assertTrue(any('record file open trampoline' in p for p in purposes))
         self.assertTrue(any('movie add-track entry' in p for p in purposes))
 
-    def test_vrotate_recipe_frozen(self):
-        """The vrotate-only composition matches the frozen recipe."""
+    def test_orientation_recipe_frozen(self):
+        """The video-orientation-only composition matches the frozen recipe."""
         _, _, rows = self._compose(check_recipe=True)
         self.assertGreater(len(rows), 0)
 
@@ -1399,7 +1399,7 @@ class BuildTimeGuardTests(unittest.TestCase):
     """Build-time guards: the three architecture
     iron rules become standing assertions that refuse the build.
 
-    * A -- the vrotate unit store census: every data write in the assembled
+    * A -- the video-orientation unit store census: every data write in the assembled
       unit must resolve its base register to a non-cave target (the cave is
       read-only at EL0; a store into it is the original crash class).
     * C -- window-fact doctored negatives: verify_contract must reject a
@@ -1596,19 +1596,19 @@ class BuildTimeGuardTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'cannot resolve'):
             assert_no_cave_store_targets(live_in, self.CAVE_WINDOW[0], self.CAVE_WINDOW)
 
-    def test_store_census_passes_the_real_vrotate_unit(self):
-        """The shipped vrotate unit (664 B pure code + pool) passes the
+    def test_store_census_passes_the_real_orientation_unit(self):
+        """The shipped video-orientation unit (664 B pure code + pool) passes the
         census: its data stores ride state-window/DS-record literals and
         the stack, plus exactly ONE whitelisted store -- the sentinel arm,
         whose literal def is separated from the store by a forward cbnz
         that skips past the whole init series (dominance proof in the
         whitelist entry)."""
         from z8patch import compiled
-        from z8vrotate import patcher
+        from z8videoorientation import patcher
         compiler = _clang()
         if not compiler:
             self.skipTest('no clang for the aarch64 unit build')
-        code, _ = compiled.compile_unit('vrotate', compiler)
+        code, _ = compiled.compile_unit('video-orientation', compiler)
         self.assertEqual(sorted(patcher.STORE_TARGET_WHITELIST), [0x40A08160])
         self.assertIn('state-window sentinel',
                       patcher.STORE_TARGET_WHITELIST[0x40A08160])
@@ -1754,22 +1754,22 @@ class BuildTimeGuardTests(unittest.TestCase):
         registered entry symbol refuses the build; the same qword naming a
         registered entry passes."""
         from z8patch.contract import assert_no_cross_region_pointers
-        placements = [('vrotate', 0x40A08000, 0x40A08298,
-                       {'vr_row_hook': 0x40A08070})]
+        placements = [('video-orientation', 0x40A08000, 0x40A08298,
+                       {'orient_row_hook': 0x40A08070})]
         rows = [dict(offset=0x40A09000 - EG_BASE, end=0x40A09008 - EG_BASE,
                      new=struct.pack('<Q', 0x40A08074))]     # unit interior, not an entry
-        with self.assertRaisesRegex(ValueError, '0x40a09000.*0x40a08074.*vrotate'):
+        with self.assertRaisesRegex(ValueError, '0x40a09000.*0x40a08074.*video-orientation'):
             assert_no_cross_region_pointers(rows, placements)
         good = [dict(offset=0x40A09000 - EG_BASE, end=0x40A09008 - EG_BASE,
-                     new=struct.pack('<Q', 0x40A08070))]     # vr_row_hook
+                     new=struct.pack('<Q', 0x40A08070))]     # orient_row_hook
         assert_no_cross_region_pointers(good, placements)
 
     def test_cross_region_pointer_skips_unit_span_bytes(self):
         """Qwords inside a unit's own span are the unit's business (internal
         self-references); only emit-region bytes outside unit spans sweep."""
         from z8patch.contract import assert_no_cross_region_pointers
-        placements = [('vrotate', 0x40A08000, 0x40A08298,
-                       {'vr_row_hook': 0x40A08070})]
+        placements = [('video-orientation', 0x40A08000, 0x40A08298,
+                       {'orient_row_hook': 0x40A08070})]
         rows = [dict(offset=0x40A08000 - EG_BASE, end=0x40A08008 - EG_BASE,
                      new=struct.pack('<Q', 0x40A08074))]     # inside the unit span
         assert_no_cross_region_pointers(rows, placements)
@@ -1783,18 +1783,18 @@ class BuildTimeGuardTests(unittest.TestCase):
         from z8patch import compiled
         from z8patch.contract import (C_UNIT_ENTRY_CONTRACT, asm_global_declarations,
                                       registered_unit_entries)
-        sources = compiled.unit_sources('vrotate')
+        sources = compiled.unit_sources('video-orientation')
         self.assertTrue(all(p.name.endswith('.S') for p in sources))
         declared = asm_global_declarations(sources)
-        self.assertEqual(sorted(n for n in declared if n.startswith('vr_')),
-                         ['vr_latch_hook', 'vr_matrix_hook', 'vr_refresh_hook',
-                          'vr_row_hook', 'vr_track_hook'])
+        self.assertEqual(sorted(n for n in declared if n.startswith('orient_')),
+                         ['orient_latch_hook', 'orient_matrix_hook', 'orient_refresh_hook',
+                          'orient_row_hook', 'orient_track_hook'])
         units = json.loads((ROOT / 'resources' / 'compiled.json').read_text())['units']
         # For every asm unit the registration is EXACTLY the .global
         # declarations intersected with the frozen symbol table, in both
         # directions.  A registration weakened to the full symbol table
         # would let the pointer sweep pass emit-region qwords naming unit-internal data
-        # labels (vr_classify, tier_nominals and friends), and this
+        # labels (orient_classify, tier_nominals and friends), and this
         # equality goes red.
         asm_units = sorted(set(units) - set(C_UNIT_ENTRY_CONTRACT))
         for name in asm_units:
@@ -1833,7 +1833,7 @@ class BuildTimeGuardTests(unittest.TestCase):
         img, _, _ = compose(old, ['video-orientation'], compiler, 'source',
                             check_recipe=False)
         doctored = bytearray(img.new)
-        doctored[VR_STATE_IMG_OFF + VR_MAGIC_OFF] ^= 1
+        doctored[ORIENT_STATE_IMG_OFF + ORIENT_MAGIC_OFF] ^= 1
         with self.assertRaisesRegex(ValueError, 'state window magic byte'):
             verify_contract(old, bytes(doctored), ['video-orientation'])
 
@@ -1853,7 +1853,7 @@ class BuildTimeGuardTests(unittest.TestCase):
                             check_recipe=False)
         doctored = bytearray(img.new)
         unit = doctored[CAVE_BASE - EG_BASE:CAVE_BASE - EG_BASE + 664]
-        needle = struct.pack('<Q', VR_STATE_VA)
+        needle = struct.pack('<Q', ORIENT_STATE_VA)
         at = bytes(unit).find(needle)
         self.assertGreaterEqual(at, 0)
         doctored[CAVE_BASE - EG_BASE + at:CAVE_BASE - EG_BASE + at + 8] = \
@@ -1869,7 +1869,7 @@ class BuildTimeGuardTests(unittest.TestCase):
         not optional decoration beside the pipeline."""
         import tempfile
         import features
-        import z8vrotate.patcher as vr_patcher
+        import z8videoorientation.patcher as orient_patcher
         from z8prores.package import Package
         from features import compose
         if not FIRMWARE.is_file():
@@ -1896,7 +1896,7 @@ class BuildTimeGuardTests(unittest.TestCase):
         # Pointer-sweep leg: an injected emit-region edit at a stock-zero cave-tail
         # address naming a unit interior non-entry address must make the
         # full compose path raise (the sweep mount runs over img.edits).
-        real_build = vr_patcher.build_main
+        real_build = orient_patcher.build_main
 
         def doctored_build(eg, code, entries, context):
             part, detail = real_build(eg, code, entries, context)
@@ -1904,41 +1904,41 @@ class BuildTimeGuardTests(unittest.TestCase):
                      'test-only doctored pointer', expect_zero=True)
             return part, detail
 
-        vr_patcher.build_main = doctored_build
+        orient_patcher.build_main = doctored_build
         try:
             with self.assertRaisesRegex(ValueError, 'not a registered entry'):
                 compose(old, ['video-orientation'], compiler, 'source',
                         check_recipe=False)
         finally:
-            vr_patcher.build_main = real_build
-        # Store-census leg: the vrotate build must run the store census on the
+            orient_patcher.build_main = real_build
+        # Store-census leg: the video-orientation build must run the store census on the
         # assembled unit with the cave window (call recording; a removed
-        # mount in z8vrotate.patcher leaves the list empty).
+        # mount in z8videoorientation.patcher leaves the list empty).
         calls = []
-        real_census = vr_patcher.assert_no_cave_store_targets
+        real_census = orient_patcher.assert_no_cave_store_targets
 
         def counting_census(code, base, window, whitelist=None):
             calls.append((base, window))
             return real_census(code, base, window, whitelist)
 
-        vr_patcher.assert_no_cave_store_targets = counting_census
+        orient_patcher.assert_no_cave_store_targets = counting_census
         try:
             compose(old, ['video-orientation'], compiler, 'source',
                     check_recipe=False)
             self.assertEqual(calls, [(CAVE_BASE, (CAVE_BASE, CAVE_LIMIT))])
         finally:
-            vr_patcher.assert_no_cave_store_targets = real_census
+            orient_patcher.assert_no_cave_store_targets = real_census
 
 
 class DataMirrorReservationTests(unittest.TestCase):
-    """Window registry: the two vrotate windows registered in the patcher-level
+    """Window registry: the two video-orientation windows registered in the patcher-level
     reservation census (cave dimension and data-mirror segment dimension).
 
     The data-mirror table transcribes the documented window census
     (32 documented module windows in EG [0x4B13000,0x4DC0000); the t1
     prose counted 33 but its own table holds 32 -- 28 rows, four of them
-    dual-entry) -- the vrotate state window must be disjoint from all of
-    them, and both vrotate windows must be stock zero at 8 B and 4 B
+    dual-entry) -- the video-orientation state window must be disjoint from all of
+    them, and both video-orientation windows must be stock zero at 8 B and 4 B
     granularity (dual caliber).
     """
 
@@ -1979,21 +1979,21 @@ class DataMirrorReservationTests(unittest.TestCase):
         (0x4D2FFCC, 0x4D2FFD0, 'precapture config word 2 (z8precapture/patcher.py)'),
     )
 
-    def test_vrotate_state_window_disjoint_and_stock_zero(self):
+    def test_orientation_state_window_disjoint_and_stock_zero(self):
         """The state window is inside the boot-copied data mirror segment,
         disjoint from every documented module window, and stock zero at both
         granularities; the patcher facts carry the same window."""
         from z8patch.image import DATA_OFF, DATA_END
-        from z8vrotate import patcher
-        self.assertEqual(patcher.VR_STATE_IMG_OFF, 0x4B25800)
-        window = (patcher.VR_STATE_IMG_OFF,
-                  patcher.VR_STATE_IMG_OFF + patcher.VR_STATE_SIZE)
+        from z8videoorientation import patcher
+        self.assertEqual(patcher.ORIENT_STATE_IMG_OFF, 0x4B25800)
+        window = (patcher.ORIENT_STATE_IMG_OFF,
+                  patcher.ORIENT_STATE_IMG_OFF + patcher.ORIENT_STATE_SIZE)
         self.assertTrue(DATA_OFF <= window[0] and window[1] <= DATA_END)
         for start, end, owner in self.DATA_MIRROR_CENSUS:
             with self.subTest(owner=owner.split(' (')[0]):
                 self.assertTrue(window[1] <= start or end <= window[0],
                                 f'state window {window[0]:#x}-{window[1]:#x} overlaps {owner}')
-        self.assertEqual(patcher.VR_STATE_VA + VR_STATE_SIZE, VR_STATE_END)
+        self.assertEqual(patcher.ORIENT_STATE_VA + ORIENT_STATE_SIZE, ORIENT_STATE_END)
         if FIRMWARE.is_file():
             from z8prores.package import Package
             eg = Package(FIRMWARE.read_bytes()).eg
@@ -2004,27 +2004,27 @@ class DataMirrorReservationTests(unittest.TestCase):
                              (0,) * (len(span) // 4))
 
     def test_events_sub_window_registered_and_stock_zero(self):
-        """The row-events fixed sub-window sits inside the vrotate cave
+        """The row-events fixed sub-window sits inside the video-orientation cave
         reservation (a sub-window of it, so disjointness with other modules
         follows from the cave census row), is stock zero at both
         granularities, and the patcher facts carry the same window."""
-        from z8vrotate import patcher
-        self.assertEqual((patcher.VR_EVENTS_AT, patcher.VR_EVENTS_END),
-                         (VR_EVENTS_AT, VR_EVENTS_END))
-        self.assertTrue(patcher.CODE_AT < VR_EVENTS_AT
-                        and VR_EVENTS_END <= patcher.CODE_END)
+        from z8videoorientation import patcher
+        self.assertEqual((patcher.ORIENT_EVENTS_AT, patcher.ORIENT_EVENTS_END),
+                         (ORIENT_EVENTS_AT, ORIENT_EVENTS_END))
+        self.assertTrue(patcher.CODE_AT < ORIENT_EVENTS_AT
+                        and ORIENT_EVENTS_END <= patcher.CODE_END)
         # The sub-window must not eat into the unit's own capacity region:
         # it starts past every emitted unit end observed so far.
-        self.assertGreaterEqual(VR_EVENTS_AT, patcher.CODE_AT + 664)
+        self.assertGreaterEqual(ORIENT_EVENTS_AT, patcher.CODE_AT + 664)
         if FIRMWARE.is_file():
             from z8prores.package import Package
             eg = Package(FIRMWARE.read_bytes()).eg
-            span = eg[VR_EVENTS_AT - EG_BASE:VR_EVENTS_END - EG_BASE]
+            span = eg[ORIENT_EVENTS_AT - EG_BASE:ORIENT_EVENTS_END - EG_BASE]
             self.assertEqual(struct.unpack(f'<{len(span) // 8}Q', span),
                              (0,) * (len(span) // 8))
             self.assertEqual(struct.unpack(f'<{len(span) // 4}I', span),
                              (0,) * (len(span) // 4))
-            tail = eg[VR_EVENTS_END - EG_BASE:patcher.CODE_END - EG_BASE]
+            tail = eg[ORIENT_EVENTS_END - EG_BASE:patcher.CODE_END - EG_BASE]
             self.assertEqual(tail, bytes(len(tail)))
 
 

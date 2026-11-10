@@ -8345,14 +8345,14 @@
     {
       "offset": "0x8a8000",
       "bytes": 704,
-      "purpose": "vrotate: vrotate unit: matrix hook, latch hook, classifier, row hooks, default-on init",
+      "purpose": "video-orientation: video-orientation unit: matrix hook, latch hook, classifier, row hooks, default-on init",
       "old_sha256": "2dd23156fbb26642d6f2194611e536f77213eb212f6a23654f9d5319a82ac556",
       "new_sha256": "62964a530e9d6b37267f242008be195315258ddb6ff732ad4211db5dc139e868"
     },
     {
       "offset": "0x8a9000",
       "bytes": 1408,
-      "purpose": "vrotate: vrotate row transition table: 44-record clone of the 0x2FC0 table, three toggle actions -> vr_row_hook (fixed cave sub-window)",
+      "purpose": "video-orientation: video-orientation row transition table: 44-record clone of the 0x2FC0 table, three toggle actions -> orient_row_hook (fixed cave sub-window)",
       "old_sha256": "bffeeb2d12ba6108806a508082dee2f5ce23d1edeaf81acd4feb8c0d08038978",
       "new_sha256": "9bf028cf08fa5c9b2e1c5a99194782f4a8a5c0a0b6cbee76cc776980d2029766"
     },
@@ -8387,21 +8387,21 @@
     {
       "offset": "0xb84294",
       "bytes": 4,
-      "purpose": "vrotate: movie add-track entry: str x28,[sp,#-0x60]! -> b vr_track_hook (pose refresh at every writer start)",
+      "purpose": "video-orientation: movie add-track entry: str x28,[sp,#-0x60]! -> b orient_track_hook (pose refresh at every writer start)",
       "old_sha256": "913e0f97c4a97c797946778a649d06f2f047a321f0a4d4406de09bf7ff03bf7a",
       "new_sha256": "b85db17e594430458acabc4a16e6b9d08aa071e9cc513e28f0f2d4738dccacd6"
     },
     {
       "offset": "0xb8fd60",
       "bytes": 4,
-      "purpose": "vrotate: movie tkhd matrix copy: bl 0x40ce3fdc -> bl vr_matrix_hook",
+      "purpose": "video-orientation: movie tkhd matrix copy: bl 0x40ce3fdc -> bl orient_matrix_hook",
       "old_sha256": "0b9820ba8ccc1c20e79a9182b2715727e9f2cf4826859bc345ad4c929b3e5a0e",
       "new_sha256": "c33fba0c8c282792cd70d59081f61ed4818b7dcd8a7885905150fd9a5cd97725"
     },
     {
       "offset": "0xbb7728",
       "bytes": 8,
-      "purpose": "vrotate: record file open trampoline: mov/movk x8 pair -> b vr_latch_hook + nop",
+      "purpose": "video-orientation: record file open trampoline: mov/movk x8 pair -> b orient_latch_hook + nop",
       "old_sha256": "459ccc860a92a2367b7490e670e621913d16b9f700f4536b6b26f0118ee5bf00",
       "new_sha256": "2a3b1b5061ec9009fcf074cffabe25496abb054fd37a9ab7afdf614e29d27d9b"
     },
@@ -8674,7 +8674,7 @@
     {
       "offset": "0x4b25800",
       "bytes": 256,
-      "purpose": "vrotate: vrotate state window: display matrices, threshold, axis codes, sticky latch, first-boot sentinel and magic byte (boot-copied data mirror segment)",
+      "purpose": "video-orientation: video-orientation state window: display matrices, threshold, axis codes, sticky latch, first-boot sentinel and magic byte (boot-copied data mirror segment)",
       "old_sha256": "5341e6b2646979a70e57653007a1f310169421ec9bdd9f1a5648f75ade005af1",
       "new_sha256": "24caed36d96e2459bd5b68138e05459a2e9efbbc9ddf2df89ddc6a0815a15416"
     },

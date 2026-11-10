@@ -4,7 +4,7 @@
  * CONFIG after four slots; the fifth slot then reads the stock zero and the
  * cbz below skips it, so their recipes stay byte-identical.
  * Copy only the selected extra bytes: DS 120B +1/+3, 122C/1238 +1 and 1257 +1
- * as reviewed, plus -- video-orientation only -- 1257 +2, the vrotate
+ * as reviewed, plus -- video-orientation only -- 1257 +2, the video-orientation
  * per-bank orientation byte (a full-image writer scan: stock only manages +0, and the
  * shipped tier byte at 1257 +1 rides the same record).
  * Each row callback omits its old call to the native refresh. Call native once here.
@@ -46,7 +46,7 @@ shared_bank:
     ldrb w9, [x8, #1]        /* video-quality: H.265 tier */
     strb w9, [x10, #1]
 5:  tbz w12, #3, 9f
-    ldrb w9, [x8, #2]        /* video-orientation: vrotate value */
+    ldrb w9, [x8, #2]        /* video-orientation: video-orientation value */
     strb w9, [x10, #2]
     b 9f
 8:  ldrb w9, [x8, #1]

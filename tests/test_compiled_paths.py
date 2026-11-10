@@ -15,8 +15,8 @@ sys.path.insert(0, str(ROOT))
 from z8patch import compiled
 from tools.check_release import TAG
 
-UNITS = ('precapture','pixelshift','pixelshift-af','opengate','anamorphic','h265','log','quality','shared','vrotate')
-FOLDERS = {'precapture':'z8precapture/', 'pixelshift':'z8pixelshift/src/', 'pixelshift-af':'z8pixelshift/src/', 'opengate':'z8opengate/src/', 'anamorphic':'z8anamorphic/', 'h265':'z8h265/', 'log':'z8log/', 'quality':'z8quality/', 'shared':'z8patch/src/', 'vrotate':'z8vrotate/'}
+UNITS = ('precapture','pixelshift','pixelshift-af','opengate','anamorphic','h265','log','quality','shared','video-orientation')
+FOLDERS = {'precapture':'z8precapture/', 'pixelshift':'z8pixelshift/src/', 'pixelshift-af':'z8pixelshift/src/', 'opengate':'z8opengate/src/', 'anamorphic':'z8anamorphic/', 'h265':'z8h265/', 'log':'z8log/', 'quality':'z8quality/', 'shared':'z8patch/src/', 'video-orientation':'z8videoorientation/'}
 
 
 class WindowsPathView:
@@ -66,8 +66,8 @@ class CompiledPathTests(unittest.TestCase):
             'z8quality/src/hooks.S': b'/* star fixture */\n',
             'z8quality/icons/fixture.png': b'fake png fixture\n',
             'z8patch/src/shared.S': b'/* shared fixture */\n',
-            'z8vrotate/src/hooks.S': b'/* orientation fixture */\n',
-            'z8vrotate/patcher.py': b'# orientation patcher fixture\n',
+            'z8videoorientation/src/hooks.S': b'/* orientation fixture */\n',
+            'z8videoorientation/patcher.py': b'# orientation patcher fixture\n',
         }
         for name, raw in self.sources.items():
             target = self.root / name

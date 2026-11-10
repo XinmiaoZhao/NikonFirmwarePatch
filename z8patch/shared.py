@@ -4,15 +4,15 @@ from z8prores.package import require
 from z8patch.image import BASE, branch
 
 STRING_IDS = {'opengate-nraw': (3137,5), 'pixelshift': (3142,5), 'prores': (3147,6),
-              'anamorphic': (3153,8), 'h265': (3161,56), 'log': (3217,8), 'vrotate': (3225,1)}
+              'anamorphic': (3153,8), 'h265': (3161,56), 'log': (3217,8), 'video-orientation': (3225,1)}
 TEXT, TABLES, TABLES_END = 0x40A50000, 0x40A70000, 0x40AF0000
-# Highest allocated id + 1.  Compositions without vrotate keep the
+# Highest allocated id + 1.  Compositions without video-orientation keep the
 # reviewed four-group string-table length (their unused ids stay empty
 # strings, exactly as before), so their recipe bytes are unchanged until
-# the vrotate release freezes the regenerated recipes.
+# the video-orientation release freezes the regenerated recipes.
 STRING_END = max(first + count for first, count in STRING_IDS.values())
 LEGACY_END = max(first + count for name, (first, count) in STRING_IDS.items()
-                 if name != 'vrotate')
+                 if name != 'video-orientation')
 BANK, CONFIG = 0x40980000, 0x40980F00
 ROWS, EVENTS, PAGE, CALLBACK = 0x3AA4758, 0x3AA4EE8, 0x4BCC2B0, 0x4BF3A80
 VIDEO_ROWS, VIDEO_EVENTS = 0x40A30000, 0x40A31000
@@ -32,7 +32,7 @@ class Strings:
     def emit(self,img):
         if not self.groups:
             return {}
-        end=STRING_END if 'vrotate' in self.groups else LEGACY_END
+        end=STRING_END if 'video-orientation' in self.groups else LEGACY_END
         text,tables=bytearray(),bytearray()
         for language in range(36):
             table=img.u64(0x311C5A0+8*language)-BASE
@@ -104,7 +104,7 @@ class VideoMenu:
             order.remove(0x311B);pos=order.index(0x3118)+1
             order[pos:pos]=[0x311B,0x315A]
         if 'video-orientation' in chosen:
-            require(0x315B in self.replacements and callbacks.get('vrotate'),'vrotate row or refresh callback missing')
+            require(0x315B in self.replacements and callbacks.get('video-orientation'),'video-orientation row or refresh callback missing')
             order.insert(order.index(0x30A6),0x315B)   # before the image-area row
         require(set(order)==set(records) and len(order)==len(set(order)),'Video menu loses or duplicates an item')
         rows=b''.join(records[i][0] for i in order)
@@ -123,8 +123,8 @@ class VideoMenu:
         img.put(BANK-BASE,code,'shared bank and refresh code',expect_zero=True)
         # Row-callback slots at CONFIG+8: prores, h265, anamorphic, log, and --
         # only for video-orientation compositions, whose recipe freezes with
-        # the vrotate release -- the fifth vrotate slot at CONFIG+0x28.
-        slots=('prores','h265','anamorphic','log')+(('vrotate',) if 'video-orientation' in chosen else ())
+        # the video-orientation release -- the fifth video-orientation slot at CONFIG+0x28.
+        slots=('prores','h265','anamorphic','log')+(('video-orientation',) if 'video-orientation' in chosen else ())
         ptrs=[callbacks.get(k,0) for k in slots]
         img.put(CONFIG-BASE,struct.pack(f'<II{len(slots)}Q',mask,0,*ptrs),'shared feature mask and row callbacks',expect_zero=True)
         img.put(CALLBACK,struct.pack('<Q',entries['shared_refresh']),'shared video refresh dispatcher',expect=struct.pack('<Q',0x40572B2C))

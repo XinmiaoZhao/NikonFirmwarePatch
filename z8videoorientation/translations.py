@@ -1,4 +1,4 @@
-"""Frozen 36-language title table for the vrotate menu row.
+"""Frozen 36-language title table for the video-orientation menu row.
 
 The table is the user-confirmed verbatim baseline,
 recorded in the project's engineering notes as "用户确认的 36
@@ -22,7 +22,7 @@ confirmed baseline in the slots where the user's wording differs:
   видеото"), 33 (hr "videa") and 34 (ar الفيديو and no trailing RLM).
 
 Every glyph is drawn from the same language's own stock strings (ids 2458
-and 2214 among them); z8vrotate.patcher.strings() re-proves that against
+and 2214 among them); z8videoorientation.patcher.strings() re-proves that against
 the firmware at build time.
 """
 import hashlib

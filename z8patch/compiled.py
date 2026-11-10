@@ -26,7 +26,7 @@ SPECS.update({
     'h265':dict(source='z8h265/src/hooks.S', flags=['-target','aarch64-none-elf','-x','assembler-with-cpp'],asm_base=0x40A10000,limit=0x40A12000,folder='z8h265',asm_sources=('z8h265/src/hooks.S',)),
     'log':dict(source='z8log/src/hooks.S', flags=['-target','aarch64-none-elf','-x','assembler-with-cpp'],asm_base=0x40B00000,limit=0x40B08000,folder='z8log',asm_sources=('z8log/src/hooks.S',)),
     'quality':dict(source='z8quality/src/hooks.S', flags=['-target','aarch64-none-elf','-x','assembler-with-cpp'],asm_base=0x40A41000,limit=0x40A50000,folder='z8quality',asm_sources=('z8quality/src/hooks.S',)),
-    'vrotate':dict(source='z8vrotate/src/hooks.S', flags=['-target','aarch64-none-elf','-x','assembler-with-cpp'],asm_base=0x40A08000,limit=0x40A10000,folder='z8vrotate',asm_sources=('z8vrotate/src/hooks.S',)),
+    'video-orientation':dict(source='z8videoorientation/src/hooks.S', flags=['-target','aarch64-none-elf','-x','assembler-with-cpp'],asm_base=0x40A08000,limit=0x40A10000,folder='z8videoorientation',asm_sources=('z8videoorientation/src/hooks.S',)),
     'shared':dict(source='z8patch/src/shared.S', flags=['-target','aarch64-none-elf','-x','assembler-with-cpp'],asm_base=0x40980000,limit=0x40980F00,folder='z8patch/src',asm_sources=('z8patch/src/shared.S',)),
 })
 
@@ -47,8 +47,8 @@ def compile_unit(name, compiler='clang'):
     if name=='log':
         from z8log.patcher import asm_defines
         spec['flags']=[*spec['flags'],*[f'-D{k}={v:#x}' for k,v in sorted(asm_defines().items())]]
-    if name=='vrotate':
-        from z8vrotate.patcher import asm_defines
+    if name=='video-orientation':
+        from z8videoorientation.patcher import asm_defines
         spec['flags']=[*spec['flags'],*[f'-D{k}={v:#x}' for k,v in sorted(asm_defines().items())]]
     with tempfile.TemporaryDirectory(prefix='nikon-patch-compile-') as folder:
         obj = Path(folder)/'patch.o'

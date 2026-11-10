@@ -122,12 +122,12 @@ def compose(eg, features, compiler='clang', code_source='prebuilt', *, check_rec
         part,detail['pixelshift']=build_main(eg,code,meta['symbols'],af,strings)
         merge('pixelshift',part)
     if 'video-orientation' in chosen:
-        from z8vrotate.patcher import build_main
-        code,entries=unit('vrotate')
-        part,detail['vrotate']=build_main(eg,code,entries,strings)
-        m=detail['vrotate']['menu']
+        from z8videoorientation.patcher import build_main
+        code,entries=unit('video-orientation')
+        part,detail['video-orientation']=build_main(eg,code,entries,strings)
+        m=detail['video-orientation']['menu']
         menu.add(int(m['item'],16),bytes.fromhex(m['row_hex']),int(m['row_table'],16))
-        merge('vrotate',part);callbacks['vrotate']=entries['vr_refresh_hook']
+        merge('video-orientation',part);callbacks['video-orientation']=entries['orient_refresh_hook']
     detail['strings']=strings.emit(img)
     if callbacks:
         code,entries=unit('shared')

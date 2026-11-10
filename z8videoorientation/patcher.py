@@ -1,18 +1,18 @@
-"""vrotate: pose-latched tkhd display matrices for movies.
+"""video-orientation: pose-latched tkhd display matrices for movies.
 
-Builds the hooks from z8vrotate/src/hooks.S into the stock EG:
+Builds the hooks from z8videoorientation/src/hooks.S into the stock EG:
 
 * 0x40cefd60: the single video-track tkhd matrix copy (`bl 0x40ce3fdc`)
-  becomes `bl vr_matrix_hook`; the hook redirects x1 to a cave matrix when
+  becomes `bl orient_matrix_hook`; the hook redirects x1 to a cave matrix when
   the sticky latch holds a valid pose code, otherwise passes x1 through
   (the latch is never read-and-cleared here -- every
   moov build of the take must see the same pose).
 * 0x40d17728: the recording-side file open marshaling trampoline entry
-  becomes `b vr_latch_hook` + nop; the main-movie write open (w1 == 1)
+  becomes `b orient_latch_hook` + nop; the main-movie write open (w1 == 1)
   classifies the gravity vector and refreshes the pose latch, and the
   session-boundary opens (w1 == 0 read-parse, w1 == 2 post-finalize udta
   patch) clear it, so the sticky pose never outlives the take.
-* 0x40ce4294: the stock add-track entry becomes `b vr_track_hook`;
+* 0x40ce4294: the stock add-track entry becomes `b orient_track_hook`;
   every movie writer -- including the 8-bit legacy pipeline's remux writer
   whose opens bypass the recording-side trampoline -- refreshes the pose
   at its track registration, so no deliverable can carry a previous take's
@@ -21,17 +21,17 @@ Builds the hooks from z8vrotate/src/hooks.S into the stock EG:
   36-language table in translations.py) cloned field-for-field from
   the stock attenuator row 0x2FC0, with its transition table cloned
   into the fixed cave sub-window and the three toggle
-  actions rerouted to vr_row_hook.
+  actions rerouted to orient_row_hook.
 * The row value is stored per movie shooting bank in byte +2 of the
   DS item 0x1257 record family (copy type 0, registered size 1 -- the
   same 4-byte slot whose +1 byte hosts the shipped H.265 tier constant).
   bank_records() re-pins the five record addresses from the stock bank
   tables and gates the build on them; the first-boot sentinel init
-  (vr_default_on in hooks.S, mirrored by default_on()) defaults every
+  (orient_default_on in hooks.S, mirrored by default_on()) defaults every
   bank to On.
 
 State-window migration: the five unit data
-labels (vr_matrices, vr_axis_codes, vr_threshold, vr_latch, vr_sentinel)
+labels (orient_matrices, orient_axis_codes, orient_threshold, orient_latch, orient_sentinel)
 live in a 256 B window of the boot-loaded data mirror segment, not in
 the read-only cave.  The window was picked by a four-leg zero-writer
 census of the stock image; the boot segment loader record
@@ -42,7 +42,7 @@ boot copy.  hooks.S receives the label VAs through -D defines
 (asm_defines, the z8log asm_defines precedent).
 
 Fixed events sub-window: the row-events transition-table clone
-rides its own image edit at the fixed cave sub-window VR_EVENTS_AT =
+rides its own image edit at the fixed cave sub-window ORIENT_EVENTS_AT =
 0x40A09000 (the z8h265 MENU_AT form) instead of an organic in-unit
 slot -- unit growth is decoupled from the frozen external rows that
 name the table.
@@ -79,7 +79,7 @@ TRACK_STOCK_WORD = 0xF81A0FFC      # str x28, [sp, #-0x60]!
 # Sensor anchors: the subsystem enable byte and the gravity vector f32 x3.
 ORIENT_VALID, GRAVITY_VEC = 0x0A02E56018, 0x0A02E560E0
 THRESHOLD_BITS = 0x3F333333        # IEEE754 bits of 0.70f (dominant-axis gate)
-SENTINEL_VALUE = 0x5A              # must equal VR_SENTINEL_VALUE in hooks.S;
+SENTINEL_VALUE = 0x5A              # must equal ORIENT_SENTINEL_VALUE in hooks.S;
                                     # test_unit_builds pins both materializations
 NOP = struct.pack('<I', 0xD503201F)
 
@@ -88,22 +88,22 @@ NOP = struct.pack('<I', 0xD503201F)
 # EG image [0x4B25800,0x4B25900).  The boot segment loader re-copies the
 # window from the image every power cycle; EL0 code can write it.  The
 # offsets below are the frozen window layout (facts.state_window, pinned
-# by tests/test_vrotate.py StateWindowTests).
-VR_STATE_VA, VR_STATE_SIZE = 0xA0281A800, 0x100
-VR_STATE_END = VR_STATE_VA + VR_STATE_SIZE
-VR_STATE_IMG_OFF = 0x4B25800       # = VR_STATE_VA - DATA_VA + DATA_OFF; build_main pins it
-VR_MATRICES_OFF, VR_THRESHOLD_OFF = 0x00, 0x6C
-VR_AXIS_CODES_OFF, VR_LATCH_OFF, VR_SENTINEL_OFF = 0x70, 0x76, 0x77
-VR_MAGIC_OFF, VR_MAGIC = 0xFF, 0xA5  # power-cycle boot-copy witness byte
-STATE_LABELS = ('vr_matrices', 'vr_axis_codes', 'vr_threshold', 'vr_latch', 'vr_sentinel')
+# by tests/test_videoorientation.py StateWindowTests).
+ORIENT_STATE_VA, ORIENT_STATE_SIZE = 0xA0281A800, 0x100
+ORIENT_STATE_END = ORIENT_STATE_VA + ORIENT_STATE_SIZE
+ORIENT_STATE_IMG_OFF = 0x4B25800       # = ORIENT_STATE_VA - DATA_VA + DATA_OFF; build_main pins it
+ORIENT_MATRICES_OFF, ORIENT_THRESHOLD_OFF = 0x00, 0x6C
+ORIENT_AXIS_CODES_OFF, ORIENT_LATCH_OFF, ORIENT_SENTINEL_OFF = 0x70, 0x76, 0x77
+ORIENT_MAGIC_OFF, ORIENT_MAGIC = 0xFF, 0xA5  # power-cycle boot-copy witness byte
+STATE_LABELS = ('orient_matrices', 'orient_axis_codes', 'orient_threshold', 'orient_latch', 'orient_sentinel')
 
 # Fixed sub-window for the row-events transition-table clone (the
 # z8h265 MENU_AT form): the 44x32 B table rides its own expect_zero image
 # edit at a patcher-constant cave address, so unit code/pool growth can
 # never move any external frozen byte that names the table.  4K-aligned,
-# inside the vrotate cave, stock zero.
-VR_EVENTS_AT = 0x40A09000
-VR_EVENTS_END = VR_EVENTS_AT + 44 * 32
+# inside the video-orientation cave, stock zero.
+ORIENT_EVENTS_AT = 0x40A09000
+ORIENT_EVENTS_END = ORIENT_EVENTS_AT + 44 * 32
 
 # Guard A whitelist (t3): store addresses whose base cannot be resolved in
 # their basic block (the window ends at every control transfer) but are
@@ -163,23 +163,23 @@ AXIS_CODES = bytes((3, 0, 1, 2, 0, 0))
 
 # Codes 1..3 only: code 0 / invalid is a passthrough, the stock identity
 # blob already on the stack covers it.  Big-endian 16.16 words as written.
-VR_MATRICES = (matrices.ORIENT_TO_MATRIX[1] + matrices.ORIENT_TO_MATRIX[2]
+ORIENT_MATRICES = (matrices.ORIENT_TO_MATRIX[1] + matrices.ORIENT_TO_MATRIX[2]
                + matrices.ORIENT_TO_MATRIX[3])
 
 
 def asm_defines():
     """-D defines for hooks.S: the absolute RAM VAs of the five unit data
     labels inside the state window (z8patch.compiled injects these when it
-    compiles the vrotate unit, the z8log asm_defines precedent)."""
-    return dict(VR_MATRICES_RAM=VR_STATE_VA + VR_MATRICES_OFF,
-                VR_THRESHOLD_RAM=VR_STATE_VA + VR_THRESHOLD_OFF,
-                VR_AXIS_CODES_RAM=VR_STATE_VA + VR_AXIS_CODES_OFF,
-                VR_LATCH_RAM=VR_STATE_VA + VR_LATCH_OFF,
-                VR_SENTINEL_RAM=VR_STATE_VA + VR_SENTINEL_OFF)
+    compiles the video-orientation unit, the z8log asm_defines precedent)."""
+    return dict(ORIENT_MATRICES_RAM=ORIENT_STATE_VA + ORIENT_MATRICES_OFF,
+                ORIENT_THRESHOLD_RAM=ORIENT_STATE_VA + ORIENT_THRESHOLD_OFF,
+                ORIENT_AXIS_CODES_RAM=ORIENT_STATE_VA + ORIENT_AXIS_CODES_OFF,
+                ORIENT_LATCH_RAM=ORIENT_STATE_VA + ORIENT_LATCH_OFF,
+                ORIENT_SENTINEL_RAM=ORIENT_STATE_VA + ORIENT_SENTINEL_OFF)
 
 
 def classify(gate, x, y, z):
-    """Mirror of the vr_classify routine; returns the pose code 0..3.
+    """Mirror of the orient_classify routine; returns the pose code 0..3.
 
     Same algorithm and state-window constants as the assembled unit: gate
     word must be 1, sign bits stripped, magnitudes compared as unsigned
@@ -202,7 +202,7 @@ def classify(gate, x, y, z):
 
 
 def matrix_decision(latch, enable=1):
-    """Mirror of vr_matrix_hook's sticky-latch decision.
+    """Mirror of orient_matrix_hook's sticky-latch decision.
 
     Returns (matrix or None, latch): the latch is returned UNCHANGED --
     every moov build of the same take (placeholder/recovery rebuilds into
@@ -217,12 +217,12 @@ def matrix_decision(latch, enable=1):
     None means the hook passes the stock identity x1 through.
     """
     if enable and 1 <= latch <= 3:
-        return VR_MATRICES[(latch - 1) * 36:latch * 36], latch
+        return ORIENT_MATRICES[(latch - 1) * 36:latch * 36], latch
     return None, latch
 
 
 def latch_open(mode, gate, x, y, z):
-    """Mirror of vr_latch_hook's session-scoped refresh/clear.
+    """Mirror of orient_latch_hook's session-scoped refresh/clear.
 
     mode is the open mode word (w1 at 0x40d17728): 1 = main-movie write
     open (recording start) refreshes the pose through the classifier;
@@ -252,18 +252,18 @@ def bank_records(eg):
     first, count = struct.unpack_from('<HH', eg, record + 0x18)
     kind, size = struct.unpack_from('<II', eg,
                                     ITEM_TYPE_TABLE - BASE + (first + index) * 0x18)
-    require(kind == 0 and size == 1, 'vrotate bank item is no longer one byte')
+    require(kind == 0 and size == 1, 'video-orientation bank item is no longer one byte')
     descriptor = struct.unpack_from('<Q', eg, record + 0x20)[0]
     banks = eg[data_off(descriptor)]
     array = data_off(struct.unpack_from('<Q', eg, data_off(descriptor) + 0x10)[0])
-    require(index < count and banks == len(BANK_RECORDS), 'vrotate bank category shape')
+    require(index < count and banks == len(BANK_RECORDS), 'video-orientation bank category shape')
     records = struct.unpack_from('<%dQ' % banks, eg, array + 8 * (index * banks))
-    require(records == BANK_RECORDS, 'vrotate bank record addresses moved')
+    require(records == BANK_RECORDS, 'video-orientation bank record addresses moved')
     return records
 
 
 def default_on(copies, sentinel):
-    """Mirror of the vr_default_on first-boot init (hooks.S).
+    """Mirror of the orient_default_on first-boot init (hooks.S).
 
     copies models the five record bytes (active record first, then bank
     storages A-D).  A zero sentinel (fresh boot: the boot segment loader
@@ -281,14 +281,14 @@ def menu_row(eg):
     """The 0x2FC0 template row and its transition-table pointer ."""
     rows = [struct.unpack_from('<11I', eg, ROWS_AT + 44 * i) for i in range(44)]
     found = [i for i, r in enumerate(rows) if r[6] == ATTEN_ITEM]
-    require(found == [35] and rows[35] == ATTEN_ROW, 'vrotate attenuator template row')
+    require(found == [35] and rows[35] == ATTEN_ROW, 'video-orientation attenuator template row')
     pointer = struct.unpack_from('<Q', eg, EVENTS_AT + 8 * 35)[0]
-    require(pointer == ATTEN_EVENTS, 'vrotate attenuator transition table')
+    require(pointer == ATTEN_EVENTS, 'video-orientation attenuator transition table')
     return rows[35], pointer
 
 
 def row_events(eg, pointer, hook):
-    """Clone the template transition table; only the toggle action moves to vr_row_hook."""
+    """Clone the template transition table; only the toggle action moves to orient_row_hook."""
     seen = []
 
     def change(event, action, guard, target):
@@ -299,7 +299,7 @@ def row_events(eg, pointer, hook):
 
     table = table_copy(eg, pointer, change)
     require(len(table) == 32 * ROW_EVENT_COUNT and tuple(seen) == TOGGLE_EVENTS,
-            'vrotate row transition table')
+            'video-orientation row transition table')
     return table
 
 
@@ -310,27 +310,27 @@ def strings(eg, context):
     (ids 2458 and 2214 among them), so the glyph containment below should
     never fail on the genuine C3.11 payload; it guards a bad table edit.
     """
-    require(STRING_IDS['vrotate'] == (TITLE_ID, 1), 'vrotate string slot')
+    require(STRING_IDS['video-orientation'] == (TITLE_ID, 1), 'video-orientation string slot')
     for language, title in enumerate(translations.TITLES):
         table = struct.unpack_from('<Q', eg, TABLE_DIR + 8 * language)[0] - BASE
         blob = struct.unpack_from('<Q', eg, BLOB_DIR + 8 * language)[0] - BASE
         offsets = struct.unpack_from(f'<{STOCK_IDS}i', eg, table)
         corpus = ''.join(eg[blob + offsets[i]:blob + offsets[i + 1]].decode('utf-16le')
                          for i in range(STOCK_IDS - 1))
-        require(set(title) <= set(corpus), 'vrotate title glyph missing: %d' % language)
-    ids = context.add('vrotate', [[title] for title in translations.TITLES])
-    require(ids == [TITLE_ID], 'vrotate string allocation')
+        require(set(title) <= set(corpus), 'video-orientation title glyph missing: %d' % language)
+    ids = context.add('video-orientation', [[title] for title in translations.TITLES])
+    require(ids == [TITLE_ID], 'video-orientation string allocation')
     return dict(ids=ids, fingerprint=translations.FINGERPRINT)
 
 
 def build_main(eg, code, entries, context):
-    """Emit the vrotate unit, its two gated edits, the state window and the synthesized menu row."""
-    require(len(VR_MATRICES) == 108 and len(AXIS_CODES) == 6, 'vrotate unit constants')
-    require(not any(eg[CODE_AT - BASE:CODE_END - BASE]), 'vrotate cave not free in stock image')
-    require(data_off(VR_STATE_VA) == VR_STATE_IMG_OFF
-            and VR_STATE_IMG_OFF + VR_STATE_SIZE == 0x4B25900, 'vrotate state window image offset')
-    require(not any(eg[VR_STATE_IMG_OFF:VR_STATE_IMG_OFF + VR_STATE_SIZE]),
-            'vrotate state window not free in stock image')
+    """Emit the video-orientation unit, its two gated edits, the state window and the synthesized menu row."""
+    require(len(ORIENT_MATRICES) == 108 and len(AXIS_CODES) == 6, 'video-orientation unit constants')
+    require(not any(eg[CODE_AT - BASE:CODE_END - BASE]), 'video-orientation cave not free in stock image')
+    require(data_off(ORIENT_STATE_VA) == ORIENT_STATE_IMG_OFF
+            and ORIENT_STATE_IMG_OFF + ORIENT_STATE_SIZE == 0x4B25900, 'video-orientation state window image offset')
+    require(not any(eg[ORIENT_STATE_IMG_OFF:ORIENT_STATE_IMG_OFF + ORIENT_STATE_SIZE]),
+            'video-orientation state window not free in stock image')
     records = bank_records(eg)
     img = Image(eg)
     code = bytearray(code)
@@ -341,64 +341,64 @@ def build_main(eg, code, entries, context):
     # State-window guards: the data labels must not live in the cave unit
     # any more, and the unit must address the window through pool literals.
     for name in STATE_LABELS:
-        require(name not in entries, 'vrotate state label must not stay in the cave: ' + name)
-    for off in (VR_MATRICES_OFF, VR_THRESHOLD_OFF, VR_AXIS_CODES_OFF, VR_LATCH_OFF,
-                VR_SENTINEL_OFF):
-        require(struct.pack('<Q', VR_STATE_VA + off) in code,
-                'vrotate state window literal missing from the unit: +%#x' % off)
+        require(name not in entries, 'video-orientation state label must not stay in the cave: ' + name)
+    for off in (ORIENT_MATRICES_OFF, ORIENT_THRESHOLD_OFF, ORIENT_AXIS_CODES_OFF, ORIENT_LATCH_OFF,
+                ORIENT_SENTINEL_OFF):
+        require(struct.pack('<Q', ORIENT_STATE_VA + off) in code,
+                'video-orientation state window literal missing from the unit: +%#x' % off)
     # The row-events clone rides its own fixed sub-window ; the unit is
     # pure code + pool and must stop short of that window, whose tail stays
     # stock zero.
-    require(VR_EVENTS_AT % 0x1000 == 0 and CODE_AT < VR_EVENTS_AT
-            and VR_EVENTS_END <= CODE_END, 'vrotate events window placement')
-    require(not any(eg[VR_EVENTS_AT - BASE:CODE_END - BASE]),
-            'vrotate events window not free in stock image')
+    require(ORIENT_EVENTS_AT % 0x1000 == 0 and CODE_AT < ORIENT_EVENTS_AT
+            and ORIENT_EVENTS_END <= CODE_END, 'video-orientation events window placement')
+    require(not any(eg[ORIENT_EVENTS_AT - BASE:CODE_END - BASE]),
+            'video-orientation events window not free in stock image')
 
     template, pointer = menu_row(eg)
-    events = row_events(eg, pointer, entries['vr_row_hook'])
+    events = row_events(eg, pointer, entries['orient_row_hook'])
     text = strings(eg, context)
     row = struct.pack('<11I', TITLE_ID, *template[1:6], ROW_ITEM, *template[7:])
-    require(CODE_AT + len(code) <= VR_EVENTS_AT, 'vrotate code capacity')
+    require(CODE_AT + len(code) <= ORIENT_EVENTS_AT, 'video-orientation code capacity')
     # State window fill: constants land in the boot-copied data mirror image;
     # the sticky latch and the first-boot sentinel ship 0 (fresh boot), and
     # the window tail byte is the 0xA5 magic (a power-cycle boot-copy
     # witness -- zero-initialized RAM cannot read 0xA5 back).
-    window = bytearray(VR_STATE_SIZE)
-    window[VR_MATRICES_OFF:VR_MATRICES_OFF + len(VR_MATRICES)] = VR_MATRICES
-    window[VR_THRESHOLD_OFF:VR_THRESHOLD_OFF + 4] = struct.pack('<I', THRESHOLD_BITS)
-    window[VR_AXIS_CODES_OFF:VR_AXIS_CODES_OFF + len(AXIS_CODES)] = AXIS_CODES
-    window[VR_LATCH_OFF] = 0
-    window[VR_SENTINEL_OFF] = 0
-    window[VR_MAGIC_OFF] = VR_MAGIC
-    img.put(MATRIX_SITE, branch(MATRIX_SITE, entries['vr_matrix_hook'], link=True),
-            'movie tkhd matrix copy: bl 0x40ce3fdc -> bl vr_matrix_hook',
+    window = bytearray(ORIENT_STATE_SIZE)
+    window[ORIENT_MATRICES_OFF:ORIENT_MATRICES_OFF + len(ORIENT_MATRICES)] = ORIENT_MATRICES
+    window[ORIENT_THRESHOLD_OFF:ORIENT_THRESHOLD_OFF + 4] = struct.pack('<I', THRESHOLD_BITS)
+    window[ORIENT_AXIS_CODES_OFF:ORIENT_AXIS_CODES_OFF + len(AXIS_CODES)] = AXIS_CODES
+    window[ORIENT_LATCH_OFF] = 0
+    window[ORIENT_SENTINEL_OFF] = 0
+    window[ORIENT_MAGIC_OFF] = ORIENT_MAGIC
+    img.put(MATRIX_SITE, branch(MATRIX_SITE, entries['orient_matrix_hook'], link=True),
+            'movie tkhd matrix copy: bl 0x40ce3fdc -> bl orient_matrix_hook',
             expect=struct.pack('<I', MATRIX_STOCK_WORD))
-    img.put(LATCH_SITE, branch(LATCH_SITE, entries['vr_latch_hook']) + NOP,
-            'record file open trampoline: mov/movk x8 pair -> b vr_latch_hook + nop',
+    img.put(LATCH_SITE, branch(LATCH_SITE, entries['orient_latch_hook']) + NOP,
+            'record file open trampoline: mov/movk x8 pair -> b orient_latch_hook + nop',
             expect=LATCH_STOCK)
-    img.put(TRACK_SITE, branch(TRACK_SITE, entries['vr_track_hook']),
-            'movie add-track entry: str x28,[sp,#-0x60]! -> b vr_track_hook (pose refresh at every writer start)',
+    img.put(TRACK_SITE, branch(TRACK_SITE, entries['orient_track_hook']),
+            'movie add-track entry: str x28,[sp,#-0x60]! -> b orient_track_hook (pose refresh at every writer start)',
             expect=struct.pack('<I', TRACK_STOCK_WORD))
-    img.put(CODE_AT, code, 'vrotate unit: matrix hook, latch hook, classifier, row hooks, default-on init',
+    img.put(CODE_AT, code, 'video-orientation unit: matrix hook, latch hook, classifier, row hooks, default-on init',
             expect_zero=True)
-    img.put(VR_EVENTS_AT, events,
-            'vrotate row transition table: 44-record clone of the 0x2FC0 table, three toggle actions -> vr_row_hook (fixed cave sub-window)',
+    img.put(ORIENT_EVENTS_AT, events,
+            'video-orientation row transition table: 44-record clone of the 0x2FC0 table, three toggle actions -> orient_row_hook (fixed cave sub-window)',
             expect_zero=True)
-    img.put(VR_STATE_IMG_OFF, bytes(window),
-            'vrotate state window: display matrices, threshold, axis codes, sticky latch, first-boot sentinel and magic byte (boot-copied data mirror segment)',
+    img.put(ORIENT_STATE_IMG_OFF, bytes(window),
+            'video-orientation state window: display matrices, threshold, axis codes, sticky latch, first-boot sentinel and magic byte (boot-copied data mirror segment)',
             expect_zero=True, offset=True)
     return img, dict(entries={k: hex(v) for k, v in entries.items()}, code_bytes=len(code),
                      cave=[hex(CODE_AT), hex(CODE_AT + len(code))],
-                     events_window=[hex(VR_EVENTS_AT), hex(VR_EVENTS_END)],
-                     state_window=[hex(VR_STATE_VA), hex(VR_STATE_VA + VR_STATE_SIZE)],
-                     state=dict(matrices=hex(VR_STATE_VA + VR_MATRICES_OFF),
-                                threshold=hex(VR_STATE_VA + VR_THRESHOLD_OFF),
-                                axis_codes=hex(VR_STATE_VA + VR_AXIS_CODES_OFF),
-                                latch=hex(VR_STATE_VA + VR_LATCH_OFF),
-                                sentinel=hex(VR_STATE_VA + VR_SENTINEL_OFF),
-                                magic='%s@+%#x' % (hex(VR_MAGIC), VR_MAGIC_OFF)),
+                     events_window=[hex(ORIENT_EVENTS_AT), hex(ORIENT_EVENTS_END)],
+                     state_window=[hex(ORIENT_STATE_VA), hex(ORIENT_STATE_VA + ORIENT_STATE_SIZE)],
+                     state=dict(matrices=hex(ORIENT_STATE_VA + ORIENT_MATRICES_OFF),
+                                threshold=hex(ORIENT_STATE_VA + ORIENT_THRESHOLD_OFF),
+                                axis_codes=hex(ORIENT_STATE_VA + ORIENT_AXIS_CODES_OFF),
+                                latch=hex(ORIENT_STATE_VA + ORIENT_LATCH_OFF),
+                                sentinel=hex(ORIENT_STATE_VA + ORIENT_SENTINEL_OFF),
+                                magic='%s@+%#x' % (hex(ORIENT_MAGIC), ORIENT_MAGIC_OFF)),
                      axis_codes=list(AXIS_CODES), threshold=hex(THRESHOLD_BITS),
-                     sentinel=hex(SENTINEL_VALUE), matrix_bytes=len(VR_MATRICES),
+                     sentinel=hex(SENTINEL_VALUE), matrix_bytes=len(ORIENT_MATRICES),
                      storage=dict(item=hex(BANK_ITEM), value_off=VALUE_OFF,
                                   value_addr=hex(VALUE_ADDR),
                                   records=[hex(a) for a in records],
@@ -406,6 +406,6 @@ def build_main(eg, code, entries, context):
                      strings=text,
                      menu=dict(item=hex(ROW_ITEM), title_id=TITLE_ID,
                                value_widget=hex(VALUE_WIDGET),
-                               row_hex=row.hex(), row_table=hex(VR_EVENTS_AT),
+                               row_hex=row.hex(), row_table=hex(ORIENT_EVENTS_AT),
                                toggle_events=[hex(e) for e in TOGGLE_EVENTS],
                                template=hex(ATTEN_ITEM)))

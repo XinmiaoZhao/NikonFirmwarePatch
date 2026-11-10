@@ -12,7 +12,7 @@ coordinate system is displayed as::
 Own pose code -> matrix (consumed by the matrix hook)
 -------------------------------------------------------
 The keys 0..3 of ORIENT_TO_MATRIX are the patch unit's own pose codes, not
-the firmware enum.  The latch hook (z8vrotate/src/hooks.S) classifies the
+the firmware enum.  The latch hook (z8videoorientation/src/hooks.S) classifies the
 normalised gravity vector (f32 x3 at 0x0A02E560E0, published ~1 kHz by the
 sensor fusion task) at recording start, because
 the stock orientation enum is pinned to 3 by the all-zero factory calibration
@@ -38,7 +38,7 @@ assumed a level camera reading (0, 0, +1) with +Z the baseplate normal:
 +Z = code 0, -Z = code 3 (rolled 180), +X = code 1 (rolled 90 deg CW as seen
 from behind the camera), -X = code 2, and +/-Y (assumed parallel to the lens
 axis) carries no roll code.  This assignment cannot be pinned in emulation
-and ships as the state-window constant vr_axis_codes (z8vrotate/patcher.py
+and ships as the state-window constant axis table (z8videoorientation/patcher.py
 AXIS_CODES); the on-camera calibration flips individual bytes only, as
 documented in the hooks.S header.
 
@@ -127,7 +127,7 @@ ROTATE_180_MATRIX = bytes.fromhex(
 )
 
 # Own pose code (gravity-vector classification, see above) -> 36-byte tkhd
-# matrix.  The state-window table vr_matrices carries only codes 1..3;
+# matrix.  The state-window table orient_matrices carries only codes 1..3;
 # code 0 is the passthrough identity.
 ORIENT_TO_MATRIX = {
     0: IDENTITY_MATRIX,
