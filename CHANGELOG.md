@@ -1,5 +1,13 @@
 # 更新日志 / Changelog
 
+## 未发布 / Unreleased
+
+### 新增 / Added
+
+- **自定义快门声（叠加构建）。** 新增 `shutter_sound.py`：在四组功能任意非空组合或 `--shutter-sound-only` 版本戳基底之上叠加自定义快门声，产出模块 2 变长的完整更新包。原厂 A–E 声音保留；菜单快门音类型新增 Load WAV from card 行，选中显示 CUS，选择保存于卡内 `M2SND0.CFG`/`M2SND1.CFG`。移植自 PIPA12344/z8-card-wav（GPL-3.0-or-later，上游 s3lemming/z9-firmware-patch，见 NOTICE）。选择器标签 ID 使用 0xD00–0xD14，与四组功能字符串表不相交（`tests/test_shuttersound_ids.py` 守护）；双次读取确认、有限重试与暂存 IO 始终启用。零槽单元以源码提交，`resources/shuttersound.json` 钉配方，`--code-source source` 以 LLVM 19.1.7 逐字节复现钉定单元，预编译单元随 Release 工具包分发；四组基底始终用评审过的预编译单元，`patch.py`/`verify.py`/配方体系零改动。每次构建后独立核验：容器回读、从原厂输入全量重建、库存前缀窗口审计与身份字段。离线验证：16 种选择全矩阵 + 源码/预编译等价 + 7 项负控全部通过；上游 27+13 项 ARM 回归通过。全部功能（四组 + 自定义快门声）完整实机验证通过，见 `docs/custom-shutter-sound.md`。
+
+English: `shutter_sound.py` layers a custom shutter sound on any combination of the four feature groups (or a version-stamped stock base via `--shutter-sound-only`) and repacks the container with the longer module 2. Ported from PIPA12344/z8-card-wav (GPL-3.0-or-later; Z9 ancestor s3lemming/z9-firmware-patch). Picker label IDs occupy 0xD00–0xD14, disjoint from the feature string tables, with unconditional confirmation, retry and staged IO. The zero-slot unit ships as source with the recipe pinned in `resources/shuttersound.json`; source builds byte-match the pinned unit under LLVM 19.1.7 and prebuilt units follow the Release toolkit policy. Every build is independently verified (container roundtrip, full rebuild from the stock input, window audit, identity checks). The 16-selection offline matrix, source/prebuilt parity and seven negative controls pass; upstream ARM suites pass. The full feature set passed complete on-camera verification; see `docs/custom-shutter-sound.md`.
+
 ## v0.4.0 — 四组补丁 / Four feature groups
 
 当前预发布：[v0.4.0-rc.2](https://github.com/XinmiaoZhao/NikonFirmwarePatch/releases/tag/v0.4.0-rc.2)。以下变化相对于上一公开功能系列 v0.3.0／v0.3.0-r1。RC2 补全 README 使用说明、致谢和模拟器截图；固件补丁与 RC1 相同。

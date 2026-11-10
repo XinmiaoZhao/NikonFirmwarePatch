@@ -1,0 +1,62 @@
+{
+  "upstream": "s3lemming/z9-firmware-patch",
+  "commit": "88a6f3e5195d7f38792dc8eddeb1526fde4096dc",
+  "license": "GPL-3.0-or-later",
+  "files": {
+    "adapter.c": {
+      "original_sha256": "dc61c61cad6880baca2977966eb9eee686670657c914a5a7046809302c8c29b6",
+      "adapted_sha256": "150e8d980e148a80c948b41ffa17f72bde13ff600bed7c5396b5f81d33745499",
+      "modified": true
+    },
+    "mark2_import.c": {
+      "original_sha256": "335531920a498b57484652c3365df3e44b522c7e9b4c10ef6f097a6575a8dba1",
+      "adapted_sha256": "335531920a498b57484652c3365df3e44b522c7e9b4c10ef6f097a6575a8dba1",
+      "modified": false
+    },
+    "mark2_import.h": {
+      "original_sha256": "8823e23ce2066a205b9e3867c450f48db4f22574c76a8ca1e059dcc1d159371f",
+      "adapted_sha256": "17c00dba2836b61ba9eb9d1ec58668d25b38c59e64bfc1c2e9cd12fcc0aa612e",
+      "modified": true
+    },
+    "mark2_native_file.c": {
+      "original_sha256": "2f7bc114255785ed51912863997ba263179b48fa9335b84765e793ee05b583d1",
+      "adapted_sha256": "ac28ef7443096b960c508eec523ddfe45394478b309eab458abb77f1b86087dd",
+      "modified": true
+    },
+    "picker.c": {
+      "original_sha256": "8dc9e9cdc6d49ce2227c9f22cb6c2a280382383cd780031226609079516bb76b",
+      "adapted_sha256": "e2d780fec91aa519d3b966ed0c21293d082dea1f0d5498e7ab2b9163b1e30a1c",
+      "modified": true
+    },
+    "profile.c": {
+      "original_sha256": "ff3d503c5fa860f10e890b7705449bcf9cc1f26f23e395a52b24ee24d8ba9cc2",
+      "adapted_sha256": "ff3d503c5fa860f10e890b7705449bcf9cc1f26f23e395a52b24ee24d8ba9cc2",
+      "modified": false
+    },
+    "profile.h": {
+      "original_sha256": "94ff7ad9617e1505fc74cf9e9d988947b71a51e8f368e01e72a681c880bcfb63",
+      "adapted_sha256": "94ff7ad9617e1505fc74cf9e9d988947b71a51e8f368e01e72a681c880bcfb63",
+      "modified": false
+    },
+    "profile_native.c": {
+      "original_sha256": "e64ce0c8b3a3c61152a7faf8e23c4483781dc6f78594f11379f8542c9d351123",
+      "adapted_sha256": "507ef86ec205f0571a2289c4b89556f50ee1f3e25eec7f5042e2758242dd7274",
+      "modified": true
+    },
+    "runtime.c": {
+      "original_sha256": "38a49a22201ed5a2e2b78f6963a76a2aa1075521acb1a780886e7b4aeaf5fa77",
+      "adapted_sha256": "38a49a22201ed5a2e2b78f6963a76a2aa1075521acb1a780886e7b4aeaf5fa77",
+      "modified": false
+    }
+  },
+  "port_files_sha256": {
+    "builder.py": "8eefe8dc024845c3512d7d8e353126ec6a942758d1c4a1d4d8add2da45c7498e",
+    "build_port.py": "bf5430787dc75f36198e4a9013f996ef732da6ca40b2e3431d2eb22f7556079c"
+  },
+  "public_port_files_sha256": {
+    "builder.py": "b86c7ce8cdf664de8aceb2f92c10045943291a1c4b3e8196c801812ef296a174",
+    "stack.py": "a3fca7d93d5af315b25fb6aa4e59bc591409c77b0e6fcc55bba9e4f88cf0ff1a",
+    "verify_integration.py": "723d0a4e8dfc869a5014dc036d6d79c3e1032a920cab08e06f1d5eecbe91bf92",
+    "verify_staged.py": "19d084ee957f01acf7d33ee2f17dd5879b17465455d345acb785e9ecb1a78d52"
+  }
+}
