@@ -5,7 +5,7 @@
 
 The source tree contains no original instruction words or menu resources.
 Any displaced instruction/resource is read locally from the exact checked input.
-The prebuilt unit (resources/cardwav.bin) has its displaced-instruction slots
+The prebuilt unit (resources/shuttersound.bin) has its displaced-instruction slots
 zeroed; they are filled from the same input, so it needs no LLVM.
 """
 import binascii, hashlib, json, re, struct, subprocess
@@ -15,10 +15,10 @@ EXPECTED_MODULE='f85e0138e2f5e660ece8560de62e0d12cb795e0e14983e50f20b61dce906c46
 EXPECTED_PAYLOAD=None
 # Picker label IDs intercepted in the stock text resolver. Must stay disjoint
 # from feature string IDs (z8patch/shared.py STRING_IDS..STRING_END); the
-# disjointness is pinned by tests/test_cardwav_ids.py.
+# disjointness is pinned by tests/test_shuttersound_ids.py.
 WAV_LABEL_BASE=0xD00
 WAV_LABEL_COUNT=21
-UNIT=ROOT.parent/'resources'/'cardwav.json'
+UNIT=ROOT.parent/'resources'/'shuttersound.json'
 # Hook slots that replay one original instruction: slot label -> source VA.
 DISPLACED={'api':0x40e3133c,'pcm':0x40d23c4c,'flags':0x40f9c5cc,'terminal':0x40f9cda0,'fast_timer':0x40f9cc64,'composite':0x40f9cfa4,'cxx_stop':0x40f9d00c,'notice_sync_end':0x40e35420,'notice_async_end':0x40e35590,'label':0x4032e130}
 def build(module,output,base_module=None,llvm=None,tail=b'Ver.04.12.p0\0',code_source='prebuilt'):
@@ -108,11 +108,11 @@ def build(module,output,base_module=None,llvm=None,tail=b'Ver.04.12.p0\0',code_s
     # Confirmation hardening is unconditional in this port: the stacked base may
     # carry any NN.NN identity, and a low number must never select weaker legacy
     # behaviour (matches the standalone z8-card-wav CLI policy).
-    if re.fullmatch(rb'Ver\.[0-9]{2}\.[0-9]{2}[^\x00]*\x00+',tail) is None: raise ValueError('Invalid card WAV version identity')
+    if re.fullmatch(rb'Ver\.[0-9]{2}\.[0-9]{2}[^\x00]*\x00+',tail) is None: raise ValueError('Invalid shutter-sound version identity')
     confirmed_import=confirmation_retry=staged_confirmation=True
     flags.extend(['-DM2_CONFIRM_IMPORT=1','-DM2_CONFIRM_RETRY=1','-DM2_STAGED_CONFIRM=1'])
 
-    UNIT = ROOT.parent/'resources'/'cardwav.json'
+    UNIT = ROOT.parent/'resources'/'shuttersound.json'
     if code_source=='source':
      for unit in ['picker','mark2_import','mark2_native_file','profile','profile_native','runtime']:run(['aarch64-linux-gnu-gcc',*flags,'-c',unit+'.c','-o',unit+'.o'])
      run(['aarch64-linux-gnu-gcc',*flags,'-c','adapter.c','-o','adapter.o']);run(['aarch64-linux-gnu-gcc','-c','hooks.S','-o','hooks.o']);run(['aarch64-linux-gnu-ld','--build-id=none','-T','layout.ld','adapter.o','hooks.o','picker.o','mark2_import.o','mark2_native_file.o','profile.o','profile_native.o','runtime.o','-o','adapter.elf']);assert not run(['aarch64-linux-gnu-nm','-u','adapter.elf']).strip()
@@ -127,19 +127,19 @@ def build(module,output,base_module=None,llvm=None,tail=b'Ver.04.12.p0\0',code_s
       at=syms['displaced_'+name]-ENTRY;assert code[at:at+4]==orig[pc-BASE:pc-BASE+4];blank[at:at+4]=bytes(4)
      unit=dict(bytes=len(blank),sha256=sha(blank),filled_sha256=sha(code),compiler=compiler,symbols=symbol_text.splitlines())
      if staged_confirmation: unit['record_layouts']=(O/'record-layouts.txt').read_text(encoding='utf-8')
-     (O/'cardwav.bin').write_bytes(blank);(O/'cardwav.json').write_text(json.dumps(unit,indent=1)+'\n',encoding='utf-8')
-     if UNIT.is_file() and json.loads(UNIT.read_text(encoding='utf-8'))!=unit: raise ValueError('Compiled card WAV unit differs from the reviewed resources/cardwav.json (expected '+json.loads(UNIT.read_text(encoding='utf-8'))['compiler']+')')
+     (O/'shuttersound.bin').write_bytes(blank);(O/'shuttersound.json').write_text(json.dumps(unit,indent=1)+'\n',encoding='utf-8')
+     if UNIT.is_file() and json.loads(UNIT.read_text(encoding='utf-8'))!=unit: raise ValueError('Compiled shutter-sound unit differs from the reviewed resources/shuttersound.json (expected '+json.loads(UNIT.read_text(encoding='utf-8'))['compiler']+')')
     else:
      unit=json.loads(UNIT.read_text(encoding='utf-8'));path=UNIT.with_suffix('.bin')
-     if not path.is_file(): raise ValueError('Prebuilt card WAV unit missing: '+str(path)+'; use the matching release unit or explicit source mode')
+     if not path.is_file(): raise ValueError('Prebuilt shutter-sound unit missing: '+str(path)+'; use the matching release unit or explicit source mode')
      blank=path.read_bytes()
-     if len(blank)!=unit['bytes'] or sha(blank)!=unit['sha256']: raise ValueError('Prebuilt card WAV unit differs from resources/cardwav.json')
+     if len(blank)!=unit['bytes'] or sha(blank)!=unit['sha256']: raise ValueError('Prebuilt shutter-sound unit differs from resources/shuttersound.json')
      symbol_text='\n'.join(unit['symbols'])+'\n';syms={v[2]:int(v[0],16)for line in unit['symbols']if len(v:=line.split())==3}
      code=bytearray(blank)
      for name,pc in DISPLACED.items():
       at=syms['displaced_'+name]-ENTRY;assert code[at:at+4]==bytes(4);code[at:at+4]=orig[pc-BASE:pc-BASE+4]
      code=bytes(code)
-     if sha(code)!=unit['filled_sha256']: raise ValueError('Filled card WAV unit differs from the reviewed recipe')
+     if sha(code)!=unit['filled_sha256']: raise ValueError('Filled shutter-sound unit differs from the reviewed recipe')
      if 'record_layouts' in unit: (O/'record-layouts.txt').write_text(unit['record_layouts'],encoding='utf-8')
      (O/'adapter.bin').write_bytes(code);compiler=unit['compiler']+' (prebuilt)'
     (O/'symbols.txt').write_text(symbol_text,encoding='utf-8')
@@ -171,6 +171,6 @@ def build(module,output,base_module=None,llvm=None,tail=b'Ver.04.12.p0\0',code_s
     module_bytes=bytes(b)+struct.pack('>H',binascii.crc_hqx(b,0))
     (O/'patched-eg.bi').write_bytes(module_bytes)
 
-    result=dict(feature='Z8-card-wav',confirmed_import=confirmed_import,confirmation_retry=confirmation_retry,staged_confirmation=staged_confirmation,input_module_sha256=sha(raw),base_module_sha256=sha(base),payload_sha256=sha(b),payload_bytes=len(b),module_sha256=sha(module_bytes),module_bytes=len(module_bytes),patches=patches,code_source=code_source,compiler=compiler,device_qualified=False)
+    result=dict(feature='Z8-custom-shutter-sound',confirmed_import=confirmed_import,confirmation_retry=confirmation_retry,staged_confirmation=staged_confirmation,input_module_sha256=sha(raw),base_module_sha256=sha(base),payload_sha256=sha(b),payload_bytes=len(b),module_sha256=sha(module_bytes),module_bytes=len(module_bytes),patches=patches,code_source=code_source,compiler=compiler,device_qualified=False)
     (O/'build-report.json').write_text(json.dumps(result,indent=2)+'\n',encoding='utf-8')
     return result

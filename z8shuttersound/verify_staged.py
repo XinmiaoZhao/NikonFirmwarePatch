@@ -1,6 +1,6 @@
 """04.23 staged PCM/IO regressions using the exact compiled ARM payload.
 
-Run: python -m z8cardwav.verify_staged PATH_TO_CARD_WAV_BUILD
+Run: python -m z8shuttersound.verify_staged PATH_TO_SHUTTER_SOUND_BUILD
 Importing verify_integration first runs its shared integration scenarios.
 The CPU/DMA view model below is an explicit synthetic test, not hardware evidence.
 """
@@ -9,7 +9,7 @@ import hashlib
 import json
 import struct
 
-from z8cardwav import verify_integration as integration
+from z8shuttersound import verify_integration as integration
 
 Lab = integration.Lab
 C, RAM, HEAP, P, K = integration.C, integration.RAM, integration.HEAP, integration.P, integration.K

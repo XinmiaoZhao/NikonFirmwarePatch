@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Card WAV stacked builds and integrity failures using an external stock fixture."""
+"""Custom shutter-sound stacked builds and integrity failures using an external stock fixture."""
 import argparse
 import binascii
 import itertools
@@ -14,7 +14,7 @@ sys.path.insert(0, str(ROOT))
 
 from features import FEATURES  # noqa: E402
 from z8prores.package import Package, require_official_input, sha  # noqa: E402
-from card_wav import build_stacked, verify_stacked  # noqa: E402
+from shutter_sound import build_stacked, verify_stacked  # noqa: E402
 
 STOCK_LEN = 81807711
 
@@ -46,7 +46,7 @@ def main():
 
     with tempfile.TemporaryDirectory() as tmp:
         keep = Path(tmp) / 'keep'
-        from z8cardwav.stack import unpack
+        from z8shuttersound.stack import unpack
 
         # Full matrix: 15 feature combinations plus WAV, prebuilt unit.
         import time
@@ -60,11 +60,11 @@ def main():
             mverified = verify_stacked(original, mpacket, names, '00.00', 't0',
                                        code_source='prebuilt', llvm=a.llvm_bin)
             need(mverified['status'] == 'PASS', 'Stacked verification failed for ' + '+'.join(names))
-            need(mmeta['base_features'] == names and mmeta['card_wav']['confirmed_import'], 'Meta mismatch')
-            need(mmeta['card_wav']['module_bytes'] > STOCK_LEN, 'Module did not grow')
-            rows.append(dict(test='+'.join(names) + '+card-wav', result='PASS',
+            need(mmeta['base_features'] == names and mmeta['shutter_sound']['confirmed_import'], 'Meta mismatch')
+            need(mmeta['shutter_sound']['module_bytes'] > STOCK_LEN, 'Module did not grow')
+            rows.append(dict(test='+'.join(names) + '+shutter-sound', result='PASS',
                              payload_sha256=mmeta['payload_sha256'], package_sha256=sha(mpacket)))
-            print('+'.join(names) + '+card-wav: PASS (%.1fs)' % (time.time() - t0), flush=True)
+            print('+'.join(names) + '+shutter-sound: PASS (%.1fs)' % (time.time() - t0), flush=True)
 
         # Detailed controls against the photo-tools packet.
         packet, meta = build_stacked(original, ['photo-tools'], '00.00', 't0',
@@ -75,21 +75,21 @@ def main():
         stacked_eg = unpack(pkg, packet, 'eg2070_0000t0.bi')
         stacked_len = len(stacked_eg)
         need(stacked_len > STOCK_LEN, 'Stacked module did not grow')
-        need(meta['card_wav']['module_bytes'] > STOCK_LEN, 'Reported module length did not grow')
-        need(meta['base_features'] == ['photo-tools'] and meta['card_wav']['confirmed_import'], 'Meta mismatch')
-        rows.append(dict(test='photo-tools+card-wav prebuilt (detailed)', result='PASS',
+        need(meta['shutter_sound']['module_bytes'] > STOCK_LEN, 'Reported module length did not grow')
+        need(meta['base_features'] == ['photo-tools'] and meta['shutter_sound']['confirmed_import'], 'Meta mismatch')
+        rows.append(dict(test='photo-tools+shutter-sound prebuilt (detailed)', result='PASS',
                          payload_sha256=sha(stacked_eg), package_sha256=sha(packet)))
-        print('photo-tools+card-wav: PASS', flush=True)
+        print('photo-tools+shutter-sound: PASS', flush=True)
 
         # WAV-only build on a version-stamped stock base.
-        wav_only, wav_meta = build_stacked(original, [], '00.00', 't0',
+        shutter_sound_only, sound_meta = build_stacked(original, [], '00.00', 't0',
                                            code_source='prebuilt', llvm=a.llvm_bin, keep=keep / 'b')
-        wav_verified = verify_stacked(original, wav_only, [], '00.00', 't0',
+        sound_verified = verify_stacked(original, shutter_sound_only, [], '00.00', 't0',
                                       code_source='prebuilt', llvm=a.llvm_bin)
-        need(wav_verified['status'] == 'PASS', 'WAV-only verification failed')
-        need(wav_meta['base_features'] == [], 'WAV-only base features mismatch')
-        rows.append(dict(test='card-wav-only prebuilt', result='PASS', package_sha256=sha(wav_only)))
-        print('card-wav-only: PASS', flush=True)
+        need(sound_verified['status'] == 'PASS', 'WAV-only verification failed')
+        need(sound_meta['base_features'] == [], 'WAV-only base features mismatch')
+        rows.append(dict(test='shutter-sound-only prebuilt', result='PASS', package_sha256=sha(shutter_sound_only)))
+        print('shutter-sound-only: PASS', flush=True)
 
         # Source/prebuilt parity for all features plus WAV under the pinned LLVM.
         t0 = time.time()
@@ -98,8 +98,8 @@ def main():
         pre_packet, _ = build_stacked(original, list(FEATURES), '00.00', 't0',
                                       code_source='prebuilt', llvm=a.llvm_bin, keep=keep / 'pre')
         need(src_packet == pre_packet, 'Source/prebuilt stacked package mismatch')
-        rows.append(dict(test='all features+card-wav source/prebuilt equivalence', result='PASS'))
-        print('all features+card-wav source/prebuilt equivalence: PASS (%.1fs)' % (time.time() - t0), flush=True)
+        rows.append(dict(test='all features+shutter-sound source/prebuilt equivalence', result='PASS'))
+        print('all features+shutter-sound source/prebuilt equivalence: PASS (%.1fs)' % (time.time() - t0), flush=True)
 
         # Negative controls.
         rows.append(reject('patched input', lambda: build_stacked(packet, ['photo-tools'], '00.00', 't0')))
@@ -141,7 +141,7 @@ def main():
 
         def grown_base():
             # A feature base longer than stock must be refused by the stacker itself.
-            import z8cardwav.stack as zs
+            import z8shuttersound.stack as zs
             long_base = Package(packet).eg + b'\x00'
             zs.stack(pkg.eg, long_base, llvm=a.llvm_bin, code_source='prebuilt')
 
@@ -150,7 +150,7 @@ def main():
         # CLI end-to-end for one selection.
         import subprocess
         out = Path(tmp) / 'cli'
-        r = subprocess.run([sys.executable, '-B', str(ROOT / 'card_wav.py'), str(a.stock),
+        r = subprocess.run([sys.executable, '-B', str(ROOT / 'shutter_sound.py'), str(a.stock),
                             '--features', 'photo-tools', '--version', '00.00', '--tag', 't0',
                             '--output', str(out)], capture_output=True, text=True)
         need(r.returncode == 0, 'CLI failed: ' + r.stderr[-400:])
@@ -158,8 +158,8 @@ def main():
         need(got == packet, 'CLI output differs from library build')
         need({p.name for p in out.iterdir()} == {'Z_8_0000.bin', 'manifest.json', 'SHA256SUMS.txt'},
               'Unexpected CLI output members')
-        rows.append(dict(test='CLI photo-tools+card-wav', result='PASS'))
-        print('CLI photo-tools+card-wav: PASS', flush=True)
+        rows.append(dict(test='CLI photo-tools+shutter-sound', result='PASS'))
+        print('CLI photo-tools+shutter-sound: PASS', flush=True)
 
     failures = [row for row in rows if row.get('result') not in ('PASS', 'REJECTED')]
     need(not failures, 'Unexpected results: ' + json.dumps(failures))

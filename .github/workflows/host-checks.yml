@@ -48,7 +48,7 @@ jobs:
         with:
           python-version: ${{ matrix.python }}
       - run: python -B tests/test_compiled_paths.py
-      - run: python -B tests/test_cardwav_ids.py
+      - run: python -B tests/test_shuttersound_ids.py
 
   windows-toolkit:
     if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main' && inputs.firmware_smoke

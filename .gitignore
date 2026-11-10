@@ -45,4 +45,4 @@ secrets.json
 !/luts/RWG_Log3G10_F_v1_65.cube
 
 # Reviewed zero-slot card WAV prebuilt unit (all displaced-instruction slots blank).
-!resources/cardwav.bin
+!resources/shuttersound.bin

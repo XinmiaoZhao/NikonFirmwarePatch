@@ -89,11 +89,11 @@ python patch.py Z_8_0311.bin --features framing video-quality log-colour photo-t
 # 交互选择四组；预编译工具包默认不调用编译器。
 python patch.py Z_8_0311.bin --interactive --version 04.06 --tag p0 --output build/chosen
 
-# 在任意功能组合上叠加卡内 WAV 自定义快门声（WAV 要求与行为见 docs/card-wav.md）。
-python card_wav.py Z_8_0311.bin --features framing video-quality log-colour photo-tools --version 04.07 --tag w0 --output build/all-wav
+# 在任意功能组合上叠加自定义快门声（WAV 要求与行为见 docs/custom-shutter-sound.md）。
+python shutter_sound.py Z_8_0311.bin --features framing video-quality log-colour photo-tools --version 04.07 --tag w0 --output build/all-wav
 
 # 仅快门声，不含四组功能。
-python card_wav.py Z_8_0311.bin --wav-only --version 04.07 --tag w0 --output build/wav
+python shutter_sound.py Z_8_0311.bin --shutter-sound-only --version 04.07 --tag w0 --output build/wav
 ```
 
 快门声叠加建议使用 `w` 族标签；其 `--code-source` 只作用于快门声单元（默认预编译零槽单元，无需编译器；源码模式钉定 LLVM 19.1.7）。四组功能基底始终使用评审过的预编译单元。
@@ -204,14 +204,14 @@ python patch.py Z_8_0311.bin --features framing video-quality log-colour photo-t
 # Choose groups interactively; prebuilt mode runs without a compiler.
 python patch.py Z_8_0311.bin --interactive --version 04.06 --tag p0 --output build/chosen
 
-# Stack the card WAV custom shutter sound on any feature combination (see docs/card-wav.md).
-python card_wav.py Z_8_0311.bin --features framing video-quality log-colour photo-tools --version 04.07 --tag w0 --output build/all-wav
+# Stack the custom shutter sound on any feature combination (see docs/custom-shutter-sound.md).
+python shutter_sound.py Z_8_0311.bin --features framing video-quality log-colour photo-tools --version 04.07 --tag w0 --output build/all-wav
 
-# Card WAV only, without the four feature groups.
-python card_wav.py Z_8_0311.bin --wav-only --version 04.07 --tag w0 --output build/wav
+# Custom shutter sound only, without the four feature groups.
+python shutter_sound.py Z_8_0311.bin --shutter-sound-only --version 04.07 --tag w0 --output build/wav
 ```
 
-WAV-inclusive builds use the `w` tag family. `--code-source` applies to the card WAV unit only (the default prebuilt zero-slot unit needs no compiler; source mode is pinned to LLVM 19.1.7). The four-group base always uses the reviewed prebuilt units.
+Shutter-sound-inclusive builds use the `w` tag family. `--code-source` applies to the shutter-sound unit only (the default prebuilt zero-slot unit needs no compiler; source mode is pinned to LLVM 19.1.7). The four-group base always uses the reviewed prebuilt units.
 
 Each build produces a firmware `.bin`, `manifest.json` and `SHA256SUMS.txt`. Choose an output directory that does not already exist. The original input is preserved. All examples use 04.06. Different selections can therefore produce the same filename. Keep their output directories separate and identify each package by the feature list and SHA-256 in its manifest. Assign distinct identities to different packages for camera use. Reserve `00.xx.t0` for offline testing.
 

@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
-"""Add the card WAV port to a checked EG; repackage with the longer module."""
+"""Add the custom shutter-sound port to a checked EG; repackage with the longer module."""
 import binascii
 import hashlib
 import os
@@ -17,7 +17,7 @@ TAIL_BYTES = 13  # 'Ver.' + eight identity bytes + NUL, before the CRC
 def stack(stock_eg, base_eg, llvm=LLVM, keep=None, code_source='prebuilt'):
     """Return the finished EG; `keep` receives the builder's working files.
 
-    prebuilt fills resources/cardwav.bin from the input; source compiles with `llvm`.
+    prebuilt fills resources/shuttersound.bin from the input; source compiles with `llvm`.
     """
     with tempfile.TemporaryDirectory() as work:
         work = Path(work)
