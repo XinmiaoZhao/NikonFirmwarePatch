@@ -211,7 +211,7 @@ python shutter_sound.py Z_8_0311.bin --features framing video-quality log-colour
 python shutter_sound.py Z_8_0311.bin --shutter-sound-only --version 04.07 --tag w0 --output build/wav
 ```
 
-Shutter-sound-inclusive builds use the `w` tag family. `--code-source` applies to the shutter-sound unit only (the default prebuilt zero-slot unit needs no compiler; source mode is pinned to LLVM 19.1.7). The four-group base always uses the reviewed prebuilt units.
+Shutter-sound-inclusive builds use the `w` tag family. `--code-source` applies to the shutter-sound unit only (the reviewed prebuilt unit ships with the Release toolkit; git checkouts build it with `source`, byte-matching the pinned LLVM 19.1.7 recipe). The four-group base always uses the reviewed prebuilt units.
 
 Each build produces a firmware `.bin`, `manifest.json` and `SHA256SUMS.txt`. Choose an output directory that does not already exist. The original input is preserved. All examples use 04.06. Different selections can therefore produce the same filename. Keep their output directories separate and identify each package by the feature list and SHA-256 in its manifest. Assign distinct identities to different packages for camera use. Reserve `00.xx.t0` for offline testing.
 

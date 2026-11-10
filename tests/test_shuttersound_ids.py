@@ -29,14 +29,16 @@ def main():
     assert max(used) < STRING_END, 'Feature strings exceed the declared STRING_END'
     assert WAV_LABEL_BASE + WAV_LABEL_COUNT <= 4095, 'Label range exceeds the CMP 12-bit immediate limit'
     unit, blob = ROOT / 'resources' / 'shuttersound.json', ROOT / 'resources' / 'shuttersound.bin'
-    if unit.is_file() and blob.is_file():
-        profile = json.loads(unit.read_text(encoding='utf-8'))
+    assert unit.is_file(), 'Pinned shuttersound.json recipe missing from the repository'
+    profile = json.loads(unit.read_text(encoding='utf-8'))
+    assert {'bytes', 'sha256', 'filled_sha256'} <= set(profile), 'shuttersound.json is missing pinned recipe fields'
+    if blob.is_file():
         data = blob.read_bytes()
         assert len(data) == profile['bytes'], 'Pinned shuttersound.bin size differs from shuttersound.json'
         assert hashlib.sha256(data).hexdigest() == profile['sha256'], 'Pinned shuttersound.bin hash differs'
         print('shuttersound unit pinned:', profile['bytes'], 'bytes,', profile['compiler'].splitlines()[0][:48])
     else:
-        print('shuttersound unit not pinned yet; file checks skipped')
+        print('shuttersound prebuilt unit not bundled in git (source-only policy); pinned-hash checks skipped')
     print('OK: WAV labels %#x..%#x disjoint from feature strings %d..%d'
           % (WAV_LABEL_BASE, WAV_LABEL_BASE + WAV_LABEL_COUNT - 1, min(used), max(used)))
 

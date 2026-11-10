@@ -55,7 +55,7 @@ python -B -m z8shuttersound.verify_staged <shutter-sound-build-dir>
 
 - 离线：16 种选择全矩阵构建+独立核验通过；ARM 27+13 回归通过；源码/预构建等价（LLVM 19.1.7）。
 - 上游实机反馈（不外推）：04.18 整合版维护者自述实机全量验证含卡内 WAV；04.23 首次选择 CUS、首张无杂音。
-- **本仓库的"四组功能 + 自定义快门声"组合未做实机验证**；本工具不写卡、不操作相机。实验固件风险见 `NOTICE.md`。
+- **实机验证（2026-11）**：基于上游 v0.4.0-rc.2 预编译四组基座叠加本单元打包，全部功能（四组 + 自定义快门声）完整实机验证通过。本工具不写卡、不操作相机；实验固件风险见 `NOTICE.md`。
 
 ## English
 
@@ -63,8 +63,8 @@ Stacks the **custom shutter sound** on top of any combination of the four featur
 
 Ported from [PIPA12344/z8-card-wav](https://github.com/PIPA12344/z8-card-wav) (GPL-3.0-or-later). Local differences: picker label IDs renumbered from 0xC54–0xC68 to **0xD00–0xD14** (clearing the collision with feature string IDs 3137–3224, guarded by `tests/test_shuttersound_ids.py`); confirmation, retry and staged IO are unconditional.
 
-Build with `python shutter_sound.py <stock> --features ... --version NN.NN --tag w0 --output DIR` (or `--shutter-sound-only` / `--interactive`). The tag convention for shutter-sound builds is the `w` family. `--code-source` selects only the shutter-sound unit: the default prebuilt `resources/shuttersound.bin` ships with its ten displaced-instruction slots zeroed and needs no compiler; `source` mode must byte-match the pinned unit (LLVM 19.1.7). The feature base always uses the reviewed prebuilt units. Every build is followed by an independent audit: container roundtrip, full rebuild from the stock input, stock-prefix window audit and identity checks.
+Build with `python shutter_sound.py <stock> --features ... --version NN.NN --tag w0 --output DIR` (or `--shutter-sound-only` / `--interactive`). The tag convention for shutter-sound builds is the `w` family. `--code-source` selects only the shutter-sound unit: the reviewed prebuilt zero-slot unit ships with the Release toolkit (git checkouts carry source only); `source` mode must byte-match the pinned recipe (LLVM 19.1.7). The feature base always uses the reviewed prebuilt units. Every build is followed by an independent audit: container roundtrip, full rebuild from the stock input, stock-prefix window audit and identity checks.
 
 WAV requirements: RIFF WAV, uncompressed 16-bit LE PCM, 48 kHz stereo, longer than 0 and at most 1.5 s (PCM ≤ 288,000 bytes), container ≤ 524,288 bytes, ≤ 512 chunks, printable-ASCII filename ≤ 111 characters including `.wav`, placed in `CUSTOM_SOUND` at the card root (max 20 files). Playback restarts each frame and can be interrupted; C15 leads with up to 50 ms of audio, other Cxx up to 40 ms, and the remainder plays once after a burst stops. Up to 20 distinct contents are cached per power-on (288,000 bytes reserved each); read differences, copy-verification failures or audio BUSY never publish PCM or consume a permanent cache slot. Re-select after replacing a same-named WAV.
 
-Validation scope: the full 16-selection offline matrix, 27+13 ARM regressions and source/prebuilt parity pass locally. Upstream hardware feedback (not extrapolated): the 04.18 integrated build was fully self-verified on a Z8 including card WAV; 04.23 confirmed first CUS selection and a clean first shot. **This repository's four-group-plus-shutter-sound combination has no hardware qualification.** The tool never writes a card or operates a camera; see `NOTICE.md` for the experimental-firmware risks.
+Validation scope: the full 16-selection offline matrix, 27+13 ARM regressions and source/prebuilt parity pass locally. Upstream hardware feedback (not extrapolated): the 04.18 integrated build was fully self-verified on a Z8 including card WAV; 04.23 confirmed first CUS selection and a clean first shot. **Camera verification (2026-11): a package built from the upstream v0.4.0-rc.2 four-group prebuilt base with this unit stacked on top passed full on-camera verification, every feature included.** The tool never writes a card or operates a camera; see `NOTICE.md` for the experimental-firmware risks.

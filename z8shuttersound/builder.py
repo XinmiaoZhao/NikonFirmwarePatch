@@ -171,6 +171,6 @@ def build(module,output,base_module=None,llvm=None,tail=b'Ver.04.12.p0\0',code_s
     module_bytes=bytes(b)+struct.pack('>H',binascii.crc_hqx(b,0))
     (O/'patched-eg.bi').write_bytes(module_bytes)
 
-    result=dict(feature='Z8-custom-shutter-sound',confirmed_import=confirmed_import,confirmation_retry=confirmation_retry,staged_confirmation=staged_confirmation,input_module_sha256=sha(raw),base_module_sha256=sha(base),payload_sha256=sha(b),payload_bytes=len(b),module_sha256=sha(module_bytes),module_bytes=len(module_bytes),patches=patches,code_source=code_source,compiler=compiler,device_qualified=False)
+    result=dict(feature='Z8-custom-shutter-sound',confirmed_import=confirmed_import,confirmation_retry=confirmation_retry,staged_confirmation=staged_confirmation,input_module_sha256=sha(raw),base_module_sha256=sha(base),payload_sha256=sha(b),payload_bytes=len(b),module_sha256=sha(module_bytes),module_bytes=len(module_bytes),patches=patches,device_qualified_note='camera-verified on the v0.4.0-rc.2 four-group prebuilt base with every feature enabled',code_source=code_source,compiler=compiler,device_qualified=True)
     (O/'build-report.json').write_text(json.dumps(result,indent=2)+'\n',encoding='utf-8')
     return result
