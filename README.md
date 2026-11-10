@@ -1,6 +1,6 @@
 # NikonFirmwarePatch — Nikon Z8 功能扩展
 
-[简体中文](#简体中文) · [English](#english) · [功能预览 / Preview](#功能预览--feature-preview) · [Changelog](CHANGELOG.md)
+[简体中文](#简体中文) · [English](#english) · [功能预览 / Preview](#功能预览--feature-preview) · [介绍视频 / Intro video](https://www.bilibili.com/video/BV13yW36LEED/) · [Changelog](CHANGELOG.md)
 
 ## 功能预览 / Feature preview
 
@@ -18,7 +18,7 @@
 
 ## 简体中文
 
-Nikon Z8 C 3.11 实验补丁的离线构建工具。提供四组可独立选择的功能，并可一次构建任意组合；开发分支另含第五组 `video-orientation`（[记录视频方向](docs/video-orientation.md)），加入该组后非空组合共 31 种，此组尚未随 v0.4.0-rc.2 发布。本版为 **v0.4.0-rc.2 预发布版**。[下载完整工具包与校验清单](https://github.com/XinmiaoZhao/NikonFirmwarePatch/releases/tag/v0.4.0-rc.2)。使用本轮补丁构建的全选固件，已实机验证新录与旧录 N-RAW 的 Log 回放名称和辅助观感。
+Nikon Z8 C 3.11 实验补丁的离线构建工具。提供四组可独立选择的功能，并可一次构建任意组合；开发分支另含第五组 `video-orientation`（[记录视频方向](docs/video-orientation.md)），加入该组后非空组合共 31 种，此组尚未随 v0.4.0 发布。本版为 **v0.4.0**。[下载完整工具包与校验清单](https://github.com/XinmiaoZhao/NikonFirmwarePatch/releases/tag/v0.4.0)。v0.4.0 的功能介绍视频见 [B 站](https://www.bilibili.com/video/BV13yW36LEED/)。使用本轮补丁构建的全选固件，已实机验证新录与旧录 N-RAW 的 Log 回放名称和辅助观感。
 
 **使用风险。** 这是实验固件，构建或安装可能造成数据丢失、卡损坏或相机故障。离线检查不等于实机安全保证，请勿用于不可替代的工作。无担保及责任条款见 [LICENSE](LICENSE) 和 [NOTICE](NOTICE.md)。
 
@@ -36,7 +36,7 @@ N-RAW 四档始终与开放门在同一组；`video-quality` 指 ProRes＋H.265�
 
 ### 获取固件与工具包
 
-使用完整版 [toolkit ZIP](https://github.com/XinmiaoZhao/NikonFirmwarePatch/releases/download/v0.4.0-rc.2/NikonFirmwarePatch-v0.4.0-rc.2-toolkit.zip)，按 [SHA256SUMS.txt](https://github.com/XinmiaoZhao/NikonFirmwarePatch/releases/download/v0.4.0-rc.2/SHA256SUMS.txt) 核对下载后解压。GitHub 自动生成的 Source code 包和 Git 克隆只含源码；完整工具包还带九个经审阅的预编译补丁单元。工具源码、预编译单元及配方须来自同一版。
+使用完整版 [toolkit ZIP](https://github.com/XinmiaoZhao/NikonFirmwarePatch/releases/download/v0.4.0/NikonFirmwarePatch-v0.4.0-toolkit.zip)，按 [SHA256SUMS.txt](https://github.com/XinmiaoZhao/NikonFirmwarePatch/releases/download/v0.4.0/SHA256SUMS.txt) 核对下载后解压。GitHub 自动生成的 Source code 包和 Git 克隆只含源码；完整工具包还带九个经审阅的预编译补丁单元。工具源码、预编译单元及配方须来自同一版。
 
 请自行从 Nikon 取得 [Z8 C 3.11 官方输入](https://download.nikonimglib.com/archive8/wP5Vr003qbpC07ibhJ666rmRfF47/Z_8_0311.bin) 并遵守其许可条款。尼康原 C 3.11 说明页已下线，可查阅[原说明页的 Wayback 快照](https://web.archive.org/web/20260920232234/https://downloadcenter.nikonimglib.com/en/download/fw/606.html)。固件由尼康服务器提供，另有[尼康备用下载链接](https://download.nikonimglib.com/archive8/ulkCY0035nUW07Elwhy66zV8P546/Z_8_0311.bin)。两个链接的完整文件核验记录见 [issue #11](https://github.com/XinmiaoZhao/NikonFirmwarePatch/issues/11#issuecomment-6493044598)。
 
@@ -84,7 +84,7 @@ python patch.py Z_8_0311.bin --features framing --version 04.06 --tag p0 --outpu
 
 # 全选四组，版本号用于标识本次输出。
 python patch.py Z_8_0311.bin --features framing video-quality log-colour photo-tools --version 04.06 --tag p0 --output build/all
-# v0.4.0-rc.2 四组全选、版本 04.06、tag p0：build/all/Z_8_0406.bin 的 SHA-256
+# v0.4.0 四组全选、版本 04.06、tag p0：build/all/Z_8_0406.bin 的 SHA-256
 # 4deca457f0e3af1ea858e53db55ce4946cd99d916c663304e351047c049d2a63
 
 # 交互选择四组；预编译工具包默认不调用编译器。
@@ -126,7 +126,7 @@ python verify.py Z_8_0311.bin build/all/Z_8_0406.bin --features framing video-qu
 
 ## English
 
-This offline toolkit builds experimental patches for the original Nikon Z8 C 3.11 firmware. Select any of four feature groups or combine them in one build; the development branch adds a fifth group, `video-orientation` ([record video orientation](docs/video-orientation.md)), bringing nonempty combinations to 31. That group is not part of the v0.4.0-rc.2 release. The current pre-release is **v0.4.0-rc.2**. [Download the toolkit and checksums](https://github.com/XinmiaoZhao/NikonFirmwarePatch/releases/tag/v0.4.0-rc.2). On a Z8, the all-feature firmware built with this update showed the expected Log names and assist rendering when playing both newly recorded and existing N-RAW clips.
+This offline toolkit builds experimental patches for the original Nikon Z8 C 3.11 firmware. Select any of four feature groups or combine them in one build; the development branch adds a fifth group, `video-orientation` ([record video orientation](docs/video-orientation.md)), bringing nonempty combinations to 31. That group is not part of the v0.4.0 release. The current release is **v0.4.0**. [Download the toolkit and checksums](https://github.com/XinmiaoZhao/NikonFirmwarePatch/releases/tag/v0.4.0). A short v0.4.0 feature video is on [Bilibili](https://www.bilibili.com/video/BV13yW36LEED/) (Chinese, with English captions). On a Z8, the all-feature firmware built with this update showed the expected Log names and assist rendering when playing both newly recorded and existing N-RAW clips.
 
 **Risk of use.** Building or installing experimental firmware can cause data loss, card corruption or camera malfunction. Offline checks cannot guarantee safe operation on a camera. Avoid using experimental firmware for irreplaceable work. See the warranty and liability terms in [LICENSE](LICENSE) and [NOTICE](NOTICE.md).
 
@@ -144,7 +144,7 @@ The released four-group toolkit has 15 nonempty combinations. The current CLI re
 
 ### Get the firmware and toolkit
 
-Download the complete [toolkit ZIP](https://github.com/XinmiaoZhao/NikonFirmwarePatch/releases/download/v0.4.0-rc.2/NikonFirmwarePatch-v0.4.0-rc.2-toolkit.zip), check it against [SHA256SUMS.txt](https://github.com/XinmiaoZhao/NikonFirmwarePatch/releases/download/v0.4.0-rc.2/SHA256SUMS.txt), then extract it. Git clones and GitHub’s automatic source archives contain the source only. The complete toolkit includes nine reviewed precompiled patch units. Use tools, patch units and recipes from the same release.
+Download the complete [toolkit ZIP](https://github.com/XinmiaoZhao/NikonFirmwarePatch/releases/download/v0.4.0/NikonFirmwarePatch-v0.4.0-toolkit.zip), check it against [SHA256SUMS.txt](https://github.com/XinmiaoZhao/NikonFirmwarePatch/releases/download/v0.4.0/SHA256SUMS.txt), then extract it. Git clones and GitHub’s automatic source archives contain the source only. The complete toolkit includes nine reviewed precompiled patch units. Use tools, patch units and recipes from the same release.
 
 Obtain the [original Z8 C 3.11 firmware](https://download.nikonimglib.com/archive8/wP5Vr003qbpC07ibhJ666rmRfF47/Z_8_0311.bin) from Nikon under its license terms. Nikon has withdrawn the original C 3.11 landing page. The [Wayback snapshot of the original instructions](https://web.archive.org/web/20260920232234/https://downloadcenter.nikonimglib.com/en/download/fw/606.html) preserves that page. The firmware download is served by Nikon, with an [alternate Nikon download](https://download.nikonimglib.com/archive8/ulkCY0035nUW07Elwhy66zV8P546/Z_8_0311.bin). Both downloads were verified in full in [issue #11](https://github.com/XinmiaoZhao/NikonFirmwarePatch/issues/11#issuecomment-6493044598).
 
@@ -192,7 +192,7 @@ python patch.py Z_8_0311.bin --features framing --version 04.06 --tag p0 --outpu
 
 # Build all four groups; the version identifies the output.
 python patch.py Z_8_0311.bin --features framing video-quality log-colour photo-tools --version 04.06 --tag p0 --output build/all
-# SHA-256 of build/all/Z_8_0406.bin with v0.4.0-rc.2, all four groups, version 04.06 and tag p0
+# SHA-256 of build/all/Z_8_0406.bin with v0.4.0, all four groups, version 04.06 and tag p0
 # 4deca457f0e3af1ea858e53db55ce4946cd99d916c663304e351047c049d2a63
 
 # Choose groups interactively; prebuilt mode runs without a compiler.

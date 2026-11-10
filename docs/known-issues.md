@@ -1,8 +1,8 @@
-> 当前四组预发布版的机身测试范围见[验证记录](validation.md)。本文按功能列出实际限制。
+> 当前四组版本 v0.4.0 的机身测试范围见[验证记录](validation.md)。本文按功能列出实际限制。
 
 # 已知问题与功能限制 / Known issues and feature limits
 
-适用于基于官方 Nikon Z8 C 3.11 的当前四组预发布版；历史公开版本限制保留具体版本号。以下列出当前实现中已确认的问题和明确的功能限制；操作方法见各功能指南，验证记录见[当前版本验证](validation.md)。
+适用于基于官方 Nikon Z8 C 3.11 的当前四组版本 v0.4.0；历史公开版本限制保留具体版本号。以下列出当前实现中已确认的问题和明确的功能限制；操作方法见各功能指南，验证记录见[当前版本验证](validation.md)。
 
 ## Windows 工具包修订
 
@@ -68,7 +68,7 @@
 
 The original v0.3.0 can reject pre-capture, pixel-shift or open-gate builds on Windows with `Compiled patch source does not match the reviewed recipe`, even when `--check` passes. v0.3.0-r1 fixes path-separator comparison. Extract the complete revised toolkit into a fresh directory and build from official C 3.11 into a new output directory. Keep the recipes and hash checks intact. `--check` validates input compatibility; it is not a complete build check. See [issue #12](https://github.com/XinmiaoZhao/NikonFirmwarePatch/issues/12).
 
-Applies to the current four-group pre-release, built from official Nikon Z8 C 3.11. Historical limitations name their affected releases.
+Applies to the current four-group release, v0.4.0, built from official Nikon Z8 C 3.11. Historical limitations name their affected releases.
 
 ### RAW capture and pre-capture
 

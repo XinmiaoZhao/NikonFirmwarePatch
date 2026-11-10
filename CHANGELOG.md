@@ -1,10 +1,11 @@
 # 更新日志 / Changelog
 
+
 ## 未发布（开发分支）/ Unreleased (development branch)
 
 ### 新增
 
-- **第五组构建选项 `video-orientation`（记录视频方向）。** 视频拍摄菜单新增“记录视频方向”行（标题逐字对齐经用户确认的 36 语言表，取值复用原厂开／关文案），插入在“图像区域”之前，按视频拍摄菜单库 A–D 保存，默认开。开启时在录像开始锁存竖拍（两个方向）与 180° 倒置姿态，并经相机唯一的封装路径把旋转元数据（tkhd 显示矩阵）写入全部录像格式（MP4/H.264、H.265、ProRes 422 HQ、ProRes RAW、N-RAW）；关闭时容器与原厂输出逐字节一致。断电后回到默认“开”（与 H.265 档位同一类会话语义），会话内关闭随菜单库分别保持。非空组合增至 31 种并冻结全部配方；离线检查通过，仿真与实机验收项见[验证记录](docs/validation.md)。此组尚未随 v0.4.0-rc.2 发布。
+- **第五组构建选项 `video-orientation`（记录视频方向）。** 视频拍摄菜单新增“记录视频方向”行（标题逐字对齐经用户确认的 36 语言表，取值复用原厂开／关文案），插入在“图像区域”之前，按视频拍摄菜单库 A–D 保存，默认开。开启时在录像开始锁存竖拍（两个方向）与 180° 倒置姿态，并经相机唯一的封装路径把旋转元数据（tkhd 显示矩阵）写入全部录像格式（MP4/H.264、H.265、ProRes 422 HQ、ProRes RAW、N-RAW）；关闭时容器与原厂输出逐字节一致。断电后回到默认“开”（与 H.265 档位同一类会话语义），会话内关闭随菜单库分别保持。非空组合增至 31 种并冻结全部配方；离线检查通过，仿真与实机验收项见[验证记录](docs/validation.md)。此组尚未随 v0.4.0 发布。
 
 ### 修复
 
@@ -16,7 +17,7 @@
 
 **Added**
 
-- A fifth build group, `video-orientation` (record video orientation), not part of the v0.4.0-rc.2 release. It inserts a "Record video orientation" row before "Image area" in the video shooting menu — titles verbatim from the user-confirmed 36-language table, values reuse the camera's own On/Off texts — stored per movie shooting bank A–D and defaulting to On. When On, the roll latched at recording start (either portrait direction or 180° upside-down) is written as rotation metadata (the tkhd display matrix) through the camera's single muxing path into every recorded format (MP4/H.264, H.265, ProRes 422 HQ, ProRes RAW, N-RAW); when Off, containers are byte-identical to stock. A power cycle returns every bank to the default On (the same session semantics as the H.265 tier); a manual Off persists per bank within the session. Nonempty combinations grow to 31 with all recipes frozen; offline checks pass, and the pending emulation and camera items are listed in the [validation record](docs/validation.md).
+- A fifth build group, `video-orientation` (record video orientation), not part of the v0.4.0 release. It inserts a "Record video orientation" row before "Image area" in the video shooting menu — titles verbatim from the user-confirmed 36-language table, values reuse the camera's own On/Off texts — stored per movie shooting bank A–D and defaulting to On. When On, the roll latched at recording start (either portrait direction or 180° upside-down) is written as rotation metadata (the tkhd display matrix) through the camera's single muxing path into every recorded format (MP4/H.264, H.265, ProRes 422 HQ, ProRes RAW, N-RAW); when Off, containers are byte-identical to stock. A power cycle returns every bank to the default On (the same session semantics as the H.265 tier); a manual Off persists per bank within the session. Nonempty combinations grow to 31 with all recipes frozen; offline checks pass, and the pending emulation and camera items are listed in the [validation record](docs/validation.md).
 
 **Fixed**
 
@@ -26,7 +27,9 @@
 
 ## v0.4.0 — 四组补丁 / Four feature groups
 
-当前预发布：[v0.4.0-rc.2](https://github.com/XinmiaoZhao/NikonFirmwarePatch/releases/tag/v0.4.0-rc.2)。以下变化相对于上一公开功能系列 v0.3.0／v0.3.0-r1。RC2 补全 README 使用说明、致谢和模拟器截图；固件补丁与 RC1 相同。
+## [v0.4.0](https://github.com/XinmiaoZhao/NikonFirmwarePatch/releases/tag/v0.4.0) — 四组补丁 / Four feature groups
+
+2026-11-10 发布。以下变化相对于上一公开功能系列 v0.3.0／v0.3.0-r1。v0.4.0 的源码、九份预编译补丁单元和固件补丁与预发布版 v0.4.0-rc.2 相同，只更新版本标注和下载链接；RC2 补全了 README 使用说明、致谢和模拟器截图，固件补丁与 RC1 相同。
 
 ### 新增
 
@@ -46,6 +49,8 @@
 - **组合与分发。** 四组共享菜单布局、语言资源及菜单库字段复制。完整 toolkit 提供九份与源码匹配的编译单元。Windows CI 使用经哈希验证的发行 ZIP 构建固件，并将全选输出与提供的参考哈希比较。
 
 ### English
+
+Released 2026-11-10. Changes are relative to the previous public series, v0.3.0/v0.3.0-r1. The source, nine compiled patch units and firmware patches of v0.4.0 match pre-release v0.4.0-rc.2; only version labels and download links changed.
 
 **Added**
 
