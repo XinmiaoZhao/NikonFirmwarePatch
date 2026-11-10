@@ -34,7 +34,7 @@ ffmpeg（ffplay／ffprobe）、Adobe Premiere Pro、DaVinci Resolve、Final Cut 
 - **离线检查全部通过**：全量单元测试；非空组合 31 种全部配方冻结（15 份无照片工具组合真实构建逐字节复验，16 份含照片工具组合经混合装配与结构审计冻结）；`verify.py` 对单选与“四视频组＋视频方向”产物独立核验通过。
 - **仿真全部通过**：全系统引导零异常横幅，首次开页武装默认状态并具幂等性；行值以原厂布尔开关样式渲染，翻值即时生效且与存储字节同轨；菜单库切换时取值随库双向搬运。
 - **实机（菜单）全部通过**：保存、菜单库切换、断电回默认开与菜单重设，与已发布的 H.265 档位功能完全一致。
-- **实机（录制）**：全部 10-bit 与 12-bit 格式逐握持验证通过——H.265 10-bit MOV、N-RAW（NEV 与同录代理 MP4）、ProRes RAW 10-bit 与 12-bit（含同录代理）；正拍不标记、倒置 180°、两向竖拍各得相反的 90°。8-bit 格式（H.264 8-bit MP4/MOV、H.265 8-bit MOV）的写入路径已经离线与仿真验证，实机验证进行中。
+- **实机（录制）全部通过**：相机录制的全部格式逐握持验证——H.265 10-bit 与 8-bit MOV、H.264 8-bit MP4/MOV、N-RAW（NEV 与同录代理 MP4）、ProRes RAW 10-bit 与 12-bit（含同录代理）；正拍不标记、倒置 180°、两向竖拍各得相反的 90°，全部文件在电脑上以 ffprobe 核验。
 
 ### 已知问题
 
@@ -72,7 +72,7 @@ ffmpeg (ffplay/ffprobe), Adobe Premiere Pro, DaVinci Resolve, Final Cut Pro, VLC
 - **Offline checks pass**: the full unit-test suite; all 31 five-group recipes frozen (the 15 without photo-tools rebuilt byte-exactly; the 16 photo-tools combinations via hybrid assembly with a structural audit); `verify.py` independently passes the single-group and four-video-groups-plus-orientation outputs.
 - **Emulation passes**: full-system boot with zero exception banners; the first menu open arms the default state and a second open changes nothing; the value renders in the stock On/Off switch style and toggles immediately in step with the stored byte; the value follows menu-bank switches in both directions.
 - **Camera (menu) passes**: saving, menu-bank switching, the power-cycle default and the reset-menu behaviour all match the shipped H.265 tier feature exactly.
-- **Camera (recording)**: every 10-bit and 12-bit format is verified per grip -- H.265 10-bit MOV, N-RAW (the NEV file and its simultaneous proxy MP4) and ProRes RAW in both 10-bit and 12-bit with proxies; landscape stays unmarked, upside-down gets 180 degrees and the two portrait grips get opposite 90-degree marks. The write path for the 8-bit formats (H.264 8-bit MP4/MOV, H.265 8-bit MOV) passes the offline and emulator checks; camera verification is in progress.
+- **Camera (recording) passes**: every format the camera records is verified per grip -- H.265 10-bit and 8-bit MOV, H.264 8-bit MP4/MOV, N-RAW (the NEV file and its simultaneous proxy MP4) and ProRes RAW in both 10-bit and 12-bit with proxies; landscape stays unmarked, upside-down gets 180 degrees and the two portrait grips get opposite 90-degree marks, with every file checked on a computer through ffprobe.
 
 ### Known issues
 
