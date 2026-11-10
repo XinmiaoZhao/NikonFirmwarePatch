@@ -12,6 +12,11 @@ Builds the hooks from z8vrotate/src/hooks.S into the stock EG:
   classifies the gravity vector and refreshes the pose latch, and the
   session-boundary opens (w1 == 0 read-parse, w1 == 2 post-finalize udta
   patch) clear it, so the sticky pose never outlives the take.
+* 0x40ce4294 (t15c): the stock add-track entry becomes `b vr_track_hook`;
+  every movie writer -- including the 8-bit legacy pipeline's remux writer
+  whose opens bypass the recording-side trampoline -- refreshes the pose
+  at its track registration, so no deliverable can carry a previous take's
+  frozen pose.
 * T6: the synthesized inline-toggle menu row 0x315B (title id 3225,
   36-language table in translations.py) cloned field-for-field from
   the stock attenuator row 0x2FC0, with its transition table cloned
@@ -67,6 +72,15 @@ MATRIX_SITE, MATRIX_STOCK_WORD = 0x40cefd60, 0x97FFD09F
 # Latch hook: recording-side file open marshaling trampoline entry (t2 report).
 LATCH_SITE, LATCH_RESUME = 0x40d17728, 0x40d17730
 LATCH_STOCK = bytes.fromhex('08de80d28863a0f2')
+# Track hook (t15c): the stock add-track entry FUN_40ce4294.  Every movie
+# writer registers its tracks here -- engine, PRF worker and the 8-bit
+# legacy pipeline's remux writer whose file opens bypass the recording-side
+# trampoline entirely (camera evidence 2026-11-10: every 8-bit take carried
+# the previous live take's frozen sticky pose).  The hook refreshes the pose
+# at every writer start; the 8-bit deliverable writer registers post-stop,
+# with the orientation sensors live again.
+TRACK_SITE, TRACK_RESUME = 0x40ce4294, 0x40ce4298
+TRACK_STOCK_WORD = 0xF81A0FFC      # str x28, [sp, #-0x60]!
 # T1 anchors: sensor-subsystem gate word and normalised gravity vector f32 x3.
 ORIENT_VALID, GRAVITY_VEC = 0x0A02E56018, 0x0A02E560E0
 THRESHOLD_BITS = 0x3F333333        # IEEE754 bits of 0.70f (dominant-axis gate)
@@ -371,6 +385,9 @@ def build_main(eg, code, entries, context):
     img.put(LATCH_SITE, branch(LATCH_SITE, entries['vr_latch_hook']) + NOP,
             'record file open trampoline: mov/movk x8 pair -> b vr_latch_hook + nop',
             expect=LATCH_STOCK)
+    img.put(TRACK_SITE, branch(TRACK_SITE, entries['vr_track_hook']),
+            'movie add-track entry: str x28,[sp,#-0x60]! -> b vr_track_hook (pose refresh at every writer start)',
+            expect=struct.pack('<I', TRACK_STOCK_WORD))
     img.put(CODE_AT, code, 'vrotate unit: matrix hook, latch hook, classifier, row hooks, default-on init',
             expect_zero=True)
     img.put(VR_EVENTS_AT, events,

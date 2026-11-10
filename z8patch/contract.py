@@ -96,6 +96,8 @@ def verify_contract(old,new,features):
         need(old[0x40d17728-base:0x40d17730-base]==bytes.fromhex('08de80d28863a0f2'),'vrotate latch site stock bytes')
         need(cave<=branch_target(0x40d17728,read(new,'<I',0x40d17728-base)[0])<unit_end,'vrotate latch hook branch into the cave')
         need(read(new,'<I',0x40d1772C-base)[0]==0xD503201F,'vrotate latch site trailing nop')
+        need(read(old,'<I',0x40ce4294-base)[0]==0xF81A0FFC,'vrotate track site stock word')
+        need(cave<=branch_target(0x40ce4294,read(new,'<I',0x40ce4294-base)[0])<unit_end,'vrotate track hook branch into the cave')
         need(struct.pack('<Q',0xA03D5C26A) in new[cave-base:unit_end-base],'vrotate active value byte literal in the unit')
         # A+ migration (2026-11-09 vrotate-fix t1 report): the unit state
         # lives in the boot-copied data mirror window EG [0x4B25800,0x4B25900)

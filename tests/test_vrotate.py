@@ -49,6 +49,9 @@ MATRIX_SITE, MATRIX_STOCK_WORD = 0x40cefd60, 0x97FFD09F
 # trampoline: mov x8,#0x6f0 ; movk x8,#0x31c,lsl#16 (t2 report).
 LATCH_SITE = 0x40d17728
 LATCH_STOCK = bytes.fromhex('08de80d28863a0f2')
+# The track hook replaces the first instruction of the stock add-track
+# entry FUN_40ce4294: str x28,[sp,#-0x60]! (t15c pose refresh per writer).
+TRACK_SITE, TRACK_STOCK_WORD = 0x40ce4294, 0xF81A0FFC
 CAVE_BASE, CAVE_LIMIT = 0x40A08000, 0x40A10000
 
 # A+ state window (2026-11-09 vrotate-fix t1 report, four-leg zero-writer
@@ -708,7 +711,7 @@ class StorageWiringTests(unittest.TestCase):
         self.assertEqual(storage['value_off'], patcher.VALUE_OFF)
         self.assertEqual(storage['value_addr'], hex(patcher.VALUE_ADDR))
         self.assertEqual([int(a, 16) for a in storage['records']], list(patcher.BANK_RECORDS))
-        self.assertEqual(len(img.edits), 5)   # unit, two hook sites, state window, events window
+        self.assertEqual(len(img.edits), 6)   # unit, three hook sites, state window, events window
 
 
 class MenuRowBuildTests(unittest.TestCase):
@@ -850,7 +853,8 @@ class UnitBuildTests(unittest.TestCase):
         # events sub-window (T2b capacity bound; no .org slot any more).
         self.assertLessEqual(CAVE_BASE + len(code), VR_EVENTS_AT)
         entries = {name: int(sym['va'], 16) for name, sym in observed['symbols'].items()}
-        for name in ('vr_matrix_hook', 'vr_latch_hook', 'vr_latch_displaced'):
+        for name in ('vr_matrix_hook', 'vr_latch_hook', 'vr_latch_displaced',
+                     'vr_track_hook'):
             self.assertIn(name, entries, name)
             self.assertTrue(CAVE_BASE <= entries[name] < CAVE_LIMIT, name)
         # A+ migration: the five data labels left the cave for the data
@@ -866,18 +870,25 @@ class UnitBuildTests(unittest.TestCase):
         self.assertEqual(eg[MATRIX_SITE - EG_BASE:MATRIX_SITE - EG_BASE + 4],
                          struct.pack('<I', MATRIX_STOCK_WORD))
         self.assertEqual(eg[LATCH_SITE - EG_BASE:LATCH_SITE - EG_BASE + 8], LATCH_STOCK)
+        self.assertEqual(eg[TRACK_SITE - EG_BASE:TRACK_SITE - EG_BASE + 4],
+                         struct.pack('<I', TRACK_STOCK_WORD))
         # The displaced pair replayed in the cave equals the stock bytes.
         at = entries['vr_latch_displaced'] - CAVE_BASE
         self.assertEqual(bytes(code[at:at + 8]), LATCH_STOCK)
+        # The displaced add-track first instruction replayed in the track hook
+        # equals the stock word.
+        hook = code[entries['vr_track_hook'] - CAVE_BASE:
+                    entries['vr_track_hook'] - CAVE_BASE + 32]
+        self.assertIn(struct.pack('<I', TRACK_STOCK_WORD), hook)
         # Patch generation applies to the stock image: the two expect-byte
         # gates and the zero-cave / zero-window checks all pass.
         from z8patch.shared import Strings
         img, meta = patcher.build_main(eg, code, entries, Strings())
-        self.assertEqual(len(img.edits), 5)
+        self.assertEqual(len(img.edits), 6)
         sites = sorted(e['offset'] for e in img.edits)
         self.assertEqual(sites, sorted((MATRIX_SITE - EG_BASE, LATCH_SITE - EG_BASE,
-                                        CAVE_BASE - EG_BASE, VR_STATE_IMG_OFF,
-                                        VR_EVENTS_AT - EG_BASE)))
+                                        TRACK_SITE - EG_BASE, CAVE_BASE - EG_BASE,
+                                        VR_STATE_IMG_OFF, VR_EVENTS_AT - EG_BASE)))
         # Offline disassembly (capstone) of the edited sites and the unit.
         from capstone import Cs, CS_ARCH_ARM64, CS_MODE_LITTLE_ENDIAN
         md = Cs(CS_ARCH_ARM64, CS_MODE_LITTLE_ENDIAN)
@@ -890,6 +901,9 @@ class UnitBuildTests(unittest.TestCase):
         self.assertEqual(b.mnemonic, 'b')
         self.assertEqual(int(b.op_str.removeprefix('#'), 16), entries['vr_latch_hook'])
         self.assertEqual(by_va[LATCH_SITE][4:], b'\x1f\x20\x03\xd5')    # trailing nop
+        tb = next(md.disasm(by_va[TRACK_SITE], TRACK_SITE))
+        self.assertEqual(tb.mnemonic, 'b')
+        self.assertEqual(int(tb.op_str.removeprefix('#'), 16), entries['vr_track_hook'])
         # Inside the unit: the matrix hook tail-branches to write_bytes and
         # only ever redirects x1; the latch hook gates on w1 and resumes at
         # 0x40d17730.
@@ -925,7 +939,7 @@ class UnitBuildTests(unittest.TestCase):
                 movz_immediates.add(int(i.op_str.split('#')[-1], 16))
         self.assertIn(patcher.SENTINEL_VALUE, movz_immediates)
         # Negative gates: stock bytes that differ must fail the build.
-        for bad_site in (MATRIX_SITE, LATCH_SITE + 4):
+        for bad_site in (MATRIX_SITE, LATCH_SITE + 4, TRACK_SITE):
             bad = bytearray(eg)
             bad[bad_site - EG_BASE] ^= 1
             with self.assertRaises(ValueError, msg=hex(bad_site)):
@@ -1344,6 +1358,7 @@ class IntegrationTests(unittest.TestCase):
         purposes = [r['purpose'] for r in rows]
         self.assertTrue(any('movie tkhd matrix copy' in p for p in purposes))
         self.assertTrue(any('record file open trampoline' in p for p in purposes))
+        self.assertTrue(any('movie add-track entry' in p for p in purposes))
 
     def test_vrotate_recipe_frozen(self):
         """The vrotate-only composition matches the frozen recipe (T8 freeze)."""
@@ -1775,7 +1790,7 @@ class BuildTimeGuardTests(unittest.TestCase):
         declared = asm_global_declarations(sources)
         self.assertEqual(sorted(n for n in declared if n.startswith('vr_')),
                          ['vr_latch_hook', 'vr_matrix_hook', 'vr_refresh_hook',
-                          'vr_row_hook'])
+                          'vr_row_hook', 'vr_track_hook'])
         units = json.loads((ROOT / 'resources' / 'compiled.json').read_text())['units']
         # M-C: for every asm unit the registration is EXACTLY the .global
         # declarations intersected with the frozen symbol table, in both

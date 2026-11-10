@@ -357,6 +357,18 @@ vr_classify:                       // b in / br x17 out; returns w8 = code 0..3
 8:  mov  w8, wzr                   // gate off / no dominant axis / invalid
 9:  br   x17
 
+.balign 16
+.global vr_track_hook
+vr_track_hook:                     // entered via b from 0x40ce4294 (FUN entry); x0 = muxer ctx
+    adr  x17, 2f                   // t15c pose refresh at every writer's track
+    b    vr_default_on             // registration: engine, PRF worker and the 8-bit
+2:  adr  x17, 3f                   // legacy pipeline's remux writer (whose file opens
+    b    vr_classify               // bypass the recording-side trampoline entirely,
+3:  ldr  x9, =VR_LATCH_RAM         // so its sticky latch never refreshed -- camera
+    strb w8, [x9]                  // evidence: every 8-bit take carried the previous
+    str  x28, [sp, #-0x60]!        // live take's pose) all register tracks here.
+    b    original_40ce4298         // displaced first stock instruction; resume
+
 .ltorg
 /* End of the unit: pure code plus the literal pool above.  The row-events
  * transition-table clone moved to the fixed sub-window VR_EVENTS_AT
