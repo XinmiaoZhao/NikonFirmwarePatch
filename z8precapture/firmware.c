@@ -114,6 +114,7 @@ typedef long s64;
 #define F_PVQ 0x40u                /* RAW-only: main JPEG at the stock NEF-preview quality, embedded (needs F_RAWONLY and F_FULL) */
 #define F_MENU 0x80u               /* HN4: every C15/C30 frame follows Image quality (needs 1|2|0x10, 30 frames; 4/0x20/0x40 not in the file) */
 #define F_KNOWN 0xffu
+#define F_NEFONLY 0x200u           /* build() only (never stored or in a file): this card gets only the NEF (ACT_NEF) */
 #define F_PREV 0x100u              /* HN4, effective flags only (never in a file): RAW + JPEG with a second, preview-quality encode */
 #define PVQ_MARK 0x31515650u       /* "PVQ1": record +0x7c, written by P7 after the parameters were replaced */
 #define SPLIT_MARK 0x314c5053u     /* "SPL1": record A_SPLIT, HN7: the primary card's files are written, E kept for the secondary */
@@ -1025,6 +1026,19 @@ static u8 *nb(u8 *p,const char *v,const u8 *body,u32 n,u32 zeros) {   /* "0100"+
 /* Header block: TIFF, IFD0, SubIFDs, GPS, Exif, thumbnail, MakerNote (+PreviewIFD); the
  * VGA preview stream follows directly as the MakerNote's last bytes.
  * h is the CPU view of the stock JPEG header buffer: SOI, APP1 Exif, APP1 XMP, APP2 MPF. */
+/* MakerNote 0x0056 (stock writer 0x406ea4e8): version, burst-start file id, shot number, burst flag at +12.
+ * The stock header was made for the JPEG plan, so the start id has type 0 (JPG). When this card gets only the NEF,
+ * give the start id the NEF type, as prepare() does for nid. Only the type nibble changes, and only for an id the
+ * stock validator 0x4086cd5c accepts (bits 4, 30, 31 clear). buf: 16 bytes that outlive emit(). */
+static void fix56(ent_t *t,u32 n,u32 flags,u8 *buf) {
+    if(!(flags&F_NEFONLY)) return;
+    for(u32 i=0;i<n;i++) {
+        if(t[i].tag!=0x0056 || t[i].type!=7 || t[i].count!=16 || !t[i].data) continue;
+        copy(buf,t[i].data,16); u32 st=get32(buf+4);
+        if(buf[12] && st && !(st&0xC0000010u)) { set32(buf+4,(st&~15u)|2u); t[i].data=buf; }
+        return;
+    }
+}
 static int build(out_t *w,const u8 *h,u32 hl,const u32 *hlen,u64 m,lay_t *L,u32 flags,u8 *wk,u32 cls,u32 dims) {
     ent_t *t=(ent_t *)(wk+TAB); u32 n;
     if(hl<0x400 || get32(h)!=0xe1ffd8ffu || LOAD32(m+0x2bc)!=0) return 0;   /* M+0x2bc=0: RGGB */
@@ -1131,6 +1145,7 @@ static int build(out_t *w,const u8 *h,u32 hl,const u32 *hlen,u64 m,lay_t *L,u32 
     /* MakerNote rebuilt with its IFD at offset 8; every value relocated into it. */
     pad2(w); L->mn_at=w->pos; u32 mb=w->pos+10; put(w,nikon2,18);
     n=0; if(!copy_entries(&MN,im,t,&n,skipm,sizeof(skipm)/2)) return 0;
+    fix56(t,n,flags,v+384);                                               /* 0x0056  v+384 (free: NEFInfo uses v+0..v+272, v+512..) */
     add(t,&n,0x0004,2,8,quality_raw);
     add(t,&n,0x0044,3,1,jpgc_nef);
     e=add(t,&n,0x0011,4,1,0); if(!e) return 0; e->slot=P_MNPV;
@@ -1314,7 +1329,8 @@ __attribute__((noinline)) static plan_t *prepare(const job_t *jb) {
     }
     if(!jpg_name(p->jid,p->fin,p->tmp) || p->fin[0]!=p->drive || p->fin[1]!=':' || EXISTS(p->fin)>=0 || EXISTS(p->tmp)>=0) goto bad;
     zero((u8 *)&w,sizeof(w)); w.o=wk; w.cap=HDR_MAX;
-    if(!build(&w,(const u8 *)XLATE(hp),hl,p->hlen,p->m,&p->L,p->flags,wk,p->cls,LOAD32(jb->e+0x38)) || p->L.end_at<p->L.raw_at) goto bad;
+    u32 only=(p->dual?dual_action(p->flags,p->role,p->second):((p->flags&F_RAWONLY)?ACT_NEF:ACT_BOTH))==ACT_NEF?F_NEFONLY:0u;   /* as flow() */
+    if(!build(&w,(const u8 *)XLATE(hp),hl,p->hlen,p->m,&p->L,p->flags|only,wk,p->cls,LOAD32(jb->e+0x38)) || p->L.end_at<p->L.raw_at) goto bad;
     p->hdr_bytes=w.pos; p->total=p->L.end_at+((p->flags&F_FOOTER)?512u:0u); p->t_header=now();
     return p;
 bad:
@@ -1454,7 +1470,18 @@ __attribute__((noinline)) static u32 stock_nef(plan_t *p,u32 raw_only) {
 #ifdef TEST_FORCE_BAD                 /* test builds only: take the internal-failure exit after registration */
     goto bad;
 #endif
+    /* The stock writer's completion (0x406cd6f8) reads M+0x118/+0x11c/+0x120 again for the playback file list
+     * (callback 0x4070a6a8). Give it the NEF-typed start id the file carries (fix56), for this file's slot as
+     * the stock selection picks it, and put the word back afterwards. */
+    u64 sw=0; u32 sv=0;
+    if(raw_only && LOAD32(p->m+0x120)) {
+        u32 s0=LOAD32(p->m+0x118),s1=LOAD32(p->m+0x11c);
+        sw=(s1 && ((s0>>29)&3u)!=((p->nid>>29)&3u))?p->m+0x11c:p->m+0x118;
+        sv=LOAD32(sw);
+        if(sv && !(sv&0xC0000010u)) STORE32(sw,(sv&~15u)|2u); else sw=0;
+    }
     c0=now(); nst=ORIG_WRITE(0,3,(u64)jp); c1=now();
+    if(sw) STORE32(sw,sv);
     if(nst!=0) stop_file(p->drive,S_WRITE_FAIL,p->shot);        /* the stock writer cancelled the member itself */
     else if(EXISTS(p->fin)<0) stop_file(p->drive,S_MISSING,p->shot);
     else if(c1-c0>=p->budget) stop_file(p->drive,S_BUDGET,p->shot);
