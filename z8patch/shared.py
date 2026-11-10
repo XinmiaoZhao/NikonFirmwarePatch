@@ -9,7 +9,7 @@ TEXT, TABLES, TABLES_END = 0x40A50000, 0x40A70000, 0x40AF0000
 # Highest allocated id + 1.  Compositions without vrotate keep the
 # reviewed four-group string-table length (their unused ids stay empty
 # strings, exactly as before), so their recipe bytes are unchanged until
-# the vrotate release freezes the regenerated recipes (T8).
+# the vrotate release freezes the regenerated recipes.
 STRING_END = max(first + count for first, count in STRING_IDS.values())
 LEGACY_END = max(first + count for name, (first, count) in STRING_IDS.items()
                  if name != 'vrotate')

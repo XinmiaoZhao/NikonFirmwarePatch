@@ -1,7 +1,7 @@
-"""Frozen 36-language title table for the vrotate menu row (T6).
+"""Frozen 36-language title table for the vrotate menu row.
 
-The table is the user-confirmed verbatim baseline of 2026-11-08,
-transcribed from docs/t14-video-orientation-re.md §7 "用户确认的 36
+The table is the user-confirmed verbatim baseline,
+recorded in the project's engineering notes as "用户确认的 36
 语言行标题表" (outer repo); any deviation from that table is a spec
 defect.  The strings were originally derived offline from the official
 stock strings (provenance notes below) and then corrected against the

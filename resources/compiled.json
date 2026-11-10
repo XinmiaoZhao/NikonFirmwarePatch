@@ -2108,7 +2108,7 @@
         }
       },
       "source_sha256": {
-        "z8patch/src/shared.S": "3732f1b92b0ea73456a8f135a616dca7d3913f8979915b6c076c729cb03ad13d"
+        "z8patch/src/shared.S": "8fc8f0e19eab769a295d5df8921e4f2b6b8e6d9e997fd693912ffc4b7ee27106"
       },
       "compiler": "clang version 19.1.7 (/home/runner/work/llvm-project/llvm-project/clang cd708029e0b2869e80abe31ddb175f7c35361f90)",
       "flags": [
@@ -2158,10 +2158,10 @@
       },
       "source_sha256": {
         "z8vrotate/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-        "z8vrotate/matrices.py": "3fa3f88ea388482f28cd9fae2f7c4e66602fb99a17ee405dac07ba96bacfcf51",
-        "z8vrotate/patcher.py": "78e6bf65a0aa81e30f3f77e1925e7daf647e973587a2ca5ae7f07e6983a149a7",
-        "z8vrotate/src/hooks.S": "e10a7e3388376712c7e3bca2b6d772687c9a1284fe946335daa504129bce451d",
-        "z8vrotate/translations.py": "80802fbcb7b491806fae989665dacf169b026359b520da7317dca7101f1d09b8"
+        "z8vrotate/matrices.py": "3b5571504ffe880ca3f8df90728e56f111a102436759c894e8eff1b7a0dc13fe",
+        "z8vrotate/patcher.py": "2fa7fc14204486d38d67c8d94d8d0e55411a0fb042730c84766addbec077e0a9",
+        "z8vrotate/src/hooks.S": "d1b8202025711d82634ec5c61e8e56dfbdc37b32a43ef9f834b5cf4cc38b7256",
+        "z8vrotate/translations.py": "d75bb0a4e1dcd747be6294bba1725b403aad5e3d5f9f9e5367d76b784fb6d79c"
       },
       "compiler": "clang version 19.1.7 (/home/runner/work/llvm-project/llvm-project/clang cd708029e0b2869e80abe31ddb175f7c35361f90)",
       "flags": [

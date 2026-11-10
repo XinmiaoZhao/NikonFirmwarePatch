@@ -1,28 +1,28 @@
-"""vrotate: pose-latched tkhd display matrices for movies (T5 + T6).
+"""vrotate: pose-latched tkhd display matrices for movies.
 
 Builds the hooks from z8vrotate/src/hooks.S into the stock EG:
 
 * 0x40cefd60: the single video-track tkhd matrix copy (`bl 0x40ce3fdc`)
   becomes `bl vr_matrix_hook`; the hook redirects x1 to a cave matrix when
   the sticky latch holds a valid pose code, otherwise passes x1 through
-  (2026-11-10 t15: the latch is no longer read-and-cleared here -- every
+  (the latch is never read-and-cleared here -- every
   moov build of the take must see the same pose).
 * 0x40d17728: the recording-side file open marshaling trampoline entry
   becomes `b vr_latch_hook` + nop; the main-movie write open (w1 == 1)
   classifies the gravity vector and refreshes the pose latch, and the
   session-boundary opens (w1 == 0 read-parse, w1 == 2 post-finalize udta
   patch) clear it, so the sticky pose never outlives the take.
-* 0x40ce4294 (t15c): the stock add-track entry becomes `b vr_track_hook`;
+* 0x40ce4294: the stock add-track entry becomes `b vr_track_hook`;
   every movie writer -- including the 8-bit legacy pipeline's remux writer
   whose opens bypass the recording-side trampoline -- refreshes the pose
   at its track registration, so no deliverable can carry a previous take's
   frozen pose.
-* T6: the synthesized inline-toggle menu row 0x315B (title id 3225,
+* The synthesized inline-toggle menu row 0x315B (title id 3225,
   36-language table in translations.py) cloned field-for-field from
   the stock attenuator row 0x2FC0, with its transition table cloned
   into the fixed cave sub-window and the three toggle
   actions rerouted to vr_row_hook.
-* T7: the row value is stored per movie shooting bank in byte +2 of the
+* The row value is stored per movie shooting bank in byte +2 of the
   DS item 0x1257 record family (copy type 0, registered size 1 -- the
   same 4-byte slot whose +1 byte hosts the shipped H.265 tier constant).
   bank_records() re-pins the five record addresses from the stock bank
@@ -30,7 +30,7 @@ Builds the hooks from z8vrotate/src/hooks.S into the stock EG:
   (vr_default_on in hooks.S, mirrored by default_on()) defaults every
   bank to On.
 
-A+ migration (2026-11-09 vrotate-fix t1 report): the five unit data
+State-window migration: the five unit data
 labels (vr_matrices, vr_axis_codes, vr_threshold, vr_latch, vr_sentinel)
 live in a 256 B window of the boot-loaded data mirror segment, not in
 the read-only cave.  The window was picked by a four-leg zero-writer
@@ -41,21 +41,16 @@ and the window tail carries the 0xA5 magic byte that witnesses a real
 boot copy.  hooks.S receives the label VAs through -D defines
 (asm_defines, the z8log asm_defines precedent).
 
-T2b (2026-11-09 user ruling): the row-events transition-table clone
+Fixed events sub-window: the row-events transition-table clone
 rides its own image edit at the fixed cave sub-window VR_EVENTS_AT =
 0x40A09000 (the z8h265 MENU_AT form) instead of an organic in-unit
 slot -- unit growth is decoupled from the frozen external rows that
 name the table.
 
-T4 (2026-11-09 vrotate-a2 arc): the row value renders through the
-stock boolean value widget 0x405121E4(child, byte) -- the attenuator
-row's own path -- instead of the retired string-id call
-0x403F645C(child, 2466/2467): the 0x1327 value-child template runs
-mode==3 and truncates string ids above 299 (2026-11-08 arc t6 report
-section 2), which the leg-0 menu probe confirmed live on the
-synthesized row (broken value render with the toggle and storage byte
-still working).  Only the two value renders retarget; the toggle,
-storage and sentinel paths are untouched.
+The row value renders through the stock boolean value widget
+0x405121E4(child, byte) -- the attenuator row's own path.  The string-id
+call 0x403F645C(child, 2466/2467) is unusable here: the 0x1327
+value-child template runs mode==3 and truncates string ids above 299.
 """
 import struct
 
@@ -67,28 +62,28 @@ from z8prores.package import require
 from . import matrices, translations
 
 CODE_AT, CODE_END = 0x40A08000, 0x40A10000   # see hooks.S header and ReservationCensusTests
-# Matrix hook: single video-track tkhd matrix copy site (t3 report).
+# Matrix hook: the single video-track tkhd matrix copy site.
 MATRIX_SITE, MATRIX_STOCK_WORD = 0x40cefd60, 0x97FFD09F
-# Latch hook: recording-side file open marshaling trampoline entry (t2 report).
+# Latch hook: recording-side file open marshaling trampoline entry.
 LATCH_SITE, LATCH_RESUME = 0x40d17728, 0x40d17730
 LATCH_STOCK = bytes.fromhex('08de80d28863a0f2')
-# Track hook (t15c): the stock add-track entry FUN_40ce4294.  Every movie
+# Track hook: the stock add-track entry FUN_40ce4294.  Every movie
 # writer registers its tracks here -- engine, PRF worker and the 8-bit
 # legacy pipeline's remux writer whose file opens bypass the recording-side
-# trampoline entirely (camera evidence 2026-11-10: every 8-bit take carried
+# trampoline entirely (camera evidence: every 8-bit take carried
 # the previous live take's frozen sticky pose).  The hook refreshes the pose
 # at every writer start; the 8-bit deliverable writer registers post-stop,
 # with the orientation sensors live again.
 TRACK_SITE, TRACK_RESUME = 0x40ce4294, 0x40ce4298
 TRACK_STOCK_WORD = 0xF81A0FFC      # str x28, [sp, #-0x60]!
-# T1 anchors: sensor-subsystem gate word and normalised gravity vector f32 x3.
+# Sensor anchors: the subsystem enable byte and the gravity vector f32 x3.
 ORIENT_VALID, GRAVITY_VEC = 0x0A02E56018, 0x0A02E560E0
 THRESHOLD_BITS = 0x3F333333        # IEEE754 bits of 0.70f (dominant-axis gate)
 SENTINEL_VALUE = 0x5A              # must equal VR_SENTINEL_VALUE in hooks.S;
                                     # test_unit_builds pins both materializations
 NOP = struct.pack('<I', 0xD503201F)
 
-# A+ state window (t1 report design facts, four-leg zero-writer census):
+# State window (design facts, a four-leg zero-writer census):
 # RAM [0xA0281A800,0xA0281A900) inside the boot-loaded data mirror segment,
 # EG image [0x4B25800,0x4B25900).  The boot segment loader re-copies the
 # window from the image every power cycle; EL0 code can write it.  The
@@ -102,7 +97,7 @@ VR_AXIS_CODES_OFF, VR_LATCH_OFF, VR_SENTINEL_OFF = 0x70, 0x76, 0x77
 VR_MAGIC_OFF, VR_MAGIC = 0xFF, 0xA5  # power-cycle boot-copy witness byte
 STATE_LABELS = ('vr_matrices', 'vr_axis_codes', 'vr_threshold', 'vr_latch', 'vr_sentinel')
 
-# Fixed sub-window for the row-events transition-table clone (T2b, the
+# Fixed sub-window for the row-events transition-table clone (the
 # z8h265 MENU_AT form): the 44x32 B table rides its own expect_zero image
 # edit at a patcher-constant cave address, so unit code/pool growth can
 # never move any external frozen byte that names the table.  4K-aligned,
@@ -123,15 +118,14 @@ VR_EVENTS_END = VR_EVENTS_AT + 44 * 32
 # full checking again).  See z8patch.contract.assert_no_cave_store_targets.
 STORE_TARGET_WHITELIST = {0x40A08160: 'sentinel-arm store: base is the state-window sentinel literal 0xA0281A877 loaded at 0x40a08150; the intervening cbnz (0x40a08158) forwards to 0x40a08190 past the entire init store series, so the def dominates the store on every path'}
 
-# T6 menu row: cloned from the stock audio attenuator row (item 0x2FC0,
+# Menu row: cloned from the stock audio attenuator row (item 0x2FC0,
 # row index 35 of the 44-row video menu table, class word 0x20901005).
 ROW_ITEM, TITLE_ID = 0x315B, 3225
-# T4 value-render path: the stock boolean value widget takes the row's
+# Value-render path: the stock boolean value widget takes the row's
 # value child and the value byte itself (1 = On / 0 = Off; internal ids
 # 0x125A/0x125C) -- the attenuator row's own path.  The retired string-id
 # call truncated ids above 299 on the mode==3 0x1327 child template
-# (2026-11-08 arc t6 report section 2; broken render confirmed live by
-# the 2026-11-09 leg-0 menu probe).
+# (the mode==3 truncation).
 VALUE_WIDGET, RETIRED_VALUE_ID_CALL = 0x405121E4, 0x403F645C
 ATTEN_ITEM = 0x2FC0
 ATTEN_ROW = (0x567, 0xFFFF, 0xFFFF, 0, 0x20901005, 0x1327, 0x2FC0,
@@ -143,11 +137,11 @@ ROW_EVENT_COUNT = 44               # transition records incl. the 0x3BB terminat
 ROWS_AT, EVENTS_AT = 0x3AA4758, 0x3AA4EE8   # stock row / pointer tables (EG offsets)
 TABLE_DIR, BLOB_DIR, STOCK_IDS = 0x311C5A0, 0x387AF58, 3137
 
-# T7 per-bank storage: byte +2 of the DS item 0x1257 record family.  The
+# Per-bank storage: byte +2 of the DS item 0x1257 record family.  The
 # item is registered with copy type 0 and size 1, so the stock bank-copy
 # engine and the settings engine only ever touch byte +0; +1 already hosts
 # the shipped H.265 tier byte (0xA03D5C269) and +2 is proven stock-unused
-# in every copy (t7 report Step 0: zero literal / movz-chain materializations
+# in every copy (a zero-hit scan of literal and movz-chain materializations
 # of any spare byte address across the whole EG).  Bank 0 is the active
 # working record the menu reads and writes; banks 1..4 are the movie
 # shooting-bank storages A-D (0x2d0 apart).  bank_records() re-derives
@@ -157,17 +151,14 @@ BANK_RECORDS = (0xA03D5C268, 0xA03D5C538, 0xA03D5C808, 0xA03D5CAD8, 0xA03D5CDA8)
 VALUE_ADDR = BANK_RECORDS[0] + VALUE_OFF   # the active-record byte (0xA03D5C26A)
 CATEGORY_TABLE, ITEM_TYPE_TABLE = 0x440244C8, 0x4400A5C0
 
-# [axis*2 + sign] -> own pose code.  2026-11-10 t15 on-camera evidence
-# (the retired T1 assignment was a circular QEMU-model guess): chip X is the
-# camera vertical axis (sign inverted vs the guess) and chip Y is the roll
-# axis the guess had zeroed -- the NEV take matrices identify the fired
-# lanes exactly:
+# [axis*2 + sign] -> own pose code.  On-camera evidence (the NEV take
+# matrices identify the fired lanes exactly): chip X is the camera vertical
+# axis and chip Y is the roll axis,
 #   +X=3 (upside-down grip -> 180 deg), -X=0 (level landscape, no mark),
 #   +Y=1 / -Y=2 (the two portrait grips; EXIF-6/-8 semantics).
-# Both camera rounds confirmed the X lanes; the portrait pair shipped as
-# the derived tentative (+Y/-Y -> 2/1) came out mirrored on camera
-# (2026-11-10 second round: both portrait grips marked, directions swapped),
-# so bytes 2/3 are flipped -- now fully empirical.
+# The portrait pair order follows the camera rounds: the first confirmed
+# the X lanes, the second marked both grips with swapped
+# directions and settled the byte 2/3 order.  Fully empirical.
 AXIS_CODES = bytes((3, 0, 1, 2, 0, 0))
 
 # Codes 1..3 only: code 0 / invalid is a passthrough, the stock identity
@@ -188,13 +179,13 @@ def asm_defines():
 
 
 def classify(gate, x, y, z):
-    """Mirror of the vr_classify cave routine; returns the pose code 0..3.
+    """Mirror of the vr_classify routine; returns the pose code 0..3.
 
     Same algorithm and state-window constants as the assembled unit: gate
     word must be 1, sign bits stripped, magnitudes compared as unsigned
     float bits, argmax with the x-beats-y-beats-z tie-break, dominant axis
     at or above THRESHOLD_BITS, code = AXIS_CODES[axis*2 + sign].  Byte-level
-    agreement with the unit is asserted by the T10 emulation round and the
+    agreement with the unit is asserted by the emulator rounds and the
     StateWindowTests mirror-parity vectors.
     """
     if gate != 1:
@@ -211,7 +202,7 @@ def classify(gate, x, y, z):
 
 
 def matrix_decision(latch, enable=1):
-    """Mirror of vr_matrix_hook's sticky-latch decision (2026-11-10 t15 fix).
+    """Mirror of vr_matrix_hook's sticky-latch decision.
 
     Returns (matrix or None, latch): the latch is returned UNCHANGED --
     every moov build of the same take (placeholder/recovery rebuilds into
@@ -231,7 +222,7 @@ def matrix_decision(latch, enable=1):
 
 
 def latch_open(mode, gate, x, y, z):
-    """Mirror of vr_latch_hook's session-scoped refresh/clear (t15 fix).
+    """Mirror of vr_latch_hook's session-scoped refresh/clear.
 
     mode is the open mode word (w1 at 0x40d17728): 1 = main-movie write
     open (recording start) refreshes the pose through the classifier;
@@ -287,7 +278,7 @@ def default_on(copies, sentinel):
 
 
 def menu_row(eg):
-    """The 0x2FC0 template row and its transition-table pointer (T6 Step 0)."""
+    """The 0x2FC0 template row and its transition-table pointer ."""
     rows = [struct.unpack_from('<11I', eg, ROWS_AT + 44 * i) for i in range(44)]
     found = [i for i, r in enumerate(rows) if r[6] == ATTEN_ITEM]
     require(found == [35] and rows[35] == ATTEN_ROW, 'vrotate attenuator template row')
@@ -347,7 +338,7 @@ def build_main(eg, code, entries, context):
     # resolves into the read-only cave -- the original EL0 crash class.
     assert_no_cave_store_targets(bytes(code), CODE_AT, (CODE_AT, CODE_END),
                                  STORE_TARGET_WHITELIST)
-    # A+ migration guards: the data labels must not live in the cave unit
+    # State-window guards: the data labels must not live in the cave unit
     # any more, and the unit must address the window through pool literals.
     for name in STATE_LABELS:
         require(name not in entries, 'vrotate state label must not stay in the cave: ' + name)
@@ -355,7 +346,7 @@ def build_main(eg, code, entries, context):
                 VR_SENTINEL_OFF):
         require(struct.pack('<Q', VR_STATE_VA + off) in code,
                 'vrotate state window literal missing from the unit: +%#x' % off)
-    # The row-events clone rides its own fixed sub-window (T2b); the unit is
+    # The row-events clone rides its own fixed sub-window ; the unit is
     # pure code + pool and must stop short of that window, whose tail stays
     # stock zero.
     require(VR_EVENTS_AT % 0x1000 == 0 and CODE_AT < VR_EVENTS_AT

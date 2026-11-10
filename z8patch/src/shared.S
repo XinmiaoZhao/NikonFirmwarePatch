@@ -5,7 +5,7 @@
  * cbz below skips it, so their recipes stay byte-identical.
  * Copy only the selected extra bytes: DS 120B +1/+3, 122C/1238 +1 and 1257 +1
  * as reviewed, plus -- video-orientation only -- 1257 +2, the vrotate
- * per-bank orientation byte (t7 writer scan: stock only manages +0, and the
+ * per-bank orientation byte (a full-image writer scan: stock only manages +0, and the
  * shipped tier byte at 1257 +1 rides the same record).
  * Each row callback omits its old call to the native refresh. Call native once here.
  */

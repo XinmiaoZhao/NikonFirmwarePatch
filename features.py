@@ -39,8 +39,8 @@ def compose(eg, features, compiler='clang', code_source='prebuilt', *, check_rec
     img = Image(eg)
     strings,menu=Strings(),VideoMenu(eg)
     detail,callbacks={},{}
-    # T3 build-time address-coupling guards: D1 refuses any .org in the
-    # SPECS-declared unit assembly sources on every build; D2 placements
+    # Build-time address-coupling guards: the .org scan refuses any .org in
+    # the SPECS-declared unit assembly sources on every build; placements
     # accumulate below and the cross-region pointer sweep runs once the
     # emit region is complete.
     assert_no_org_directives(unit_asm_sources())
@@ -134,7 +134,7 @@ def compose(eg, features, compiler='clang', code_source='prebuilt', *, check_rec
         detail['menu']=menu.emit(img,chosen,code,entries,callbacks)
     else:detail['menu']=None
     detail['loader']=loader(img,chosen)
-    # D2: with every edit in place, emit-region qwords outside the unit
+    # Pointer sweep: with every edit in place, emit-region qwords outside the unit
     # spans may only name registered unit entry symbols.
     assert_no_cross_region_pointers(img.edits, placements)
     rows = [dict(offset=hex(e['offset']),bytes=len(e['new']),purpose=e['purpose'],

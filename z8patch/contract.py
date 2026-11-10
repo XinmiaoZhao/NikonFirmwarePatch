@@ -4,8 +4,8 @@ No composer, assembler, linker or resource-generator imports; the only
 inputs are the two images, the feature list and (for the vrotate unit
 bound) the frozen reviewed recipe resources/compiled.json.
 
-The build-time address-coupling guards at the bottom (2026-11-09
-vrotate-fix t3) are the machine-enforced form of the NikonFirmwarePatch
+The build-time address-coupling guards at the bottom are the
+machine-enforced form of the NikonFirmwarePatch
 iron rules: unit sources stay pure code + pool (.org ban), emit-region
 bytes may only name registered unit entry symbols, and a unit's data
 stores must resolve outside the read-only cave.
@@ -81,7 +81,7 @@ def verify_contract(old,new,features):
         units=json.loads((Path(__file__).resolve().parents[1]/'resources/compiled.json').read_text())['units']
         cave=0x40A08000;unit_end=cave+units['vrotate']['bytes']
         need(not any(old[cave-base:0x40A10000-base]),'vrotate cave free in stock')
-        # T2b: the row-events clone rides its own fixed sub-window
+        # The row-events clone rides its own fixed sub-window
         # 0x40A09000-0x40A09580; the gap between the unit and that window and
         # the tail past it stay stock zero.
         need(not any(new[unit_end-base:0x40A09000-base]),'vrotate cave gap stays stock zero')
@@ -99,11 +99,11 @@ def verify_contract(old,new,features):
         need(read(old,'<I',0x40ce4294-base)[0]==0xF81A0FFC,'vrotate track site stock word')
         need(cave<=branch_target(0x40ce4294,read(new,'<I',0x40ce4294-base)[0])<unit_end,'vrotate track hook branch into the cave')
         need(struct.pack('<Q',0xA03D5C26A) in new[cave-base:unit_end-base],'vrotate active value byte literal in the unit')
-        # A+ migration (2026-11-09 vrotate-fix t1 report): the unit state
+        # State-window migration: the unit state
         # lives in the boot-copied data mirror window EG [0x4B25800,0x4B25900)
         # (RAM 0xA0281A800).  Fixed facts: the window base literal rides in
         # the unit, the threshold and axis codes sit at the frozen offsets
-        # (t15 on-camera evidence: +X=180 grip, -X=landscape, +Y/-Y=portrait
+        # (on-camera evidence: +X=180 grip, -X=landscape, +Y/-Y=portrait
         # pair), the sticky latch and first-boot sentinel mirror bytes ship 0
         # and the window tail byte is the 0xA5 magic (a boot-copy witness that
         # zero-initialized RAM cannot fake).
@@ -113,7 +113,7 @@ def verify_contract(old,new,features):
         need(window[0x70:0x76]==bytes((3,0,1,2,0,0)),'vrotate axis codes in the state window')
         need(window[0x76]==0 and window[0x77]==0,'vrotate sticky latch and sentinel mirror bytes ship zero')
         need(window[0xFF]==0xA5,'vrotate state window magic byte')
-        # T2b fixed events sub-window: the 44-record clone with its 0x3BB
+        # Fixed events sub-window: the 44-record clone with its 0x3BB
         # terminator, three actions into the unit code, and the 8 B
         # emit-region pointer naming the window (the only external byte that
         # carries the table address).  `events` above is the VIDEO_EVENTS
@@ -123,7 +123,7 @@ def verify_contract(old,new,features):
         need(sum(1 for i in range(44) if read(table,'<Q',32*i+8)[0] in range(cave,unit_end))==3,
             'vrotate events window toggle actions into the unit')
         need(read(new,'<Q',events-base+8*ids.index(0x315B))[0]==0x40A09000,'vrotate row transition table at the fixed events window')
-        # T4 value render: both row hooks call the stock boolean value
+        # Value render: both row hooks call the stock boolean value
         # widget with the value byte itself; the retired string-id call
         # must be gone from the unit.
         words = struct.unpack_from(f'<{(unit_end - cave)//4}I', new, cave - base)
@@ -140,13 +140,13 @@ def verify_contract(old,new,features):
                 exact_group_visibility=True,zero_state=True,loader_end=hex(end),vrotate=vrotate)
 
 
-# ---- Build-time address-coupling guards (2026-11-09 vrotate-fix t3) ----
+# ---- Build-time address-coupling guards ----
 
 ORG_DIRECTIVE = re.compile(r'(?m)^[ \t]*(?:(?:[\w.$]+|\d+):[ \t]*)?\.org\b')
 
 
 def assert_no_org_directives(sources):
-    """D1: unit assembly sources must not pin their own layout.
+    """The .org scan: unit assembly sources must not pin their own layout.
 
     sources is the SPECS-declared unit source list (z8patch.compiled.
     unit_asm_sources, which also enforces that every *.S under a
@@ -181,7 +181,7 @@ def assert_no_org_directives(sources):
 # Every name below is an external-linkage hook/interface function that the
 # owning patcher writes into an emit-region qword (pre-capture callback
 # slots; pixel shift menu/modal/browser callbacks); each was proven by the
-# t3 existing-stock sweep (build/t3, reports/t3-report.md).
+# existing-stock sweep of the whole firmware image.
 C_UNIT_ENTRY_CONTRACT = {
     'precapture': ('precapture_display_mode', 'precapture_ordinary_code',
                    'precapture_ordinary_star', 'precapture_quality_code',
@@ -227,7 +227,7 @@ def registered_unit_entries(name, entries, sources):
 
 
 def assert_no_cross_region_pointers(rows, placements, base=0x40160000):
-    """D2: emit-region bytes may only name registered unit entries.
+    """The pointer sweep: emit-region bytes may only name registered unit entries.
 
     rows are the composition edits (dicts with offset/end/new, EG offsets);
     placements are (name, start_va, end_va, registered_entries) for every

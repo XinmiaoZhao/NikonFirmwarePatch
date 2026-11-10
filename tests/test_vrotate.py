@@ -1,17 +1,17 @@
 #!/usr/bin/env python3
-"""Calibrated tkhd display matrices for the video-orientation feature (T4).
+"""Calibrated tkhd display matrices for the video-orientation feature.
 
-Plus T5 unit tests (classify mirror, sticky session latch, unit build), the
-T6 menu-row tests (the 36-language title table, the 0x2FC0 transition-table
+Plus the unit tests (classify mirror, sticky session latch, unit build), the
+menu-row tests (the 36-language title table, the 0x2FC0 transition-table
 clone, the z8patch/shared.py extensions) and -- when the stock firmware
 fixture and an aarch64-capable clang are present -- compilation, linking
 and patcher edit generation for the vrotate cave unit with its synthesized
 inline-toggle menu row.
 
-T7 adds the per-bank storage tests: the pure-Python default-on mirror
+The per-bank storage tests add: the pure-Python default-on mirror
 (first-boot sentinel init, idempotence, user-off preservation), the value
 byte wiring (row toggle and matrix hook reference the active DS record
-byte; the T6 cave vr_value/vr_enable bytes are retired), and the Step-0
+byte; the retired cave vr_value/vr_enable bytes are gone), and the
 candidate-byte evidence encoded as test data (pinned bank-record addresses
 plus a fresh writer scan over the stock image, so a firmware change that
 touches the record bytes fails loudly).
@@ -50,11 +50,11 @@ MATRIX_SITE, MATRIX_STOCK_WORD = 0x40cefd60, 0x97FFD09F
 LATCH_SITE = 0x40d17728
 LATCH_STOCK = bytes.fromhex('08de80d28863a0f2')
 # The track hook replaces the first instruction of the stock add-track
-# entry FUN_40ce4294: str x28,[sp,#-0x60]! (t15c pose refresh per writer).
+# entry FUN_40ce4294: str x28,[sp,#-0x60]! (per-writer pose refresh).
 TRACK_SITE, TRACK_STOCK_WORD = 0x40ce4294, 0xF81A0FFC
 CAVE_BASE, CAVE_LIMIT = 0x40A08000, 0x40A10000
 
-# A+ state window (2026-11-09 vrotate-fix t1 report, four-leg zero-writer
+# State window (design facts, a four-leg zero-writer
 # census): the five unit data labels moved out of the read-only cave into a
 # 256 B window of the boot-loaded data mirror segment.  RAM window and its
 # EG image offsets below are pinned literals, independent of the patcher.
@@ -65,7 +65,7 @@ VR_MATRICES_OFF, VR_THRESHOLD_OFF = 0x00, 0x6C
 VR_AXIS_CODES_OFF, VR_LATCH_OFF, VR_SENTINEL_OFF = 0x70, 0x76, 0x77
 VR_MAGIC_OFF, VR_MAGIC = 0xFF, 0xA5
 
-# T2b (2026-11-09 user ruling): the row-events clone lives at a patcher-
+# Fixed events sub-window: the row-events clone lives at a patcher-
 # constant fixed sub-window of the cave (the z8h265 MENU_AT form), not at an
 # organic in-unit slot behind .org padding -- unit growth is decoupled from
 # the frozen transition-pointer recipe rows.  4K-aligned, inside the cave,
@@ -76,7 +76,7 @@ VR_EVENTS_END = VR_EVENTS_AT + VR_EVENTS_SIZE
 
 # The SPECS-declared unit assembly sources at the A1 freeze (14 files
 # across seven folders; pinned independently of SPECS so a registry edit
-# cannot silently reshape the D1 scan list).
+# cannot silently reshape the .org scan list).
 UNIT_ASM_SOURCE_LIST = [
     'z8anamorphic/src/hooks.S',
     'z8h265/src/hooks.S',
@@ -154,18 +154,18 @@ class MatrixTests(unittest.TestCase):
 
 
 class ClassifyMirrorTests(unittest.TestCase):
-    """Python mirror of the vr_classify cave routine (T1 ruling, T5).
+    """Python mirror of the vr_classify routine.
 
     The latch hook classifies the normalised gravity vector (f32 x3 at
     0x0A02E560E0) itself; z8vrotate.patcher.classify mirrors the assembly
     algorithm (sign-bit strip, unsigned magnitude compare, argmax with the
     x > y > z tie-break, state-window threshold, axis*2+sign table lookup)
     against the same state-window constants.  Byte-level agreement with
-    the assembled unit is exercised by the T10 emulation round.
+    the assembled unit is exercised by the emulator rounds.
     """
 
     def test_six_canonical_vectors(self):
-        """The six single-axis vectors map to pose codes through the t15
+        """The six single-axis vectors map to pose codes through the
         on-camera axis table (chip X = camera vertical, Y = roll, Z = lens)."""
         from z8vrotate import patcher
         canonical = (
@@ -178,7 +178,7 @@ class ClassifyMirrorTests(unittest.TestCase):
         )
         for vector, expected in canonical:
             self.assertEqual(patcher.classify(1, *vector), expected, vector)
-        # The shipped assignment is fully empirical: the t15 NEV matrices
+        # The shipped assignment is fully empirical: the NEV matrices
         # pinned the lanes, and the second camera round flipped the portrait
         # pair (both grips marked, directions swapped -> bytes 2/3 swapped).
         self.assertEqual(patcher.AXIS_CODES, bytes((3, 0, 1, 2, 0, 0)))
@@ -211,7 +211,7 @@ class ClassifyMirrorTests(unittest.TestCase):
 
 
 class StickyLatchTests(unittest.TestCase):
-    """Sticky session latch (2026-11-10 t15 fix) -- the retired one-shot
+    """Sticky session latch -- the retired one-shot
     read-and-clear lost the mark on every QuickTime-family recording.
 
     Recorded files carry ftyp + moov + free + mdat with the moov written
@@ -270,10 +270,9 @@ class StickyLatchTests(unittest.TestCase):
 
 
 class TranslationTests(unittest.TestCase):
-    """36-language title table for the vrotate row (T6).
+    """36-language title table for the vrotate row.
 
-    The table is the user-confirmed verbatim baseline of 2026-11-08
-    (docs/t14-video-orientation-re.md §7 in the outer repo); it descends
+    The table is the user-confirmed verbatim baseline; it descends
     from the official id 2458 "Record camera orientation" translations
     with each language's video word from id 2214, and z8vrotate/
     translations.py documents the derivation plus the confirmed-table
@@ -284,8 +283,7 @@ class TranslationTests(unittest.TestCase):
         """All 36 titles equal the user-confirmed table verbatim.
 
         The expected strings below are transcribed from docs/
-        t14-video-orientation-re.md §7 "用户确认的 36 语言行标题表"
-        (outer repo, 2026-11-08 session confirmation) as literal test
+        "用户确认的 36 语言行标题表" (session confirmation) as literal test
         data; any deviation from that table is a spec defect.  Slot 34
         (Arabic) must carry no trailing right-to-left mark.
         """
@@ -354,7 +352,7 @@ class TranslationTests(unittest.TestCase):
 
 
 class RowEventsTests(unittest.TestCase):
-    """Transition-table clone of the 0x2FC0 template row (T6 Step 0).
+    """Transition-table clone of the 0x2FC0 template row.
 
     The stock video-menu row for the audio attenuator (item 0x2FC0, row
     class 0x20901005) carries its per-row transition table at 0x43C33EF0:
@@ -408,14 +406,14 @@ class RowEventsTests(unittest.TestCase):
 
 
 class SharedExtensionTests(unittest.TestCase):
-    """z8patch/shared.py extensions for the fifth feature group (T6).
+    """z8patch/shared.py extensions for the fifth feature group.
 
     STRING_IDS gains 'vrotate': (3225, 1); the shared string table only
     grows when the vrotate provider is actually composed, so every existing
     combination keeps its reviewed recipe bytes; VideoMenu.emit inserts the
     synthesized row 0x315B immediately before the stock image-area row
     0x30A6; CONFIG gains the fifth row-callback slot at +0x28, written only
-    for video-orientation compositions until the recipe freeze (T8).
+    for video-orientation compositions until the recipe freeze.
     """
 
     def test_string_allocation(self):
@@ -510,7 +508,7 @@ class SharedExtensionTests(unittest.TestCase):
 
 
 class DefaultOnTests(unittest.TestCase):
-    """Pure-Python mirror of the vr_default_on first-boot init (T7).
+    """Pure-Python mirror of the vr_default_on first-boot init.
 
     The cave sentinel byte boots 0 (the text loader re-copies the patched
     image every boot); the first hook pass -- from either the latch hook
@@ -553,7 +551,7 @@ class DefaultOnTests(unittest.TestCase):
 
 
 class CandidateByteEvidenceTests(unittest.TestCase):
-    """Step-0 candidate-byte evidence encoded as test data (T7).
+    """Candidate-byte evidence encoded as test data.
 
     The vrotate value byte is byte +2 of the DS item 0x1257 record family.
     The five record addresses below are pinned from the stock bank tables
@@ -570,7 +568,7 @@ class CandidateByteEvidenceTests(unittest.TestCase):
     scan re-proves per run that no code path materializes any of the
     +1/+2/+3 byte addresses (u64 literal or movz/movk chain -- ADRP
     cannot reach the 0xa03d5cxxx RAM window from EG code, ~0x5F0000000
-    beyond its +-4 GiB range).  See reports/t7-report.md for the full
+    beyond its +-4 GiB range).  See the bank-record scan in the engineering record for the full
     evidence chain including the negative controls.
     """
 
@@ -630,12 +628,12 @@ class CandidateByteEvidenceTests(unittest.TestCase):
 
 
 class StorageWiringTests(unittest.TestCase):
-    """The value byte wiring: DS record byte in, cave bytes out (T7).
+    """The value byte wiring: DS record byte in, cave bytes out.
 
     The row toggle flips and the value text reads the ACTIVE record byte
     (literal-address access like the H.265 TIER byte); the matrix hook's
     enable check reads the same byte; the first-boot init writes 1 to the
-    active record and all four bank storages.  The T6 cave bytes vr_value
+    active record and all four bank storages.  The retired cave bytes vr_value
     and vr_enable are retired: one byte, one source of truth.
     """
 
@@ -715,7 +713,7 @@ class StorageWiringTests(unittest.TestCase):
 
 
 class MenuRowBuildTests(unittest.TestCase):
-    """Full T6 build: unit + synthesized row + 36-language string (Step 1)."""
+    """Full menu-row build: unit + synthesized row + 36-language string."""
 
     def test_menu_row(self):
         from z8patch.shared import Strings
@@ -743,21 +741,21 @@ class MenuRowBuildTests(unittest.TestCase):
         self.assertEqual(row, (3225, *template[1:6], 0x315B, *template[7:]))
         self.assertEqual(row[4], 0x20901005)
         # The transition table clone lands at the fixed events sub-window and
-        # is registered there (T2b: no organic in-unit slot any more).
+        # is registered there (no organic in-unit slot any more).
         self.assertEqual(menu['row_table'], hex(VR_EVENTS_AT))
         events = next(e for e in img.edits if e['offset'] == VR_EVENTS_AT - EG_BASE)
         self.assertEqual(len(events['new']), VR_EVENTS_SIZE)
         self.assertEqual(events['new'], patcher.row_events(
             eg, patcher.menu_row(eg)[1], entries['vr_row_hook']))
         unit = bytes(img.new[CAVE_BASE - EG_BASE:CAVE_BASE - EG_BASE + len(code)])
-        # The value byte now lives in the DS record family (T7): the build
+        # The value byte now lives in the DS record family: the build
         # pins the five record addresses and reports the storage wiring.
         self.assertEqual(meta['storage']['value_addr'], hex(patcher.VALUE_ADDR))
         self.assertEqual(meta['storage']['item'], hex(patcher.BANK_ITEM))
         from z8vrotate import translations
         self.assertEqual(meta['strings']['ids'], [3225])
         self.assertEqual(context.groups['vrotate'], [[t] for t in translations.TITLES])
-        # T4 value-render fallback: both the toggle and the refresh path
+        # Value-render fallback: both the toggle and the refresh path
         # drive the row's value child through the stock boolean widget; the
         # retired string-id pair (2466/2467) must be gone from the unit.
         from capstone import Cs, CS_ARCH_ARM64, CS_MODE_LITTLE_ENDIAN
@@ -771,13 +769,13 @@ class MenuRowBuildTests(unittest.TestCase):
 
 
 class BooleanValuePathTests(unittest.TestCase):
-    """T4 value-render fallback: both hooks feed the value byte itself to
+    """Value-render fallback: both hooks feed the value byte itself to
     the stock boolean value widget.
 
-    The T6 string-id design (0x403F645C(child, 2466/2467)) renders broken
+    The string-id design (0x403F645C(child, 2466/2467)) renders broken
     content on the synthesized row: the 0x1327 value-child template runs
-    mode==3 and truncates string ids above 299 (2026-11-08 arc t6 report
-    section 2), which the 2026-11-09 leg-0 menu probe confirmed live (OFF-
+    mode==3 and truncates string ids above 299, which a manual emulator
+    check confirmed live (OFF-
     styled text unselected, hourglass icon highlighted, toggle and storage
     byte still working).  The fix keeps the toggle/storage/sentinel paths
     untouched and only re-targets the two value renders: each hook loads
@@ -830,7 +828,7 @@ class BooleanValuePathTests(unittest.TestCase):
 
 
 class UnitBuildTests(unittest.TestCase):
-    """Compile, link and patch-generate the vrotate unit (T5 Step 1).
+    """Compile, link and patch-generate the vrotate unit.
 
     Needs the stock firmware fixture plus clang; skipped otherwise so the
     suite stays green on machines without them.
@@ -850,23 +848,23 @@ class UnitBuildTests(unittest.TestCase):
         code, observed = compiled.compile_unit('vrotate', compiler)
         self.assertEqual(compiled.SPECS['vrotate']['asm_base'], CAVE_BASE)
         # Pure code + literal pool unit: it must stop short of the fixed
-        # events sub-window (T2b capacity bound; no .org slot any more).
+        # events sub-window (capacity bound; no .org slot any more).
         self.assertLessEqual(CAVE_BASE + len(code), VR_EVENTS_AT)
         entries = {name: int(sym['va'], 16) for name, sym in observed['symbols'].items()}
         for name in ('vr_matrix_hook', 'vr_latch_hook', 'vr_latch_displaced',
                      'vr_track_hook'):
             self.assertIn(name, entries, name)
             self.assertTrue(CAVE_BASE <= entries[name] < CAVE_LIMIT, name)
-        # A+ migration: the five data labels left the cave for the data
-        # mirror state window; T2b moves the row-events clone to the fixed
+        # State-window migration: the five data labels left the cave for the data
+        # mirror state window; the row-events clone moved to the fixed
         # events sub-window -- neither may come back as unit symbols.
         for name in ('vr_matrices', 'vr_axis_codes', 'vr_threshold', 'vr_latch',
                      'vr_sentinel', 'vr_row_events'):
             self.assertNotIn(name, entries, name)
-        # T7: the retired cave bytes must stay out of the unit.
+        # The retired cave bytes must stay out of the unit.
         for name in ('vr_value', 'vr_enable'):
             self.assertNotIn(name, entries, name)
-        # Stock gate bytes (t2/t3 reports) are present in the fixture.
+        # Stock gate bytes are present in the fixture.
         self.assertEqual(eg[MATRIX_SITE - EG_BASE:MATRIX_SITE - EG_BASE + 4],
                          struct.pack('<I', MATRIX_STOCK_WORD))
         self.assertEqual(eg[LATCH_SITE - EG_BASE:LATCH_SITE - EG_BASE + 8], LATCH_STOCK)
@@ -919,7 +917,7 @@ class UnitBuildTests(unittest.TestCase):
                             for i in latch_ins))
         self.assertTrue(any(i.mnemonic == 'b' and i.op_str == '#0x40d17730'
                             for i in latch_ins))
-        # T5 review carry-items plus the A+ migration: the threshold word in
+        # Review items plus the state-window migration: the threshold word in
         # the state window must stay 4-byte aligned; the gravity-vector and
         # state-window literals in the pool must equal the patcher constants;
         # the assembled sentinel immediate must equal patcher.SENTINEL_VALUE
@@ -947,7 +945,7 @@ class UnitBuildTests(unittest.TestCase):
 
 
 class StateWindowTests(unittest.TestCase):
-    """A+ migration (2026-11-09 vrotate-fix t1/t2): the five unit data
+    """State-window migration: the five unit data
     labels live in a window of the boot-loaded data mirror segment, not in
     the read-only cave.
 
@@ -997,7 +995,7 @@ class StateWindowTests(unittest.TestCase):
                           VR_LATCH_OFF, VR_SENTINEL_OFF, VR_MAGIC_OFF))
         self.assertEqual(patcher.VR_MAGIC, VR_MAGIC)
         # The window sits inside the boot-copied data mirror segment and the
-        # EG image offset is the segment arithmetic from the t1 fact block.
+        # EG image offset is the segment arithmetic of the boot data segment.
         self.assertTrue(DATA_VA <= VR_STATE_VA and VR_STATE_END <= DATA_VA + DATA_END - DATA_OFF)
         self.assertEqual(data_off(VR_STATE_VA), VR_STATE_IMG_OFF)
         self.assertEqual(VR_STATE_VA - DATA_VA + DATA_OFF, VR_STATE_IMG_OFF)
@@ -1011,7 +1009,7 @@ class StateWindowTests(unittest.TestCase):
         for off in (VR_MATRICES_OFF, VR_THRESHOLD_OFF, VR_AXIS_CODES_OFF,
                     VR_LATCH_OFF, VR_SENTINEL_OFF):
             self.assertIn(_struct.pack('<Q', VR_STATE_VA + off), code, hex(off))
-        # The unit is pure code + literal pool (T2b: the row-events clone is
+        # The unit is pure code + literal pool (the row-events clone is
         # gone to the fixed events sub-window), so no qword anywhere in the
         # unit may point into the cave: the five labels and the events table
         # used to ride there, and any in-cave pointer in the pool would be a
@@ -1026,7 +1024,7 @@ class StateWindowTests(unittest.TestCase):
         """The constants the assembled unit will read from the window are
         the ones the build materialized there (asm<->mirror parity).
 
-        Reclassifies the t1 six single-axis canonical vectors using ONLY
+        Reclassifies the six single-axis canonical vectors using ONLY
         bytes taken from the built state window edit, exactly the way
         vr_classify consumes them (threshold word at +0x6C, axis codes at
         +0x70), and checks the matrices the matrix hook would redirect to.
@@ -1097,7 +1095,7 @@ class StateWindowTests(unittest.TestCase):
 
 
 class EventsWindowTests(unittest.TestCase):
-    """T2b (2026-11-09 user ruling): the row-events clone lives at a
+    """Fixed events sub-window: the row-events clone lives at a
     patcher-constant fixed sub-window of the cave (the z8h265 MENU_AT form)
     instead of an organic in-unit slot behind .org padding.
 
@@ -1223,10 +1221,10 @@ class OldCombinationFreezeTests(unittest.TestCase):
 
 
 class ReservationCensusTests(unittest.TestCase):
-    """The text-gap reservation census (T8): the vrotate cave must be disjoint
+    """The text-gap reservation census: the vrotate cave must be disjoint
     from every other feature's reserved window.
 
-    Both T8 cave collisions (0x40A20000 with the quality icon PNG area,
+    Both former cave collisions (0x40A20000 with the quality icon PNG area,
     0x40A12000 with the H.265 menu-data area) were patcher-level reservations
     invisible to any single registry.  This census hardcodes the windows as
     documented by their owning modules and asserts the vrotate reservation is
@@ -1276,7 +1274,7 @@ class ReservationCensusTests(unittest.TestCase):
 
 
 class IntegrationTests(unittest.TestCase):
-    """End-to-end composition of the video-orientation feature group (T8).
+    """End-to-end composition of the video-orientation feature group.
 
     Full features.compose of the vrotate-only selection in source mode:
     the five-group FEATURES tuple, the shared five-slot CONFIG with mask 8,
@@ -1334,7 +1332,7 @@ class IntegrationTests(unittest.TestCase):
             self.assertNotIn(name, entries, name)
         self.assertEqual(detail['vrotate']['state_window'],
                          [hex(VR_STATE_VA), hex(VR_STATE_END)])
-        # T2b: the row-events clone rides its own edit at the fixed events
+        # The row-events clone rides its own edit at the fixed events
         # sub-window and is absent from the unit symbols.
         events = next(e for e in img.edits if e['offset'] == VR_EVENTS_AT - EG_BASE)
         self.assertEqual(len(events['new']), VR_EVENTS_SIZE)
@@ -1361,13 +1359,13 @@ class IntegrationTests(unittest.TestCase):
         self.assertTrue(any('movie add-track entry' in p for p in purposes))
 
     def test_vrotate_recipe_frozen(self):
-        """The vrotate-only composition matches the frozen recipe (T8 freeze)."""
+        """The vrotate-only composition matches the frozen recipe."""
         _, _, rows = self._compose(check_recipe=True)
         self.assertGreater(len(rows), 0)
 
 
 class ContractPinTests(unittest.TestCase):
-    """T8 review carry-item M1: the fifth-slot stock-zero build gate.
+    """Review item: the fifth-slot stock-zero build gate.
 
     The unfrozen shared unit runs an unconditional five-slot callback ring
     reading CONFIG+0x28 (0x40980F28) even in four-group builds, where the
@@ -1398,7 +1396,7 @@ class ContractPinTests(unittest.TestCase):
 
 
 class BuildTimeGuardTests(unittest.TestCase):
-    """T3 build-time guards (2026-11-09 vrotate-fix): the three architecture
+    """Build-time guards: the three architecture
     iron rules become standing assertions that refuse the build.
 
     * A -- the vrotate unit store census: every data write in the assembled
@@ -1406,9 +1404,9 @@ class BuildTimeGuardTests(unittest.TestCase):
       read-only at EL0; a store into it is the original crash class).
     * C -- window-fact doctored negatives: verify_contract must reject a
       corrupted state-window magic byte and a corrupted window base literal.
-    * D1 -- unit assembly sources must not use .org (unit source pinning is
+    * The .org scan -- unit assembly sources must not use .org (unit source pinning is
       the bright-line ban; .balign/.space stay legal for in-unit data).
-    * D2 -- cross-region pointer sweep: emit-region qwords outside unit
+    * The pointer sweep -- emit-region qwords outside unit
       spans may only name registered entry symbols of a unit.
     """
 
@@ -1461,7 +1459,7 @@ class BuildTimeGuardTests(unittest.TestCase):
 
     def test_store_census_rejects_adr_into_cave(self):
         """A store whose base register is an in-block adr of a cave target
-        (the original T2 crash shape: adr of an in-unit data label) must
+        (the original crash shape: adr of an in-unit data label) must
         fail the build."""
         code = self._adr(10, 8) + self._strb(8, 10)
         self.assertEqual(self._decode(code)[0], 'adr x10, #8')
@@ -1551,7 +1549,7 @@ class BuildTimeGuardTests(unittest.TestCase):
         self._census(small_keep)
 
     def test_store_census_conditional_branch_ends_the_window(self):
-        """M-1: a conditional branch between the base def and the store
+        """A conditional branch between the base def and the store
         ends the basic block -- the def is outside the window and the
         store is conservatively rejected (whitelist escape applies)."""
         from z8patch.contract import assert_no_cave_store_targets
@@ -1566,7 +1564,7 @@ class BuildTimeGuardTests(unittest.TestCase):
                                       whitelist=whitelist)
 
     def test_store_census_treats_every_store_family_member_as_a_store(self):
-        """M-2: unscaled/exclusive/atomic store forms (sturb, sttrb, swp,
+        """Unscaled/exclusive/atomic store forms (sturb, sttrb, swp,
         cas, stadd) are stores -- an unresolvable base is rejected, never
         silently passed.  Encodings verified against clang + capstone."""
         from z8patch.contract import assert_no_cave_store_targets
@@ -1624,7 +1622,7 @@ class BuildTimeGuardTests(unittest.TestCase):
                                          (CAVE_BASE, CAVE_LIMIT))
 
     def test_org_directive_rejected_in_unit_sources(self):
-        """D1 (A1 negative 1): any .org in a SPECS-declared unit source
+        """The .org scan (negative 1): any .org in a SPECS-declared unit source
         refuses the build; .balign/.space (legal in-unit padding/data)
         stay tolerated.  The scan takes the declared source set itself,
         never a filesystem glob."""
@@ -1637,7 +1635,7 @@ class BuildTimeGuardTests(unittest.TestCase):
         # Each offending shape gets its own file: the scan raises on the
         # first hit, so shared files would couple the assertions.
         for name, source in (('pinned.S', 'start:\n nop\n.org 0x2F0\ntable:\n nop\n'),
-                             # M-4: a label on the same line must not hide
+                             # a label on the same line must not hide
                              # the directive.
                              ('inlined.S', 'entry: nop\ntable: .org 0x100\n nop\n')):
             with tempfile.TemporaryDirectory() as folder, \
@@ -1651,7 +1649,7 @@ class BuildTimeGuardTests(unittest.TestCase):
             assert_no_org_directives([])
 
     def test_undeclared_asm_source_in_unit_directory_rejected(self):
-        """D1 (A1 negative 2): a *.S sitting under a registered unit's
+        """The .org scan (negative 2): a *.S sitting under a registered unit's
         source directory without a SPECS asm_sources declaration refuses
         the build -- an undeclared source silently escapes the .org scan
         even while carrying .org itself."""
@@ -1667,11 +1665,11 @@ class BuildTimeGuardTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, r'extra\.S.*z8probe'):
                 assert_asm_sources_declared([declared], [unit_dir])
             # Declared, the same file passes the completeness check (its
-            # .org then fails the D1 scan itself, covered above).
+            # .org then fails the .org scan itself, covered above).
             assert_asm_sources_declared([declared, stray], [unit_dir])
 
     def test_unit_asm_sources_runs_the_directory_consistency_check(self):
-        """M-A: the directory completeness check is mounted inside
+        """The directory completeness check is mounted inside
         unit_asm_sources() itself -- an undeclared source under a SPECS
         unit's source directory is refused through the real entry point,
         not only when assert_asm_sources_declared is invoked directly.
@@ -1698,7 +1696,7 @@ class BuildTimeGuardTests(unittest.TestCase):
                 compiled.SPECS = real_specs
 
     def test_nested_asm_source_under_unit_directory_rejected(self):
-        """M-B: the completeness check sweeps the unit directory TREE --
+        """The completeness check sweeps the unit directory TREE --
         a *.S nested in a subdirectory is refused exactly like a
         top-level stray, both through the parameterized check and through
         the unit_asm_sources() mount.  The mount leg covers asm-style
@@ -1719,7 +1717,7 @@ class BuildTimeGuardTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, r'rogue\.S.*z8probe'):
                 assert_asm_sources_declared([declared], [unit_dir])
             # Declared, the nested source passes the completeness check
-            # (its .org then fails the D1 scan itself, covered above).
+            # (its .org then fails the .org scan itself, covered above).
             assert_asm_sources_declared([declared, rogue], [unit_dir])
             # C-unit shape: a source-only spec (no asm_sources, like
             # z8precapture) whose directory holds no top-level .S at all
@@ -1742,7 +1740,7 @@ class BuildTimeGuardTests(unittest.TestCase):
     def test_repo_assembly_sources_are_org_free(self):
         """The SPECS-driven scan list is exactly the 14 shipped unit
         sources (pinned above as transcribed evidence, independent of
-        SPECS) and the real tree passes D1 on all of them."""
+        SPECS) and the real tree passes the .org scan on all of them."""
         from z8patch import compiled
         from z8patch.contract import assert_no_org_directives
         sources = compiled.unit_asm_sources()
@@ -1752,7 +1750,7 @@ class BuildTimeGuardTests(unittest.TestCase):
         self.assertEqual(assert_no_org_directives(sources), 14)
 
     def test_cross_region_pointer_rejects_non_entry_target(self):
-        """D2: an emit-region qword inside a unit span that does not name a
+        """The pointer sweep: an emit-region qword inside a unit span that does not name a
         registered entry symbol refuses the build; the same qword naming a
         registered entry passes."""
         from z8patch.contract import assert_no_cross_region_pointers
@@ -1778,7 +1776,7 @@ class BuildTimeGuardTests(unittest.TestCase):
 
     def test_registered_entry_mechanism(self):
         """Asm units register their .global hook labels -- exactly those and
-        nothing else (M-C bidirectional equality below); the C-unit
+        nothing else (the bidirectional equality below); the C-unit
         contract names all exist in the frozen symbol tables inside their
         spans."""
         import json
@@ -1792,10 +1790,10 @@ class BuildTimeGuardTests(unittest.TestCase):
                          ['vr_latch_hook', 'vr_matrix_hook', 'vr_refresh_hook',
                           'vr_row_hook', 'vr_track_hook'])
         units = json.loads((ROOT / 'resources' / 'compiled.json').read_text())['units']
-        # M-C: for every asm unit the registration is EXACTLY the .global
+        # For every asm unit the registration is EXACTLY the .global
         # declarations intersected with the frozen symbol table, in both
         # directions.  A registration weakened to the full symbol table
-        # would let D2 pass emit-region qwords naming unit-internal data
+        # would let the pointer sweep pass emit-region qwords naming unit-internal data
         # labels (vr_classify, tier_nominals and friends), and this
         # equality goes red.
         asm_units = sorted(set(units) - set(C_UNIT_ENTRY_CONTRACT))
@@ -1867,7 +1865,7 @@ class BuildTimeGuardTests(unittest.TestCase):
         """A2: the compose path itself must run the build-time guards -- a
         doctored declared source (.org), a doctored emit-region edit (a
         qword naming a non-entry unit interior address) and a removed
-        Guard A census call each leave this red; the guards are mounted,
+        store-census call each leave this red; the guards are mounted,
         not optional decoration beside the pipeline."""
         import tempfile
         import features
@@ -1880,7 +1878,7 @@ class BuildTimeGuardTests(unittest.TestCase):
         if not compiler:
             self.skipTest('no clang for the aarch64 unit build')
         old = Package(FIRMWARE.read_bytes()).eg
-        # D1 leg: a doctored entry in the declared source list must make
+        # .org-scan leg: a doctored entry in the declared source list must make
         # the full compose path raise (the scan mount consumes the list).
         with tempfile.TemporaryDirectory() as folder:
             doctored = Path(folder) / 'doctored.S'
@@ -1895,7 +1893,7 @@ class BuildTimeGuardTests(unittest.TestCase):
                             check_recipe=False)
             finally:
                 features.unit_asm_sources = real_sources
-        # D2 leg: an injected emit-region edit at a stock-zero cave-tail
+        # Pointer-sweep leg: an injected emit-region edit at a stock-zero cave-tail
         # address naming a unit interior non-entry address must make the
         # full compose path raise (the sweep mount runs over img.edits).
         real_build = vr_patcher.build_main
@@ -1913,7 +1911,7 @@ class BuildTimeGuardTests(unittest.TestCase):
                         check_recipe=False)
         finally:
             vr_patcher.build_main = real_build
-        # Guard A leg: the vrotate build must run the store census on the
+        # Store-census leg: the vrotate build must run the store census on the
         # assembled unit with the cave window (call recording; a removed
         # mount in z8vrotate.patcher leaves the list empty).
         calls = []
@@ -1933,10 +1931,10 @@ class BuildTimeGuardTests(unittest.TestCase):
 
 
 class DataMirrorReservationTests(unittest.TestCase):
-    """T3 B: the two vrotate windows registered in the patcher-level
+    """Window registry: the two vrotate windows registered in the patcher-level
     reservation census (cave dimension and data-mirror segment dimension).
 
-    The data-mirror table transcribes the t1 report Step 0b window census
+    The data-mirror table transcribes the documented window census
     (32 documented module windows in EG [0x4B13000,0x4DC0000); the t1
     prose counted 33 but its own table holds 32 -- 28 rows, four of them
     dual-entry) -- the vrotate state window must be disjoint from all of
@@ -1944,7 +1942,7 @@ class DataMirrorReservationTests(unittest.TestCase):
     granularity (dual caliber).
     """
 
-    # (eg_start, eg_end, owner) -- data-mirror segment windows (t1 report
+    # (eg_start, eg_end, owner) -- data-mirror segment windows (documented
     # Step 0b, cross-checked against each owning patcher's constants).
     DATA_MIRROR_CENSUS = (
         (0x4B68258, 0x4B68298, 'opengate spare groups 22..25 (z8opengate/imenu.py)'),

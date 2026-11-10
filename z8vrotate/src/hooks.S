@@ -1,8 +1,7 @@
-/* vrotate patch unit (T5): pose-latched tkhd display matrices for movies.
+/* vrotate patch unit: pose-latched tkhd display matrices for movies.
  *
  * Two hooks plus a classifier in cave 0x40A08000..0x40A10000 (SPECS 'vrotate',
- * z8patch/compiled.py).  Cave choice (T8, controller-approved after two
- * collisions): 0x40A20000 is the quality group's icon PNG area
+ * z8patch/compiled.py).  Cave choice: 0x40A20000 is the quality group's icon PNG area
  * (z8quality/patcher.py PNG=0x40A20000, reserved to 0x40A30000, frozen
  * v0.4.0 recipe data) and 0x40A12000-0x40A1F000 is the H.265 menu-data
  * area (z8h265/patcher.py MENU_AT/AREA_END) -- do not reuse either.  This
@@ -11,20 +10,19 @@
  * code base 0x40A10000; ReservationCensusTests in tests/test_vrotate.py
  * pins the full reservation census and fails loudly on any overlap.
  * All firmware evidence addresses below are stock EG
- * virtual addresses (BASE 0x40160000) from the vrotate reports
- * .superpowers/sdd/2026-11-08-vrotate/reports/ (t1 anchor, t2 latch site,
- * t3 serialize trace, t7 storage).
+ * virtual addresses (BASE 0x40160000) from the reverse-engineering record
+ * of the stock firmware.
  *
  * vr_matrix_hook -- replaces the stock `bl 0x40ce3fdc` (word 0x97ffd09f) at
  *   0x40cefd60, the single video-track tkhd matrix copy inside
  *   movie_build_videotrack_atoms (0x40cef3d0); every container mode
- *   (MOV/MP4/N-RAW) and codec funnels through it (t3 report).  Registers on
+ *   (MOV/MP4/N-RAW) and codec funnels through it.  Registers on
  *   entry: x0 = ctx+0x128 destination node, x1 = &stack identity blob,
  *   x2 = 0x24.  If the per-bank value byte at VR_VALUE is non-zero and the
  *   latch holds a valid code 1..3, x1 is redirected to
  *   vr_matrices+(code-1)*36 (36-byte big-endian 16.16 QuickTime display
  *   matrix; 1 = 90 deg CW, 2 = 90 deg CCW, 3 = 180; 0/invalid =
- *   passthrough).  The latch is STICKY (2026-11-10 t15 fix): the hook
+ *   passthrough).  The latch is STICKY: the hook
  *   reads it but never clears it, so every moov build of the same take
  *   (placeholder/recovery rebuilds into the reserved front-slot, a proxy
  *   writer finalising in the same stop window, a staged remux) sees the
@@ -46,7 +44,7 @@
  *   open marshaling trampoline at 0x40d17728 (stock: mov x8,#0x6f0 ;
  *   movk x8,#0x31c,lsl#16 -- two pure x8 scratch loads, bytes
  *   08de80d2 8863a0f2) with `b vr_latch_hook` + nop; no branch enters the
- *   trampoline mid-body (t2 report).  w1 is the open mode: 0 = read-parse
+ *   trampoline mid-body.  w1 is the open mode: 0 = read-parse
  *   (the engine's bit-0 session init and bit-7 post-take parse), 1 = main
  *   movie write (the two recording-start callers 0x40d1b3b8 and
  *   0x40d17c34), 2 = the post-finalize udta-patch open (engine bit-8;
@@ -57,7 +55,7 @@
  *   (vr_default_on below) runs first, then the classifier through an x17
  *   manual call: x30 must keep the original caller's return address
  *   because the stock trampoline tail-jumps at 0x40d17748 and the service
- *   returns through x30.  w1 != 1 CLEARS the latch (t15 fix): those opens
+ *   returns through x30.  w1 != 1 CLEARS the latch: those opens
  *   are recording-session boundaries -- read-parse brackets the recording
  *   and the udta patch is the take tail -- so the sticky pose never leaks
  *   past the take into a later non-recording finalize.  The clear path
@@ -67,7 +65,7 @@
  *   0x40d17730 with x0/x1 passed through untouched; NZCV may differ, but
  *   none of the resumed instructions consumes flags.
  *
- * vr_classify -- T1 ruling: classify the normalised gravity vector
+ * vr_classify -- classify the normalised gravity vector
  *   (f32 x3 at 0x0A02E560E0/E4/E8, published by the sensor fusion task at
  *   ~1 kHz) instead of reading the orientation enum (pinned to 3 by the
  *   all-zero factory calibration in emulation; the EXIF ctx+0x2500 lane is
@@ -84,11 +82,9 @@
  *   no mark).  Returns w8; manual-call linkage (b in, br x17 out) so x30
  *   stays intact; clobbers only w8..w16.
  *
- * Axis assignment (2026-11-10 t15 on-camera evidence; the retired T1
- *   "boot anchor" was circular -- the QEMU orientation model injected the
- *   very vector the guess assumed).  The first hardware truth is the NEV
- *   take set: the tkhd matrices of landscape/upside-down/portrait takes
- *   identify the fired lanes exactly, so the chip's real convention is
+ * Axis assignment (on-camera evidence: the tkhd matrices of
+ *   landscape/upside-down/portrait takes identify the fired lanes exactly,
+ *   so the chip's real convention is
  *     code 3: +X  upside-down grip (landscape rolled 180 deg) -> 180
  *     code 0: -X  level landscape grip (no mark)
  *     code 1: +Y  portrait, shutter-bottom (EXIF-6 semantics -> 90 deg CW)
@@ -98,15 +94,14 @@
  *   i.e. chip X = the camera vertical axis (sign inverted vs the old
  *   guess), chip Y = the roll axis the guess had zeroed (which is why both
  *   portrait takes carried no mark at all), chip Z = the lens axis.
- *   Both camera rounds confirmed the X lanes; the portrait pair shipped
- *   as the derived tentative (+Y/-Y -> 2/1) came out mirrored on camera
- *   (2026-11-10 second round: both grips marked, directions swapped), so
- *   bytes 2/3 are flipped -- the table is now fully empirical.
+ *   The table is fully empirical: the X lanes follow the first camera
+ *   round, and the portrait pair follows the second round, which marked
+ *   both grips with swapped directions and settled the byte 2/3 order.
  *
- * Per-bank value storage (T7): the value byte is byte +2 of the DS item
+ * Per-bank value storage: the value byte is byte +2 of the DS item
  *   0x1257 record family -- the 4-byte slot whose +1 byte hosts the shipped
  *   H.265 tier constant 0xA03D5C269 (z8h265 TIER).  The item registers
- *   copy type 0 size 1, so stock only manages byte +0; the t7 report's
+ *   copy type 0 size 1, so stock only manages byte +0; a full-image
  *   writer scan proves +2 unused in every copy.  Bank 0 (VR_VALUE) is the
  *   active working record the menu reads/writes; VR_COPY_B1..B4 are the
  *   movie-shooting-bank storages A-D.  Every access is a literal-address
@@ -127,8 +122,8 @@
  *   cycle re-copies the window (sentinel back to 0) and every bank
  *   defaults to On again.  Clobbers w8/w9/x10/x17 only.
  *
- * Unit state, in the boot-loaded data mirror window (A+ migration, the
- *   2026-11-09 vrotate-fix t1 report): a 256 B window of the boot data
+ * Unit state, in the boot-loaded data mirror window (the state-window
+ *   migration): a 256 B window of the boot data
  *   segment (RAM 0xA0281A800, EG image 0x4B25800) holds all five unit data
  *   labels -- vr_matrices 108 B = ORIENT_TO_MATRIX[1..3] big-endian 16.16
  *   words at +0x00, vr_threshold 4 B (0x3F333333) at +0x6C,
@@ -142,7 +137,7 @@
  *   (VR_*_RAM from patcher.asm_defines, the z8log asm_defines precedent);
  *   a naked assemble without the defines fails at link.
  *
- * Cave layout (T2b, 2026-11-09 user ruling): the unit is pure code plus its
+ * Cave layout: the unit is pure code plus its
  *   literal pool from 0x40A08000, capacity-checked against VR_EVENTS_AT
  *   (patcher.py).  The read-only vr_row_events 44x32 B transition-table
  *   clone lives at the patcher-constant fixed sub-window VR_EVENTS_AT =
@@ -150,7 +145,7 @@
  *   unit growth no longer moves any external frozen byte that names the
  *   table (the 8 B emit-region transition pointer is the only one).
  *
- * vr_row_hook -- T6: the OK/0x28B/touch action of the synthesized row
+ * vr_row_hook -- the OK/0x28B/touch action of the synthesized row
  *   0x315B in the video shooting menu.  Cloned from the stock audio
  *   attenuator row 0x2FC0 (row index 35 of the 44-row table at EG offset
  *   0x3AA4758; class word 0x20901005 = inline On/Off toggle; transition
@@ -169,18 +164,13 @@
  *   x0 = action context, [x0] = menu state; saves x19/x20, otherwise AAPCS
  *   caller-saved only.
  *
- *   Value-render path history (T4, adopted 2026-11-09): the original T6
- *   design drove the value child through 0x403F645C(child, 2466/2467) --
- *   the value-child call the stock refresh uses for language-table ids
- *   (e.g. the 0x2E48 row feeding id 0x371) -- but the 0x1327 value-child
- *   template runs mode==3 and truncates string ids above 299 (2026-11-08
- *   arc t6 report section 2), and the 2026-11-09 leg-0 menu probe showed
- *   the broken render live (OFF-styled text unselected, hourglass icon
- *   highlighted) while the toggle and the storage byte kept working.
- *   The hooks now feed the value byte itself (1/0) to 0x405121E4.  The
+ *   Value render: the hooks feed the value byte itself (1/0) to
+ *   0x405121E4.  (The alternative 0x403F645C(child, 2466/2467) string-id
+ *   call is unusable here: the 0x1327 value-child template runs mode==3
+ *   and truncates string ids above 299.)  The
  *   toggle and the storage are unaffected.
  *
- * vr_refresh_hook -- T6: the fifth shared-refresh row callback (CONFIG
+ * vr_refresh_hook -- the fifth shared-refresh row callback (CONFIG
  *   +0x28, dispatched after the native refresh 0x40572B2C).  Runs the
  *   first-boot default-on init (the latch hook holds the other entry
  *   point), then rewrites the row's value child exactly like vr_row_hook
@@ -204,7 +194,7 @@
 .balign 16
 .global vr_matrix_hook
 vr_matrix_hook:
-    ldr  x10, =VR_LATCH_RAM        // sticky latch in the state window (t15:
+    ldr  x10, =VR_LATCH_RAM        // sticky latch in the state window:
     ldrb w8, [x10]                 // never cleared here -- every moov build
     ldr  x11, =VR_VALUE            // of the take must see the same pose)
     ldrb w9, [x11]
@@ -229,9 +219,9 @@ vr_latch_hook:                     // entered via b from 0x40d17728; x0/w1 pass 
 3:  ldr  x9, =VR_LATCH_RAM
     strb w8, [x9]                  // pose code; 0 = no mark / invalid
     b    4f
-1:  ldr  x9, =VR_LATCH_RAM         // session boundary (t15): the sticky
+1:  ldr  x9, =VR_LATCH_RAM         // session boundary: the sticky
     strb wzr, [x9]                 // pose never outlives the take
-4:                                  // displaced pair from 0x40d17728 (t2 report)
+4:                                  // displaced pair from 0x40d17728
 vr_latch_displaced:
     mov  x8, #0x6f0
     movk x8, #0x31c, lsl #16
@@ -253,13 +243,13 @@ vr_row_hook:                       // transition action of row 0x315B; x0 = ctx
     bl   original_4050A6F0         // stock row-child lookup
     cbz  x0, 1f
     mov  x20, x0                   // value child widget
-    ldr  x10, =VR_VALUE            // value render (T4): drive the row's own
+    ldr  x10, =VR_VALUE            // value render: drive the row's own
     ldrb w1, [x10]                 // boolean widget with the byte itself
-    cmp  w1, #1                    // (1 = On, 0 = Off).  The retired T6
-    b.ne 2f                        // string-id call 0x403F645C(child,
-    mov  w1, #1                    // 2466/2467) truncated ids above 299 on
-    b    3f                        // the mode==3 0x1327 child template
-2:  mov  w1, #0                    // (2026-11-08 t6 report section 2)
+    cmp  w1, #1                    // (1 = On, 0 = Off; the string-id
+    b.ne 2f                        // alternative 0x403F645C truncates
+    mov  w1, #1                    // ids above 299 on the mode==3 0x1327
+    b    3f                        // value-child template)
+2:  mov  w1, #0
 3:  mov  x0, x20
     bl   original_405121E4         // stock boolean widget: the attenuator row's own path
 1:  mov  x0, x19
@@ -286,7 +276,7 @@ vr_refresh_hook:                   // shared_refresh fifth callback; x0 = state
     bl   original_4050A6F0
     cbz  x0, 9f
     ldr  x10, =VR_VALUE            // same boolean value render as vr_row_hook
-    ldrb w1, [x10]                 // (T4): the byte itself through the stock
+    ldrb w1, [x10]                 // the byte itself through the stock
     cmp  w1, #1                    // boolean widget, not string ids
     b.ne 2f
     mov  w1, #1
@@ -319,11 +309,11 @@ vr_default_on:                     // b in / br x17 out; first-boot init
 
 .balign 16
 vr_classify:                       // b in / br x17 out; returns w8 = code 0..3
-    ldr  x9, =0x0A02E56018         // sensor-subsystem enable byte (t1 report)
+    ldr  x9, =0x0A02E56018         // sensor-subsystem enable byte
     ldrb w10, [x9]                 // stock consumers read the BYTE (ldrb)
     cmp  w10, #1
     b.ne 8f                        // subsystem invalid: no mark
-    ldr  x11, =0x0A02E560E0        // normalised gravity vector f32 x3 (t1)
+    ldr  x11, =0x0A02E560E0        // normalised gravity vector f32 x3
     ldr  w12, [x11]
     ldr  w13, [x11, #4]
     ldr  w14, [x11, #8]
@@ -360,7 +350,7 @@ vr_classify:                       // b in / br x17 out; returns w8 = code 0..3
 .balign 16
 .global vr_track_hook
 vr_track_hook:                     // entered via b from 0x40ce4294 (FUN entry); x0 = muxer ctx
-    adr  x17, 2f                   // t15c pose refresh at every writer's track
+    adr  x17, 2f                   // pose refresh at every writer's track
     b    vr_default_on             // registration: engine, PRF worker and the 8-bit
 2:  adr  x17, 3f                   // legacy pipeline's remux writer (whose file opens
     b    vr_classify               // bypass the recording-side trampoline entirely,
