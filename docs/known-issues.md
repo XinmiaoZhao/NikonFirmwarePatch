@@ -54,7 +54,7 @@
 
 ## 记录视频方向（开发组）
 
-以下适用于开发分支的第五组 `video-orientation`，尚未随 v0.4.0-rc.2 发布；功能说明见[记录视频方向指南](video-orientation.md)。
+以下适用于开发分支的第五组 `video-orientation`，尚未随 v0.4.0 发布；功能说明见[记录视频方向指南](video-orientation.md)。
 
 - **断电后回到默认“开”。** 取值按视频拍摄菜单库 A–D 分别记忆，会话内切换菜单库时随库切换，手动关闭在本次开机期间保持；断电重启后各库重新初始化为“开”。该字节与已发布的 H.265 档位字节同属一个相机设置记录的空位，断电语义一致。菜单项的保存、菜单库切换、断电重启与菜单重设行为均已实机验证，与已发布的 H.265 档位功能完全一致；唯一开问题：功能开启时录制的视频在电脑上播放不旋转，原因排查中。
 - **双格式同时录制时第二个文件不带方向标记。** 一次性锁存只标记同一次竖拍录制中最先收尾的文件；双格式同时记录（如 N-RAW/ProRes RAW 主文件 + MP4 第二文件）中后收尾的文件保持原厂恒等矩阵、不写入旋转标记。单格式录制不受影响；在代码修复发布前保持此现状。实机取证见验收清单 M9 腿。
@@ -105,7 +105,7 @@ The camera tester confirmed per-clip labels and view assist on previously record
 
 ### Record video orientation (development group)
 
-Applies to the development-branch fifth group `video-orientation`, which is not part of the v0.4.0-rc.2 release. See the [video-orientation guide](video-orientation.md).
+Applies to the development-branch fifth group `video-orientation`, which is not part of the v0.4.0 release. See the [video-orientation guide](video-orientation.md).
 
 - **A power cycle returns every bank to the default On.** The value is remembered per movie shooting bank, follows bank switches within the session and a manual Off persists until power-off; after a restart each bank is re-initialized to On. The byte occupies a spare byte of the same camera-settings record as the shipped H.265 tier byte, with identical restart semantics. The row's save, menu-bank switching, power-cycle and reset-menu behaviour is verified on the camera and matches the shipped H.265 tier feature exactly. One issue is open: video recorded with the feature on does not play rotated on a computer; the cause is under investigation.
 - **In simultaneous dual-format recording the second file carries no orientation mark.** The one-shot latch marks only the first file of a portrait take to finalize; in simultaneous dual-format recording (an N-RAW/ProRes RAW main file plus an MP4 second file) the later file keeps the stock identity matrix and is not marked. Single-format recording is unaffected; this stands until a code fix ships. See camera leg M9 in the acceptance checklist.
