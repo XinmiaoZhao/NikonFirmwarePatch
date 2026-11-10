@@ -108,7 +108,7 @@ def verify_contract(old,new,features):
         need(struct.pack('<Q',0xA0281A800) in new[cave-base:unit_end-base],'vrotate state window literal in the unit')
         window=new[0x4B25800:0x4B25900]
         need(struct.unpack_from('<I',window,0x6C)[0]==0x3F333333,'vrotate threshold in the state window')
-        need(window[0x70:0x76]==bytes((3,0,2,1,0,0)),'vrotate axis codes in the state window')
+        need(window[0x70:0x76]==bytes((3,0,1,2,0,0)),'vrotate axis codes in the state window')
         need(window[0x76]==0 and window[0x77]==0,'vrotate sticky latch and sentinel mirror bytes ship zero')
         need(window[0xFF]==0xA5,'vrotate state window magic byte')
         # T2b fixed events sub-window: the 44-record clone with its 0x3BB

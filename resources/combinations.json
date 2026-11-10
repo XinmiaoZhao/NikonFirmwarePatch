@@ -8653,7 +8653,7 @@
       "bytes": 256,
       "purpose": "vrotate: vrotate state window: display matrices, threshold, axis codes, sticky latch, first-boot sentinel and magic byte (boot-copied data mirror segment)",
       "old_sha256": "5341e6b2646979a70e57653007a1f310169421ec9bdd9f1a5648f75ade005af1",
-      "new_sha256": "aa2cf34314cfb7607f5f2dedce9276b9b4848f716e8121eeb50f19079ceffdce"
+      "new_sha256": "24caed36d96e2459bd5b68138e05459a2e9efbbc9ddf2df89ddc6a0815a15416"
     },
     {
       "offset": "0x4bcc2c0",

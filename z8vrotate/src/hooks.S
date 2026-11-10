@@ -91,20 +91,17 @@
  *   identify the fired lanes exactly, so the chip's real convention is
  *     code 3: +X  upside-down grip (landscape rolled 180 deg) -> 180
  *     code 0: -X  level landscape grip (no mark)
- *     code 2: +Y  portrait, shutter-top (EXIF-8 semantics -> 90 deg CCW)
- *     code 1: -Y  portrait, shutter-bottom (EXIF-6 semantics -> 90 deg CW)
+ *     code 1: +Y  portrait, shutter-bottom (EXIF-6 semantics -> 90 deg CW)
+ *     code 2: -Y  portrait, shutter-top (EXIF-8 semantics -> 90 deg CCW)
  *     no mark: +/-Z  lens axis (pointing straight up/down: no roll code
  *                can express it)
  *   i.e. chip X = the camera vertical axis (sign inverted vs the old
  *   guess), chip Y = the roll axis the guess had zeroed (which is why both
  *   portrait takes carried no mark at all), chip Z = the lens axis.
- *   The portrait pair order (+Y/-Y -> 2/1) is the derived tentative; a
- *   single on-camera calibration clip settles it and only ever swaps
- *   bytes 2/3 of vr_axis_codes.  T11 flip procedure (updated): correct a
- *   pose by editing only vr_axis_codes bytes -- swap bytes 2/3 if the
- *   portrait pair is mirrored, 0/1 if the vertical pair is inverted; the
- *   threshold rides in vr_threshold the same way.  Calibration never
- *   needs a code change.
+ *   Both camera rounds confirmed the X lanes; the portrait pair shipped
+ *   as the derived tentative (+Y/-Y -> 2/1) came out mirrored on camera
+ *   (2026-11-10 second round: both grips marked, directions swapped), so
+ *   bytes 2/3 are flipped -- the table is now fully empirical.
  *
  * Per-bank value storage (T7): the value byte is byte +2 of the DS item
  *   0x1257 record family -- the 4-byte slot whose +1 byte hosts the shipped

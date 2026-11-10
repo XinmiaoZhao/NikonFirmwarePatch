@@ -2155,8 +2155,8 @@
       "source_sha256": {
         "z8vrotate/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
         "z8vrotate/matrices.py": "3fa3f88ea388482f28cd9fae2f7c4e66602fb99a17ee405dac07ba96bacfcf51",
-        "z8vrotate/patcher.py": "382f28a325342422784b22cc843991e4a057bf2474fd3f2c62fea77473c26305",
-        "z8vrotate/src/hooks.S": "0e6f2976ddcd8a3e950e4d8b30ad9bb3ae2dd118c90d968361e7808a5e90ff69",
+        "z8vrotate/patcher.py": "541926ee98f0b3f04aa983a23b00b648ba37fa70fe30473d10f486e0dac058da",
+        "z8vrotate/src/hooks.S": "0f36329eaa8b909c2795501abd206b8a455b616a7a491c134b729d10b3a897a2",
         "z8vrotate/translations.py": "80802fbcb7b491806fae989665dacf169b026359b520da7317dca7101f1d09b8"
       },
       "compiler": "clang version 19.1.7 (/home/runner/work/llvm-project/llvm-project/clang cd708029e0b2869e80abe31ddb175f7c35361f90)",

@@ -149,10 +149,12 @@ CATEGORY_TABLE, ITEM_TYPE_TABLE = 0x440244C8, 0x4400A5C0
 # axis the guess had zeroed -- the NEV take matrices identify the fired
 # lanes exactly:
 #   +X=3 (upside-down grip -> 180 deg), -X=0 (level landscape, no mark),
-#   +Y=2 / -Y=1 (the two portrait grips; EXIF-8/-6 semantics).
-# The portrait pair order (+Y/-Y -> 2/1) is the derived tentative: a single
-# on-camera calibration clip settles it and only ever swaps bytes 2/3.
-AXIS_CODES = bytes((3, 0, 2, 1, 0, 0))
+#   +Y=1 / -Y=2 (the two portrait grips; EXIF-6/-8 semantics).
+# Both camera rounds confirmed the X lanes; the portrait pair shipped as
+# the derived tentative (+Y/-Y -> 2/1) came out mirrored on camera
+# (2026-11-10 second round: both portrait grips marked, directions swapped),
+# so bytes 2/3 are flipped -- now fully empirical.
+AXIS_CODES = bytes((3, 0, 1, 2, 0, 0))
 
 # Codes 1..3 only: code 0 / invalid is a passthrough, the stock identity
 # blob already on the stack covers it.  Big-endian 16.16 words as written.

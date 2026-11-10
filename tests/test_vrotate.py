@@ -169,16 +169,16 @@ class ClassifyMirrorTests(unittest.TestCase):
             ((0.0, 0.0, 1.0), patcher.AXIS_CODES[4]),   # +Z lens axis (no mark)
             ((1.0, 0.0, 0.0), patcher.AXIS_CODES[0]),   # X+ upside-down grip
             ((-1.0, 0.0, 0.0), patcher.AXIS_CODES[1]),   # X- level landscape
-            ((0.0, 1.0, 0.0), patcher.AXIS_CODES[2]),   # Y+ portrait (tentative)
-            ((0.0, -1.0, 0.0), patcher.AXIS_CODES[3]),   # Y- portrait (tentative)
+            ((0.0, 1.0, 0.0), patcher.AXIS_CODES[2]),   # Y+ portrait (shutter-bottom)
+            ((0.0, -1.0, 0.0), patcher.AXIS_CODES[3]),   # Y- portrait (shutter-top)
             ((0.0, 0.0, -1.0), patcher.AXIS_CODES[5]),   # -Z lens axis (no mark)
         )
         for vector, expected in canonical:
             self.assertEqual(patcher.classify(1, *vector), expected, vector)
-        # The shipped assignment is the t15 on-camera evidence (NEV take
-        # matrices); only the portrait pair order is a derived tentative
-        # that a calibration clip may flip (swap bytes 2/3 deliberately).
-        self.assertEqual(patcher.AXIS_CODES, bytes((3, 0, 2, 1, 0, 0)))
+        # The shipped assignment is fully empirical: the t15 NEV matrices
+        # pinned the lanes, and the second camera round flipped the portrait
+        # pair (both grips marked, directions swapped -> bytes 2/3 swapped).
+        self.assertEqual(patcher.AXIS_CODES, bytes((3, 0, 1, 2, 0, 0)))
 
     def test_threshold_and_argmax(self):
         """Dominant-axis argmax plus the 0.70 threshold gate."""
@@ -223,9 +223,9 @@ class StickyLatchTests(unittest.TestCase):
 
     def test_matrix_passes_do_not_consume_the_latch(self):
         from z8vrotate import patcher
-        # Recording started in a portrait-equivalent grip (Y- dominant):
+        # Recording started in a portrait-equivalent grip (+Y dominant):
         # the latch hook stored the pose code 1.
-        latch = patcher.classify(1, 0.0, -1.0, 0.0)
+        latch = patcher.classify(1, 0.0, 1.0, 0.0)
         self.assertEqual(latch, 1)
         # Every moov build of the take sees the same pose -- including the
         # LAST pass that lands in the delivered file.
@@ -250,7 +250,7 @@ class StickyLatchTests(unittest.TestCase):
     def test_session_boundaries_clear_and_refresh(self):
         from z8vrotate import patcher
         # Recording start (main-movie write open, w1==1) refreshes the pose.
-        latch = patcher.latch_open(1, 1, 0.0, -1.0, 0.0)
+        latch = patcher.latch_open(1, 1, 0.0, 1.0, 0.0)
         self.assertEqual(latch, 1)
         used, latch = patcher.matrix_decision(latch, enable=1)
         self.assertEqual(used, matrices.ROTATE_90_CW_MATRIX)
@@ -1026,7 +1026,7 @@ class StateWindowTests(unittest.TestCase):
         codes = window[VR_AXIS_CODES_OFF:VR_AXIS_CODES_OFF + 6]
         self.assertEqual(threshold, patcher.THRESHOLD_BITS)
         self.assertEqual(bytes(codes), patcher.AXIS_CODES)
-        self.assertEqual(codes, bytes((3, 0, 2, 1, 0, 0)))
+        self.assertEqual(codes, bytes((3, 0, 1, 2, 0, 0)))
 
         def mirror_classify(gate, x, y, z):
             # vr_classify's algorithm with the window as the only constant
@@ -1048,8 +1048,8 @@ class StateWindowTests(unittest.TestCase):
             ((0.0, 0.0, 1.0), codes[4]),   # +Z lens axis (no mark)
             ((1.0, 0.0, 0.0), codes[0]),   # X+ upside-down grip
             ((-1.0, 0.0, 0.0), codes[1]),   # X- level landscape
-            ((0.0, 1.0, 0.0), codes[2]),   # Y+ portrait (tentative)
-            ((0.0, -1.0, 0.0), codes[3]),   # Y- portrait (tentative)
+            ((0.0, 1.0, 0.0), codes[2]),   # Y+ portrait (shutter-bottom)
+            ((0.0, -1.0, 0.0), codes[3]),   # Y- portrait (shutter-top)
             ((0.0, 0.0, -1.0), codes[5]),   # -Z lens axis (no mark)
         )
         for vector, expected in canonical:
