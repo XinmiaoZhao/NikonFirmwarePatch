@@ -105,7 +105,7 @@ STATE_LABELS = ('orient_matrices', 'orient_axis_codes', 'orient_threshold', 'ori
 ORIENT_EVENTS_AT = 0x40A09000
 ORIENT_EVENTS_END = ORIENT_EVENTS_AT + 44 * 32
 
-# Guard A whitelist (t3): store addresses whose base cannot be resolved in
+# Store-target whitelist: store addresses whose base cannot be resolved in
 # their basic block (the window ends at every control transfer) but are
 # proven safe.  The shipped unit has exactly one such store: the sentinel-
 # arm write at 0x40A08160 (strb w8, [x10]) -- its base def
@@ -334,7 +334,7 @@ def build_main(eg, code, entries, context):
     records = bank_records(eg)
     img = Image(eg)
     code = bytearray(code)
-    # Guard A (t3): refuse the build if any data store in the assembled unit
+    # Store-target census: refuse the build if any data store in the assembled unit
     # resolves into the read-only cave -- the original EL0 crash class.
     assert_no_cave_store_targets(bytes(code), CODE_AT, (CODE_AT, CODE_END),
                                  STORE_TARGET_WHITELIST)

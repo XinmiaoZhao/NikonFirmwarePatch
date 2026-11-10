@@ -2159,7 +2159,7 @@
       "source_sha256": {
         "z8videoorientation/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
         "z8videoorientation/matrices.py": "b55feda40ca47eab46b156086f6b3ec2ae4f1a117d6da45c18f0f18c064117fd",
-        "z8videoorientation/patcher.py": "d6db48832838ff695a25e844618dd644e78013098c5a7aaa84440e9f0f0eb90e",
+        "z8videoorientation/patcher.py": "66c978bfad4e921677808e7aedb1b044401857ab984d699109b189bb45bf77b2",
         "z8videoorientation/src/hooks.S": "35ae0e737e4c569cee5f44827676d87fb6a6d20e96a5dbcbd2a4cd4275c4e4c9",
         "z8videoorientation/translations.py": "819cbe6a606017bb7598d63b945f84acac8e76be334fdd81fb7d7735031dc442"
       },
