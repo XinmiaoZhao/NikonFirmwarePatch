@@ -1,6 +1,6 @@
-# v0.4.0-rc.2 验证范围 / Validation coverage
+# v0.4.0 验证范围 / Validation coverage
 
-本轮补丁以用户自行取得的原厂 Z8 C 3.11 为输入。构建时选择的固件版本号用于区分文件；以下按功能组合说明证据。
+本轮补丁以用户自行取得的原厂 Z8 C 3.11 为输入。v0.4.0 的源码、预编译单元和固件补丁与 v0.4.0-rc.2 相同，下列证据沿用。构建时选择的固件版本号用于区分文件；以下按功能组合说明证据。
 
 | 项目 | 已验证的范围 |
 |---|---|
@@ -16,7 +16,7 @@
 
 ## English
 
-The original Z8 C 3.11 package is checked before building. All 15 nonempty selections are independently decoded and checked for identity, patch windows, preserved bytes and shared-resource boundaries. Each bounded emulator run boots decrypted MAIN with synthetic peripherals, enters the firmware version page twice and stops at the update entry.
+The source, compiled units and firmware patches of v0.4.0 match v0.4.0-rc.2, so the evidence below applies unchanged. The original Z8 C 3.11 package is checked before building. All 15 nonempty selections are independently decoded and checked for identity, patch windows, preserved bytes and shared-resource boundaries. Each bounded emulator run boots decrypted MAIN with synthetic peripherals, enters the firmware version page twice and stops at the update entry.
 
 The all-feature firmware built with this update was tested on a Z8. A previously recorded S-Log3 N-RAW clip and a newly recorded Log3G10 clip showed the correct names in playback. The tester confirmed the expected assist rendering; the photographs document the label and ASSIST indicator. Display colour accuracy was not measured.
 
