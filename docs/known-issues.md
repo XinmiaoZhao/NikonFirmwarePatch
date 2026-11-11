@@ -16,7 +16,7 @@
 - **RAW 写卡积压会缩短连拍和预拍窗口。** RAW 帧缓冲保留到 NEF 写完，比原厂 JPEG 更早积压；连续短间隔拍摄时，可用帧数会减少。HE★ 比 HE 占用更多缓冲与卡空间。
 - **停止文件会持续阻止额外 NEF 写入。** NEF 写入失败、写后找不到文件或超出默认 1.5 秒处理预算时，会尝试创建 `Z8PRESTP.BIN`。该文件存在期间，后续帧尝试回退 JPEG；重启不会清除它，主卡的停止状态还会影响副卡共享的 RAW 缓冲。处理方法见[停止文件指南](stop-file.md)。
 - **部分可选元数据缺失。** NEF 头现按原厂 NEF 标签表写出六个 SubIFD 和镜头校正等 NEFInfo 块，但 SubIFD3–5 为空占位（没有灰度子图），XMP 校正数据和 MakerNote 0x0093 仍缺失，自定义色调曲线时不写 ContrastCurve。
-- **机内“NEF（RAW）处理”与连拍组回放。** 旧版预拍 NEF 只有三个 SubIFD，机内润饰会提示“无法编辑照片”（[问题 #23](https://github.com/XinmiaoZhao/NikonFirmwarePatch/issues/23)、[#27](https://github.com/XinmiaoZhao/NikonFirmwarePatch/issues/27)）。新的文件头针对这一原因修改，已在 Z8 机身上测试；已拍摄的旧文件不受影响。连拍组回放不分组的问题未处理。
+- **机内“NEF（RAW）处理”与连拍组回放。** 旧版预拍 NEF 只有三个 SubIFD，机内润饰会提示“无法编辑照片”（[问题 #23](https://github.com/XinmiaoZhao/NikonFirmwarePatch/issues/23)、[#27](https://github.com/XinmiaoZhao/NikonFirmwarePatch/issues/27)）。新的文件头针对这一原因修改，已在 Z8 机身上测试；已拍摄的旧文件不受影响。RAW-only 连拍的回放分组与连拍组图标现在写入后即可显示，无需重新插卡（已在 Z8 机身上测试）。
 
 详细设置与双卡规则见 [RAW／预拍摄指南](raw-precapture.md#简体中文)。
 
@@ -69,7 +69,7 @@ Applies to the current four-group release, v0.4.0, built from official Nikon Z8 
 - RAW buffers remain occupied until NEF writing finishes. Write backlog reduces available burst/history frames; HE★ uses more memory and card space than HE.
 - Failed, missing or over-budget NEF writes attempt to create `Z8PRESTP.BIN`. Its presence blocks further extra NEFs and prompts JPEG fallback; restarting does not clear it. A primary-card stop also affects the shared secondary RAW buffer. See the [stop-file guide](stop-file.md#english-summary).
 - NEF headers now follow the stock NEF tag lists with six SubIFDs and the lens-correction and other NEFInfo blocks. SubIFD3–5 are empty placeholders (no grayscale subimage); XMP correction metadata and MakerNote 0x0093 remain absent, and a custom tone curve omits ContrastCurve.
-- Earlier pre-capture NEFs carry three SubIFDs, which the camera's own NEF reader rejects: Retouch › NEF (RAW) processing reports “Unable to edit picture” ([issue #23](https://github.com/XinmiaoZhao/NikonFirmwarePatch/issues/23), [#27](https://github.com/XinmiaoZhao/NikonFirmwarePatch/issues/27)). The new header addresses that cause and has been tested on a Z8; files already recorded are unchanged. Series playback grouping of pre-capture bursts is not addressed.
+- Earlier pre-capture NEFs carry three SubIFDs, which the camera's own NEF reader rejects: Retouch › NEF (RAW) processing reports “Unable to edit picture” ([issue #23](https://github.com/XinmiaoZhao/NikonFirmwarePatch/issues/23), [#27](https://github.com/XinmiaoZhao/NikonFirmwarePatch/issues/27)). The new header addresses that cause and has been tested on a Z8; files already recorded are unchanged. RAW-only bursts now group in playback and show the series symbol right after writing, without reloading the card (tested on a Z8).
 
 ### Log and desqueeze
 

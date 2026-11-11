@@ -47,6 +47,9 @@ typedef long s64;
 #define DB_ADD ((u32 (*)(u64,u32,const void *))0x408602ccul)        /* (db, first id, entry) */
 #define DB_REMAIN ((void (*)(u32))0x408648a8ul)
 #define DB_CANCEL ((void (*)(u32))0x4085ac54ul)                     /* (file id), no result */
+#define LIST_EVENT ((void (*)(u32,void *))0x406bd954ul)            /* playback list listener (event, info) */
+#define DOS_TIME ((u32 (*)(void *,u64))0x408747d8ul)                /* (5-byte date/time out, M+0x2520) */
+#define EV_WRITTEN 0x04180002u     /* the stock writer's "file written" event (0x406cd740: 0x04180001 + 1) */
 /* HN3: the stock rate-control parameter builder of the JPEG encodes. */
 #define RC_PARAMS ((void (*)(u64,u32,u32,u64,u8 *))0x40eaecb4ul)   /* (R, mode, kind 0 main / 1 NEF preview / 2, template copy, rc) */
 #define G_PREVIEW_Q 0xa029e9fd0ul  /* the (quality index, table half) pair the stock NEF preview encode puts at rc+0x14/+0x18 */
@@ -1574,6 +1577,25 @@ __attribute__((noinline)) static int jpeg_cancelled(u32 jid) {
 
 static void release_e(const job_t *jb) { unbind(jb->q); FREE_E(jb->e); STORE64(jb->r+0x748,0); }
 
+/* HN16: RAW-only, after the JPEG member is cancelled. The cancel refreshes the group's playback-list entry from the
+ * database, which carries no series fields, so the series symbol is missing until the card is reloaded. Send the
+ * NEF's "file written" event again, built as the stock writer's completion (0x406cd6bc..0x406cd75c) builds it, with
+ * the NEF-typed start id the file carries. Only for a series frame on card 1 or 2 (stock: slot <= 1, M+0x120 != 0). */
+static void resend_written(const plan_t *p) {
+    u64 m=p->m; u32 slot=(p->nid>>29)&3u,seq=LOAD32(m+0x120);
+    u8 ev[32] __attribute__((aligned(8)));
+    if(slot>1 || !seq) return;
+    u32 s0=LOAD32(m+0x118),s1=LOAD32(m+0x11c);
+    u32 st=(s1 && ((s0>>29)&3u)!=slot)?s1:s0;
+    if(!st || (st&0xC0000010u)) return;                                /* not an id the stock validator accepts */
+    zero(ev,32);
+    set32(ev,p->nid); ev[4]=1;                                          /* +0 file id, +4 1, +8 0 */
+    DOS_TIME(ev+0xc,m+0x2520);                                          /* +0xc date/time (5 bytes) */
+    ev[0x12]=LOAD32(m+0x2570)!=0; ev[0x13]=LOAD32(m+0x2fc)==1;
+    set32(ev+0x14,1); set32(ev+0x18,(st&~15u)|2u); set32(ev+0x1c,seq);  /* series: flag, start id (NEF), shot */
+    LIST_EVENT(EV_WRITTEN,ev);
+}
+
 /* Everything after the header is built: register, write the JPEG and the NEF, or fall back. */
 __attribute__((noinline)) static u32 flow(plan_t *p,u64 J) {
     u32 st,act=p->dual?dual_action(p->flags,p->role,p->second):((p->flags&F_RAWONLY)?ACT_NEF:ACT_BOTH);
@@ -1594,6 +1616,7 @@ __attribute__((noinline)) static u32 flow(plan_t *p,u64 J) {
     } else {                         /* RAW-only, or role 2's primary card: NEF first, then drop this card's JPEG member */
         p->st_nef=stock_nef(p,1);
         if(p->st_nef==0) p->cancel_ok=jpeg_cancelled(p->jid);
+        if(p->st_nef==0 && p->cancel_ok==1) resend_written(p);          /* HN16 */
         if(p->st_nef==0 && p->cancel_ok==1) st=0;
         else { p->t_jpeg0=now(); st=ORIG_WRITE(0,p->stock_mode,J); p->t_jpeg1=now(); p->st_jpeg=st; }   /* NEF failed or the cancel did not hold */
     }
