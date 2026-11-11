@@ -3,6 +3,10 @@
  * HN13: the DX image area like FX: the C60 DX readout (5408 x 3608) in C15 and, with hook Z, in C30; NEF, P2, hook T and
  * the count follow the frame's geometry.
  * HN14: RAW recording "lossless compressed" (item 1) is encoded at HE* in C15/C30, like HE* (item 3).
+ * HN15: the NEF header follows the stock NEF tag lists (0x440cbfa8[0]): six SubIFDs, which the camera's own NEF reader
+ * (case 0x406cb040 of 0x406caea0) requires before Retouch > NEF (RAW) processing accepts a file; NEFInfo blocks 5, 6, 7,
+ * 0xc, 0x10..0x13 from the stock leaves; MakerNote 0x0046, 0x008c, 0x00a4; no JPEG-only IFD0 0x013e/0x013f/0x0211,
+ * Exif 0xa500 or MakerNote 0x0050.
  * Public adapter: no card configuration, diagnostic footer off by default. */
 typedef unsigned char u8;
 typedef unsigned short u16;
@@ -57,6 +61,10 @@ typedef long s64;
 #define CH_UNLOCK ((void (*)(u32,u32,u32,u32))0x40eb88a4ul)
 #define ENGINE ((void (*)(u32,u64))0x40e82090ul)                     /* (engine 0/1, parameter block) */
 #define IS_JPEG_FORMAT ((u32 (*)(u64))0x4105903cul)                 /* (M+0x26c): format 0/3 and not HEIF; QEMU probe only */
+/* HN15: stock NEFInfo leaves of the header writer (tag table 0x440cdcc8): (IFD entry, {-, M}, {.., base @+0x18,
+ * cursor @+0x20}). Each of these eight reads only M scalars and ROM/initialised-data tables, writes "version" + body +
+ * CRC16 at the cursor, the byte count at entry+4, and advances the cursor (at most 0xbc bytes). */
+#define NI_LEAF(a) ((void (*)(u8 *,u8 *,u8 *))(u64)(a))
 /* Original globals, only read. */
 #define G_MODE 0xa03bc6bc8ul       /* HSFC release mode: 6 = C15, 3 = C30 */
 #define G_LIMIT 0xa03bc6bacul      /* pre-capture count of the menu setting */
@@ -92,7 +100,13 @@ typedef long s64;
 #define WORK_BYTES 0x40000u        /* one heap block per NEF, freed before return */
 #define HDR_MAX 0x30000u           /* NEF header block */
 #define TAB 0x30000u               /* entry table, ENT_MAX * 32 bytes */
-#define NI 0x36000u                /* NEFInfo block, 1 KiB */
+#define NI 0x36000u                /* small values and NEFInfo blocks 8..f, 768 bytes; HN15 scratch up to FOOT below */
+#define NI_CTX 0x36300u            /* HN15: entry (+0), context 1 (+0x10), context 2 (+0x30) of a stock leaf call */
+#define NI_OUT 0x36400u            /* HN15: the NEFInfo sub-TIFF, NI_CAP bytes */
+#define NI_CAP 0x600u
+#define NI_CURVE 0x36a00u          /* HN15: MakerNote 0x008c, 578 bytes */
+#define NI_STOCK 0x37000u          /* HN15: one NI_SLOT per stock leaf block */
+#define NI_SLOT 0x100u
 #define FOOT 0x38000u              /* 512-byte footer */
 #define ZEROS 0x39000u             /* 4 KiB of zero for RAW alignment */
 #define JP 0x3a000u                /* parameter block J' for the stock writer, 0x290 bytes */
@@ -114,6 +128,7 @@ typedef long s64;
 #define F_PVQ 0x40u                /* RAW-only: main JPEG at the stock NEF-preview quality, embedded (needs F_RAWONLY and F_FULL) */
 #define F_MENU 0x80u               /* HN4: every C15/C30 frame follows Image quality (needs 1|2|0x10, 30 frames; 4/0x20/0x40 not in the file) */
 #define F_KNOWN 0xffu
+#define F_NEFONLY 0x200u           /* build() only (never stored or in a file): this card gets only the NEF (ACT_NEF) */
 #define F_PREV 0x100u              /* HN4, effective flags only (never in a file): RAW + JPEG with a second, preview-quality encode */
 #define PVQ_MARK 0x31515650u       /* "PVQ1": record +0x7c, written by P7 after the parameters were replaced */
 #define SPLIT_MARK 0x314c5053u     /* "SPL1": record A_SPLIT, HN7: the primary card's files are written, E kept for the secondary */
@@ -189,9 +204,16 @@ static const u8 xmp_ns[29] = "http://ns.adobe.com/xap/1.0/";
 static const u8 nikon2[18] = {'N','i','k','o','n',0,2,0x11,0,0,'I','I',0x2a,0,8,0,0,0};
 static const u8 nikon_ni[18] = {'N','i','k','o','n',0,1,3,0,0,'I','I',0x2a,0,8,0,0,0};
 static const u8 type_size[13] = {0,1,1,2,4,8,1,1,2,4,8,4,8};
-static const u16 skip0[] = {0x00fe,0x0103,0x014a,0x0201,0x0202,0x0214,0x02bc,0x8769,0x8825,0x9003,0x9216};
-static const u16 skipx[] = {0x9000,0x9101,0x9102,0xa000,0xa001,0xa002,0xa003,0xa005,0x927c};
-static const u16 skipm[] = {0x0004,0x0011,0x0016,0x0035,0x003d,0x0044,0x0045,0x0051,0x0058,0x00a2};
+/* Tags the NEF header rebuilds, and (HN15) the tags only the stock JPEG lists carry: IFD0 0x013e WhitePoint, 0x013f
+ * PrimaryChromaticities, 0x0211 YCbCrCoefficients; Exif 0xa500 Gamma; MakerNote 0x0050 (with 0x0016, 0x0035, 0x00a2). */
+static const u16 skip0[] = {0x00fe,0x0103,0x013e,0x013f,0x014a,0x0201,0x0202,0x0211,0x0214,0x02bc,0x8769,0x8825,0x9003,0x9216};
+static const u16 skipx[] = {0x9000,0x9101,0x9102,0xa000,0xa001,0xa002,0xa003,0xa005,0xa500,0x927c};
+static const u16 skipm[] = {0x0004,0x0011,0x0016,0x0035,0x003d,0x0044,0x0045,0x0046,0x0050,0x0051,0x0058,0x008c,0x00a2,0x00a4};
+/* HN15: MakerNote 0x00a4 of a NEF, the constant of leaf 0x406ec54c. */
+static const u8 mn_a4[4] = {'0','5','0','1'};
+/* HN15: NEFInfo blocks taken from the stock leaves, by tag. */
+static const u8 ni_tag[8] = {0x05,0x06,0x07,0x0c,0x10,0x11,0x12,0x13};
+static const u32 ni_leaf[8] = {0x406e7010u,0x406e70c0u,0x406e7170u,0x406e7510u,0x406e78a4u,0x406e795cu,0x406e7a24u,0x406e7bb8u};
 /* MakerNote 0x0044 of a NEF: the camera's writer 0x406e9b30 gives 1 or 3 only to JPEG kinds, 0 to a NEF. */
 static const u8 jpgc_nef[2] = {0,0};
 static const u32 crc_table[256] = {
@@ -1022,9 +1044,59 @@ static u8 *nb(u8 *p,const char *v,const u8 *body,u32 n,u32 zeros) {   /* "0100"+
     set16(p+4+n+zeros,crc16(p,4+n+zeros)); return p;
 }
 
+/* HN15: block k of ni_tag[] from its stock leaf, into its own slot. Returns the byte count, or 0 when the result is
+ * not "dddd" + body + CRC16 inside the slot; the block is then left out, as before HN15. */
+static u32 stock_block(u32 k,u64 m,u8 *wk) {
+    u8 *c=wk+NI_CTX,*o=wk+NI_STOCK+NI_SLOT*k;
+    zero(c,0x60); zero(o,NI_SLOT);
+    set64(c+0x18,m); set64(c+0x48,(u64)o); set64(c+0x50,(u64)o);       /* M; base and cursor of the block data */
+    NI_LEAF(ni_leaf[k])(c,c+0x10,c+0x30);
+    u32 n=get16(c+4); u64 used=get64(c+0x50)-(u64)o;
+    if(get16(c+6) || n<8 || n>used || used>NI_SLOT) return 0;
+    for(u32 i=0;i<4;i++) if(o[i]<'0' || o[i]>'9') return 0;
+    if(get16(o+n-2)!=crc16(o,n-2)) return 0;
+    return n;
+}
+/* HN15: MakerNote 0x008c as leaf 0x406eb8e4 writes it: 'I','0' and zeros, unless the Picture Control contrast is "User"
+ * (M+0x330 == 1) or M+0x42c == 1; the leaf then copies the 578-byte curve from M+0x259c (M+0x2570 != 0) or through the
+ * pointer at M+0x420. Only a curve inside M is taken here: any other pointer leaves the tag out, as before HN15,
+ * instead of being read through. */
+static const u8 *curve(u64 m,u8 *o) {
+    zero(o,578);
+    if(LOAD32(m+0x330)!=1 && LOAD8(m+0x42c)!=1) { o[0]='I'; o[1]='0'; return o; }
+    if(!LOAD32(m+0x2570) && LOAD64(m+0x420)!=m+0x259c) return 0;
+    for(u32 i=0;i<578;i++) o[i]=LOAD8(m+0x259c+i);
+    return o;
+}
+/* HN15: SubIFD 3..5 as the stock leaves 0x406edab4.. write them when the frame has no such image (descriptors 5..7
+ * absent): 0 x 0, no strip. The stock reader needs the three IFDs to exist; its retouch path frees a buffer whose
+ * StripByteCounts is 0 (0x407ca340..). */
+static u32 placeholder(out_t *w,ent_t *t,const u8 *v,const u8 *bits,const u8 *comp) {
+    u32 n=0;
+    add(t,&n,0x00fe,4,1,v+68); add(t,&n,0x0100,4,1,v+72); add(t,&n,0x0101,4,1,v+72);
+    add(t,&n,0x0102,3,1,bits); add(t,&n,0x0103,3,1,comp); add(t,&n,0x0106,3,1,v+62);
+    add(t,&n,0x0111,4,1,v+72); add(t,&n,0x0115,3,1,v+62); add(t,&n,0x0116,4,1,v+72);
+    add(t,&n,0x0117,4,1,v+72); add(t,&n,0x011a,5,1,rat300); add(t,&n,0x011b,5,1,rat300);
+    add(t,&n,0x011c,3,1,v+62); add(t,&n,0x0128,3,1,v+64);
+    return emit(w,t,n,0);
+}
+
 /* Header block: TIFF, IFD0, SubIFDs, GPS, Exif, thumbnail, MakerNote (+PreviewIFD); the
  * VGA preview stream follows directly as the MakerNote's last bytes.
  * h is the CPU view of the stock JPEG header buffer: SOI, APP1 Exif, APP1 XMP, APP2 MPF. */
+/* MakerNote 0x0056 (stock writer 0x406ea4e8): version, burst-start file id, shot number, burst flag at +12.
+ * The stock header was made for the JPEG plan, so the start id has type 0 (JPG). When this card gets only the NEF,
+ * give the start id the NEF type, as prepare() does for nid. Only the type nibble changes, and only for an id the
+ * stock validator 0x4086cd5c accepts (bits 4, 30, 31 clear). buf: 16 bytes that outlive emit(). */
+static void fix56(ent_t *t,u32 n,u32 flags,u8 *buf) {
+    if(!(flags&F_NEFONLY)) return;
+    for(u32 i=0;i<n;i++) {
+        if(t[i].tag!=0x0056 || t[i].type!=7 || t[i].count!=16 || !t[i].data) continue;
+        copy(buf,t[i].data,16); u32 st=get32(buf+4);
+        if(buf[12] && st && !(st&0xC0000010u)) { set32(buf+4,(st&~15u)|2u); t[i].data=buf; }
+        return;
+    }
+}
 static int build(out_t *w,const u8 *h,u32 hl,const u32 *hlen,u64 m,lay_t *L,u32 flags,u8 *wk,u32 cls,u32 dims) {
     ent_t *t=(ent_t *)(wk+TAB); u32 n;
     if(hl<0x400 || get32(h)!=0xe1ffd8ffu || LOAD32(m+0x2bc)!=0) return 0;   /* M+0x2bc=0: RGGB */
@@ -1079,22 +1151,27 @@ static int build(out_t *w,const u8 *h,u32 hl,const u32 *hlen,u64 m,lay_t *L,u32 
     set32(v+28,rw); set32(v+32,rh); set32(v+36,payload); set32(v+40,jfr);
     set32(v+44,thn); set32(v+48,L->fhd.size); set32(v+52,L->vga.size); set16(v+56,14); set16(v+58,34713);
     set16(v+60,32803); set16(v+62,1); set16(v+64,2); set16(v+66,6); set32(v+68,1); set32(v+72,0);
+    set16(v+76,8); set16(v+78,12);                                           /* HN15: placeholder bits  v+76 */
+    set16(v+80,LOAD16(m+0x288)); set16(v+82,LOAD16(m+0x28a));                /* HN15: MakerNote 0x0046 (leaf 0x406e9c48)  v+80 */
     u8 *m51=v+96; copy(m51,he51,24); m51[10]=(u8)code;                       /* MakerNote 0x0051  v+96 */
     u8 *ncode=v+120; ncode[0]=(u8)code; ncode[1]=0;                          /* NEFInfo 0xd body  v+120 */
-    /* NEFInfo (RAW IFD 0xc7d5): blocks 8,9,a,b,d,f; CRC16 per block. Adobe needs 9 and d. */
+    /* NEFInfo (RAW IFD 0xc7d5): blocks 8,9,a,b,d,f; CRC16 per block. Adobe needs 9 and d.
+     * HN15: and 5, 6, 7, 0xc, 0x10..0x13 from the stock leaves (the stock NEF list; 0xe is not in an HE file). */
     u8 *nib=v+128; u8 *b8=nb(nib,"0100",v54+4,16,2),*b9=nib+32,*ba=nib+80,*bb=nib+96,*bd=nib+112,*bf=nib+128;
     copy(b9,wb,32); zero(b9+32,2); set16(b9+34,crc16(b9,34));
     nb(ba,"0100",v,8,0); nb(bb,"0100",v+8,8,0); nb(bd,"0100",ncode,2,0); nb(bf,"0100",v+20,8,0);
-    out_t ni; zero((u8 *)&ni,sizeof(ni)); ni.o=v+512; ni.cap=512; put(&ni,nikon_ni,18); n=0;
+    out_t ni; zero((u8 *)&ni,sizeof(ni)); ni.o=wk+NI_OUT; ni.cap=NI_CAP; put(&ni,nikon_ni,18); n=0;
     add(t,&n,0x8,7,24,b8); add(t,&n,0x9,7,36,b9); add(t,&n,0xa,7,14,ba);
     add(t,&n,0xb,7,14,bb); add(t,&n,0xd,7,8,bd); add(t,&n,0xf,7,14,bf);
+    for(u32 k=0;k<8;k++) { u32 c=stock_block(k,m,wk); if(c) add(t,&n,ni_tag[k],7,c,wk+NI_STOCK+NI_SLOT*k); }
     if(emit(&ni,t,n,10)!=18 || ni.bad) return 0;
-    const u8 *nefinfo=v+512; u32 nin=ni.pos;
+    const u8 *nefinfo=wk+NI_OUT; u32 nin=ni.pos;
+    const u8 *cc=curve(m,wk+NI_CURVE);
     /* ---- emission ---- */
     u8 hd[8]={'I','I',0x2a,0,8,0,0,0}; put(w,hd,8);
     n=0; if(!copy_entries(&T,i0,t,&n,skip0,sizeof(skip0)/2)) return 0;
     add(t,&n,0x00fe,4,1,v+68); add(t,&n,0x0103,3,1,v+66);
-    ent_t *e=add(t,&n,0x014a,4,(flags&F_FULL)?3:2,0); if(!e) return 0; e->dslot=P_SUB;
+    ent_t *e=add(t,&n,0x014a,4,6,0); if(!e) return 0; e->dslot=P_SUB;   /* HN15: always the six of a camera NEF */
     e=add(t,&n,0x0201,4,1,0); if(!e) return 0; e->slot=P_THUMB;
     add(t,&n,0x0202,4,1,v+44); add(t,&n,0x0214,5,6,refbw);
     if(xmp) add(t,&n,0x02bc,1,xmpn,xmp);
@@ -1103,7 +1180,7 @@ static int build(out_t *w,const u8 *h,u32 hl,const u32 *hlen,u64 m,lay_t *L,u32 
     if(dto) add(t,&n,0x9003,2,20,dto);
     if(!add(t,&n,0x9216,1,4,tiffep)) return 0;
     if(emit(w,t,n,0)!=8) return 0;
-    u32 sub[3];
+    u32 sub[6];
     n=0; add(t,&n,0x00fe,4,1,v+68); add(t,&n,0x0103,3,1,v+66); add(t,&n,0x011a,5,1,rat300);
     add(t,&n,0x011b,5,1,rat300); add(t,&n,0x0128,3,1,v+64);
     e=add(t,&n,0x0201,4,1,0); e->slot=P_JFR; add(t,&n,0x0202,4,1,v+40); add(t,&n,0x0213,3,1,v+64);
@@ -1116,12 +1193,14 @@ static int build(out_t *w,const u8 *h,u32 hl,const u32 *hlen,u64 m,lay_t *L,u32 
     add(t,&n,0x828e,1,4,cfa_rggb); add(t,&n,0x9217,3,1,v+64); add(t,&n,0xc7d5,7,nin,nefinfo);
     add(t,&n,0xc7d6,1,1,one8);
     sub[1]=emit(w,t,n,0);
-    if(flags&F_FULL) {
-        n=0; add(t,&n,0x00fe,4,1,v+68); add(t,&n,0x0103,3,1,v+66); add(t,&n,0x011a,5,1,rat300);
-        add(t,&n,0x011b,5,1,rat300); add(t,&n,0x0128,3,1,v+64);
-        e=add(t,&n,0x0201,4,1,0); e->slot=P_OTHER; add(t,&n,0x0202,4,1,v+48); add(t,&n,0x0213,3,1,v+64);
-        sub[2]=emit(w,t,n,0);
-    }
+    /* SubIFD 2: the FHD JPEG. HN15: also without F_FULL, where SubIFD 0 is the same stream. */
+    n=0; add(t,&n,0x00fe,4,1,v+68); add(t,&n,0x0103,3,1,v+66); add(t,&n,0x011a,5,1,rat300);
+    add(t,&n,0x011b,5,1,rat300); add(t,&n,0x0128,3,1,v+64);
+    e=add(t,&n,0x0201,4,1,0); e->slot=P_OTHER; add(t,&n,0x0202,4,1,v+48); add(t,&n,0x0213,3,1,v+64);
+    sub[2]=emit(w,t,n,0);
+    sub[3]=placeholder(w,t,v,v+76,v+62);          /* 8 bit, uncompressed */
+    sub[4]=placeholder(w,t,v,v+78,v+58);          /* 12 bit, NEF compressed (34713) */
+    sub[5]=placeholder(w,t,v,v+76,v+62);
     u32 gat=0;
     if(g0) { n=0; if(!copy_entries(&T,ig,t,&n,0,0)) return 0; gat=emit(w,t,n,0); }
     n=0; if(!copy_entries(&T,ix,t,&n,skipx,sizeof(skipx)/2)) return 0;
@@ -1131,24 +1210,28 @@ static int build(out_t *w,const u8 *h,u32 hl,const u32 *hlen,u64 m,lay_t *L,u32 
     /* MakerNote rebuilt with its IFD at offset 8; every value relocated into it. */
     pad2(w); L->mn_at=w->pos; u32 mb=w->pos+10; put(w,nikon2,18);
     n=0; if(!copy_entries(&MN,im,t,&n,skipm,sizeof(skipm)/2)) return 0;
+    fix56(t,n,flags,v+384);                                               /* 0x0056  v+384 (free: NEFInfo uses v+0..v+272, v+512..) */
     add(t,&n,0x0004,2,8,quality_raw);
     add(t,&n,0x0044,3,1,jpgc_nef);
     e=add(t,&n,0x0011,4,1,0); if(!e) return 0; e->slot=P_MNPV;
-    add(t,&n,0x003d,3,4,v); add(t,&n,0x0045,3,4,v+8); add(t,&n,0x0051,7,24,m51);
+    add(t,&n,0x003d,3,4,v); add(t,&n,0x0045,3,4,v+8); add(t,&n,0x0046,3,2,v+80); add(t,&n,0x0051,7,24,m51);
+    if(cc) add(t,&n,0x008c,7,578,cc);
+    add(t,&n,0x00a4,7,4,mn_a4);
     if(!add(t,&n,0x0058,7,12,v+16)) return 0;
     if(emit(w,t,n,mb)!=mb+8) return 0;
     n=0; add(t,&n,0x0103,3,1,v+66); add(t,&n,0x011a,5,1,rat300); add(t,&n,0x011b,5,1,rat300);
     add(t,&n,0x0128,3,1,v+64); e=add(t,&n,0x0201,4,1,0); e->slot=P_PVSTART;
     add(t,&n,0x0202,4,1,v+52); add(t,&n,0x0213,3,1,v+64);
     u32 pat=emit(w,t,n,mb);
-    pad2(w); if(w->bad || !sub[0] || !sub[1] || !xat || !pat) return 0;
+    pad2(w); if(w->bad || !sub[0] || !sub[1] || !sub[2] || !sub[3] || !sub[4] || !sub[5] || !xat || !pat) return 0;
     /* ---- layout of the streams after the header block ---- */
     L->hdr_end=w->pos; L->vga_at=w->pos; L->fhd_at=L->vga_at+L->vga.size;
     L->main_at=L->fhd_at+L->fhd.size;
     u32 end=L->main_at+((flags&F_FULL)?L->jfr.size:0);
     L->raw_at=(end+4095)&~4095u; L->end_at=L->raw_at+payload; L->thumb_bytes=thn;
-    set32(w->o+w->patch[P_SUB],sub[0]); set32(w->o+w->patch[P_SUB]+4,sub[1]);
-    if(flags&F_FULL) { set32(w->o+w->patch[P_SUB]+8,sub[2]); patch32(w,P_OTHER,L->fhd_at); }
+    if(!w->patch[P_SUB]) return 0;
+    for(u32 k=0;k<6;k++) set32(w->o+w->patch[P_SUB]+4*k,sub[k]);
+    patch32(w,P_OTHER,L->fhd_at);
     patch32(w,P_THUMB,tat); patch32(w,P_EXIF,xat); if(g0) patch32(w,P_GPS,gat);
     patch32(w,P_JFR,(flags&F_FULL)?L->main_at:L->fhd_at); patch32(w,P_STRIP,L->raw_at);
     patch32(w,P_MNPV,pat-mb); patch32(w,P_PVSTART,L->vga_at-mb);
@@ -1314,7 +1397,8 @@ __attribute__((noinline)) static plan_t *prepare(const job_t *jb) {
     }
     if(!jpg_name(p->jid,p->fin,p->tmp) || p->fin[0]!=p->drive || p->fin[1]!=':' || EXISTS(p->fin)>=0 || EXISTS(p->tmp)>=0) goto bad;
     zero((u8 *)&w,sizeof(w)); w.o=wk; w.cap=HDR_MAX;
-    if(!build(&w,(const u8 *)XLATE(hp),hl,p->hlen,p->m,&p->L,p->flags,wk,p->cls,LOAD32(jb->e+0x38)) || p->L.end_at<p->L.raw_at) goto bad;
+    u32 only=(p->dual?dual_action(p->flags,p->role,p->second):((p->flags&F_RAWONLY)?ACT_NEF:ACT_BOTH))==ACT_NEF?F_NEFONLY:0u;   /* as flow() */
+    if(!build(&w,(const u8 *)XLATE(hp),hl,p->hlen,p->m,&p->L,p->flags|only,wk,p->cls,LOAD32(jb->e+0x38)) || p->L.end_at<p->L.raw_at) goto bad;
     p->hdr_bytes=w.pos; p->total=p->L.end_at+((p->flags&F_FOOTER)?512u:0u); p->t_header=now();
     return p;
 bad:
@@ -1454,7 +1538,18 @@ __attribute__((noinline)) static u32 stock_nef(plan_t *p,u32 raw_only) {
 #ifdef TEST_FORCE_BAD                 /* test builds only: take the internal-failure exit after registration */
     goto bad;
 #endif
+    /* The stock writer's completion (0x406cd6f8) reads M+0x118/+0x11c/+0x120 again for the playback file list
+     * (callback 0x4070a6a8). Give it the NEF-typed start id the file carries (fix56), for this file's slot as
+     * the stock selection picks it, and put the word back afterwards. */
+    u64 sw=0; u32 sv=0;
+    if(raw_only && LOAD32(p->m+0x120)) {
+        u32 s0=LOAD32(p->m+0x118),s1=LOAD32(p->m+0x11c);
+        sw=(s1 && ((s0>>29)&3u)!=((p->nid>>29)&3u))?p->m+0x11c:p->m+0x118;
+        sv=LOAD32(sw);
+        if(sv && !(sv&0xC0000010u)) STORE32(sw,(sv&~15u)|2u); else sw=0;
+    }
     c0=now(); nst=ORIG_WRITE(0,3,(u64)jp); c1=now();
+    if(sw) STORE32(sw,sv);
     if(nst!=0) stop_file(p->drive,S_WRITE_FAIL,p->shot);        /* the stock writer cancelled the member itself */
     else if(EXISTS(p->fin)<0) stop_file(p->drive,S_MISSING,p->shot);
     else if(c1-c0>=p->budget) stop_file(p->drive,S_BUDGET,p->shot);
