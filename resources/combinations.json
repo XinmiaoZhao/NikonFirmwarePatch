@@ -4106,7 +4106,7 @@
       "bytes": 4,
       "purpose": "pre-capture hook/data 0x70e908",
       "old_sha256": "1ddb3acff84582e03f18c2a8d744afbcc1a32e1f60b561bd0e153d95eaeadf58",
-      "new_sha256": "b31689e0b30e24dfc98497614c1a799a6a9702a1831c608fbb18d8fd0c46d2a9"
+      "new_sha256": "63ac22cafe7d99d182af5416f1a28d1e981959019fac8619da6124bc78e4523e"
     },
     {
       "offset": "0x70e918",
@@ -4159,10 +4159,10 @@
     },
     {
       "offset": "0x890000",
-      "bytes": 33917,
+      "bytes": 37280,
       "purpose": "pre-capture code",
-      "old_sha256": "f066dd82997e7dc1459394e8a7e2708ecec1d5665771c1e7e53078a31e45bc0e",
-      "new_sha256": "6dc74ff58f0a1bae5a947ea869e07444705b496330687849d728205242b54644"
+      "old_sha256": "cf7fbfb8714458ecc2f642aff774a5e421cbec5eb000ac68080a629393ea8737",
+      "new_sha256": "3b61605564e6e713a38b5e301206a616b5983f490b37746816c147eec95e835b"
     },
     {
       "offset": "0x8f0000",
@@ -4218,7 +4218,7 @@
       "bytes": 4,
       "purpose": "pre-capture hook/data 0xd49048",
       "old_sha256": "68e74820fb5e9a4c292a0cfd1a93d3e55444158ac1e9fc16e6b5ad142c5e2856",
-      "new_sha256": "f4f4a73f12f83224cfead25c6bfbf4a3f99483e7685cbb73b9d52a8241c557d0"
+      "new_sha256": "72fbdcabf0dbc20fe11d5c389227d8293de127bf345c1693f4cd8ac1435b3d1e"
     },
     {
       "offset": "0xd4915c",
@@ -4232,7 +4232,7 @@
       "bytes": 4,
       "purpose": "pre-capture hook/data 0xd49fac",
       "old_sha256": "97dba574f77f0b493a416a9a11d49878808d1143cae14bc48b0936ecc55141b0",
-      "new_sha256": "6b91dedb86c3781586dfbcf98bd184025a84a352986d4543a22e28a074891e2a"
+      "new_sha256": "a0f4fda7cce0bd37e7023a65b14be3805297b37ba8d5ce75200927861d7f8207"
     },
     {
       "offset": "0xd4eb60",
@@ -4323,7 +4323,7 @@
       "bytes": 4,
       "purpose": "pre-capture hook/data 0xee8e1c",
       "old_sha256": "0c75d9ea2e49d4ca6a42410494a353bbab87cc2baa4d0d73f7ebe79ed1edf1f0",
-      "new_sha256": "170ef62e560663f305e956c485c470cbe03c767a165a93cdd58b5777b509b9bd"
+      "new_sha256": "0198ca28e63a518968b8ca27da9a9d26a85e3b7f3bee7f755acc5a94f9dbc188"
     },
     {
       "offset": "0xeedf14",
@@ -4337,7 +4337,7 @@
       "bytes": 4,
       "purpose": "pre-capture hook/data 0xef9c60",
       "old_sha256": "af6aad34d0bec53ebd93d7c77cafed945f3a97f169f422b49318a49852b9dae3",
-      "new_sha256": "16a24a3dc529ef85c04bffeca18ed90cd420fc01269f7b3afb9573c07e729a73"
+      "new_sha256": "0ddad759479dfd9ca777351d06887092dd3e6ff97a2429f0b43637a89b6e33e8"
     },
     {
       "offset": "0xf871f8",

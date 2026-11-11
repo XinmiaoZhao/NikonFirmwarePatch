@@ -42,7 +42,7 @@ NEF 使用原厂照片数据库与写入器，写完可直接回放，FX 输出�
 - 实际拍摄准入、空间预留、自动溢出和 r／缓冲显示仍按高速 JPEG 计划。数据库拒绝登记或锁失败时尝试 JPEG 回退，包括 RAW-only；该拒绝不创建停止文件。
 - RAW 帧保留到 NEF 写完，写卡积压会减少连拍／预拍可用帧数；HE★ 占用更多。每张目标卡应保留充足空间。
 - 实际 NEF 写入失败、写后找不到文件或达到默认 1.5 秒预算时，仍会尝试创建 `Z8PRESTP.BIN`。重启不清除停止文件；保留两卡文件并按[停止文件指南](stop-file.md)处理。停止额外 RAW 拍摄可选择 JPEG-only 或退出 C15／C30。
-- 生成的 NEF 缺少部分原厂镜头校正块、灰度子图及 XMP 校正数据。
+- NEF 头按原厂 NEF 标签表写出：六个 SubIFD、镜头校正等 NEFInfo 块（0x05–0x07、0x0C、0x10–0x13）以及 MakerNote 0x0046／0x008C／0x00A4，不再带入仅属于 JPEG 的标签。SubIFD3–5 是空占位，仍没有原厂的 384×256 灰度子图；XMP 校正数据和 MakerNote 0x0093 仍缺失；使用自定义色调曲线的优化校准时不写 ContrastCurve。这项改动（[问题 #23](https://github.com/XinmiaoZhao/NikonFirmwarePatch/issues/23)、[#27](https://github.com/XinmiaoZhao/NikonFirmwarePatch/issues/27) 的机内“NEF（RAW）处理”与元数据差异）已在 Z8 机身上测试。
 
 ## English
 
@@ -84,7 +84,7 @@ Remaining counts include NEF size and refresh with file type, RAW compression, J
 - Admission, reservations, overflow switching and r/buffer display retain the stock high-speed JPEG plan. Database/lock refusal attempts JPEG fallback, even for RAW-only; that refusal does not create a stop marker.
 - RAW buffers remain occupied until NEF writing finishes. Backlog reduces burst/history capacity; HE★ uses more space. Leave ample space on each destination card.
 - Failed/missing NEF writes or reaching the default 1.5-second budget still attempt to create `Z8PRESTP.BIN`. Restarting does not clear it. Preserve both cards and follow the [stop-file guide](stop-file.md#english-summary). Select JPEG-only or leave C15/C30 to stop extra RAW capture.
-- Some optional factory lens-correction blocks, grayscale subimage and XMP correction metadata are absent.
+- NEF headers follow the stock NEF tag lists: six SubIFDs, the lens-correction and other NEFInfo blocks (0x05–0x07, 0x0C, 0x10–0x13) and MakerNote 0x0046/0x008C/0x00A4, without the JPEG-only tags. SubIFD3–5 are empty placeholders, so the stock 384×256 grayscale subimage is still absent, as are XMP correction metadata and MakerNote 0x0093. A Picture Control with a custom tone curve omits ContrastCurve. This change, made for the in-camera NEF (RAW) processing failure and metadata differences in [issue #23](https://github.com/XinmiaoZhao/NikonFirmwarePatch/issues/23) and [#27](https://github.com/XinmiaoZhao/NikonFirmwarePatch/issues/27), has been tested on a Z8.
 
 ## 相关文档 / Related documents
 
