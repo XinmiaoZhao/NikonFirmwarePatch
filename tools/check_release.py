@@ -94,6 +94,7 @@ SOURCE_FILES=(
     'docs/validation-v0.3.1.json',
     'docs/validation-v0.3.1.md',
     'docs/validation.md',
+    'docs/video-orientation.md',
     'features.py',
     'patch.py',
     'requirements.txt',
@@ -103,6 +104,7 @@ SOURCE_FILES=(
     'resources/precapture.json',
     'resources/profile.json',
     'tests/test_compiled_paths.py',
+    'tests/test_videoorientation.py',
     'tests/validate.py',
     'tests/validate_combinations.py',
     'tests/validate_distribution.py',
@@ -219,8 +221,13 @@ SOURCE_FILES=(
     'z8quality/patcher.py',
     'z8quality/prores-icons.json',
     'z8quality/src/hooks.S',
+    'z8videoorientation/__init__.py',
+    'z8videoorientation/matrices.py',
+    'z8videoorientation/patcher.py',
+    'z8videoorientation/src/hooks.S',
+    'z8videoorientation/translations.py',
 )
-CODE_FILES=('resources/precapture.bin', 'resources/pixelshift.bin', 'resources/pixelshift-af.bin', 'resources/opengate.bin', 'resources/anamorphic.bin', 'resources/h265.bin', 'resources/log.bin', 'resources/quality.bin', 'resources/shared.bin')
+CODE_FILES=('resources/precapture.bin', 'resources/pixelshift.bin', 'resources/pixelshift-af.bin', 'resources/opengate.bin', 'resources/anamorphic.bin', 'resources/h265.bin', 'resources/log.bin', 'resources/quality.bin', 'resources/shared.bin', 'resources/video-orientation.bin')
 MANIFEST='release-manifest.json'
 TAG=r'v[0-9]+\.[0-9]+\.[0-9]+(?:-(?:rc\.[1-9][0-9]*|r[1-9][0-9]*))?'
 def need(ok,message):

@@ -11,6 +11,7 @@
 | RAW 预拍 | 同一照片实现的 FX／DX 样本中，选择“无损”实际记录 HE★。99 张预拍 NEF 全部解码，59 个配对 JPEG 与同次快门一致。直接选择 DX、C30、仅 RAW、HE★ 的组合仍待补测 |
 | 像素位移 | 机内合成 4 张和 16 张两组，从非 0001 编号起拍。两份 NEFX 均完整解码；每份抽查 16,388 个位置，红、绿与源帧重建一致，蓝的差异仅位于 AF 校正行 |
 | 共享设置与显示 | 先前的有界执行覆盖菜单分流、星标刷新、菜单库字段复制。机身试用反馈反挤压绿点正常。跨库切换、取电重开、取景器边缘及各回放页仍需分别观察 |
+| 记录视频方向（开发组） | 含 `video-orientation` 的构建通过全量单元测试，`verify.py` 对单选与“四视频组＋视频方向”产物独立核验通过；非空组合增至 31 种，全部配方冻结（15 份无照片工具组合真实构建逐字节复验，16 份含照片工具组合经混合装配与结构审计冻结）。仿真通过：全系统引导零异常横幅、首开页武装默认状态且幂等、行值为原厂布尔开关样式并随库双向搬运。实机：菜单行为（保存、菜单库切换、断电回默认开、菜单重设）与已发布的 H.265 档位功能完全一致；相机录制的全部格式逐握持验证旋转标记正确（H.265 10-bit 与 8-bit MOV、H.264 8-bit MP4/MOV、N-RAW 及同录代理、ProRes RAW 10/12-bit 及代理），全部文件经 ffprobe 核验。该组未随 v0.4.0 发布，详见[记录视频方向指南](video-orientation.md) |
 
 录像色彩与模型对照见[色彩报告](log-colour-report.md)。可选 F LUT 已做格点、插值和中性轴数值检查；剪辑软件及显示器的端到端输出另需校验。发布工具包在 Windows Python 3.12 和 3.13 上的实际运行状态见 [Host checks](https://github.com/XinmiaoZhao/NikonFirmwarePatch/actions/workflows/host-checks.yml)。[机器摘要](validation-summary.json) · [历史像素位移修订](validation-v0.3.1.md) · [历史预拍修订](validation-v0.2.0.md)
 
@@ -19,6 +20,8 @@
 The source, compiled units and firmware patches of v0.4.0 match v0.4.0-rc.2, so the evidence below applies unchanged. The original Z8 C 3.11 package is checked before building. All 15 nonempty selections are independently decoded and checked for identity, patch windows, preserved bytes and shared-resource boundaries. Each bounded emulator run boots decrypted MAIN with synthetic peripherals, enters the firmware version page twice and stops at the update entry.
 
 The all-feature firmware built with this update was tested on a Z8. A previously recorded S-Log3 N-RAW clip and a newly recorded Log3G10 clip showed the correct names in playback. The tester confirmed the expected assist rendering; the photographs document the label and ASSIST indicator. Display colour accuracy was not measured.
+
+The development-branch fifth group `video-orientation` is outside this release's scope. Its offline checks pass: the full unit suite, `verify.py` on the single-group and four-video-groups-plus-orientation outputs, and the frozen 31 combination recipes (15 rebuilt byte-exactly; the 16 photo-tools combinations via hybrid assembly with a structural audit). Emulation passes: full-system boot with zero exception banners, first-open arming with idempotence, the stock boolean value render and per-bank carrying across menu-bank switches. On the camera, the menu behaviour matches the shipped H.265 tier feature exactly, and every format the camera records is verified per grip (H.265 10-bit and 8-bit MOV, H.264 8-bit MP4/MOV, N-RAW with its simultaneous proxy, ProRes RAW 10/12-bit with proxies), with every file checked through ffprobe. See the [video-orientation guide](video-orientation.md).
 
 Earlier all-feature camera checks on the same recording and photo implementations covered four decoded ProRes HQ/LT recordings, 99 decoded pre-capture NEFs and 59 matching JPEGs, DX/FX lossless-to-HE★ fallback, and two fully decoded 4-/16-frame pixel-shift merges from non-default starting file numbers. The tester also reported normal lit AF points with desqueeze. Menu-bank/power-cycle transitions and individual playback icons, small-viewfinder or subject-detection geometries remain separate checks.
 

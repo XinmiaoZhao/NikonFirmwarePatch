@@ -1,343 +1,724 @@
 {
   "schema": 1,
   "units": {
-    "precapture": {
-      "bytes": 33917,
-      "sha256": "6dc74ff58f0a1bae5a947ea869e07444705b496330687849d728205242b54644",
+    "shared": {
+      "bytes": 264,
+      "sha256": "9e650cc77082db286d41a40e8bac64357a515c1c7730408ec95f74658de62033",
       "symbols": {
-        "$x": {
-          "va": "0x409f0040",
+        "shared_bank": {
+          "va": "0x40980000",
           "bytes": 0
         },
-        "mark": {
-          "va": "0x409f0040",
-          "bytes": 1296
-        },
-        "e_shape": {
-          "va": "0x409f2e34",
-          "bytes": 284
-        },
-        "crc32": {
-          "va": "0x409f2f50",
-          "bytes": 48
-        },
-        "bound": {
-          "va": "0x409f094c",
-          "bytes": 576
-        },
-        "seal": {
-          "va": "0x409f0c20",
-          "bytes": 80
-        },
-        "get64": {
-          "va": "0x409f0b8c",
-          "bytes": 64
-        },
-        "aux_ok": {
-          "va": "0x409f2f80",
-          "bytes": 124
-        },
-        "aux_seal": {
-          "va": "0x409f0bcc",
-          "bytes": 84
-        },
-        "preview_job": {
-          "va": "0x409f21a4",
-          "bytes": 840
-        },
-        "nef_flags": {
-          "va": "0x409f3070",
-          "bytes": 148
-        },
-        "dual_list": {
-          "va": "0x409f3104",
-          "bytes": 156
-        },
-        "two_lists": {
-          "va": "0x409f2ffc",
-          "bytes": 116
-        },
-        "second": {
-          "va": "0x409f2ab4",
-          "bytes": 252
-        },
-        "take": {
-          "va": "0x409f2bb0",
-          "bytes": 644
-        },
-        "prepare": {
-          "va": "0x409f31a0",
-          "bytes": 1544
-        },
-        "flow": {
-          "va": "0x409f37a8",
-          "bytes": 416
-        },
-        "crc_table": {
-          "va": "0x409f7f94",
-          "bytes": 1024
-        },
-        "preview_stream": {
-          "va": "0x409f3948",
-          "bytes": 368
-        },
-        "jpg_name": {
-          "va": "0x409f3ab8",
-          "bytes": 332
-        },
-        "build": {
-          "va": "0x409f3c04",
-          "bytes": 8412
-        },
-        "register_member": {
-          "va": "0x409f6844",
-          "bytes": 300
-        },
-        "stock_nef": {
-          "va": "0x409f6970",
-          "bytes": 2100
-        },
-        "jpeg_cancelled": {
-          "va": "0x409f71a4",
-          "bytes": 92
-        },
-        "xmp_ns": {
-          "va": "0x409f8460",
-          "bytes": 29
-        },
-        "find": {
-          "va": "0x409f5ce0",
-          "bytes": 288
-        },
-        "ifd_count": {
-          "va": "0x409f5e00",
-          "bytes": 92
-        },
-        "nb": {
-          "va": "0x409f5e5c",
-          "bytes": 268
-        },
-        "crc16": {
-          "va": "0x409f5f68",
-          "bytes": 160
-        },
-        "emit": {
-          "va": "0x409f60bc",
-          "bytes": 1396
-        },
-        "put": {
-          "va": "0x409f6008",
-          "bytes": 180
-        },
-        "skip0": {
-          "va": "0x409f83a6",
-          "bytes": 22
-        },
-        "copy_entries": {
-          "va": "0x409f6630",
-          "bytes": 468
-        },
-        "refbw": {
-          "va": "0x409f83bc",
-          "bytes": 48
-        },
-        "tiffep": {
-          "va": "0x409f83ec",
-          "bytes": 4
-        },
-        "rat300": {
-          "va": "0x409f83f0",
-          "bytes": 8
-        },
-        "cfa_dim": {
-          "va": "0x409f83f8",
-          "bytes": 4
-        },
-        "cfa_rggb": {
-          "va": "0x409f83fc",
-          "bytes": 4
-        },
-        "one8": {
-          "va": "0x409f8400",
-          "bytes": 1
-        },
-        "skipx": {
-          "va": "0x409f8402",
-          "bytes": 18
-        },
-        "pad2": {
-          "va": "0x409f6804",
-          "bytes": 64
-        },
-        "nikon2": {
-          "va": "0x409f8394",
-          "bytes": 18
-        },
-        "skipm": {
-          "va": "0x409f8414",
-          "bytes": 20
-        },
-        "quality_raw": {
-          "va": "0x409f8428",
-          "bytes": 8
-        },
-        "jpgc_nef": {
-          "va": "0x409f8430",
-          "bytes": 2
-        },
-        "type_size": {
-          "va": "0x409f8432",
-          "bytes": 13
-        },
-        "stop_file": {
-          "va": "0x409f7d64",
-          "bytes": 408
-        },
-        "build_footer": {
-          "va": "0x409f72a4",
-          "bytes": 2752
-        },
-        "seg": {
-          "va": "0x409f7200",
-          "bytes": 164
-        },
-        "$d": {
-          "va": "0x409f8460",
+        "shared_refresh": {
+          "va": "0x409800a0",
           "bytes": 0
-        },
-        "precapture_tdec_sel_entry": {
-          "va": "0x409f7f00",
-          "bytes": 0
-        },
-        "hn5_tdec_sel": {
-          "va": "0x409f0e00",
-          "bytes": 72
-        },
-        "precapture_area_mode": {
-          "va": "0x409f7f20",
-          "bytes": 0
-        },
-        "precapture_y_size_entry": {
-          "va": "0x409f7f60",
-          "bytes": 0
-        },
-        "hn4_y_size": {
-          "va": "0x409f19c0",
-          "bytes": 456
-        },
-        "precapture_y_alloc_entry": {
-          "va": "0x409f7f68",
-          "bytes": 0
-        },
-        "hn4_y_alloc": {
-          "va": "0x409f1b88",
-          "bytes": 708
-        },
-        "precapture_history_entry": {
-          "va": "0x409f0000",
-          "bytes": 56
-        },
-        "precapture_current_entry": {
-          "va": "0x409f0550",
-          "bytes": 56
-        },
-        "precapture_tdec_release": {
-          "va": "0x409f0588",
-          "bytes": 964
-        },
-        "precapture_tenc_config": {
-          "va": "0x409f0c70",
-          "bytes": 188
-        },
-        "precapture_e_alloc": {
-          "va": "0x409f0d2c",
-          "bytes": 68
-        },
-        "precapture_e_size": {
-          "va": "0x409f0d70",
-          "bytes": 144
-        },
-        "precapture_ready_margin": {
-          "va": "0x409f0e48",
-          "bytes": 116
-        },
-        "precapture_gui_mode": {
-          "va": "0x409f0ebc",
-          "bytes": 80
-        },
-        "precapture_cap_update": {
-          "va": "0x409f0f0c",
-          "bytes": 204
-        },
-        "precapture_ui_mode": {
-          "va": "0x409f0fd8",
-          "bytes": 80
-        },
-        "precapture_quality_code": {
-          "va": "0x409f1028",
-          "bytes": 268
-        },
-        "precapture_quality_star": {
-          "va": "0x409f1134",
-          "bytes": 144
-        },
-        "precapture_ordinary_code": {
-          "va": "0x409f11c4",
-          "bytes": 160
-        },
-        "precapture_ordinary_star": {
-          "va": "0x409f1264",
-          "bytes": 160
-        },
-        "precapture_display_mode": {
-          "va": "0x409f1304",
-          "bytes": 248
-        },
-        "precapture_expand": {
-          "va": "0x409f13fc",
-          "bytes": 1264
-        },
-        "precapture_dcf_item": {
-          "va": "0x409f18ec",
-          "bytes": 212
-        },
-        "precapture_main_step": {
-          "va": "0x409f1e4c",
-          "bytes": 856
-        },
-        "precapture_main_rc": {
-          "va": "0x409f24ec",
-          "bytes": 320
-        },
-        "precapture_write_file": {
-          "va": "0x409f262c",
-          "bytes": 1160
-        },
-        "precapture_dcf_ids": {
-          "va": "0x409f7f70",
-          "bytes": 36
         }
       },
       "source_sha256": {
-        "z8precapture/crc32_table.inc": "fe021e684d78717732adddb6c9dde91f6fc6918f18cb0aeccfb349db5511a515",
-        "z8precapture/firmware.c": "b2320bc917fad7b53030813a4909a5add2aa06d97a2ba293a85e9105ba3fad9c"
+        "z8patch/src/shared.S": "a6cb118e2af6b998f3212330aa868695c4246cd6d587052d5417c678d9e23a5d"
+      },
+      "compiler": "clang version 19.1.7 (/home/runner/work/llvm-project/llvm-project/clang cd708029e0b2869e80abe31ddb175f7c35361f90)",
+      "flags": [
+        "-target",
+        "aarch64-none-elf",
+        "-x",
+        "assembler-with-cpp"
+      ],
+      "resource": "resources/shared.bin"
+    },
+    "anamorphic": {
+      "bytes": 3200,
+      "sha256": "780913b1064f408c5b81d128197ec1627849ac9d92c2b57460d75a2b5a6f6f1d",
+      "symbols": {
+        "ap_ratios": {
+          "va": "0x40970c10",
+          "bytes": 0
+        },
+        "ap_map": {
+          "va": "0x409702c0",
+          "bytes": 0
+        },
+        "ap_map_y": {
+          "va": "0x40970320",
+          "bytes": 0
+        },
+        "ap_point_y": {
+          "va": "0x40970530",
+          "bytes": 0
+        },
+        "ap_map_out_y": {
+          "va": "0x409705e0",
+          "bytes": 0
+        },
+        "ap_corner_edges": {
+          "va": "0x40970620",
+          "bytes": 0
+        },
+        "ap_corner_shift": {
+          "va": "0x40970670",
+          "bytes": 0
+        },
+        "ap_corner_map": {
+          "va": "0x409706b0",
+          "bytes": 0
+        },
+        "ap_corner_place": {
+          "va": "0x40970750",
+          "bytes": 0
+        },
+        "ap_corner_calc_map": {
+          "va": "0x40970780",
+          "bytes": 0
+        },
+        "ap_nav_bg": {
+          "va": "0x409708ac",
+          "bytes": 0
+        },
+        "ap_row_text": {
+          "va": "0x40970a70",
+          "bytes": 0
+        },
+        "ap_value_texts": {
+          "va": "0x40970c40",
+          "bytes": 0
+        },
+        "ap_option_items": {
+          "va": "0x40970c2c",
+          "bytes": 0
+        },
+        "ap_window_hook": {
+          "va": "0x40970000",
+          "bytes": 0
+        },
+        "ap_frame_hook": {
+          "va": "0x40970180",
+          "bytes": 0
+        },
+        "ap_af_rect_hook": {
+          "va": "0x40970350",
+          "bytes": 0
+        },
+        "ap_af_points_hook": {
+          "va": "0x409703e0",
+          "bytes": 0
+        },
+        "ap_touch_point_hook": {
+          "va": "0x40970550",
+          "bytes": 0
+        },
+        "ap_corner_calc_tail": {
+          "va": "0x40970880",
+          "bytes": 0
+        },
+        "ap_corner_table_tail": {
+          "va": "0x40970890",
+          "bytes": 0
+        },
+        "ap_nav_bg_x9": {
+          "va": "0x409708a0",
+          "bytes": 0
+        },
+        "ap_nav_bg_x8": {
+          "va": "0x409708a8",
+          "bytes": 0
+        },
+        "ap_playback_fit_hook": {
+          "va": "0x409708f0",
+          "bytes": 0
+        },
+        "ap_preview_tail": {
+          "va": "0x409709a0",
+          "bytes": 0
+        },
+        "ap_menu_refresh_hook": {
+          "va": "0x40970ad0",
+          "bytes": 0
+        },
+        "ap_sub_entry_hook": {
+          "va": "0x40970b10",
+          "bytes": 0
+        },
+        "ap_sub_ok_hook": {
+          "va": "0x40970b70",
+          "bytes": 0
+        }
+      },
+      "source_sha256": {
+        "z8anamorphic/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "z8anamorphic/patcher.py": "685b6d0c848f3cc147f7f302ca2147daf4f7972de2f135588681aa9ace3aaa3b",
+        "z8anamorphic/src/hooks.S": "f063c249d7da85247a1ba8e4bc761dcedff61957aa9ada94712c91e260d43335"
       },
       "compiler": "Apple clang version 21.0.0 (clang-2100.1.1.101)",
       "flags": [
-        "--target=aarch64-none-elf",
-        "-O2",
-        "-ffreestanding",
-        "-fno-builtin",
-        "-fno-stack-protector",
-        "-fno-unwind-tables",
-        "-fno-asynchronous-unwind-tables",
-        "-mgeneral-regs-only",
-        "-mstrict-align",
-        "-Wall",
-        "-Wextra",
-        "-Werror"
+        "-target",
+        "aarch64-none-elf",
+        "-x",
+        "assembler-with-cpp"
       ],
-      "resource": "resources/precapture.bin"
+      "resource": "resources/anamorphic.bin"
+    },
+    "h265": {
+      "bytes": 2048,
+      "sha256": "3e8864ad98f66913b04be0962e6aaa977e42a497d11750ce3411c4512882b661",
+      "symbols": {
+        "tier_nominals": {
+          "va": "0x40a105e0",
+          "bytes": 0
+        },
+        "tier_group": {
+          "va": "0x40a10060",
+          "bytes": 0
+        },
+        "tier_mode_groups": {
+          "va": "0x40a105c0",
+          "bytes": 0
+        },
+        "tier_row_text": {
+          "va": "0x40a100f0",
+          "bytes": 0
+        },
+        "tier_group_texts": {
+          "va": "0x40a10368",
+          "bytes": 0
+        },
+        "tier_value_texts": {
+          "va": "0x40a102e8",
+          "bytes": 0
+        },
+        "tier_pages": {
+          "va": "0x40a10310",
+          "bytes": 0
+        },
+        "tier_option_items": {
+          "va": "0x40a102d8",
+          "bytes": 0
+        },
+        "tier_select_tail": {
+          "va": "0x40a10000",
+          "bytes": 0
+        },
+        "tier_mode_probe": {
+          "va": "0x40a10088",
+          "bytes": 0
+        },
+        "tier_refresh_hook": {
+          "va": "0x40a101e0",
+          "bytes": 0
+        },
+        "tier_entry_hook": {
+          "va": "0x40a10240",
+          "bytes": 0
+        },
+        "tier_ok_hook": {
+          "va": "0x40a102a0",
+          "bytes": 0
+        }
+      },
+      "source_sha256": {
+        "z8h265/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "z8h265/patcher.py": "15a0d4e7832b3249386617687ce4854911e2d388840e035935d1567c55929086",
+        "z8h265/src/hooks.S": "f663b0d340b2e0ccdfb565e82e94e2a21c4efccb3c5dec3feff7376929a9c3e8",
+        "z8h265/tiers.json": "7fb680af0966f89cf52bf416bc42ce5a0407fa0c6fd7a903c5e79bd48cff6c8a"
+      },
+      "compiler": "Apple clang version 21.0.0 (clang-2100.1.1.101)",
+      "flags": [
+        "-target",
+        "aarch64-none-elf",
+        "-x",
+        "assembler-with-cpp"
+      ],
+      "resource": "resources/h265.bin"
+    },
+    "log": {
+      "bytes": 2728,
+      "sha256": "9a3070e234a33b26cc998434e6e9fc046befd40760622c7efc4555f41c83a8f4",
+      "symbols": {
+        "lg_pb_names": {
+          "va": "0x40b00a90",
+          "bytes": 0
+        },
+        "lg_value_texts": {
+          "va": "0x40b00a78",
+          "bytes": 0
+        },
+        "lg_option_items": {
+          "va": "0x40b00a70",
+          "bytes": 0
+        },
+        "lg_rgb_hook": {
+          "va": "0x40b00000",
+          "bytes": 0
+        },
+        "lg_nlg_hook": {
+          "va": "0x40b00050",
+          "bytes": 0
+        },
+        "lg_m2_hook": {
+          "va": "0x40b00090",
+          "bytes": 0
+        },
+        "lg_m1_hook": {
+          "va": "0x40b000e0",
+          "bytes": 0
+        },
+        "lg_cpxs_hook": {
+          "va": "0x40b00130",
+          "bytes": 0
+        },
+        "lg_tag26_tail": {
+          "va": "0x40b00190",
+          "bytes": 0
+        },
+        "lg_keyclass_hook": {
+          "va": "0x40b001d0",
+          "bytes": 0
+        },
+        "lg_keys_gate": {
+          "va": "0x40b001f0",
+          "bytes": 0
+        },
+        "lg_keys_close": {
+          "va": "0x40b00290",
+          "bytes": 0
+        },
+        "lg_keycount_hook": {
+          "va": "0x40b002c0",
+          "bytes": 0
+        },
+        "lg_cc_copy_hook": {
+          "va": "0x40b00300",
+          "bytes": 0
+        },
+        "lg_cc_next_hook": {
+          "va": "0x40b00330",
+          "bytes": 0
+        },
+        "lg_pc_write": {
+          "va": "0x40b00360",
+          "bytes": 0
+        },
+        "lg_pc_parse_tail": {
+          "va": "0x40b00430",
+          "bytes": 0
+        },
+        "lg_pb_label": {
+          "va": "0x40b004a0",
+          "bytes": 0
+        },
+        "lg_pb_info": {
+          "va": "0x40b00510",
+          "bytes": 0
+        },
+        "lg_pb_build": {
+          "va": "0x40b005b0",
+          "bytes": 0
+        },
+        "lg_lv_clear": {
+          "va": "0x40b00650",
+          "bytes": 0
+        },
+        "lg_va_sel0": {
+          "va": "0x40b00670",
+          "bytes": 0
+        },
+        "lg_va_sel1": {
+          "va": "0x40b006c0",
+          "bytes": 0
+        },
+        "lg_va_cmp_a": {
+          "va": "0x40b00710",
+          "bytes": 0
+        },
+        "lg_va_cmp_b": {
+          "va": "0x40b00760",
+          "bytes": 0
+        },
+        "lg_va_store_a": {
+          "va": "0x40b007b0",
+          "bytes": 0
+        },
+        "lg_va_store_b": {
+          "va": "0x40b00800",
+          "bytes": 0
+        },
+        "lg_icon_tail": {
+          "va": "0x40b00850",
+          "bytes": 0
+        },
+        "lg_menu_refresh_hook": {
+          "va": "0x40b008b0",
+          "bytes": 0
+        },
+        "lg_sub_entry_hook": {
+          "va": "0x40b00930",
+          "bytes": 0
+        },
+        "lg_sub_ok_hook": {
+          "va": "0x40b00990",
+          "bytes": 0
+        }
+      },
+      "source_sha256": {
+        "z8log/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "z8log/data.json": "e4d82ff80513d99a1e5926e62f7323807158224d400f3f4797b52bfc940dd2c5",
+        "z8log/icons/log3g10_fill.png": "4d1be1c5d89e1076ad703de4084ed688fbd14975cdcad05a672ff9d82ebf89e3",
+        "z8log/icons/log3g10_outline.png": "3807023191ad9537375c4e29deda0b1035d98010fbd7a8094d7df418a7e9e1dc",
+        "z8log/icons/slog3_fill.png": "34266622d2ecbee118002dd1da56b3f05986ac97a25c0f5369a1707c5f982e44",
+        "z8log/icons/slog3_outline.png": "fb99de6066385019279faf29d855faf81b7c3ce9292dfbc40343985c1153b626",
+        "z8log/patcher.py": "2f50e57551b3d23e4b3bf55115d1a86d6f2521444118a59fe0d16a5fb3977583",
+        "z8log/src/hooks.S": "6662610ddc3b1fcacec8804d6a21bd833868d8ad16f52cefba59c3a98f0dc968"
+      },
+      "compiler": "Apple clang version 21.0.0 (clang-2100.1.1.101)",
+      "flags": [
+        "-target",
+        "aarch64-none-elf",
+        "-x",
+        "assembler-with-cpp",
+        "-DICON_BASE=0x1862",
+        "-DKEYS_BUF=0xa1010e100",
+        "-DKEYS_BUF_SIZE=0x1000",
+        "-DKEYS_G=0xa1010e000",
+        "-DLG_CC_SLOG3=0x40b09500",
+        "-DLG_CPXS1=0x40b09100",
+        "-DLG_CPXS2=0x40b09300",
+        "-DLG_M1_1=0x40b09040",
+        "-DLG_M1_2=0x40b09060",
+        "-DLG_M2_1=0x40b09000",
+        "-DLG_M2_2=0x40b09020",
+        "-DLG_NLG1=0x40b08c00",
+        "-DLG_NLG2=0x40b08e00",
+        "-DLG_RGB1=0x40b08000",
+        "-DLG_RGB2=0x40b08600",
+        "-DLG_VA_CB1=0x40b0a040",
+        "-DLG_VA_CB2=0x40b0a060",
+        "-DLG_VA_MAT1=0x40b0a000",
+        "-DLG_VA_MAT2=0x40b0a020",
+        "-DOPTION_ITEM0=0x35c0",
+        "-DOPTION_ITEM1=0x35c1",
+        "-DOPTION_ITEM2=0x35c2",
+        "-DPB_TYPE=0xa1010e021",
+        "-DTEXT_STYLE=0x2ce",
+        "-DVA_LAST=0xa1010e020"
+      ],
+      "resource": "resources/log.bin"
+    },
+    "opengate": {
+      "bytes": 11568,
+      "sha256": "693269ed8db5066947132e1885bc3063aa070f815995b8a0f009e62c50fc246d",
+      "symbols": {
+        "configuration_hook": {
+          "va": "0x40960000",
+          "bytes": 0
+        },
+        "og_policy_hook": {
+          "va": "0x409604b0",
+          "bytes": 0
+        },
+        "driver_hook": {
+          "va": "0x40960150",
+          "bytes": 0
+        },
+        "plan_height_hook": {
+          "va": "0x409601a0",
+          "bytes": 0
+        },
+        "frontend_block_hook": {
+          "va": "0x409601e0",
+          "bytes": 0
+        },
+        "size_hook": {
+          "va": "0x40960220",
+          "bytes": 0
+        },
+        "inner_hook": {
+          "va": "0x40960250",
+          "bytes": 0
+        },
+        "rate_hook": {
+          "va": "0x40960290",
+          "bytes": 0
+        },
+        "record_hook": {
+          "va": "0x409602d0",
+          "bytes": 0
+        },
+        "nrmt_hook": {
+          "va": "0x40960320",
+          "bytes": 0
+        },
+        "crop_hook": {
+          "va": "0x40960360",
+          "bytes": 0
+        },
+        "nctg_height_hook": {
+          "va": "0x409603a0",
+          "bytes": 0
+        },
+        "nctg_crop_hook": {
+          "va": "0x409603e0",
+          "bytes": 0
+        },
+        "proxy_sps_hook": {
+          "va": "0x409606c0",
+          "bytes": 0
+        },
+        "proxy_tkhd_hook": {
+          "va": "0x40960810",
+          "bytes": 0
+        },
+        "writer_close_hook": {
+          "va": "0x40960870",
+          "bytes": 0
+        },
+        "playback_begin_hook": {
+          "va": "0x409608c0",
+          "bytes": 0
+        },
+        "playback_capture_hook": {
+          "va": "0x409608f0",
+          "bytes": 0
+        },
+        "playback_fit_hook": {
+          "va": "0x40960a00",
+          "bytes": 0
+        },
+        "view_commit_hook": {
+          "va": "0x40960bd0",
+          "bytes": 0
+        },
+        "proxy_main_height_hook": {
+          "va": "0x40960ce0",
+          "bytes": 0
+        },
+        "zoom_area_hook": {
+          "va": "0x40961090",
+          "bytes": 0
+        },
+        "menu_list_base_hook": {
+          "va": "0x40961160",
+          "bytes": 0
+        },
+        "menu_select_base_hook": {
+          "va": "0x40961168",
+          "bytes": 0
+        },
+        "menu_summary_base_hook": {
+          "va": "0x40961170",
+          "bytes": 0
+        },
+        "menu_list_match_hook": {
+          "va": "0x40961180",
+          "bytes": 0
+        },
+        "menu_summary_match_hook": {
+          "va": "0x409611b0",
+          "bytes": 0
+        },
+        "menu_apply_hook": {
+          "va": "0x40961218",
+          "bytes": 0
+        },
+        "menu_bank_hook": {
+          "va": "0x409612a4",
+          "bytes": 0
+        },
+        "remaining_table_hook": {
+          "va": "0x409612c4",
+          "bytes": 0
+        },
+        "menu_summary_draw_hook": {
+          "va": "0x409612e8",
+          "bytes": 0
+        },
+        "film_icon_hook": {
+          "va": "0x40961388",
+          "bytes": 0
+        },
+        "fx_icon_hook": {
+          "va": "0x409613c4",
+          "bytes": 0
+        },
+        "setting_normal_hook": {
+          "va": "0x40961420",
+          "bytes": 0
+        },
+        "setting_bank_normal_hook": {
+          "va": "0x40961490",
+          "bytes": 0
+        },
+        "menu_capture_cache_hook": {
+          "va": "0x40961520",
+          "bytes": 0
+        },
+        "zoom_display_bounds_hook": {
+          "va": "0x409616b0",
+          "bytes": 0
+        },
+        "zoom_display_bounds_observe_hook": {
+          "va": "0x409617c8",
+          "bytes": 0
+        },
+        "i_current_hook": {
+          "va": "0x409617f0",
+          "bytes": 0
+        },
+        "i_dial_current_hook": {
+          "va": "0x40961828",
+          "bytes": 0
+        },
+        "i_dial_apply_hook": {
+          "va": "0x40961860",
+          "bytes": 0
+        },
+        "preview_full_page_hook": {
+          "va": "0x40961960",
+          "bytes": 0
+        },
+        "af_forward_hook": {
+          "va": "0x40961b00",
+          "bytes": 0
+        },
+        "af_inverse_hook": {
+          "va": "0x40961bd0",
+          "bytes": 0
+        },
+        "coordinate_family_hook": {
+          "va": "0x40961ca0",
+          "bytes": 0
+        },
+        "af_geometry_hook": {
+          "va": "0x40961d50",
+          "bytes": 0
+        },
+        "half_plan_hook": {
+          "va": "0x40961e30",
+          "bytes": 0
+        },
+        "half_size_hook": {
+          "va": "0x40961ef0",
+          "bytes": 0
+        },
+        "half_extent_hook": {
+          "va": "0x40961fc0",
+          "bytes": 0
+        },
+        "nav_class_a_hook": {
+          "va": "0x40962090",
+          "bytes": 0
+        },
+        "nav_class_b_hook": {
+          "va": "0x40962130",
+          "bytes": 0
+        },
+        "nav_aspect_a_hook": {
+          "va": "0x409621d0",
+          "bytes": 0
+        },
+        "nav_aspect_b_hook": {
+          "va": "0x40962270",
+          "bytes": 0
+        },
+        "af_local_area_hook": {
+          "va": "0x40962310",
+          "bytes": 0
+        },
+        "af_grid_hook": {
+          "va": "0x409623d0",
+          "bytes": 0
+        },
+        "af_custom_grid_hook": {
+          "va": "0x40962490",
+          "bytes": 0
+        },
+        "af_class1_hook": {
+          "va": "0x40962550",
+          "bytes": 0
+        },
+        "af_class2_hook": {
+          "va": "0x40962610",
+          "bytes": 0
+        },
+        "display_class_hook": {
+          "va": "0x409626d0",
+          "bytes": 0
+        },
+        "display_place_hook": {
+          "va": "0x40962740",
+          "bytes": 0
+        },
+        "display_size_hook": {
+          "va": "0x409627b0",
+          "bytes": 0
+        },
+        "i_list_apply_hook": {
+          "va": "0x409627f0",
+          "bytes": 0
+        },
+        "ds_session_end_hook": {
+          "va": "0x40962810",
+          "bytes": 0
+        },
+        "tier_table_hook": {
+          "va": "0x40962880",
+          "bytes": 0
+        },
+        "boot_reset_hook": {
+          "va": "0x409628c0",
+          "bytes": 0
+        },
+        "og_apply_hook": {
+          "va": "0x40962970",
+          "bytes": 0
+        },
+        "og_compare_exit_hook": {
+          "va": "0x409629a0",
+          "bytes": 0
+        },
+        "ds_session_end_d8_hook": {
+          "va": "0x40962a40",
+          "bytes": 0
+        },
+        "boot_reset_d8_hook": {
+          "va": "0x40962aa0",
+          "bytes": 0
+        },
+        "og_leave_display_hook": {
+          "va": "0x40962ae0",
+          "bytes": 0
+        },
+        "og_aspect_class_hook": {
+          "va": "0x40962c30",
+          "bytes": 0
+        },
+        "og_aspect_class_thumb_hook": {
+          "va": "0x40962c50",
+          "bytes": 0
+        }
+      },
+      "source_sha256": {
+        "z8opengate/src/d10_hooks.S": "37a7352d47cfad0e4363378b6b1eea71b9aaaa8464f03e3f2ea0e0eea13db28e",
+        "z8opengate/src/d5_hooks.S": "03c0ec540d6549666b257ee2dfb5a5b1fa1e19b9636e5432d0f9c1f5a917ac17",
+        "z8opengate/src/d6_hooks.S": "08cea97abe8f0ab1a5eb799450d4e7be3afbdbb6f0ff4c04d75cf07934be9a1f",
+        "z8opengate/src/d7_hooks.S": "857c5bd4a94caa61d00f604a17506f3e4d7f6cc85eb61f60a72bef35a68332c6",
+        "z8opengate/src/d8_hooks.S": "1e749d5fd31140a13b6a3923ab1e3f90efea90c72df0a69e697b62b5bf5e029b",
+        "z8opengate/src/d9_hooks.S": "7c4024f20b8a7058918a8043237733fa79c8c5b479a3c87c4f88778a55366079",
+        "z8opengate/src/menu_repair_hooks.S": "be44f87cfb29cda2fdd9c35da8ff131d1a1fc8f1749bf4a1e9e88a035c2b66fb",
+        "z8opengate/src/ui_hooks.S": "d42854e5eb01fb48051adae5a9c1edfa7adf17ef7535dce31da7964599dcb8b4"
+      },
+      "compiler": "Apple clang version 21.0.0 (clang-2100.1.1.101)",
+      "flags": [
+        "-target",
+        "aarch64-none-elf",
+        "-x",
+        "assembler-with-cpp",
+        "-DFULL_OUTPUT=1",
+        "-DWITH_Q3=1",
+        "-DQ3_STASH_RAM=0xa0ff50000",
+        "-DQ3_FINE_TABLE=0x40953000",
+        "-DQ3_BASIC_TABLE=0x409533f0",
+        "-DOG_TIER_DELTA=0x4000"
+      ],
+      "resource": "resources/opengate.bin"
     },
     "pixelshift": {
       "bytes": 130520,
@@ -1310,699 +1691,343 @@
       ],
       "resource": "resources/pixelshift-af.bin"
     },
-    "opengate": {
-      "bytes": 11568,
-      "sha256": "693269ed8db5066947132e1885bc3063aa070f815995b8a0f009e62c50fc246d",
+    "precapture": {
+      "bytes": 33917,
+      "sha256": "6dc74ff58f0a1bae5a947ea869e07444705b496330687849d728205242b54644",
       "symbols": {
-        "configuration_hook": {
-          "va": "0x40960000",
+        "$x": {
+          "va": "0x409f0040",
           "bytes": 0
         },
-        "og_policy_hook": {
-          "va": "0x409604b0",
-          "bytes": 0
+        "mark": {
+          "va": "0x409f0040",
+          "bytes": 1296
         },
-        "driver_hook": {
-          "va": "0x40960150",
-          "bytes": 0
+        "e_shape": {
+          "va": "0x409f2e34",
+          "bytes": 284
         },
-        "plan_height_hook": {
-          "va": "0x409601a0",
-          "bytes": 0
+        "crc32": {
+          "va": "0x409f2f50",
+          "bytes": 48
         },
-        "frontend_block_hook": {
-          "va": "0x409601e0",
-          "bytes": 0
+        "bound": {
+          "va": "0x409f094c",
+          "bytes": 576
         },
-        "size_hook": {
-          "va": "0x40960220",
-          "bytes": 0
+        "seal": {
+          "va": "0x409f0c20",
+          "bytes": 80
         },
-        "inner_hook": {
-          "va": "0x40960250",
-          "bytes": 0
+        "get64": {
+          "va": "0x409f0b8c",
+          "bytes": 64
         },
-        "rate_hook": {
-          "va": "0x40960290",
-          "bytes": 0
+        "aux_ok": {
+          "va": "0x409f2f80",
+          "bytes": 124
         },
-        "record_hook": {
-          "va": "0x409602d0",
-          "bytes": 0
+        "aux_seal": {
+          "va": "0x409f0bcc",
+          "bytes": 84
         },
-        "nrmt_hook": {
-          "va": "0x40960320",
-          "bytes": 0
+        "preview_job": {
+          "va": "0x409f21a4",
+          "bytes": 840
         },
-        "crop_hook": {
-          "va": "0x40960360",
-          "bytes": 0
+        "nef_flags": {
+          "va": "0x409f3070",
+          "bytes": 148
         },
-        "nctg_height_hook": {
-          "va": "0x409603a0",
-          "bytes": 0
+        "dual_list": {
+          "va": "0x409f3104",
+          "bytes": 156
         },
-        "nctg_crop_hook": {
-          "va": "0x409603e0",
-          "bytes": 0
+        "two_lists": {
+          "va": "0x409f2ffc",
+          "bytes": 116
         },
-        "proxy_sps_hook": {
-          "va": "0x409606c0",
-          "bytes": 0
+        "second": {
+          "va": "0x409f2ab4",
+          "bytes": 252
         },
-        "proxy_tkhd_hook": {
-          "va": "0x40960810",
-          "bytes": 0
+        "take": {
+          "va": "0x409f2bb0",
+          "bytes": 644
         },
-        "writer_close_hook": {
-          "va": "0x40960870",
-          "bytes": 0
+        "prepare": {
+          "va": "0x409f31a0",
+          "bytes": 1544
         },
-        "playback_begin_hook": {
-          "va": "0x409608c0",
-          "bytes": 0
+        "flow": {
+          "va": "0x409f37a8",
+          "bytes": 416
         },
-        "playback_capture_hook": {
-          "va": "0x409608f0",
-          "bytes": 0
+        "crc_table": {
+          "va": "0x409f7f94",
+          "bytes": 1024
         },
-        "playback_fit_hook": {
-          "va": "0x40960a00",
-          "bytes": 0
+        "preview_stream": {
+          "va": "0x409f3948",
+          "bytes": 368
         },
-        "view_commit_hook": {
-          "va": "0x40960bd0",
-          "bytes": 0
+        "jpg_name": {
+          "va": "0x409f3ab8",
+          "bytes": 332
         },
-        "proxy_main_height_hook": {
-          "va": "0x40960ce0",
-          "bytes": 0
+        "build": {
+          "va": "0x409f3c04",
+          "bytes": 8412
         },
-        "zoom_area_hook": {
-          "va": "0x40961090",
-          "bytes": 0
+        "register_member": {
+          "va": "0x409f6844",
+          "bytes": 300
         },
-        "menu_list_base_hook": {
-          "va": "0x40961160",
-          "bytes": 0
+        "stock_nef": {
+          "va": "0x409f6970",
+          "bytes": 2100
         },
-        "menu_select_base_hook": {
-          "va": "0x40961168",
-          "bytes": 0
+        "jpeg_cancelled": {
+          "va": "0x409f71a4",
+          "bytes": 92
         },
-        "menu_summary_base_hook": {
-          "va": "0x40961170",
-          "bytes": 0
+        "xmp_ns": {
+          "va": "0x409f8460",
+          "bytes": 29
         },
-        "menu_list_match_hook": {
-          "va": "0x40961180",
-          "bytes": 0
+        "find": {
+          "va": "0x409f5ce0",
+          "bytes": 288
         },
-        "menu_summary_match_hook": {
-          "va": "0x409611b0",
-          "bytes": 0
+        "ifd_count": {
+          "va": "0x409f5e00",
+          "bytes": 92
         },
-        "menu_apply_hook": {
-          "va": "0x40961218",
-          "bytes": 0
+        "nb": {
+          "va": "0x409f5e5c",
+          "bytes": 268
         },
-        "menu_bank_hook": {
-          "va": "0x409612a4",
-          "bytes": 0
+        "crc16": {
+          "va": "0x409f5f68",
+          "bytes": 160
         },
-        "remaining_table_hook": {
-          "va": "0x409612c4",
-          "bytes": 0
+        "emit": {
+          "va": "0x409f60bc",
+          "bytes": 1396
         },
-        "menu_summary_draw_hook": {
-          "va": "0x409612e8",
-          "bytes": 0
+        "put": {
+          "va": "0x409f6008",
+          "bytes": 180
         },
-        "film_icon_hook": {
-          "va": "0x40961388",
-          "bytes": 0
+        "skip0": {
+          "va": "0x409f83a6",
+          "bytes": 22
         },
-        "fx_icon_hook": {
-          "va": "0x409613c4",
-          "bytes": 0
+        "copy_entries": {
+          "va": "0x409f6630",
+          "bytes": 468
         },
-        "setting_normal_hook": {
-          "va": "0x40961420",
-          "bytes": 0
+        "refbw": {
+          "va": "0x409f83bc",
+          "bytes": 48
         },
-        "setting_bank_normal_hook": {
-          "va": "0x40961490",
-          "bytes": 0
+        "tiffep": {
+          "va": "0x409f83ec",
+          "bytes": 4
         },
-        "menu_capture_cache_hook": {
-          "va": "0x40961520",
-          "bytes": 0
+        "rat300": {
+          "va": "0x409f83f0",
+          "bytes": 8
         },
-        "zoom_display_bounds_hook": {
-          "va": "0x409616b0",
-          "bytes": 0
+        "cfa_dim": {
+          "va": "0x409f83f8",
+          "bytes": 4
         },
-        "zoom_display_bounds_observe_hook": {
-          "va": "0x409617c8",
-          "bytes": 0
+        "cfa_rggb": {
+          "va": "0x409f83fc",
+          "bytes": 4
         },
-        "i_current_hook": {
-          "va": "0x409617f0",
-          "bytes": 0
+        "one8": {
+          "va": "0x409f8400",
+          "bytes": 1
         },
-        "i_dial_current_hook": {
-          "va": "0x40961828",
-          "bytes": 0
+        "skipx": {
+          "va": "0x409f8402",
+          "bytes": 18
         },
-        "i_dial_apply_hook": {
-          "va": "0x40961860",
-          "bytes": 0
+        "pad2": {
+          "va": "0x409f6804",
+          "bytes": 64
         },
-        "preview_full_page_hook": {
-          "va": "0x40961960",
-          "bytes": 0
+        "nikon2": {
+          "va": "0x409f8394",
+          "bytes": 18
         },
-        "af_forward_hook": {
-          "va": "0x40961b00",
-          "bytes": 0
+        "skipm": {
+          "va": "0x409f8414",
+          "bytes": 20
         },
-        "af_inverse_hook": {
-          "va": "0x40961bd0",
-          "bytes": 0
+        "quality_raw": {
+          "va": "0x409f8428",
+          "bytes": 8
         },
-        "coordinate_family_hook": {
-          "va": "0x40961ca0",
-          "bytes": 0
+        "jpgc_nef": {
+          "va": "0x409f8430",
+          "bytes": 2
         },
-        "af_geometry_hook": {
-          "va": "0x40961d50",
-          "bytes": 0
+        "type_size": {
+          "va": "0x409f8432",
+          "bytes": 13
         },
-        "half_plan_hook": {
-          "va": "0x40961e30",
-          "bytes": 0
+        "stop_file": {
+          "va": "0x409f7d64",
+          "bytes": 408
         },
-        "half_size_hook": {
-          "va": "0x40961ef0",
-          "bytes": 0
+        "build_footer": {
+          "va": "0x409f72a4",
+          "bytes": 2752
         },
-        "half_extent_hook": {
-          "va": "0x40961fc0",
-          "bytes": 0
+        "seg": {
+          "va": "0x409f7200",
+          "bytes": 164
         },
-        "nav_class_a_hook": {
-          "va": "0x40962090",
+        "$d": {
+          "va": "0x409f8460",
           "bytes": 0
         },
-        "nav_class_b_hook": {
-          "va": "0x40962130",
+        "precapture_tdec_sel_entry": {
+          "va": "0x409f7f00",
           "bytes": 0
         },
-        "nav_aspect_a_hook": {
-          "va": "0x409621d0",
-          "bytes": 0
+        "hn5_tdec_sel": {
+          "va": "0x409f0e00",
+          "bytes": 72
         },
-        "nav_aspect_b_hook": {
-          "va": "0x40962270",
+        "precapture_area_mode": {
+          "va": "0x409f7f20",
           "bytes": 0
         },
-        "af_local_area_hook": {
-          "va": "0x40962310",
+        "precapture_y_size_entry": {
+          "va": "0x409f7f60",
           "bytes": 0
         },
-        "af_grid_hook": {
-          "va": "0x409623d0",
-          "bytes": 0
+        "hn4_y_size": {
+          "va": "0x409f19c0",
+          "bytes": 456
         },
-        "af_custom_grid_hook": {
-          "va": "0x40962490",
+        "precapture_y_alloc_entry": {
+          "va": "0x409f7f68",
           "bytes": 0
         },
-        "af_class1_hook": {
-          "va": "0x40962550",
-          "bytes": 0
+        "hn4_y_alloc": {
+          "va": "0x409f1b88",
+          "bytes": 708
         },
-        "af_class2_hook": {
-          "va": "0x40962610",
-          "bytes": 0
+        "precapture_history_entry": {
+          "va": "0x409f0000",
+          "bytes": 56
         },
-        "display_class_hook": {
-          "va": "0x409626d0",
-          "bytes": 0
+        "precapture_current_entry": {
+          "va": "0x409f0550",
+          "bytes": 56
         },
-        "display_place_hook": {
-          "va": "0x40962740",
-          "bytes": 0
+        "precapture_tdec_release": {
+          "va": "0x409f0588",
+          "bytes": 964
         },
-        "display_size_hook": {
-          "va": "0x409627b0",
-          "bytes": 0
+        "precapture_tenc_config": {
+          "va": "0x409f0c70",
+          "bytes": 188
         },
-        "i_list_apply_hook": {
-          "va": "0x409627f0",
-          "bytes": 0
+        "precapture_e_alloc": {
+          "va": "0x409f0d2c",
+          "bytes": 68
         },
-        "ds_session_end_hook": {
-          "va": "0x40962810",
-          "bytes": 0
+        "precapture_e_size": {
+          "va": "0x409f0d70",
+          "bytes": 144
         },
-        "tier_table_hook": {
-          "va": "0x40962880",
-          "bytes": 0
+        "precapture_ready_margin": {
+          "va": "0x409f0e48",
+          "bytes": 116
         },
-        "boot_reset_hook": {
-          "va": "0x409628c0",
-          "bytes": 0
+        "precapture_gui_mode": {
+          "va": "0x409f0ebc",
+          "bytes": 80
         },
-        "og_apply_hook": {
-          "va": "0x40962970",
-          "bytes": 0
+        "precapture_cap_update": {
+          "va": "0x409f0f0c",
+          "bytes": 204
         },
-        "og_compare_exit_hook": {
-          "va": "0x409629a0",
-          "bytes": 0
+        "precapture_ui_mode": {
+          "va": "0x409f0fd8",
+          "bytes": 80
         },
-        "ds_session_end_d8_hook": {
-          "va": "0x40962a40",
-          "bytes": 0
+        "precapture_quality_code": {
+          "va": "0x409f1028",
+          "bytes": 268
         },
-        "boot_reset_d8_hook": {
-          "va": "0x40962aa0",
-          "bytes": 0
+        "precapture_quality_star": {
+          "va": "0x409f1134",
+          "bytes": 144
         },
-        "og_leave_display_hook": {
-          "va": "0x40962ae0",
-          "bytes": 0
+        "precapture_ordinary_code": {
+          "va": "0x409f11c4",
+          "bytes": 160
         },
-        "og_aspect_class_hook": {
-          "va": "0x40962c30",
-          "bytes": 0
+        "precapture_ordinary_star": {
+          "va": "0x409f1264",
+          "bytes": 160
         },
-        "og_aspect_class_thumb_hook": {
-          "va": "0x40962c50",
-          "bytes": 0
+        "precapture_display_mode": {
+          "va": "0x409f1304",
+          "bytes": 248
+        },
+        "precapture_expand": {
+          "va": "0x409f13fc",
+          "bytes": 1264
+        },
+        "precapture_dcf_item": {
+          "va": "0x409f18ec",
+          "bytes": 212
+        },
+        "precapture_main_step": {
+          "va": "0x409f1e4c",
+          "bytes": 856
+        },
+        "precapture_main_rc": {
+          "va": "0x409f24ec",
+          "bytes": 320
+        },
+        "precapture_write_file": {
+          "va": "0x409f262c",
+          "bytes": 1160
+        },
+        "precapture_dcf_ids": {
+          "va": "0x409f7f70",
+          "bytes": 36
         }
       },
       "source_sha256": {
-        "z8opengate/src/d10_hooks.S": "37a7352d47cfad0e4363378b6b1eea71b9aaaa8464f03e3f2ea0e0eea13db28e",
-        "z8opengate/src/d5_hooks.S": "03c0ec540d6549666b257ee2dfb5a5b1fa1e19b9636e5432d0f9c1f5a917ac17",
-        "z8opengate/src/d6_hooks.S": "08cea97abe8f0ab1a5eb799450d4e7be3afbdbb6f0ff4c04d75cf07934be9a1f",
-        "z8opengate/src/d7_hooks.S": "857c5bd4a94caa61d00f604a17506f3e4d7f6cc85eb61f60a72bef35a68332c6",
-        "z8opengate/src/d8_hooks.S": "1e749d5fd31140a13b6a3923ab1e3f90efea90c72df0a69e697b62b5bf5e029b",
-        "z8opengate/src/d9_hooks.S": "7c4024f20b8a7058918a8043237733fa79c8c5b479a3c87c4f88778a55366079",
-        "z8opengate/src/menu_repair_hooks.S": "be44f87cfb29cda2fdd9c35da8ff131d1a1fc8f1749bf4a1e9e88a035c2b66fb",
-        "z8opengate/src/ui_hooks.S": "d42854e5eb01fb48051adae5a9c1edfa7adf17ef7535dce31da7964599dcb8b4"
+        "z8precapture/crc32_table.inc": "fe021e684d78717732adddb6c9dde91f6fc6918f18cb0aeccfb349db5511a515",
+        "z8precapture/firmware.c": "b2320bc917fad7b53030813a4909a5add2aa06d97a2ba293a85e9105ba3fad9c"
       },
       "compiler": "Apple clang version 21.0.0 (clang-2100.1.1.101)",
       "flags": [
-        "-target",
-        "aarch64-none-elf",
-        "-x",
-        "assembler-with-cpp",
-        "-DFULL_OUTPUT=1",
-        "-DWITH_Q3=1",
-        "-DQ3_STASH_RAM=0xa0ff50000",
-        "-DQ3_FINE_TABLE=0x40953000",
-        "-DQ3_BASIC_TABLE=0x409533f0",
-        "-DOG_TIER_DELTA=0x4000"
+        "--target=aarch64-none-elf",
+        "-O2",
+        "-ffreestanding",
+        "-fno-builtin",
+        "-fno-stack-protector",
+        "-fno-unwind-tables",
+        "-fno-asynchronous-unwind-tables",
+        "-mgeneral-regs-only",
+        "-mstrict-align",
+        "-Wall",
+        "-Wextra",
+        "-Werror"
       ],
-      "resource": "resources/opengate.bin"
-    },
-    "anamorphic": {
-      "bytes": 3200,
-      "sha256": "780913b1064f408c5b81d128197ec1627849ac9d92c2b57460d75a2b5a6f6f1d",
-      "symbols": {
-        "ap_ratios": {
-          "va": "0x40970c10",
-          "bytes": 0
-        },
-        "ap_map": {
-          "va": "0x409702c0",
-          "bytes": 0
-        },
-        "ap_map_y": {
-          "va": "0x40970320",
-          "bytes": 0
-        },
-        "ap_point_y": {
-          "va": "0x40970530",
-          "bytes": 0
-        },
-        "ap_map_out_y": {
-          "va": "0x409705e0",
-          "bytes": 0
-        },
-        "ap_corner_edges": {
-          "va": "0x40970620",
-          "bytes": 0
-        },
-        "ap_corner_shift": {
-          "va": "0x40970670",
-          "bytes": 0
-        },
-        "ap_corner_map": {
-          "va": "0x409706b0",
-          "bytes": 0
-        },
-        "ap_corner_place": {
-          "va": "0x40970750",
-          "bytes": 0
-        },
-        "ap_corner_calc_map": {
-          "va": "0x40970780",
-          "bytes": 0
-        },
-        "ap_nav_bg": {
-          "va": "0x409708ac",
-          "bytes": 0
-        },
-        "ap_row_text": {
-          "va": "0x40970a70",
-          "bytes": 0
-        },
-        "ap_value_texts": {
-          "va": "0x40970c40",
-          "bytes": 0
-        },
-        "ap_option_items": {
-          "va": "0x40970c2c",
-          "bytes": 0
-        },
-        "ap_window_hook": {
-          "va": "0x40970000",
-          "bytes": 0
-        },
-        "ap_frame_hook": {
-          "va": "0x40970180",
-          "bytes": 0
-        },
-        "ap_af_rect_hook": {
-          "va": "0x40970350",
-          "bytes": 0
-        },
-        "ap_af_points_hook": {
-          "va": "0x409703e0",
-          "bytes": 0
-        },
-        "ap_touch_point_hook": {
-          "va": "0x40970550",
-          "bytes": 0
-        },
-        "ap_corner_calc_tail": {
-          "va": "0x40970880",
-          "bytes": 0
-        },
-        "ap_corner_table_tail": {
-          "va": "0x40970890",
-          "bytes": 0
-        },
-        "ap_nav_bg_x9": {
-          "va": "0x409708a0",
-          "bytes": 0
-        },
-        "ap_nav_bg_x8": {
-          "va": "0x409708a8",
-          "bytes": 0
-        },
-        "ap_playback_fit_hook": {
-          "va": "0x409708f0",
-          "bytes": 0
-        },
-        "ap_preview_tail": {
-          "va": "0x409709a0",
-          "bytes": 0
-        },
-        "ap_menu_refresh_hook": {
-          "va": "0x40970ad0",
-          "bytes": 0
-        },
-        "ap_sub_entry_hook": {
-          "va": "0x40970b10",
-          "bytes": 0
-        },
-        "ap_sub_ok_hook": {
-          "va": "0x40970b70",
-          "bytes": 0
-        }
-      },
-      "source_sha256": {
-        "z8anamorphic/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-        "z8anamorphic/patcher.py": "685b6d0c848f3cc147f7f302ca2147daf4f7972de2f135588681aa9ace3aaa3b",
-        "z8anamorphic/src/hooks.S": "f063c249d7da85247a1ba8e4bc761dcedff61957aa9ada94712c91e260d43335"
-      },
-      "compiler": "Apple clang version 21.0.0 (clang-2100.1.1.101)",
-      "flags": [
-        "-target",
-        "aarch64-none-elf",
-        "-x",
-        "assembler-with-cpp"
-      ],
-      "resource": "resources/anamorphic.bin"
-    },
-    "h265": {
-      "bytes": 2048,
-      "sha256": "3e8864ad98f66913b04be0962e6aaa977e42a497d11750ce3411c4512882b661",
-      "symbols": {
-        "tier_nominals": {
-          "va": "0x40a105e0",
-          "bytes": 0
-        },
-        "tier_group": {
-          "va": "0x40a10060",
-          "bytes": 0
-        },
-        "tier_mode_groups": {
-          "va": "0x40a105c0",
-          "bytes": 0
-        },
-        "tier_row_text": {
-          "va": "0x40a100f0",
-          "bytes": 0
-        },
-        "tier_group_texts": {
-          "va": "0x40a10368",
-          "bytes": 0
-        },
-        "tier_value_texts": {
-          "va": "0x40a102e8",
-          "bytes": 0
-        },
-        "tier_pages": {
-          "va": "0x40a10310",
-          "bytes": 0
-        },
-        "tier_option_items": {
-          "va": "0x40a102d8",
-          "bytes": 0
-        },
-        "tier_select_tail": {
-          "va": "0x40a10000",
-          "bytes": 0
-        },
-        "tier_mode_probe": {
-          "va": "0x40a10088",
-          "bytes": 0
-        },
-        "tier_refresh_hook": {
-          "va": "0x40a101e0",
-          "bytes": 0
-        },
-        "tier_entry_hook": {
-          "va": "0x40a10240",
-          "bytes": 0
-        },
-        "tier_ok_hook": {
-          "va": "0x40a102a0",
-          "bytes": 0
-        }
-      },
-      "source_sha256": {
-        "z8h265/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-        "z8h265/patcher.py": "15a0d4e7832b3249386617687ce4854911e2d388840e035935d1567c55929086",
-        "z8h265/src/hooks.S": "f663b0d340b2e0ccdfb565e82e94e2a21c4efccb3c5dec3feff7376929a9c3e8",
-        "z8h265/tiers.json": "7fb680af0966f89cf52bf416bc42ce5a0407fa0c6fd7a903c5e79bd48cff6c8a"
-      },
-      "compiler": "Apple clang version 21.0.0 (clang-2100.1.1.101)",
-      "flags": [
-        "-target",
-        "aarch64-none-elf",
-        "-x",
-        "assembler-with-cpp"
-      ],
-      "resource": "resources/h265.bin"
-    },
-    "log": {
-      "bytes": 2728,
-      "sha256": "9a3070e234a33b26cc998434e6e9fc046befd40760622c7efc4555f41c83a8f4",
-      "symbols": {
-        "lg_pb_names": {
-          "va": "0x40b00a90",
-          "bytes": 0
-        },
-        "lg_value_texts": {
-          "va": "0x40b00a78",
-          "bytes": 0
-        },
-        "lg_option_items": {
-          "va": "0x40b00a70",
-          "bytes": 0
-        },
-        "lg_rgb_hook": {
-          "va": "0x40b00000",
-          "bytes": 0
-        },
-        "lg_nlg_hook": {
-          "va": "0x40b00050",
-          "bytes": 0
-        },
-        "lg_m2_hook": {
-          "va": "0x40b00090",
-          "bytes": 0
-        },
-        "lg_m1_hook": {
-          "va": "0x40b000e0",
-          "bytes": 0
-        },
-        "lg_cpxs_hook": {
-          "va": "0x40b00130",
-          "bytes": 0
-        },
-        "lg_tag26_tail": {
-          "va": "0x40b00190",
-          "bytes": 0
-        },
-        "lg_keyclass_hook": {
-          "va": "0x40b001d0",
-          "bytes": 0
-        },
-        "lg_keys_gate": {
-          "va": "0x40b001f0",
-          "bytes": 0
-        },
-        "lg_keys_close": {
-          "va": "0x40b00290",
-          "bytes": 0
-        },
-        "lg_keycount_hook": {
-          "va": "0x40b002c0",
-          "bytes": 0
-        },
-        "lg_cc_copy_hook": {
-          "va": "0x40b00300",
-          "bytes": 0
-        },
-        "lg_cc_next_hook": {
-          "va": "0x40b00330",
-          "bytes": 0
-        },
-        "lg_pc_write": {
-          "va": "0x40b00360",
-          "bytes": 0
-        },
-        "lg_pc_parse_tail": {
-          "va": "0x40b00430",
-          "bytes": 0
-        },
-        "lg_pb_label": {
-          "va": "0x40b004a0",
-          "bytes": 0
-        },
-        "lg_pb_info": {
-          "va": "0x40b00510",
-          "bytes": 0
-        },
-        "lg_pb_build": {
-          "va": "0x40b005b0",
-          "bytes": 0
-        },
-        "lg_lv_clear": {
-          "va": "0x40b00650",
-          "bytes": 0
-        },
-        "lg_va_sel0": {
-          "va": "0x40b00670",
-          "bytes": 0
-        },
-        "lg_va_sel1": {
-          "va": "0x40b006c0",
-          "bytes": 0
-        },
-        "lg_va_cmp_a": {
-          "va": "0x40b00710",
-          "bytes": 0
-        },
-        "lg_va_cmp_b": {
-          "va": "0x40b00760",
-          "bytes": 0
-        },
-        "lg_va_store_a": {
-          "va": "0x40b007b0",
-          "bytes": 0
-        },
-        "lg_va_store_b": {
-          "va": "0x40b00800",
-          "bytes": 0
-        },
-        "lg_icon_tail": {
-          "va": "0x40b00850",
-          "bytes": 0
-        },
-        "lg_menu_refresh_hook": {
-          "va": "0x40b008b0",
-          "bytes": 0
-        },
-        "lg_sub_entry_hook": {
-          "va": "0x40b00930",
-          "bytes": 0
-        },
-        "lg_sub_ok_hook": {
-          "va": "0x40b00990",
-          "bytes": 0
-        }
-      },
-      "source_sha256": {
-        "z8log/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-        "z8log/data.json": "e4d82ff80513d99a1e5926e62f7323807158224d400f3f4797b52bfc940dd2c5",
-        "z8log/icons/log3g10_fill.png": "4d1be1c5d89e1076ad703de4084ed688fbd14975cdcad05a672ff9d82ebf89e3",
-        "z8log/icons/log3g10_outline.png": "3807023191ad9537375c4e29deda0b1035d98010fbd7a8094d7df418a7e9e1dc",
-        "z8log/icons/slog3_fill.png": "34266622d2ecbee118002dd1da56b3f05986ac97a25c0f5369a1707c5f982e44",
-        "z8log/icons/slog3_outline.png": "fb99de6066385019279faf29d855faf81b7c3ce9292dfbc40343985c1153b626",
-        "z8log/patcher.py": "2f50e57551b3d23e4b3bf55115d1a86d6f2521444118a59fe0d16a5fb3977583",
-        "z8log/src/hooks.S": "6662610ddc3b1fcacec8804d6a21bd833868d8ad16f52cefba59c3a98f0dc968"
-      },
-      "compiler": "Apple clang version 21.0.0 (clang-2100.1.1.101)",
-      "flags": [
-        "-target",
-        "aarch64-none-elf",
-        "-x",
-        "assembler-with-cpp",
-        "-DICON_BASE=0x1862",
-        "-DKEYS_BUF=0xa1010e100",
-        "-DKEYS_BUF_SIZE=0x1000",
-        "-DKEYS_G=0xa1010e000",
-        "-DLG_CC_SLOG3=0x40b09500",
-        "-DLG_CPXS1=0x40b09100",
-        "-DLG_CPXS2=0x40b09300",
-        "-DLG_M1_1=0x40b09040",
-        "-DLG_M1_2=0x40b09060",
-        "-DLG_M2_1=0x40b09000",
-        "-DLG_M2_2=0x40b09020",
-        "-DLG_NLG1=0x40b08c00",
-        "-DLG_NLG2=0x40b08e00",
-        "-DLG_RGB1=0x40b08000",
-        "-DLG_RGB2=0x40b08600",
-        "-DLG_VA_CB1=0x40b0a040",
-        "-DLG_VA_CB2=0x40b0a060",
-        "-DLG_VA_MAT1=0x40b0a000",
-        "-DLG_VA_MAT2=0x40b0a020",
-        "-DOPTION_ITEM0=0x35c0",
-        "-DOPTION_ITEM1=0x35c1",
-        "-DOPTION_ITEM2=0x35c2",
-        "-DPB_TYPE=0xa1010e021",
-        "-DTEXT_STYLE=0x2ce",
-        "-DVA_LAST=0xa1010e020"
-      ],
-      "resource": "resources/log.bin"
+      "resource": "resources/precapture.bin"
     },
     "quality": {
       "bytes": 1676,
@@ -2094,30 +2119,63 @@
       ],
       "resource": "resources/quality.bin"
     },
-    "shared": {
-      "bytes": 248,
-      "sha256": "c5667d69cdf7f2fb9886ebc43f07ded97e4eb42a61e772f4cf2b560636eff2da",
+    "video-orientation": {
+      "bytes": 704,
+      "sha256": "62964a530e9d6b37267f242008be195315258ddb6ff732ad4211db5dc139e868",
       "symbols": {
-        "shared_bank": {
-          "va": "0x40980000",
+        "orient_default_on": {
+          "va": "0x40a08150",
           "bytes": 0
         },
-        "shared_refresh": {
-          "va": "0x40980090",
+        "orient_classify": {
+          "va": "0x40a081a0",
+          "bytes": 0
+        },
+        "orient_latch_displaced": {
+          "va": "0x40a0805c",
+          "bytes": 0
+        },
+        "orient_matrix_hook": {
+          "va": "0x40a08000",
+          "bytes": 0
+        },
+        "orient_latch_hook": {
+          "va": "0x40a08030",
+          "bytes": 0
+        },
+        "orient_row_hook": {
+          "va": "0x40a08070",
+          "bytes": 0
+        },
+        "orient_refresh_hook": {
+          "va": "0x40a080f0",
+          "bytes": 0
+        },
+        "orient_track_hook": {
+          "va": "0x40a08240",
           "bytes": 0
         }
       },
       "source_sha256": {
-        "z8patch/src/shared.S": "2d831aeed33dded53637a104ed600c5767e7aa6eb795c7f731a0953b4170dd98"
+        "z8videoorientation/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "z8videoorientation/matrices.py": "b55feda40ca47eab46b156086f6b3ec2ae4f1a117d6da45c18f0f18c064117fd",
+        "z8videoorientation/patcher.py": "66c978bfad4e921677808e7aedb1b044401857ab984d699109b189bb45bf77b2",
+        "z8videoorientation/src/hooks.S": "35ae0e737e4c569cee5f44827676d87fb6a6d20e96a5dbcbd2a4cd4275c4e4c9",
+        "z8videoorientation/translations.py": "819cbe6a606017bb7598d63b945f84acac8e76be334fdd81fb7d7735031dc442"
       },
-      "compiler": "Apple clang version 21.0.0 (clang-2100.1.1.101)",
+      "compiler": "clang version 19.1.7 (/home/runner/work/llvm-project/llvm-project/clang cd708029e0b2869e80abe31ddb175f7c35361f90)",
       "flags": [
         "-target",
         "aarch64-none-elf",
         "-x",
-        "assembler-with-cpp"
+        "assembler-with-cpp",
+        "-DORIENT_AXIS_CODES_RAM=0xa0281a870",
+        "-DORIENT_LATCH_RAM=0xa0281a876",
+        "-DORIENT_MATRICES_RAM=0xa0281a800",
+        "-DORIENT_SENTINEL_RAM=0xa0281a877",
+        "-DORIENT_THRESHOLD_RAM=0xa0281a86c"
       ],
-      "resource": "resources/shared.bin"
+      "resource": "resources/video-orientation.bin"
     }
   }
 }

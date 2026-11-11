@@ -1,4 +1,4 @@
-"""Compose four feature groups against one exact original C3.11 payload."""
+"""Compose five feature groups against one exact original C3.11 payload."""
 import binascii
 import json
 import re
@@ -6,10 +6,12 @@ from pathlib import Path
 from z8prores.package import require, sha
 from z8prores.patcher import public_words
 from z8prores.menu import Image
-from z8patch.compiled import load
+from z8patch.compiled import load, unit_base, unit_sources, unit_asm_sources
+from z8patch.contract import (assert_no_cross_region_pointers, assert_no_org_directives,
+                              registered_unit_entries)
 from z8patch.shared import Strings, VideoMenu, loader
 
-FEATURES = ('framing','video-quality','log-colour','photo-tools')
+FEATURES = ('framing','video-quality','log-colour','photo-tools','video-orientation')
 ROOT = Path(__file__).resolve().parent
 STOCK_SHA = 'f85e0138e2f5e660ece8560de62e0d12cb795e0e14983e50f20b61dce906c46c'
 
@@ -37,10 +39,23 @@ def compose(eg, features, compiler='clang', code_source='prebuilt', *, check_rec
     img = Image(eg)
     strings,menu=Strings(),VideoMenu(eg)
     detail,callbacks={},{}
+    # Build-time address-coupling guards: the .org scan refuses any .org in
+    # the SPECS-declared unit assembly sources on every build; placements
+    # accumulate below and the cross-region pointer sweep runs once the
+    # emit region is complete.
+    assert_no_org_directives(unit_asm_sources())
+    placements=[]
+
+    def record(name,size,entries):
+        base=unit_base(name)
+        placements.append((name,base,base+size,
+                           registered_unit_entries(name,entries,unit_sources(name))))
 
     def unit(name):
         code,meta=load(name,code_source,compiler)
-        return code,{k:int(v['va'],16) for k,v in meta['symbols'].items()}
+        entries={k:int(v['va'],16) for k,v in meta['symbols'].items()}
+        record(name,len(code),entries)
+        return code,entries
 
     def merge(feature,source,refinements=()):
         for e in source.edits:
@@ -95,20 +110,33 @@ def compose(eg, features, compiler='clang', code_source='prebuilt', *, check_rec
     if 'photo-tools' in chosen:
         from z8precapture.patcher import edits
         code,meta=load('precapture',code_source,compiler)
+        record('precapture',len(code),{k:int(v['va'],16) for k,v in meta['symbols'].items()})
         for e in edits(code,meta['symbols']):img.put(e['offset'],e['new'],e['purpose'])
         detail['precapture']=dict(code_sha256=meta['sha256'],code_bytes=len(code),diagnostics=False,
                                   space_fallback=True,remaining_count=True,dx=True,lossless_fallback='HE*')
         from z8pixelshift.patcher import build_main
         code,meta=load('pixelshift',code_source,compiler)
-        af,_=load('pixelshift-af',code_source,compiler)
+        af,af_meta=load('pixelshift-af',code_source,compiler)
+        record('pixelshift',len(code),{k:int(v['va'],16) for k,v in meta['symbols'].items()})
+        record('pixelshift-af',len(af),{k:int(v['va'],16) for k,v in af_meta['symbols'].items()})
         part,detail['pixelshift']=build_main(eg,code,meta['symbols'],af,strings)
         merge('pixelshift',part)
+    if 'video-orientation' in chosen:
+        from z8videoorientation.patcher import build_main
+        code,entries=unit('video-orientation')
+        part,detail['video-orientation']=build_main(eg,code,entries,strings)
+        m=detail['video-orientation']['menu']
+        menu.add(int(m['item'],16),bytes.fromhex(m['row_hex']),int(m['row_table'],16))
+        merge('video-orientation',part);callbacks['video-orientation']=entries['orient_refresh_hook']
     detail['strings']=strings.emit(img)
     if callbacks:
         code,entries=unit('shared')
         detail['menu']=menu.emit(img,chosen,code,entries,callbacks)
     else:detail['menu']=None
     detail['loader']=loader(img,chosen)
+    # Pointer sweep: with every edit in place, emit-region qwords outside the unit
+    # spans may only name registered unit entry symbols.
+    assert_no_cross_region_pointers(img.edits, placements)
     rows = [dict(offset=hex(e['offset']),bytes=len(e['new']),purpose=e['purpose'],
                  old_sha256=sha(e['old']),new_sha256=sha(e['new'])) for e in sorted(img.edits,key=lambda r:r['offset'])]
     if check_recipe:

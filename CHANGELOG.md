@@ -1,5 +1,18 @@
 # 更新日志 / Changelog
 
+
+## 未发布（开发分支）/ Unreleased (development branch)
+
+### 新增
+
+- **第五组构建选项 `video-orientation`（记录视频方向）。** 视频拍摄菜单新增“记录视频方向”行（标题逐字对齐经用户确认的 36 语言表，取值复用原厂开／关文案，以原厂布尔开关样式渲染），插入在“图像区域”之前，按视频拍摄菜单库 A–D 保存，默认开。开启时相机锁定持机姿态：两个方向的竖拍与 180° 倒置在开录时刻采样，并把 QuickTime tkhd 显示矩阵（旋转元数据）写入录像容器；横拍不写入矩阵，与原厂一致。同一段录像的全部容器构建（断电恢复快照、同录代理、终稿）携带同一标记；锁存在录像收尾时清除，回放与传送分析不复用过期姿态。写入经由相机唯一的视频封装路径，覆盖全部录像格式——MP4（H.264）、H.265、ProRes 422 HQ、ProRes RAW 与 N-RAW（含同录代理 MP4）；其中 8-bit 格式（H.264 8-bit、H.265 8-bit）由停录后启动的交付写者写入，在停录瞬间采样（见已知问题）。关闭或横拍时容器与原厂输出逐字节一致；不选择该组的构建菜单保持原厂行集。断电后各菜单库回到默认“开”（与 H.265 档位同一类会话语义）。非空组合增至 31 种并冻结全部配方；单元测试、`verify.py` 与全系统仿真引导／菜单回归通过；实机验证：菜单行为与已发布的 H.265 档位完全一致，相机录制的全部格式逐握持验证旋转标记正确（全部文件经 ffprobe 核验）。此组尚未随 v0.4.0 发布。
+
+### English
+
+**Added**
+
+- A fifth build group, `video-orientation` (record video orientation), not part of the v0.4.0 release. It inserts a "Record video orientation" row before "Image area" in the video shooting menu -- titles verbatim from the user-confirmed 36-language table, values rendered through the camera's own boolean switch with its localized On/Off texts -- stored per movie shooting bank A-D and defaulting to On. When On, the camera locks its grip orientation: both portrait directions and 180-degree upside-down are sampled at recording start and written into the movie container as a QuickTime tkhd display matrix (rotation metadata); landscape writes no matrix, exactly like stock. Every container build of one clip -- crash-recovery snapshots, a simultaneous proxy writer and the final build -- carries the same mark, and the latch clears when the clip ends, so playback or transfer analysis can never reuse a stale pose. The write goes through the camera's single muxing path and covers every recorded format -- MP4 (H.264), H.265, ProRes 422 HQ, ProRes RAW and N-RAW, including simultaneous proxy MP4s; the 8-bit formats (H.264 8-bit, H.265 8-bit) are written by a delivery writer that starts right after the recording stops and sample at that moment (see known issues). When Off, or when recording in landscape, the container is byte-identical to stock, and builds without this group keep the stock menu rows. A power cycle returns every bank to the default On, the same session semantics as the H.265 tier. Nonempty combinations grow to 31 with all recipes frozen; the unit suite, `verify.py` and the full-system emulator boot/menu regression pass. On the camera, the menu behaviour matches the shipped H.265 tier exactly, and every format the camera records is verified per grip, with every file checked through ffprobe.
+
 ## [v0.4.0](https://github.com/XinmiaoZhao/NikonFirmwarePatch/releases/tag/v0.4.0) — 四组补丁 / Four feature groups
 
 2026-11-10 发布。以下变化相对于上一公开功能系列 v0.3.0／v0.3.0-r1。v0.4.0 的源码、九份预编译补丁单元和固件补丁与预发布版 v0.4.0-rc.2 相同，只更新版本标注和下载链接；RC2 补全了 README 使用说明、致谢和模拟器截图，固件补丁与 RC1 相同。

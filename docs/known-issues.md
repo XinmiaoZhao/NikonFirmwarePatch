@@ -52,6 +52,16 @@
 
 模式选择与各档码率预算见[开放门／N-RAW 指南](opengate-nraw.md)。
 
+## 记录视频方向（开发组）
+
+以下适用于开发分支的第五组 `video-orientation`，尚未随 v0.4.0 发布；功能说明见[记录视频方向指南](video-orientation.md)。
+
+- **断电后回到默认“开”。** 取值按视频拍摄菜单库 A–D 分别记忆，会话内切换菜单库时随库切换，手动关闭在本次开机期间保持；断电重启后各库重新初始化为“开”。该字节与已发布的 H.265 档位字节同属一个相机设置记录的空位，断电语义一致。菜单项的保存、菜单库切换、断电重启与菜单重设行为均已实机验证，与已发布的 H.265 档位功能完全一致。
+- **部分视频格式在停录时刻采样姿态。** 交付路径随视频格式不同，与分辨率无关：H.264 档位与 H.265 8-bit 档位（不可切换色调模式的格式）由停录后启动的交付写者完成文件，姿态在该写者启动时采样而非开录时刻，停录后立刻大幅改变持机方向可能标错；H.265 10-bit、ProRes 422 HQ 与 RAW 家族（ProRes RAW、N-RAW）在开录时刻采样，不受影响。
+- **机内导出或转码的产物带上导出时刻的持机方向。** 相机的机内剪辑、导出与转码同样经过方向写入路径，产物携带的是导出开始时刻（而非素材拍摄时）的持机方向；需要精确方向的素材请在电脑上处理。
+- **N-RAW 第三方工具兼容未知。** 旋转元数据的写入路径覆盖相机全部录像格式（含 N-RAW），但第三方 N-RAW 工具是否读取显示矩阵未经验证；NX Studio 列为实机测试项。
+- **维护者事项。** 16 个含 `photo-tools` 的组合配方经混合装配与结构审计冻结，待具备完整工具包的机器跑全量 31 腿验证；`resources/compiled.json` 中 shared/video-orientation 单元的编译器出处记为 LLVM 19.1.7，待发布机重建确认字节一致后更新。
+
 ## English
 
 ### Windows toolkit revision
@@ -92,3 +102,13 @@ The camera tester confirmed per-clip labels and view assist on previously record
 - Open gate is limited to FX 3:2 N-RAW 8.3K 30/25/24p, with 8256×5504 active pixels. It adds neither 50/60p open gate nor ProRes/H.265 3:2. Open gate and the four N-RAW tiers form one build option.
 - Compatibility metadata maps Fine to High and Basic to Normal for two-tier readers. Those labels cannot distinguish all four actual encoding grades.
 - Basic uses a 1.0-bit/pixel budget, with reduced fine texture observed in camera samples. Open-gate High uses 2.5 bits/pixel versus 3.0 for ordinary 8.3K 30/25/24p High.
+
+### Record video orientation (development group)
+
+Applies to the development-branch fifth group `video-orientation`, which is not part of the v0.4.0 release. See the [video-orientation guide](video-orientation.md).
+
+- **A power cycle returns every bank to the default On.** The value is remembered per movie shooting bank, follows bank switches within the session and a manual Off persists until power-off; after a restart each bank is re-initialized to On. The byte occupies a spare byte of the same camera-settings record as the shipped H.265 tier byte, with identical restart semantics. The row's save, menu-bank switching, power-cycle and reset-menu behaviour is verified on the camera and matches the shipped H.265 tier feature exactly.
+- **Some video formats sample the pose when the recording stops.** The delivery path depends on the video format, not the resolution: the H.264 modes and the H.265 8-bit modes (the formats without tone-mode switching) are finished by a delivery writer that starts right after the recording stops, and the pose is sampled when that writer starts, not when the recording started, so turning the camera a lot immediately after stopping can mis-mark the clip. H.265 10-bit, ProRes 422 HQ and the RAW family (ProRes RAW, N-RAW) sample at recording start and are not affected.
+- **In-camera exports and transcodes carry the orientation held at export time.** The camera's in-camera editing, export and transcode paths pass through the same orientation write path, so those products carry the grip orientation at the moment the export starts, not the orientation when the footage was shot; process orientation-sensitive material on a computer.
+- **N-RAW third-party compatibility is unverified.** The rotation-metadata write path covers every recording format including N-RAW, but whether third-party N-RAW tools read the display matrix is untested; NX Studio is on the camera-test list.
+- **Maintainer notes.** The 16 photo-tools combinations were frozen via hybrid assembly with a structural audit, pending the full 31-leg validator run on a complete-toolkit machine; the compiler provenance of the shared/video-orientation units in `resources/compiled.json` records LLVM 19.1.7, to be confirmed against the release machine's bytes.

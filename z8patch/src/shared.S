@@ -1,6 +1,12 @@
 /* Shared menu update and DS bank copy. CONFIG is read-only composition data:
- * +0 u32 mask (1 framing, 2 video-quality, 4 log-colour), +8 four row callbacks.
- * Copy only the selected extra bytes; DS 120B +2 is a playback cache, never a setting.
+ * +0 u32 mask (1 framing, 2 video-quality, 4 log-colour, 8 video-orientation),
+ * +8 five row-callback slots. Compositions without video-orientation freeze
+ * CONFIG after four slots; the fifth slot then reads the stock zero and the
+ * cbz below skips it, so their recipes stay byte-identical.
+ * Copy only the selected extra bytes: DS 120B +1/+3, 122C/1238 +1 and 1257 +1
+ * as reviewed, plus -- video-orientation only -- 1257 +2, the video-orientation
+ * per-bank orientation byte (a full-image writer scan: stock only manages +0, and the
+ * shipped tier byte at 1257 +1 rides the same record).
  * Each row callback omits its old call to the native refresh. Call native once here.
  */
 #define CONFIG 0x40980F00
@@ -36,7 +42,13 @@ shared_bank:
 4:  mov w9, #0x1257
     cmp w13, w9
     b.ne 9f
-    tbz w12, #1, 9f
+    tbz w12, #1, 5f
+    ldrb w9, [x8, #1]        /* video-quality: H.265 tier */
+    strb w9, [x10, #1]
+5:  tbz w12, #3, 9f
+    ldrb w9, [x8, #2]        /* video-orientation: video-orientation value */
+    strb w9, [x10, #2]
+    b 9f
 8:  ldrb w9, [x8, #1]
     strb w9, [x10, #1]
 9:  ldp x12, x13, [sp], #16
@@ -54,8 +66,8 @@ shared_refresh:
     mov x20, x0
     cbz x19, 3f
     ldr x21, =(CONFIG + 8)
-    mov w22, #4
-1:  ldr x8, [x21], #8
+    mov w22, #5               /* CONFIG has five callback slots; stock-zero */
+1:  ldr x8, [x21], #8        /* slots read 0 and cbz skips them */
     cbz x8, 2f
     mov x0, x19
     blr x8
