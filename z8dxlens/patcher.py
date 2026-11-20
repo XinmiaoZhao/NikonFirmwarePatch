@@ -22,6 +22,8 @@ def _b(at, to):
 CODE = (
     (0x40ed91c0, 0x35000069, _b(0x40ed91c0, 0x40ed91cc),
      'image-area resolver keeps the chosen area with a DX lens (cbnz w9 -> b)'),
+    (0x40ed9174, 0x35fffe69, _b(0x40ed9174, 0x40ed9140),
+     'image-area resolver, video at 120p/100p and slow motion: no DX crop for a DX lens (cbnz w9 -> b)'),
     (0x40ed8f9c, 0x0a080128, 0x2a1f03e8,
      'video frame-size helper treats a DX lens as FX (and w8,w9,w8 -> mov w8,wzr)'),
     (0x4067c478, 0x340000c0, _b(0x4067c478, 0x4067c490),
