@@ -11,7 +11,7 @@
 - **RAW-only 预拍的连拍起始文件编号。** NEF 头由原厂为 JPEG 计划生成的文件头构建，因此 MakerNote 0x0056 的连拍起始编号为 JPG 类型，指向 RAW-only 下被取消的 JPEG。仅写 NEF 时，现将该编号的类型改为 NEF；原厂写入器完成时用于回放文件列表的 M+0x118／+0x11C 在写入期间同样给出 NEF 类型，写完后恢复。只修改通过原厂校验的编号；同卡 RAW+JPEG 不变。
 - **RAW-only 连拍的回放连拍组图标。** RAW-only 时 NEF 写完后会取消该帧的 JPEG 成员，取消操作按数据库刷新回放列表中的条目，而数据库不含连拍字段，因此连拍组图标要到重新插卡后才显示（分组与翻组正常）。现在取消后按原厂写入器完成时的方式（0x406cd6bc–0x406cd75c）再次发送该 NEF 的“文件已写入”事件，带 NEF 类型的起始编号与连拍序号；只用于卡 1／2 上的连拍帧，不写卡。
 
-### 新增（尚未在相机上测试）
+### 新增（已在 Z8 机身上测试，固件 03.12.d2）
 
 > 本节中文由 AI 根据英文原文翻译。
 
@@ -26,7 +26,7 @@ Tested on a Z8 (`photo-tools`, C15/C30 pre-capture, in-camera NEF (RAW) processi
 - **Burst-start file ID in RAW-only pre-capture.** The NEF header is built from the header the camera made for the JPEG plan, so MakerNote 0x0056 carried a JPG-typed burst-start ID pointing at a JPEG that RAW-only cancels. When a card gets only the NEF, the ID now has the NEF type. The stock writer's completion, which re-reads M+0x118/+0x11C for the playback file list, sees the same NEF-typed ID during the write, and the word is restored afterwards. Only IDs the stock validator accepts are changed; RAW+JPEG on one card is unchanged.
 - **Series symbol in playback for RAW-only bursts.** In RAW-only, the frame's JPEG member is cancelled after the NEF is written. The cancel refreshes the playback-list entry from the database, which has no series fields, so the series symbol appeared only after the card was reloaded (grouping and group navigation already worked). After the cancel, the NEF's "file written" event is now sent again, built as the stock writer's completion builds it (0x406cd6bc–0x406cd75c), with the NEF-typed start ID and the shot number. This applies only to series frames on card 1 or 2 and writes nothing to the card.
 
-**New, not yet tested on a camera** (the Chinese text for this entry was translated by AI):
+**New, tested on a Z8 (firmware 03.12.d2)** (the Chinese text for this entry was translated by AI):
 
 - **FX image area with DX lenses.** For [issue #45](https://github.com/XinmiaoZhao/NikonFirmwarePatch/issues/45): `photo-tools` now lets you choose FX (36×24) with an electronic DX lens attached (Z-mount DX, or F-mount DX on the FTZ), like "Auto DX crop: Off" on the D850. The camera no longer switches to DX by itself; select DX when you want it. The photo, video and time-lapse "Choose image area" items, the 8K and FX N-RAW/ProRes RAW video sizes, the image-area button functions and the PTP image-area settings are no longer locked by a DX lens. Image Dust Off ref photo stays unavailable with DX lenses, and the lens is still reported as DX (EXIF, PTP). 36 fixed byte edits (`z8dxlens/patcher.py`), no new code; in `resources/combinations.json` every profile that includes `photo-tools` gains these 36 rows and nothing else changes. See [FX image area with DX lenses](docs/dx-lens-fx.md).
 

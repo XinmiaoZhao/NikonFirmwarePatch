@@ -10,7 +10,7 @@
 
 使用 `--features photo-tools` 时，Z8 安装电子 DX 镜头（Z 卡口 DX 镜头，或经 FTZ／FTZ II 转接的 F 卡口 DX 镜头）后也可以使用 FX（36×24）影像区域，相当于 D850 的“自动 DX 裁切：关闭”。对应[问题 #45](https://github.com/XinmiaoZhao/NikonFirmwarePatch/issues/45)。
 
-**状态：尚未在相机上测试。** 离线检查（`verify.py`）只证明字节完整性。
+**状态：已在 Z8 机身上测试（固件 03.12.d2，包含全部 36 处修改）。**
 
 ### 行为
 
@@ -53,7 +53,7 @@
 
 With `--features photo-tools`, a Z8 with an electronic DX lens attached (Z-mount DX, or F-mount DX on the FTZ / FTZ II) can use the FX (36×24) image area, as with "Auto DX crop: Off" on the D850. Requested in [issue #45](https://github.com/XinmiaoZhao/NikonFirmwarePatch/issues/45).
 
-**Status: not yet tested on a camera.** Offline checks (`verify.py`) prove byte integrity only.
+**Status: tested on a Z8 (firmware 03.12.d2, all 36 edits).**
 
 ### Behaviour
 
