@@ -7,6 +7,10 @@
  * (case 0x406cb040 of 0x406caea0) requires before Retouch > NEF (RAW) processing accepts a file; NEFInfo blocks 5, 6, 7,
  * 0xc, 0x10..0x13 from the stock leaves; MakerNote 0x0046, 0x008c, 0x00a4; no JPEG-only IFD0 0x013e/0x013f/0x0211,
  * Exif 0xa500 or MakerNote 0x0050.
+ * HN17: every stream of the NEF starts on a 512-byte boundary, as in the stock NEF writer's layout (its segment table pads
+ * each part with zeros). The header block is zero-extended to the VGA preview's start (inside the MakerNote's byte range)
+ * and zero segments fill the gaps after the VGA and FHD previews. The streams' buffers are 512-byte aligned; at unaligned
+ * file offsets the stock writer took about 0.13 s longer on most frames of a C15/C30 burst.
  * Public adapter: no card configuration, diagnostic footer off by default. */
 typedef unsigned char u8;
 typedef unsigned short u16;
@@ -1228,10 +1232,14 @@ static int build(out_t *w,const u8 *h,u32 hl,const u32 *hlen,u64 m,lay_t *L,u32 
     u32 pat=emit(w,t,n,mb);
     pad2(w); if(w->bad || !sub[0] || !sub[1] || !sub[2] || !sub[3] || !sub[4] || !sub[5] || !xat || !pat) return 0;
     /* ---- layout of the streams after the header block ---- */
-    L->hdr_end=w->pos; L->vga_at=w->pos; L->fhd_at=L->vga_at+L->vga.size;
-    L->main_at=L->fhd_at+L->fhd.size;
-    u32 end=L->main_at+((flags&F_FULL)?L->jfr.size:0);
+    /* HN17: each stream on a 512-byte boundary; the header block is zero-extended to vga_at (the bytes lie inside the
+     * MakerNote, whose count runs to the end of the VGA preview), the other gaps are zero segments written by stock_nef. */
+    L->hdr_end=w->pos; L->vga_at=(w->pos+511)&~511u; L->fhd_at=(L->vga_at+L->vga.size+511)&~511u;
+    L->main_at=(L->fhd_at+L->fhd.size+511)&~511u;
+    u32 end=(flags&F_FULL)?L->main_at+L->jfr.size:L->fhd_at+L->fhd.size;
     L->raw_at=(end+4095)&~4095u; L->end_at=L->raw_at+payload; L->thumb_bytes=thn;
+    if(L->vga_at>w->cap || L->fhd_at<L->vga_at || L->main_at<L->fhd_at || L->raw_at<end) return 0;
+    zero(w->o+w->pos,L->vga_at-w->pos);
     if(!w->patch[P_SUB]) return 0;
     for(u32 k=0;k<6;k++) set32(w->o+w->patch[P_SUB]+4*k,sub[k]);
     patch32(w,P_OTHER,L->fhd_at);
@@ -1402,7 +1410,7 @@ __attribute__((noinline)) static plan_t *prepare(const job_t *jb) {
     zero((u8 *)&w,sizeof(w)); w.o=wk; w.cap=HDR_MAX;
     u32 only=(p->dual?dual_action(p->flags,p->role,p->second):((p->flags&F_RAWONLY)?ACT_NEF:ACT_BOTH))==ACT_NEF?F_NEFONLY:0u;   /* as flow() */
     if(!build(&w,(const u8 *)XLATE(hp),hl,p->hlen,p->m,&p->L,p->flags|only,wk,p->cls,LOAD32(jb->e+0x38)) || p->L.end_at<p->L.raw_at) goto bad;
-    p->hdr_bytes=w.pos; p->total=p->L.end_at+((p->flags&F_FOOTER)?512u:0u); p->t_header=now();
+    p->hdr_bytes=p->L.vga_at; p->total=p->L.end_at+((p->flags&F_FOOTER)?512u:0u); p->t_header=now();   /* HN17: up to vga_at */
     return p;
 bad:
     FREE(raw);
@@ -1440,7 +1448,8 @@ static void build_footer(plan_t *p,u32 route) {
 __attribute__((noinline)) static void raw_route(plan_t *p) {
     u8 *wk=p->wk; const lay_t *L=&p->L;
     u32 flags=p->flags,budget=p->budget,status=S_DONE,written=0,chunks=0,payload=p->payload_bytes;
-    u32 mainsz=(flags&F_FULL)?L->jfr.size:0u,pad=L->raw_at-L->main_at-mainsz;
+    u32 mainsz=(flags&F_FULL)?L->jfr.size:0u,fend=L->fhd_at+L->fhd.size;
+    u32 g_vga=L->fhd_at-L->vga_at-L->vga.size,g_fhd=mainsz?L->main_at-fend:0u,pad=L->raw_at-(mainsz?L->main_at+mainsz:fend);
     u64 t0=now(),after; int fd;
 #ifndef NEG_NO_CLEAN                 /* negative-control builds only */
     CLEAN(wk,p->hdr_bytes);
@@ -1449,7 +1458,9 @@ __attribute__((noinline)) static void raw_route(plan_t *p) {
     fd=CREATE(p->tmp,0x20);
     if(fd<0) { stop_file(p->drive,S_WRITE_FAIL,p->shot); return; }
     p->t_raw0=now();
-    if(!write_all(fd,(u64)wk,p->hdr_bytes) || !write_all(fd,L->vga.addr,L->vga.size) || !write_all(fd,L->fhd.addr,L->fhd.size) ||
+    if(!write_all(fd,(u64)wk,p->hdr_bytes) || !write_all(fd,L->vga.addr,L->vga.size) ||
+       (g_vga && !write_all(fd,(u64)(wk+ZEROS),g_vga)) || !write_all(fd,L->fhd.addr,L->fhd.size) ||
+       (g_fhd && !write_all(fd,(u64)(wk+ZEROS),g_fhd)) ||
        (mainsz && !write_all(fd,L->jfr.addr,mainsz)) || (pad && !write_all(fd,(u64)(wk+ZEROS),pad)))
         status=S_WRITE_FAIL;
     p->t_raw1=now();
@@ -1506,7 +1517,10 @@ static int seg(u8 *jp,u32 *n,u64 addr,u32 size,u64 *sum) {
 __attribute__((noinline)) static u32 stock_nef(plan_t *p,u32 raw_only) {
     u8 *wk=p->wk,*jp=wk+JP,*a=wk+JA,*d=wk+JD,*t=wk+JT;
     const lay_t *L=&p->L;
-    u32 n=0,mainsz=(p->flags&F_FULL)?L->jfr.size:0u,pad=L->raw_at-L->main_at-mainsz,nst;
+    u32 n=0,mainsz=(p->flags&F_FULL)?L->jfr.size:0u,nst;
+    /* HN17: zero gaps after the VGA preview, after the FHD preview and before the RAW data (each under 4 KiB) */
+    u32 g_vga=L->fhd_at-L->vga_at-L->vga.size,fend=L->fhd_at+L->fhd.size;
+    u32 g_fhd=mainsz?L->main_at-fend:0u,pad=L->raw_at-(mainsz?L->main_at+mainsz:fend);
     u64 sum=0,c0,c1;
     zero(jp,0x290); zero(a,32); zero(d,16); zero(t,32);
     set32(jp,p->nid); set64(jp+8,p->m); set64(jp+0x10,(u64)a);
@@ -1517,9 +1531,11 @@ __attribute__((noinline)) static u32 stock_nef(plan_t *p,u32 raw_only) {
 #endif
     set64(a,(u64)d);
     if(raw_only && L->thumb_bytes && L->thumb_bytes<0x10000u) { set32(t+0x10,L->thumb_bytes); set64(a+0x18,(u64)t); }
-    if(pad>4096 || !seg(jp,&n,(u64)wk,p->hdr_bytes,&sum) || !seg(jp,&n,L->vga.addr,L->vga.size,&sum) ||
-       !seg(jp,&n,L->fhd.addr,L->fhd.size,&sum) || !seg(jp,&n,L->jfr.addr,mainsz,&sum) ||
-       !seg(jp,&n,(u64)(wk+ZEROS),pad,&sum) || !seg(jp,&n,p->data,p->payload_bytes,&sum)) goto bad;
+    if(pad>4096 || g_vga>=512 || g_fhd>=512 || !seg(jp,&n,(u64)wk,p->hdr_bytes,&sum) ||
+       !seg(jp,&n,L->vga.addr,L->vga.size,&sum) || !seg(jp,&n,(u64)(wk+ZEROS),g_vga,&sum) ||
+       !seg(jp,&n,L->fhd.addr,L->fhd.size,&sum) || !seg(jp,&n,(u64)(wk+ZEROS),g_fhd,&sum) ||
+       !seg(jp,&n,L->jfr.addr,mainsz,&sum) || !seg(jp,&n,(u64)(wk+ZEROS),pad,&sum) ||
+       !seg(jp,&n,p->data,p->payload_bytes,&sum)) goto bad;
     p->t_nef0=now();
     if(p->flags&F_FOOTER) {
         p->nsegs=n+1;
