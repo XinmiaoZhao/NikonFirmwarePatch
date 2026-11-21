@@ -340,8 +340,8 @@
       "resource": "resources/precapture.bin"
     },
     "pixelshift": {
-      "bytes": 130520,
-      "sha256": "4c1df43e991014aebe6116b70f3f30dd667c2b0fc00639867494ed004fcbf0bb",
+      "bytes": 130664,
+      "sha256": "20f2aba1615100645b3731ed764008d09ea4b2660e263d19c165d456c5a7dc5b",
       "symbols": {
         "$x": {
           "va": "0x40990000",
@@ -360,7 +360,7 @@
           "bytes": 264
         },
         "psm_worker": {
-          "va": "0x409a44cc",
+          "va": "0x409a4550",
           "bytes": 1148
         },
         "step_text": {
@@ -372,507 +372,507 @@
           "bytes": 868
         },
         "ps9_labels": {
-          "va": "0x409af4a8",
+          "va": "0x409af528",
           "bytes": 552
         },
         "modal_text": {
           "va": "0x40991044",
-          "bytes": 208
+          "bytes": 512
         },
         "modal_static": {
-          "va": "0x40991114",
+          "va": "0x40991244",
           "bytes": 152
         },
         "ps9_status": {
-          "va": "0x409af2e0",
+          "va": "0x409af360",
           "bytes": 456
         },
-        "ui_set_text": {
-          "va": "0x409a41a8",
-          "bytes": 408
-        },
         "spawn_worker": {
-          "va": "0x40991698",
+          "va": "0x409917c8",
           "bytes": 488
         },
         "browser_post": {
-          "va": "0x409a4340",
+          "va": "0x409a43c4",
           "bytes": 396
         },
         "psm_poll": {
-          "va": "0x4099154c",
+          "va": "0x4099167c",
           "bytes": 332
         },
         "settle_unclaimed": {
-          "va": "0x40991a78",
+          "va": "0x40991ba8",
           "bytes": 132
         },
         "discard_block": {
-          "va": "0x409a5aa4",
+          "va": "0x409a5b28",
           "bytes": 12
         },
         "browser_save_text": {
-          "va": "0x40991afc",
+          "va": "0x40991c2c",
           "bytes": 1368
         },
         "browser_release": {
-          "va": "0x40992054",
+          "va": "0x40992184",
           "bytes": 96
         },
         "browser_save_text.fonts": {
-          "va": "0x409af6ec",
+          "va": "0x409af76c",
           "bytes": 24
         },
         "browser_status_leaf": {
-          "va": "0x409942f0",
+          "va": "0x40994420",
           "bytes": 248
         },
         "browser_reset_view": {
-          "va": "0x409943e8",
+          "va": "0x40994518",
           "bytes": 132
         },
         "browser_bind_text": {
-          "va": "0x4099446c",
-          "bytes": 920
+          "va": "0x4099459c",
+          "bytes": 1216
         },
         "browser_bind_text.fonts": {
-          "va": "0x409af704",
+          "va": "0x409af784",
           "bytes": 10
         },
         "browser_poll": {
-          "va": "0x40994a48",
+          "va": "0x40994d34",
           "bytes": 972
         },
+        "browser_scan": {
+          "va": "0x40994ca0",
+          "bytes": 148
+        },
         "browser_status_release": {
-          "va": "0x40994f80",
+          "va": "0x4099526c",
           "bytes": 132
         },
         "browser_up": {
-          "va": "0x4099542c",
+          "va": "0x40995648",
           "bytes": 12
         },
         "browser_down": {
-          "va": "0x40995438",
+          "va": "0x40995654",
           "bytes": 12
         },
         "psm_crc32.table": {
-          "va": "0x409ad250",
+          "va": "0x409ad2d0",
           "bytes": 8192
         },
         "camera_job": {
-          "va": "0x4099582c",
+          "va": "0x40995a48",
           "bytes": 9732
         },
         "lnum": {
-          "va": "0x409a5d74",
+          "va": "0x409a5df8",
           "bytes": 120
         },
         "lstatus": {
-          "va": "0x409a5ed4",
+          "va": "0x409a5f58",
           "bytes": 420
         },
         "log_group": {
-          "va": "0x409a6174",
+          "va": "0x409a61f8",
           "bytes": 2896
         },
         "group_label": {
-          "va": "0x409a6cc4",
+          "va": "0x409a6d48",
           "bytes": 364
         },
         "merge_group": {
-          "va": "0x409a6e30",
+          "va": "0x409a6eb4",
           "bytes": 7440
         },
         "lkey": {
-          "va": "0x409a5dec",
+          "va": "0x409a5e70",
           "bytes": 232
         },
         "log_times": {
-          "va": "0x409a8b40",
+          "va": "0x409a8bc4",
           "bytes": 7828
         },
         "lms": {
-          "va": "0x409a6078",
+          "va": "0x409a60fc",
           "bytes": 252
         },
         "write_log": {
-          "va": "0x409aa9d4",
+          "va": "0x409aaa58",
           "bytes": 700
         },
         "ip_alloc": {
-          "va": "0x409981c0",
+          "va": "0x409983dc",
           "bytes": 12
         },
         "ip_free": {
-          "va": "0x409981cc",
+          "va": "0x409983e8",
           "bytes": 16
         },
         "ip_open": {
-          "va": "0x409981dc",
+          "va": "0x409983f8",
           "bytes": 204
         },
         "ip_create": {
-          "va": "0x409982a8",
+          "va": "0x409984c4",
           "bytes": 180
         },
         "ip_exists": {
-          "va": "0x4099835c",
+          "va": "0x40998578",
           "bytes": 180
         },
         "ip_rename": {
-          "va": "0x409984c4",
+          "va": "0x409986e0",
           "bytes": 228
         },
         "ip_close": {
-          "va": "0x409985a8",
+          "va": "0x409987c4",
           "bytes": 288
         },
         "ip_write": {
-          "va": "0x4099891c",
+          "va": "0x40998b38",
           "bytes": 444
         },
         "ip_read": {
-          "va": "0x409986c8",
+          "va": "0x409988e4",
           "bytes": 596
         },
         "ip_remove": {
-          "va": "0x40998410",
+          "va": "0x4099862c",
           "bytes": 180
         },
         "ip_cancelled": {
-          "va": "0x40998ad8",
+          "va": "0x40998cf4",
           "bytes": 48
         },
         "io_worker": {
-          "va": "0x40998c2c",
+          "va": "0x40998e48",
           "bytes": 1596
         },
         "ip_phase": {
-          "va": "0x40998b1c",
+          "va": "0x40998d38",
           "bytes": 20
         },
         "ip_ticks": {
-          "va": "0x40998b30",
+          "va": "0x40998d4c",
           "bytes": 24
         },
         "ip_prefetch": {
-          "va": "0x40998b60",
+          "va": "0x40998d7c",
           "bytes": 204
         },
         "ip_progress": {
-          "va": "0x40998b08",
+          "va": "0x40998d24",
           "bytes": 20
         },
         "ip_hz": {
-          "va": "0x40998b48",
+          "va": "0x40998d64",
           "bytes": 24
         },
         "io_enqueue": {
-          "va": "0x409ab4d8",
+          "va": "0x409ab55c",
           "bytes": 236
         },
         "io_copy": {
-          "va": "0x409ab498",
+          "va": "0x409ab51c",
           "bytes": 64
         },
         "io_fd": {
-          "va": "0x409ab5c4",
+          "va": "0x409ab648",
           "bytes": 356
         },
         "tj_zigzag": {
-          "va": "0x409af250",
+          "va": "0x409af2d0",
           "bytes": 64
         },
         "tj_symbol": {
-          "va": "0x409ab728",
+          "va": "0x409ab7ac",
           "bytes": 376
         },
         "tj_cosine": {
-          "va": "0x409af70e",
+          "va": "0x409af78e",
           "bytes": 128
         },
         "tj_u32": {
-          "va": "0x4099ac00",
+          "va": "0x4099ae1c",
           "bytes": 68
         },
         "gtag": {
-          "va": "0x4099b880",
+          "va": "0x4099ba9c",
           "bytes": 1292
         },
         "gread": {
-          "va": "0x4099b780",
+          "va": "0x4099b99c",
           "bytes": 256
         },
         "gstart": {
-          "va": "0x4099bd8c",
+          "va": "0x4099bfa8",
           "bytes": 72
         },
         "gnewdir": {
-          "va": "0x4099c4bc",
+          "va": "0x4099c6d8",
           "bytes": 588
         },
         "gscan": {
-          "va": "0x4099c708",
+          "va": "0x4099c924",
           "bytes": 2700
         },
         "gcollect": {
-          "va": "0x4099d194",
+          "va": "0x4099d3b0",
           "bytes": 1600
         },
         "nx_parse": {
-          "va": "0x4099f770",
+          "va": "0x4099f98c",
           "bytes": 1212
         },
         "nx_value": {
-          "va": "0x4099fc2c",
+          "va": "0x4099fe48",
           "bytes": 116
         },
         "nx_read": {
-          "va": "0x4099f664",
+          "va": "0x4099f880",
           "bytes": 268
         },
         "nx_mn_head": {
-          "va": "0x409af290",
+          "va": "0x409af310",
           "bytes": 18
         },
         "nx_same": {
-          "va": "0x4099fca0",
+          "va": "0x4099febc",
           "bytes": 300
         },
         "nx_ni_head": {
-          "va": "0x409af2a2",
+          "va": "0x409af322",
           "bytes": 18
         },
         "nx_edit": {
-          "va": "0x4099fdcc",
+          "va": "0x4099ffe8",
           "bytes": 2524
         },
         "nx_walk": {
-          "va": "0x409a07a8",
+          "va": "0x409a09c4",
           "bytes": 892
         },
         "nx_unit": {
-          "va": "0x409af78e",
+          "va": "0x409af80e",
           "bytes": 14
         },
         "nx_take": {
-          "va": "0x409ab8a0",
+          "va": "0x409ab924",
           "bytes": 452
         },
         "nx_set": {
-          "va": "0x409abdf0",
+          "va": "0x409abe74",
           "bytes": 384
         },
         "nx_scale_rationals": {
-          "va": "0x409abc38",
+          "va": "0x409abcbc",
           "bytes": 124
         },
         "nx_set_bytes": {
-          "va": "0x409aba64",
+          "va": "0x409abae8",
           "bytes": 308
         },
         "nx_drop": {
-          "va": "0x409abb98",
+          "va": "0x409abc1c",
           "bytes": 160
         },
         "nx_with_crc": {
-          "va": "0x409abcb4",
+          "va": "0x409abd38",
           "bytes": 224
         },
         "nx_set_inline": {
-          "va": "0x409abd94",
+          "va": "0x409abe18",
           "bytes": 92
         },
         "nx_write_ifd": {
-          "va": "0x409ac0d4",
+          "va": "0x409ac158",
           "bytes": 3048
         },
         "nx_align": {
-          "va": "0x409accbc",
+          "va": "0x409acd40",
           "bytes": 308
         },
         "nx_out_copy": {
-          "va": "0x409acdf0",
+          "va": "0x409ace74",
           "bytes": 312
         },
         "nx_flush": {
-          "va": "0x409acf28",
+          "va": "0x409acfac",
           "bytes": 104
         },
         "prefix_table.counts": {
-          "va": "0x409afdd0",
+          "va": "0x409afe60",
           "bytes": 8
         },
         "prefix_table.categories": {
-          "va": "0x409af79c",
+          "va": "0x409af81c",
           "bytes": 15
         },
         "prefix_table": {
-          "va": "0x409a11cc",
+          "va": "0x409a13e8",
           "bytes": 168
         },
         "byte_order": {
-          "va": "0x409a1e44",
+          "va": "0x409a2060",
           "bytes": 108
         },
         "value_at": {
-          "va": "0x409a2610",
+          "va": "0x409a282c",
           "bytes": 552
         },
         "nikon_metadata": {
-          "va": "0x409a1eb0",
+          "va": "0x409a20cc",
           "bytes": 1888
         },
         "read_data": {
-          "va": "0x409a1d44",
+          "va": "0x409a1f60",
           "bytes": 256
         },
         "slow_symbol": {
-          "va": "0x409acf90",
+          "va": "0x409ad014",
           "bytes": 700
         },
         "merge_row_impl": {
-          "va": "0x409a3488",
+          "va": "0x409a36a4",
           "bytes": 1648
         },
         "blue_origin": {
-          "va": "0x409a40f0",
+          "va": "0x409a430c",
           "bytes": 184
         },
         "allocate": {
-          "va": "0x409a4948",
+          "va": "0x409a49cc",
           "bytes": 20
         },
         "release": {
-          "va": "0x409a495c",
+          "va": "0x409a49e0",
           "bytes": 16
         },
         "open_file": {
-          "va": "0x409a496c",
+          "va": "0x409a49f0",
           "bytes": 260
         },
         "read_at": {
-          "va": "0x409a4a70",
+          "va": "0x409a4af4",
           "bytes": 276
         },
         "create_file": {
-          "va": "0x409a4b84",
+          "va": "0x409a4c08",
           "bytes": 160
         },
         "write_at": {
-          "va": "0x409a4c24",
+          "va": "0x409a4ca8",
           "bytes": 260
         },
         "close_file": {
-          "va": "0x409a4d28",
+          "va": "0x409a4dac",
           "bytes": 116
         },
         "exists": {
-          "va": "0x409a4d9c",
+          "va": "0x409a4e20",
           "bytes": 40
         },
         "rename_file": {
-          "va": "0x409a4dc4",
+          "va": "0x409a4e48",
           "bytes": 88
         },
         "remove_file": {
-          "va": "0x409a4e1c",
+          "va": "0x409a4ea0",
           "bytes": 76
         },
         "cancelled": {
-          "va": "0x409a4e68",
+          "va": "0x409a4eec",
           "bytes": 64
         },
         "list_files": {
-          "va": "0x409a4ea8",
+          "va": "0x409a4f2c",
           "bytes": 88
         },
         "ticks": {
-          "va": "0x409a4f00",
+          "va": "0x409a4f84",
           "bytes": 8
         },
         "ticks_per_second": {
-          "va": "0x409a4f08",
+          "va": "0x409a4f8c",
           "bytes": 12
         },
         "group_report": {
-          "va": "0x409a4f14",
+          "va": "0x409a4f98",
           "bytes": 28
         },
         "native_io_start": {
-          "va": "0x409a4f30",
+          "va": "0x409a4fb4",
           "bytes": 888
         },
         "native_io_join": {
-          "va": "0x409a52a8",
+          "va": "0x409a532c",
           "bytes": 188
         },
         "native_io_wait": {
-          "va": "0x409a5364",
+          "va": "0x409a53e8",
           "bytes": 164
         },
         "native_io_wake": {
-          "va": "0x409a5408",
+          "va": "0x409a548c",
           "bytes": 40
         },
         "browser_work": {
-          "va": "0x409a5430",
+          "va": "0x409a54b4",
           "bytes": 840
         },
         "native_listing": {
-          "va": "0x409a5778",
+          "va": "0x409a57fc",
           "bytes": 644
         },
         "native_io_task": {
-          "va": "0x409a59fc",
+          "va": "0x409a5a80",
           "bytes": 168
         },
         "browser_io": {
-          "va": "0x409a5ab0",
+          "va": "0x409a5b34",
           "bytes": 708
         },
         "read_bridge": {
-          "va": "0x409aac90",
+          "va": "0x409aad14",
           "bytes": 396
         },
         "path_valid": {
-          "va": "0x409ab334",
+          "va": "0x409ab3b8",
           "bytes": 280
         },
         "same_path": {
-          "va": "0x409ab44c",
+          "va": "0x409ab4d0",
           "bytes": 76
         },
         "choose_output": {
-          "va": "0x409aae1c",
+          "va": "0x409aaea0",
           "bytes": 376
         },
         "out_bridge": {
-          "va": "0x409aaf94",
+          "va": "0x409ab018",
           "bytes": 292
         },
         "out_flush": {
-          "va": "0x409ab0b8",
+          "va": "0x409ab13c",
           "bytes": 248
         },
         "row_bridge": {
-          "va": "0x409ab1b0",
+          "va": "0x409ab234",
           "bytes": 332
         },
         "cancel_bridge": {
-          "va": "0x409ab2fc",
+          "va": "0x409ab380",
           "bytes": 56
         },
         "nx_out": {
-          "va": "0x409abf70",
+          "va": "0x409abff4",
           "bytes": 356
         },
         "$d": {
-          "va": "0x409afdd0",
+          "va": "0x409afe60",
           "bytes": 0
         },
         "ps9_runtime_layout": {
-          "va": "0x409af2b4",
+          "va": "0x409af334",
           "bytes": 40
         },
         "psm_io_error": {
@@ -940,31 +940,31 @@
           "bytes": 536
         },
         "psm_modal_entry": {
-          "va": "0x409911ac",
+          "va": "0x409912dc",
           "bytes": 928
         },
         "psm_exit_settled": {
-          "va": "0x40991880",
+          "va": "0x409919b0",
           "bytes": 4
         },
         "psm_modal_exit": {
-          "va": "0x40991884",
+          "va": "0x409919b4",
           "bytes": 500
         },
         "psm_modal_action": {
-          "va": "0x409920b4",
+          "va": "0x409921e4",
           "bytes": 268
         },
         "psm_modal_ok": {
-          "va": "0x409921c0",
+          "va": "0x409922f0",
           "bytes": 128
         },
         "psm_menu_available": {
-          "va": "0x40992240",
+          "va": "0x40992370",
           "bytes": 104
         },
         "psm_menu_available_all": {
-          "va": "0x409922a8",
+          "va": "0x409923d8",
           "bytes": 112
         },
         "psm_menu_action": {
@@ -972,219 +972,219 @@
           "bytes": 172
         },
         "psm_menu_action_all": {
-          "va": "0x40992318",
+          "va": "0x40992448",
           "bytes": 76
         },
         "ps8_browser_prepared": {
-          "va": "0x40992364",
+          "va": "0x40992494",
           "bytes": 4
         },
         "ps8_thumbnail_draw": {
-          "va": "0x40992368",
+          "va": "0x40992498",
           "bytes": 392
         },
         "ps8_browser_observe": {
-          "va": "0x409924f0",
+          "va": "0x40992620",
           "bytes": 4
         },
         "ps8_browser_widgets": {
-          "va": "0x409924f4",
+          "va": "0x40992624",
           "bytes": 4
         },
         "ps8_browser_refresh": {
-          "va": "0x409924f8",
+          "va": "0x40992628",
           "bytes": 7672
         },
         "ps8_browser_entry": {
-          "va": "0x40994804",
+          "va": "0x40994a5c",
           "bytes": 580
         },
         "psb_identity_at": {
-          "va": "0x40999590",
+          "va": "0x409997ac",
           "bytes": 348
         },
         "psb_find_identity": {
-          "va": "0x409996ec",
+          "va": "0x40999908",
           "bytes": 220
         },
         "ps8_browser_exit": {
-          "va": "0x40994e14",
+          "va": "0x40995100",
           "bytes": 364
         },
         "ps8_browser_event": {
-          "va": "0x40995004",
-          "bytes": 1020
+          "va": "0x409952f0",
+          "bytes": 812
+        },
+        "psb_confirm": {
+          "va": "0x40995660",
+          "bytes": 140
         },
         "psb_select_unmerged": {
-          "va": "0x409954d0",
+          "va": "0x409956ec",
           "bytes": 316
         },
         "psb_toggle": {
-          "va": "0x4099560c",
+          "va": "0x40995828",
           "bytes": 228
         },
         "psb_back": {
-          "va": "0x40995400",
+          "va": "0x4099561c",
           "bytes": 44
         },
-        "psb_confirm": {
-          "va": "0x40995444",
-          "bytes": 140
-        },
         "psb_start": {
-          "va": "0x409956f0",
+          "va": "0x4099590c",
           "bytes": 52
         },
         "psm_crc32": {
-          "va": "0x40995724",
+          "va": "0x40995940",
           "bytes": 236
         },
         "psm_frame_opened": {
-          "va": "0x40995810",
+          "va": "0x40995a2c",
           "bytes": 4
         },
         "psm_group_done": {
-          "va": "0x40995814",
+          "va": "0x40995a30",
           "bytes": 4
         },
         "psm_camera_job": {
-          "va": "0x40995818",
+          "va": "0x40995a34",
           "bytes": 20
         },
         "psm_scan_cards": {
-          "va": "0x4099bdd8",
+          "va": "0x4099bff4",
           "bytes": 1764
         },
         "psm_group_mergeable": {
-          "va": "0x409994c8",
+          "va": "0x409996e4",
           "bytes": 100
         },
         "psm_targets": {
-          "va": "0x4099d7d4",
+          "va": "0x4099d9f0",
           "bytes": 188
         },
         "psm_nef_fast_table": {
-          "va": "0x409a1084",
+          "va": "0x409a12a0",
           "bytes": 328
         },
         "ps8_io_begin": {
-          "va": "0x40997e4c",
+          "va": "0x40998068",
           "bytes": 884
         },
         "ps8_io_end": {
-          "va": "0x40999270",
+          "va": "0x4099948c",
           "bytes": 288
         },
         "psm_frame_path": {
-          "va": "0x4099d890",
+          "va": "0x4099daac",
           "bytes": 224
         },
         "ps8_selected_job": {
-          "va": "0x40997e30",
+          "va": "0x4099804c",
           "bytes": 24
         },
         "ps8_io_configured": {
-          "va": "0x40997e48",
+          "va": "0x40998064",
           "bytes": 4
         },
         "ps8_io_platform": {
-          "va": "0x40999268",
+          "va": "0x40999484",
           "bytes": 8
         },
         "psb_begin_scan": {
-          "va": "0x40999390",
+          "va": "0x409995ac",
           "bytes": 56
         },
         "psb_publish": {
-          "va": "0x409993c8",
+          "va": "0x409995e4",
           "bytes": 168
         },
         "psb_move": {
-          "va": "0x40999470",
+          "va": "0x4099968c",
           "bytes": 88
         },
         "psb_finish": {
-          "va": "0x4099952c",
+          "va": "0x40999748",
           "bytes": 100
         },
         "ps8_jpeg_workspace_bytes": {
-          "va": "0x409997c8",
+          "va": "0x409999e4",
           "bytes": 8
         },
         "ps8_jpeg_decode": {
-          "va": "0x409997d0",
+          "va": "0x409999ec",
           "bytes": 4364
         },
         "ps8_thumbnail_read": {
-          "va": "0x4099a8dc",
+          "va": "0x4099aaf8",
           "bytes": 804
         },
         "psm_probe_metadata": {
-          "va": "0x4099ac44",
+          "va": "0x4099ae60",
           "bytes": 2876
         },
         "psm_group_reject": {
-          "va": "0x4099bdd4",
+          "va": "0x4099bff0",
           "bytes": 4
         },
         "psm_group_config": {
-          "va": "0x4099d970",
+          "va": "0x4099db8c",
           "bytes": 4364
         },
         "nefx_plan": {
-          "va": "0x4099ea7c",
+          "va": "0x4099ec98",
           "bytes": 3048
         },
         "nefx_header": {
-          "va": "0x409a0b24",
+          "va": "0x409a0d40",
           "bytes": 88
         },
         "nefx_row": {
-          "va": "0x409a0b7c",
+          "va": "0x409a0d98",
           "bytes": 1272
         },
         "nefx_size": {
-          "va": "0x409a1074",
+          "va": "0x409a1290",
           "bytes": 16
         },
         "psm_nef_open": {
-          "va": "0x409a1274",
+          "va": "0x409a1490",
           "bytes": 2768
         },
         "psm_nef_row": {
-          "va": "0x409a2838",
+          "va": "0x409a2a54",
           "bytes": 1644
         },
         "psm_validate": {
-          "va": "0x409a2ea4",
+          "va": "0x409a30c0",
           "bytes": 1268
         },
         "psm_scratch_size": {
-          "va": "0x409a3398",
+          "va": "0x409a35b4",
           "bytes": 64
         },
         "psm_merge_row": {
-          "va": "0x409a33d8",
+          "va": "0x409a35f4",
           "bytes": 140
         },
         "psm_merge_row_validated": {
-          "va": "0x409a3464",
+          "va": "0x409a3680",
           "bytes": 36
         },
         "psm_merge_row_af": {
-          "va": "0x409a3af8",
+          "va": "0x409a3d14",
           "bytes": 44
         },
         "ps8_af_window_bytes": {
-          "va": "0x409a3b24",
+          "va": "0x409a3d40",
           "bytes": 92
         },
         "ps8_af_window_init": {
-          "va": "0x409a3b80",
+          "va": "0x409a3d9c",
           "bytes": 348
         },
         "ps8_af_render": {
-          "va": "0x409a3cdc",
+          "va": "0x409a3ef8",
           "bytes": 1044
         }
       },
@@ -1197,9 +1197,9 @@
         "z8pixelshift/src/afrow_fma_a64.c": "d445299e0afd00bc7333ae83c6a17444ba00428dfa2b52092f79848cb054c6f3",
         "z8pixelshift/src/browser.c": "2799bcd0bee4734ebe434da3ff9aa626aa5325f1867299b3e6d78567e2e918b4",
         "z8pixelshift/src/browser.h": "b471e2b518c54c77b5aa1b524a72739f5c6e8feca5d9e49eee6b7f21cdb9c1eb",
-        "z8pixelshift/src/browser_fw.inc": "75341a5654403d98224cc1d40b0a541bcde2683ef7284d64411e51860d185d2a",
+        "z8pixelshift/src/browser_fw.inc": "6b39ca1fd868b30227a55f51819c15faae82227bbb12bb05a59185d1db3f1613",
         "z8pixelshift/src/crc32_slice8.inc": "1db3afca85d3037f54687f807bce63d52e65046873811ed4a8082c62e400f047",
-        "z8pixelshift/src/firmware.c": "351a25267d6a9959e62601e61e0fafd3eb5f30d43f63ad4d8205cbd39ec88fe3",
+        "z8pixelshift/src/firmware.c": "091726c7034954283a6c5d0c330f474577f7e1688cf6aff0632aa9bdad12158c",
         "z8pixelshift/src/group.c": "74e4ca4d56be1102b8acc9752eac5e746a05cdc6f1eef103dd7b01a826a57238",
         "z8pixelshift/src/group.h": "3203a35a4ffc8e28552d9f586690a3cffc334bd074a98155162ba0225810d545",
         "z8pixelshift/src/io_pipe.c": "69970e18aeea1ca057c73dd48267896057cdfe7fe3dd555070a75f7d3577b2e7",
@@ -1215,7 +1215,7 @@
         "z8pixelshift/src/psm.h": "8900fe10fea91f8874b5733199f5bf31fc68d26604b10733633383fbc07316c4",
         "z8pixelshift/src/thumbnail.c": "56939f4a30cc83b462d0e575adcca73526e232015915be48d5bbc677f9ee16ae",
         "z8pixelshift/src/thumbnail.h": "c382ba1cd37887b6eae221259781d70ace3ead474a3d35af39f7f58b8fd74941",
-        "z8pixelshift/src/ui_strings.h": "006ba0121b166b354bbc05f2d0e2cb5db0a26e044a20f95bfb3f41e2cf70c69d"
+        "z8pixelshift/src/ui_strings.h": "789da50ec0dd1ff5ff0de50784d3f1e3badf1320f22362d4767d13e29c1f558b"
       },
       "compiler": "Apple clang version 21.0.0 (clang-2100.1.1.101)",
       "flags": [
@@ -1273,9 +1273,9 @@
         "z8pixelshift/src/afrow_fma_a64.c": "d445299e0afd00bc7333ae83c6a17444ba00428dfa2b52092f79848cb054c6f3",
         "z8pixelshift/src/browser.c": "2799bcd0bee4734ebe434da3ff9aa626aa5325f1867299b3e6d78567e2e918b4",
         "z8pixelshift/src/browser.h": "b471e2b518c54c77b5aa1b524a72739f5c6e8feca5d9e49eee6b7f21cdb9c1eb",
-        "z8pixelshift/src/browser_fw.inc": "75341a5654403d98224cc1d40b0a541bcde2683ef7284d64411e51860d185d2a",
+        "z8pixelshift/src/browser_fw.inc": "6b39ca1fd868b30227a55f51819c15faae82227bbb12bb05a59185d1db3f1613",
         "z8pixelshift/src/crc32_slice8.inc": "1db3afca85d3037f54687f807bce63d52e65046873811ed4a8082c62e400f047",
-        "z8pixelshift/src/firmware.c": "351a25267d6a9959e62601e61e0fafd3eb5f30d43f63ad4d8205cbd39ec88fe3",
+        "z8pixelshift/src/firmware.c": "091726c7034954283a6c5d0c330f474577f7e1688cf6aff0632aa9bdad12158c",
         "z8pixelshift/src/group.c": "74e4ca4d56be1102b8acc9752eac5e746a05cdc6f1eef103dd7b01a826a57238",
         "z8pixelshift/src/group.h": "3203a35a4ffc8e28552d9f586690a3cffc334bd074a98155162ba0225810d545",
         "z8pixelshift/src/io_pipe.c": "69970e18aeea1ca057c73dd48267896057cdfe7fe3dd555070a75f7d3577b2e7",
@@ -1291,7 +1291,7 @@
         "z8pixelshift/src/psm.h": "8900fe10fea91f8874b5733199f5bf31fc68d26604b10733633383fbc07316c4",
         "z8pixelshift/src/thumbnail.c": "56939f4a30cc83b462d0e575adcca73526e232015915be48d5bbc677f9ee16ae",
         "z8pixelshift/src/thumbnail.h": "c382ba1cd37887b6eae221259781d70ace3ead474a3d35af39f7f58b8fd74941",
-        "z8pixelshift/src/ui_strings.h": "006ba0121b166b354bbc05f2d0e2cb5db0a26e044a20f95bfb3f41e2cf70c69d"
+        "z8pixelshift/src/ui_strings.h": "789da50ec0dd1ff5ff0de50784d3f1e3badf1320f22362d4767d13e29c1f558b"
       },
       "compiler": "Apple clang version 21.0.0 (clang-2100.1.1.101)",
       "flags": [
@@ -1311,8 +1311,8 @@
       "resource": "resources/pixelshift-af.bin"
     },
     "opengate": {
-      "bytes": 11568,
-      "sha256": "693269ed8db5066947132e1885bc3063aa070f815995b8a0f009e62c50fc246d",
+      "bytes": 32576,
+      "sha256": "12f6c719453f4f67414b2ad9d64c9a7ed6b4b8f29d017572c03407c1f3cf7187",
       "symbols": {
         "configuration_hook": {
           "va": "0x40960000",
@@ -1601,17 +1601,281 @@
         "og_aspect_class_thumb_hook": {
           "va": "0x40962c50",
           "bytes": 0
+        },
+        "list_hide_hook": {
+          "va": "0x40962d30",
+          "bytes": 0
+        },
+        "ft_cursor_hook": {
+          "va": "0x40962d60",
+          "bytes": 0
+        },
+        "ft_refresh_hook": {
+          "va": "0x40962d84",
+          "bytes": 0
+        },
+        "ft_ok_hook": {
+          "va": "0x40962ffc",
+          "bytes": 0
+        },
+        "setting_normal_e1_hook": {
+          "va": "0x409631a0",
+          "bytes": 0
+        },
+        "i_apply_q3_dial_hook": {
+          "va": "0x409632b0",
+          "bytes": 0
+        },
+        "i_apply_q3_list_hook": {
+          "va": "0x409632b8",
+          "bytes": 0
+        },
+        "im_dial_hook": {
+          "va": "0x40963390",
+          "bytes": 0
+        },
+        "im_grid_hook": {
+          "va": "0x409633d0",
+          "bytes": 0
+        },
+        "im_selected_hook": {
+          "va": "0x40963410",
+          "bytes": 0
+        },
+        "im_cancel_hook": {
+          "va": "0x40963450",
+          "bytes": 0
+        },
+        "im_dial_count_hook": {
+          "va": "0x40963490",
+          "bytes": 0
+        },
+        "im_wrap_count_hook": {
+          "va": "0x4096349c",
+          "bytes": 0
+        },
+        "menu_icon_hook": {
+          "va": "0x409634e0",
+          "bytes": 0
+        },
+        "lv_icon_hook": {
+          "va": "0x40963504",
+          "bytes": 0
+        },
+        "lv_diff_hook": {
+          "va": "0x40963548",
+          "bytes": 0
+        },
+        "og_icon_idx_hook": {
+          "va": "0x40963588",
+          "bytes": 0
+        },
+        "og_icon_val_hook": {
+          "va": "0x409635c4",
+          "bytes": 0
+        },
+        "boot_reset_e1_hook": {
+          "va": "0x40963600",
+          "bytes": 0
+        },
+        "configuration_e1_hook": {
+          "va": "0x40963630",
+          "bytes": 0
+        },
+        "view_commit_e1_hook": {
+          "va": "0x40963740",
+          "bytes": 0
+        },
+        "h14_readout_hook": {
+          "va": "0x409637b0",
+          "bytes": 0
+        },
+        "h14_inner_hook": {
+          "va": "0x4096383c",
+          "bytes": 0
+        },
+        "h14_active_hook": {
+          "va": "0x409638c0",
+          "bytes": 0
+        },
+        "h14_route_hook": {
+          "va": "0x40963944",
+          "bytes": 0
+        },
+        "half_plan_e1_hook": {
+          "va": "0x40963a00",
+          "bytes": 0
+        },
+        "h14_coordinates_hook": {
+          "va": "0x40963a90",
+          "bytes": 0
+        },
+        "h14_crop_hook": {
+          "va": "0x40963b88",
+          "bytes": 0
+        },
+        "h14_frame_height_hook": {
+          "va": "0x40963c40",
+          "bytes": 0
+        },
+        "h14_nctg_height_hook": {
+          "va": "0x40963d00",
+          "bytes": 0
+        },
+        "nctg_crop_e1_hook": {
+          "va": "0x40963d8c",
+          "bytes": 0
+        },
+        "h14_main_height_hook": {
+          "va": "0x40963e40",
+          "bytes": 0
+        },
+        "og_icon_records_hook": {
+          "va": "0x40963ed0",
+          "bytes": 0
+        },
+        "og_icon_png_hook": {
+          "va": "0x40963f10",
+          "bytes": 0
+        },
+        "ft_ctrl_w22_hook": {
+          "va": "0x40966f10",
+          "bytes": 0
+        },
+        "ft_ctrl_w8_hook": {
+          "va": "0x40966f2c",
+          "bytes": 0
+        },
+        "ft_ctrl_w21_hook": {
+          "va": "0x40966f48",
+          "bytes": 0
+        },
+        "tone_ok_ctrl_hook": {
+          "va": "0x40966f70",
+          "bytes": 0
+        },
+        "ft_star_hook": {
+          "va": "0x40967060",
+          "bytes": 0
+        },
+        "og_front_low_hook": {
+          "va": "0x4096719c",
+          "bytes": 0
+        },
+        "og_param_low_hook": {
+          "va": "0x409671b8",
+          "bytes": 0
+        },
+        "og_table_ce8_low_hook": {
+          "va": "0x409671d8",
+          "bytes": 0
+        },
+        "og_table_db0_low_hook": {
+          "va": "0x409671f8",
+          "bytes": 0
+        },
+        "og_table_ea8_low_hook": {
+          "va": "0x40967218",
+          "bytes": 0
+        },
+        "og_coord_low_hook": {
+          "va": "0x40967238",
+          "bytes": 0
+        },
+        "og_d980_low_hook": {
+          "va": "0x40967258",
+          "bytes": 0
+        },
+        "film_icon_e2_hook": {
+          "va": "0x409672b0",
+          "bytes": 0
+        },
+        "fx_icon_e2_hook": {
+          "va": "0x40967318",
+          "bytes": 0
+        },
+        "playback_capture_e2_hook": {
+          "va": "0x40967370",
+          "bytes": 0
+        },
+        "setting_bank_normal_e2_hook": {
+          "va": "0x409674a0",
+          "bytes": 0
+        },
+        "im_ft_icon_hook": {
+          "va": "0x40967540",
+          "bytes": 0
+        },
+        "cond_never_hook": {
+          "va": "0x40967580",
+          "bytes": 0
+        },
+        "fs_title_hook": {
+          "va": "0x409675a0",
+          "bytes": 0
+        },
+        "ft_refresh3_hook": {
+          "va": "0x40967820",
+          "bytes": 0
+        },
+        "tone_cursor_hook": {
+          "va": "0x409678e0",
+          "bytes": 0
+        },
+        "strip32_hook": {
+          "va": "0x40967920",
+          "bytes": 0
+        },
+        "h14_readout_e4_hook": {
+          "va": "0x40967970",
+          "bytes": 0
+        },
+        "configuration_e4_hook": {
+          "va": "0x409679a0",
+          "bytes": 0
+        },
+        "driver_class2_e4_hook": {
+          "va": "0x40967ac0",
+          "bytes": 0
+        },
+        "og_front_e4_hook": {
+          "va": "0x40967b20",
+          "bytes": 0
+        },
+        "h14_coordinates_e4_hook": {
+          "va": "0x40967b80",
+          "bytes": 0
+        },
+        "raw_source_e4_hook": {
+          "va": "0x40967bf0",
+          "bytes": 0
+        },
+        "h14_inner_e4_hook": {
+          "va": "0x40967c88",
+          "bytes": 0
+        },
+        "h14_active_e4_hook": {
+          "va": "0x40967d1c",
+          "bytes": 0
+        },
+        "proxy_sps_e4_hook": {
+          "va": "0x40967db0",
+          "bytes": 0
         }
       },
       "source_sha256": {
-        "z8opengate/src/d10_hooks.S": "37a7352d47cfad0e4363378b6b1eea71b9aaaa8464f03e3f2ea0e0eea13db28e",
+        "z8opengate/src/d10_hooks.S": "cdefa30c5d804c95f966410952653dc9ea3d96889de1a1f669d084ab03ae611b",
         "z8opengate/src/d5_hooks.S": "03c0ec540d6549666b257ee2dfb5a5b1fa1e19b9636e5432d0f9c1f5a917ac17",
         "z8opengate/src/d6_hooks.S": "08cea97abe8f0ab1a5eb799450d4e7be3afbdbb6f0ff4c04d75cf07934be9a1f",
         "z8opengate/src/d7_hooks.S": "857c5bd4a94caa61d00f604a17506f3e4d7f6cc85eb61f60a72bef35a68332c6",
         "z8opengate/src/d8_hooks.S": "1e749d5fd31140a13b6a3923ab1e3f90efea90c72df0a69e697b62b5bf5e029b",
         "z8opengate/src/d9_hooks.S": "7c4024f20b8a7058918a8043237733fa79c8c5b479a3c87c4f88778a55366079",
-        "z8opengate/src/menu_repair_hooks.S": "be44f87cfb29cda2fdd9c35da8ff131d1a1fc8f1749bf4a1e9e88a035c2b66fb",
-        "z8opengate/src/ui_hooks.S": "d42854e5eb01fb48051adae5a9c1edfa7adf17ef7535dce31da7964599dcb8b4"
+        "z8opengate/src/e1_hooks.S": "c47997f355c57a57f94875a98b5a1b01ab39e1f5018fa69857969e6514f6b230",
+        "z8opengate/src/e2_hooks.S": "842ec611be9253a8a1c48592085d2e595c80c08c5a0a82faea70832e9347ee8b",
+        "z8opengate/src/e3_hooks.S": "acd329e348886f427958eafcea1c6ae9a0f428245088a12085fc1a70145c2613",
+        "z8opengate/src/e4_hooks.S": "86a0e07c0a15bab5cb0ca3eec7e67e31f6c0a5f86bfe441e1ac37a7c525fe58a",
+        "z8opengate/src/menu_repair_hooks.S": "6beac4e8ff0b349c85cb4a5345b049e4d663f0092942f08f870853f3486ec4c4",
+        "z8opengate/src/ui_hooks.S": "a6cdecf231ed5c3ec1f72ac8e946b9bccdecebb78fffafcbfac93e5befd4d3b5"
       },
       "compiler": "Apple clang version 21.0.0 (clang-2100.1.1.101)",
       "flags": [
@@ -2096,7 +2360,7 @@
     },
     "shared": {
       "bytes": 248,
-      "sha256": "c5667d69cdf7f2fb9886ebc43f07ded97e4eb42a61e772f4cf2b560636eff2da",
+      "sha256": "29ce10275d70164c40067659d807c5cfdc2f8aa42b5187a63af50c993e2c3a6d",
       "symbols": {
         "shared_bank": {
           "va": "0x40980000",
@@ -2108,7 +2372,7 @@
         }
       },
       "source_sha256": {
-        "z8patch/src/shared.S": "2d831aeed33dded53637a104ed600c5767e7aa6eb795c7f731a0953b4170dd98"
+        "z8patch/src/shared.S": "d775ae2b4f40b9b6a21d342d0548d78b13227d9268047755dce63bf9abe9deec"
       },
       "compiler": "Apple clang version 21.0.0 (clang-2100.1.1.101)",
       "flags": [
@@ -2118,6 +2382,681 @@
         "assembler-with-cpp"
       ],
       "resource": "resources/shared.bin"
+    },
+    "precapture-menu": {
+      "bytes": 312,
+      "sha256": "16271e8013ae619f6a6eabf0b9ca3450bd2217ce588ed13cacf63cbd8ecc2388",
+      "symbols": {
+        "c_photo": {
+          "va": "0x409f9000",
+          "bytes": 0
+        },
+        "raw_menu_value": {
+          "va": "0x409f9040",
+          "bytes": 0
+        },
+        "raw_menu_enter": {
+          "va": "0x409f906c",
+          "bytes": 0
+        },
+        "raw_menu_lossless": {
+          "va": "0x409f9094",
+          "bytes": 0
+        },
+        "raw_menu_star": {
+          "va": "0x409f90b0",
+          "bytes": 0
+        },
+        "raw_menu_size_disabled": {
+          "va": "0x409f90e4",
+          "bytes": 0
+        },
+        "raw_menu_size_live": {
+          "va": "0x409f90f8",
+          "bytes": 0
+        },
+        "raw_menu_size_alt": {
+          "va": "0x409f911c",
+          "bytes": 0
+        }
+      },
+      "source_sha256": {
+        "z8precapture/menu/hooks.S": "5cd2a678f41edb452b1f1744c0b43e08dd78f2690b20df45ceb4e3e0716b4889",
+        "z8precapture/menu/sites.py": "30fae14e8cd7275ee75733957ed33a38674c1987c97b0cc052e3a8b65f1b893a"
+      },
+      "compiler": "Apple clang version 21.0.0 (clang-2100.1.1.101)",
+      "flags": [
+        "-target",
+        "aarch64-none-elf",
+        "-x",
+        "assembler-with-cpp"
+      ],
+      "resource": "resources/precapture-menu.bin"
+    },
+    "heif-icc": {
+      "bytes": 264,
+      "sha256": "08812f870cd19bee16a122e120a1bce8dea43fb89c34c792649c7575d94775ac",
+      "symbols": {
+        "done": {
+          "va": "0x40b71df0",
+          "bytes": 0
+        },
+        "no_mpf": {
+          "va": "0x40b71d9c",
+          "bytes": 0
+        },
+        "emit": {
+          "va": "0x40b71dbc",
+          "bytes": 0
+        },
+        "marker": {
+          "va": "0x40b71df4",
+          "bytes": 0
+        },
+        "jpeg_profile": {
+          "va": "0x40b71d00",
+          "bytes": 0
+        }
+      },
+      "source_sha256": {
+        "z8heif/icc/hooks.S": "571204e53e8c7f825a16e44631417278cd544413346aa2c62170b0bfa05bede1"
+      },
+      "compiler": "Apple clang version 21.0.0 (clang-2100.1.1.101)",
+      "flags": [
+        "-target",
+        "aarch64-none-elf",
+        "-x",
+        "assembler-with-cpp"
+      ],
+      "resource": "resources/heif-icc.bin"
+    },
+    "heif-format": {
+      "bytes": 3104,
+      "sha256": "2ff96ebbb82fd01543f5e264900c4882290f49ba39080c4f0f249a76452bd6c4",
+      "symbols": {
+        "f2_sdr_plain": {
+          "va": "0x40b70000",
+          "bytes": 0
+        },
+        "f2_template": {
+          "va": "0x40b70ba8",
+          "bytes": 0
+        },
+        "f5_adobe_template": {
+          "va": "0x40b70b30",
+          "bytes": 0
+        },
+        "f2_label": {
+          "va": "0x40b70178",
+          "bytes": 0
+        },
+        "f5_choice": {
+          "va": "0x40b70314",
+          "bytes": 0
+        },
+        "f5_texts": {
+          "va": "0x40b70b10",
+          "bytes": 0
+        },
+        "f5_items": {
+          "va": "0x40b70b08",
+          "bytes": 0
+        },
+        "f5_selected": {
+          "va": "0x40b7044c",
+          "bytes": 0
+        },
+        "f6_footer_row": {
+          "va": "0x40b70520",
+          "bytes": 0
+        },
+        "f6_sdr_j": {
+          "va": "0x40b70b20",
+          "bytes": 0
+        },
+        "f6_sdr_h": {
+          "va": "0x40b70b26",
+          "bytes": 0
+        },
+        "f7_group_list": {
+          "va": "0x40b70afc",
+          "bytes": 0
+        },
+        "f2_snap": {
+          "va": "0x40b700b8",
+          "bytes": 0
+        },
+        "f2_tmpl": {
+          "va": "0x40b70120",
+          "bytes": 0
+        },
+        "f2_nclx": {
+          "va": "0x40b70154",
+          "bytes": 0
+        },
+        "f2_l59": {
+          "va": "0x40b701d8",
+          "bytes": 0
+        },
+        "f2_cs1e": {
+          "va": "0x40b701f0",
+          "bytes": 0
+        },
+        "f2_exif": {
+          "va": "0x40b70208",
+          "bytes": 0
+        },
+        "f7_rec": {
+          "va": "0x40b70220",
+          "bytes": 0
+        },
+        "f5_bank": {
+          "va": "0x40b70278",
+          "bytes": 0
+        },
+        "f5_rbank": {
+          "va": "0x40b702a0",
+          "bytes": 0
+        },
+        "f5_rcur": {
+          "va": "0x40b702c4",
+          "bytes": 0
+        },
+        "f5_name_get": {
+          "va": "0x40b702e8",
+          "bytes": 0
+        },
+        "f5_tone_refresh": {
+          "va": "0x40b70330",
+          "bytes": 0
+        },
+        "f5_footer": {
+          "va": "0x40b70514",
+          "bytes": 0
+        },
+        "f5_sub_entry": {
+          "va": "0x40b7039c",
+          "bytes": 0
+        },
+        "f5_sub_ok": {
+          "va": "0x40b703e4",
+          "bytes": 0
+        },
+        "f5_unavailable": {
+          "va": "0x40b70478",
+          "bytes": 0
+        },
+        "f5_set": {
+          "va": "0x40b704d0",
+          "bytes": 0
+        },
+        "f6_move": {
+          "va": "0x40b705d0",
+          "bytes": 0
+        },
+        "f6_touch": {
+          "va": "0x40b7063c",
+          "bytes": 0
+        },
+        "f6_tone_text": {
+          "va": "0x40b70658",
+          "bytes": 0
+        },
+        "f6_dev": {
+          "va": "0x40b70694",
+          "bytes": 0
+        },
+        "f5_format59": {
+          "va": "0x40b70734",
+          "bytes": 0
+        },
+        "f5_colr": {
+          "va": "0x40b70758",
+          "bytes": 0
+        },
+        "f7_key": {
+          "va": "0x40b707ac",
+          "bytes": 0
+        },
+        "f7_ipma": {
+          "va": "0x40b707d4",
+          "bytes": 0
+        },
+        "f8_ftype": {
+          "va": "0x40b70908",
+          "bytes": 0
+        },
+        "f7_m2tone": {
+          "va": "0x40b70954",
+          "bytes": 0
+        },
+        "f8_depth": {
+          "va": "0x40b70978",
+          "bytes": 0
+        },
+        "f8_thmb": {
+          "va": "0x40b709ac",
+          "bytes": 0
+        },
+        "f7_small": {
+          "va": "0x40b70a04",
+          "bytes": 0
+        },
+        "f8_mvmode": {
+          "va": "0x40b70a68",
+          "bytes": 0
+        },
+        "f8_pbcs_x20": {
+          "va": "0x40b70ab8",
+          "bytes": 0
+        },
+        "f8_pbcs_x26": {
+          "va": "0x40b70ac0",
+          "bytes": 0
+        },
+        "f7_group": {
+          "va": "0x40b70ae4",
+          "bytes": 0
+        }
+      },
+      "source_sha256": {
+        "z8heif/format/hooks.S": "33ee2ad9d9ac69dc0867d6f4ea0fc19f381c1df4e20ca17a07da5ffaa3c66b44"
+      },
+      "compiler": "Apple clang version 21.0.0 (clang-2100.1.1.101)",
+      "flags": [
+        "-target",
+        "aarch64-none-elf",
+        "-x",
+        "assembler-with-cpp"
+      ],
+      "resource": "resources/heif-format.bin"
+    },
+    "heif-capture": {
+      "bytes": 116,
+      "sha256": "76813b43952dc198f1f36988827a7f92b2e06b3c16eaabc4808e44778d0a8ad3",
+      "symbols": {
+        "f9_movie_info": {
+          "va": "0x40b718d0",
+          "bytes": 0
+        },
+        "f9_capture_colour": {
+          "va": "0x40b71924",
+          "bytes": 0
+        }
+      },
+      "source_sha256": {
+        "z8heif/capture/hooks.S": "83cc69a53d569661f932a09f5aa6f61b0edc2d4004da82b9bc508a8af3166068"
+      },
+      "compiler": "Apple clang version 21.0.0 (clang-2100.1.1.101)",
+      "flags": [
+        "-target",
+        "aarch64-none-elf",
+        "-x",
+        "assembler-with-cpp"
+      ],
+      "resource": "resources/heif-capture.bin"
+    },
+    "heif-drive": {
+      "bytes": 336,
+      "sha256": "ad06c7c5e58f3ad55c90b0f799cb754fc770eff41fc58295b4ffb52b9a28b836",
+      "symbols": {
+        "jpeg": {
+          "va": "0x40b71b50",
+          "bytes": 0
+        },
+        "grey": {
+          "va": "0x40b71bac",
+          "bytes": 0
+        },
+        "set_grey": {
+          "va": "0x40b71bb0",
+          "bytes": 0
+        },
+        "keep_preference": {
+          "va": "0x40b71c00",
+          "bytes": 0
+        },
+        "keep_native": {
+          "va": "0x40b71c4c",
+          "bytes": 0
+        },
+        "drive_choice": {
+          "va": "0x40b71b00",
+          "bytes": 0
+        },
+        "drive_tone": {
+          "va": "0x40b71b58",
+          "bytes": 0
+        },
+        "drive_enter": {
+          "va": "0x40b71b6c",
+          "bytes": 0
+        },
+        "drive_ok": {
+          "va": "0x40b71bc4",
+          "bytes": 0
+        },
+        "drive_snap": {
+          "va": "0x40b71c04",
+          "bytes": 0
+        }
+      },
+      "source_sha256": {
+        "z8heif/drive/hooks.S": "5890ef33b339886ede74f8d48980c4a1581aae2312c0b4ea5440d2e71609c61a"
+      },
+      "compiler": "Apple clang version 21.0.0 (clang-2100.1.1.101)",
+      "flags": [
+        "-target",
+        "aarch64-none-elf",
+        "-x",
+        "assembler-with-cpp"
+      ],
+      "resource": "resources/heif-drive.bin"
+    },
+    "area-thumbnail": {
+      "bytes": 44,
+      "sha256": "6af1a8175d4bae09c8c6de93f375d0fe6ca13dae36a69a6d50d8750fe25fdeb3",
+      "symbols": {
+        "original_size": {
+          "va": "0x40b91210",
+          "bytes": 0
+        },
+        "dimensions": {
+          "va": "0x40b91228",
+          "bytes": 0
+        },
+        "hif_size": {
+          "va": "0x40b91200",
+          "bytes": 0
+        },
+        "snapshot_size": {
+          "va": "0x40b91214",
+          "bytes": 0
+        }
+      },
+      "source_sha256": {
+        "z8area/thumbnail/hooks.S": "7ca31dcf99ac53268ca9c6e44e3f164221de302157b7cfc3f1df9caa10d4411d"
+      },
+      "compiler": "Apple clang version 21.0.0 (clang-2100.1.1.101)",
+      "flags": [
+        "-target",
+        "aarch64-none-elf",
+        "-x",
+        "assembler-with-cpp"
+      ],
+      "resource": "resources/area-thumbnail.bin"
+    },
+    "area-quick": {
+      "bytes": 1416,
+      "sha256": "f9df8d2f61f53d639b69097aac5eb61987d9c3afccf8437c233f570a91a53125",
+      "symbols": {
+        "get_mask": {
+          "va": "0x40b91800",
+          "bytes": 0
+        },
+        "tagged": {
+          "va": "0x40b91828",
+          "bytes": 0
+        },
+        "fill_list": {
+          "va": "0x40b91834",
+          "bytes": 0
+        },
+        "next_option": {
+          "va": "0x40b91874",
+          "bytes": 0
+        },
+        "enabled": {
+          "va": "0x40b918b0",
+          "bytes": 0
+        },
+        "custom": {
+          "va": "0x40b91894",
+          "bytes": 0
+        },
+        "disabled": {
+          "va": "0x40b918a0",
+          "bytes": 0
+        },
+        "advance": {
+          "va": "0x40b918c0",
+          "bytes": 0
+        },
+        "custom_items": {
+          "va": "0x40b91af0",
+          "bytes": 0
+        },
+        "paint": {
+          "va": "0x40b91a0c",
+          "bytes": 0
+        },
+        "paint_next": {
+          "va": "0x40b91a3c",
+          "bytes": 0
+        },
+        "lookup": {
+          "va": "0x40b91a84",
+          "bytes": 0
+        },
+        "toggle": {
+          "va": "0x40b91aa0",
+          "bytes": 0
+        },
+        "restricted_done": {
+          "va": "0x40b91bf0",
+          "bytes": 0
+        },
+        "restricted_custom": {
+          "va": "0x40b91bdc",
+          "bytes": 0
+        },
+        "physical_photo": {
+          "va": "0x40b91c04",
+          "bytes": 0
+        },
+        "physical_stock": {
+          "va": "0x40b91bfc",
+          "bytes": 0
+        },
+        "physical_records": {
+          "va": "0x40b91d10",
+          "bytes": 0
+        },
+        "find_current": {
+          "va": "0x40b91c1c",
+          "bytes": 0
+        },
+        "physical_list": {
+          "va": "0x40b91c3c",
+          "bytes": 0
+        },
+        "physical_mask": {
+          "va": "0x40b91c70",
+          "bytes": 0
+        },
+        "physical_source": {
+          "va": "0x40b91d80",
+          "bytes": 0
+        },
+        "physical_copy": {
+          "va": "0x40b91ca4",
+          "bytes": 0
+        },
+        "physical_custom": {
+          "va": "0x40b91ccc",
+          "bytes": 0
+        },
+        "physical_enabled": {
+          "va": "0x40b91cd8",
+          "bytes": 0
+        },
+        "quick_primary": {
+          "va": "0x40b91900",
+          "bytes": 0
+        },
+        "quick_alternate": {
+          "va": "0x40b91950",
+          "bytes": 0
+        },
+        "alternate_length": {
+          "va": "0x40b91984",
+          "bytes": 0
+        },
+        "live_picker": {
+          "va": "0x40b9198c",
+          "bytes": 0
+        },
+        "live_disabled": {
+          "va": "0x40b919c8",
+          "bytes": 0
+        },
+        "limit_refresh": {
+          "va": "0x40b919e8",
+          "bytes": 0
+        },
+        "limit_toggle": {
+          "va": "0x40b91a58",
+          "bytes": 0
+        },
+        "quick_records": {
+          "va": "0x40b91b00",
+          "bytes": 0
+        },
+        "grid_dial": {
+          "va": "0x40b91b70",
+          "bytes": 0
+        },
+        "grid_restrict": {
+          "va": "0x40b91b9c",
+          "bytes": 0
+        },
+        "physical_dial": {
+          "va": "0x40b91bf8",
+          "bytes": 0
+        }
+      },
+      "source_sha256": {
+        "z8area/quick/hooks.S": "bb794e3c9f9e4085acb02178cd4ae920ea85fd4e144b00dc8acc60c6787aeff2"
+      },
+      "compiler": "Apple clang version 21.0.0 (clang-2100.1.1.101)",
+      "flags": [
+        "-target",
+        "aarch64-none-elf",
+        "-x",
+        "assembler-with-cpp"
+      ],
+      "resource": "resources/area-quick.bin"
+    },
+    "heif-srgb": {
+      "bytes": 92,
+      "sha256": "86f92d7fd910fb5bfdd2925e26f8c72e3cb5f76e86854e3bc5baeb92bcbc4f38",
+      "symbols": {
+        "clear_mark": {
+          "va": "0x40b71974",
+          "bytes": 0
+        },
+        "set_colour": {
+          "va": "0x40b719a8",
+          "bytes": 0
+        },
+        "srgb_shutter": {
+          "va": "0x40b71950",
+          "bytes": 0
+        },
+        "srgb_register": {
+          "va": "0x40b71980",
+          "bytes": 0
+        }
+      },
+      "source_sha256": {
+        "z8heif/srgb/hooks.S": "c71335f25cb8b5a66f85273475d04596601d09356ac219d26b4be8fae60d5203"
+      },
+      "compiler": "Apple clang version 21.0.0 (clang-2100.1.1.101)",
+      "flags": [
+        "-target",
+        "aarch64-none-elf",
+        "-x",
+        "assembler-with-cpp"
+      ],
+      "resource": "resources/heif-srgb.bin"
+    },
+    "area-sizes": {
+      "bytes": 400,
+      "sha256": "a71a5b8b9612f98e48136c8f1dd152b7b082d392e012fb118d6e0494e2ddab2e",
+      "symbols": {
+        "lms_menu_hook": {
+          "va": "0x40b82000",
+          "bytes": 0
+        },
+        "lms_alt_l_hook": {
+          "va": "0x40b82050",
+          "bytes": 0
+        },
+        "lms_alt_m_hook": {
+          "va": "0x40b82088",
+          "bytes": 0
+        },
+        "lms_alt_s_hook": {
+          "va": "0x40b820c0",
+          "bytes": 0
+        },
+        "lms_metadata_hook": {
+          "va": "0x40b820f8",
+          "bytes": 0
+        },
+        "lms_playback_hook": {
+          "va": "0x40b8211c",
+          "bytes": 0
+        }
+      },
+      "source_sha256": {
+        "z8area/sizes/hooks.S": "74feddf1821f51f673005de51a4e438564b04a16905137d3f16f8700137c466c"
+      },
+      "compiler": "Apple clang version 21.0.0 (clang-2100.1.1.101)",
+      "flags": [
+        "-target",
+        "aarch64-none-elf",
+        "-x",
+        "assembler-with-cpp"
+      ],
+      "resource": "resources/area-sizes.bin"
+    },
+    "area-formula": {
+      "bytes": 136,
+      "sha256": "1d122bde7d4c0b7110fd6db92a39941aa7a6fa14e55b34d4fbf358b671ae2973",
+      "symbols": {
+        "original": {
+          "va": "0x40b7d824",
+          "bytes": 0
+        },
+        "low": {
+          "va": "0x40b7d830",
+          "bytes": 0
+        },
+        "crop_formula": {
+          "va": "0x40b7d800",
+          "bytes": 0
+        },
+        "crop_tracking_to_sensor": {
+          "va": "0x40b7d834",
+          "bytes": 0
+        },
+        "crop_tracking_from_sensor": {
+          "va": "0x40b7d85c",
+          "bytes": 0
+        }
+      },
+      "source_sha256": {
+        "z8area/formula/hooks.S": "3d1598f6f9bd5ee5a05c87fbe55b9cd101772d930a79426385ed8d756faf6e5c"
+      },
+      "compiler": "Apple clang version 21.0.0 (clang-2100.1.1.101)",
+      "flags": [
+        "-target",
+        "aarch64-none-elf",
+        "-x",
+        "assembler-with-cpp"
+      ],
+      "resource": "resources/area-formula.bin"
     }
   }
 }

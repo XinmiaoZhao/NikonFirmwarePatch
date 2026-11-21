@@ -52,6 +52,9 @@ FS = {1076734540: ('open', 4), 1076734636: ('close', 5), 1076734796: ('read', 7)
 STOCK_CALLS = {1087554568: 'heap allocate (bytes, 0)', 1087554632: 'heap free', 1087551672: 'dc cvac by line (clean before a write)', 1087551944: 'dc civac by line (around a read)', 1079027440: 'menu child by item id', 1077881120: 'set text slot', 1077042504: 'menu item content kind', 1079875332: 'stock photo menu entry callback', 1079875592: 'stock photo menu refresh callback', 1077445792: 'power timer kind', 1077445816: 'power timer hold', 1077445376: 'power timer set', 1077855128: 'settings get', 1077855132: 'settings set', 1077870296: 'redraw request'}
 STOCK_CALLS.update({1087558808: 'create persistent worker task', 1087559116: 'start worker', 1087559252: 'sleep worker', 1077768324: 'arm GUI one-shot timer', 1077768516: 'cancel GUI timer', 1077536784: 'find page container', 1077037356: 'find child node', 1077895708: 'dynamic text', 1077877464: 'progress percentage', 1077536840: 'mark container', 1077597860: 'transition menu state', 1077872528: 'screen redraw setup', 1077896284: 'text content slot', 1077895860: 'mark enclosing progress container dirty', 1087552552: 'create persistent event flag (12 bytes, multiple waiters)', 1087552652: 'set event bits', 1087552712: 'clear event bits', 1087552940: 'timed OR event wait, auto-clear matched bits (0x21)', 1076797476: 'stock raw image submission', 1076786900: 'stock graphics completion fence', 1077011416: 'current drawing surface extent', 1077011504: 'native text/image intrinsic size', 1077466712: 'native menu orientation', 1077011112: 'native widget rectangle setter', 1077602420: 'arrange native list rows after a visibility change', 1077603128: 'rebuild native scroll view', 1077603364: 'native scrollbar geometry', 1077616336: 'set native row disabled state and colors', 1077613604: 'native previous row, focus and scroll', 1077613396: 'native next row, focus and scroll', 1077608148: 'native enabled row count', 1077608312: 'native focus state', 1077537988: 'set native drawing view rectangle', 1077874104: 'native drawing view id', 1077538156: 'native view rectangle'})
 STOCK_CALLS.update({1077877228: 'append embedded primitive child to native row list', 1077076380: 'stock language-specific text font family', 1077010808: 'native text kind reset and rebind with glyph release', 1077074772: 'current native text language', 1077881432: 'bounded UTF-16 dynamic text slot'})
+STOCK_CALLS.update({0x4032E2A0: 'menu text size for language and label',
+                    0x4032E364: 'menu horizontal and vertical glyph scales',
+                    0x4032E554: 'menu glyph tracking for language and label'})
 STOCK_POINTERS = {1077014624: 'stock native folder row draw including its children', 1077870196: 'GUI redraw predicate', 1077870152: 'container render predicate'}
 REDRAW_TAIL = 1079474776
 STOCK_CALLS.update({a: f'FS request {op:#x} ({name})' for a, (name, op) in FS.items()})
@@ -165,17 +168,25 @@ def build_main(stock, code, symbols, af_code, strings_context):
     background[14] = 5121
     footer = resource(1138697736, 7)
     footer[14] = 5122
-    select = resource(1138697736, 8)
-    select[0] = ids['row_newest']
-    select[14] = 5123
-    back = select.copy()
-    back[0] = ids['row_all']
-    back[14] = 5124
+    # Factory two-button group 149 builds distinct touch targets from real keys.
+    # Its designer supplies icon spacing and right-to-left ordering.
+    buttons = resource(0x43DF0E74)
+    require(buttons[:3] == [149, 11, 2], 'Unexpected native footer group')
+    group_ptr, = struct.unpack_from('<Q', stock, 0x42AC1C58 - BASE + 8 * 149)
+    require(struct.unpack_from('<3I', stock, data_off(group_ptr)) == (0xAE2, 0xABD, 0xFFFF),
+            'Unexpected native MENU and OK key list')
+    keys = struct.iter_unpack('<2I', stock[0x42AD0110-BASE:0x42AD0110-BASE+164*8])
+    first_event = {}
+    for key, event in keys:
+        first_event.setdefault(key, event)
+    require((first_event[0xAE2], first_event[0xABD]) == (0x27E, 0x2AE),
+            'Unexpected native footer actions')
+    buttons[14] = 5123
     counter = rect(resource(1138697736, 5), (592, 8, 714, 48))
     counter[0] = 276
     counter[14] = 5125
     counter[10:14] = [56, 56, 39, 39]
-    layout = b''.join((struct.pack('<17I', *r) for r in [resource(1138697736, 0), title, footer, select, back, counter])) + bytes(68)
+    layout = b''.join((struct.pack('<17I', *r) for r in [resource(1138697736, 0), title, footer, buttons, counter])) + bytes(68)
     rows_va = sub_at + len(layout)
     count = 24
     rows_blob = bytearray()

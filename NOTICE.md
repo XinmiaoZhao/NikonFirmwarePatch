@@ -1,6 +1,6 @@
 # Attribution and license scope
 
-Copyright (C) 2026 NikonFirmwarePatch contributors.
+Copyright (C) 2026 Xinmiao Zhao and contributors.
 
 The original tool source and the precompiled patch built from it are licensed under **GPL-3.0-only**; see [LICENSE](LICENSE). This license does not grant rights to user-supplied Nikon firmware. Output licensing depends on its contents, including any generated code; the complete output firmware is not represented as a GPL-licensed distribution. See [GNU's explanation of program output](https://www.gnu.org/licenses/gpl-faq.en.html#WhatCaseIsOutputGPL).
 
@@ -10,7 +10,7 @@ The original tool source and the precompiled patch built from it are licensed un
 - [Capstone 5.0.7](https://github.com/capstone-engine/capstone/tree/5.0.7) is installed separately to inspect generated ARM64 instructions. Its code and runtime are not bundled here; its license is available in [LICENSE.TXT](https://github.com/capstone-engine/capstone/blob/5.0.7/LICENSE.TXT).
 - [Clang/LLVM](https://clang.llvm.org/) is an optional external dependency for explicit native-patch source builds and release preparation. The default Release toolkit uses the reviewed precompiled patch. No compiler or runtime is bundled.
 
-The compatibility profile contains hashes and layout parameters, not firmware contents. The Release toolkit includes nine patch units (pre-capture, pixel-shift main/AF, open-gate, desqueeze, H.265, Log colour, quality icons and shared menus) compiled from the corresponding published C/assembly source, plus the complete tool source, build scripts and license. No Nikon input image or complete patched output is included. Other patch instructions are generated from source; menu structures and text are read from the user's input. The release manifest binds the source commit, compiler recipe and individual files.
+The compatibility profile contains hashes and layout parameters, not firmware contents. The release toolkit includes nineteen patch units (pre-capture, pixel-shift main/AF, open-gate, desqueeze, H.265, Log colour, quality icons, shared menus, five SDR format/ICC units, four image-area units and the RAW recording menu unit) compiled from the corresponding published C/assembly source, plus the tool source and tests needed to build and verify firmware, and the license. No Nikon input image or complete patched output is included. Other patch instructions are generated from source; menu structures and text are read from the user's input. The release manifest binds the source commit, compiler recipe and individual files.
 
 The screenshots document the firmware interface running in an emulator. The tool's source-code license does not relicense the depicted firmware interface.
 

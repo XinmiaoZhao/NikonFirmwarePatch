@@ -4,9 +4,10 @@ from z8prores.package import require
 from z8patch.image import BASE, branch
 
 STRING_IDS = {'opengate-nraw': (3137,5), 'pixelshift': (3142,5), 'prores': (3147,6),
-              'anamorphic': (3153,8), 'h265': (3161,56), 'log': (3217,8)}
-TEXT, TABLES, TABLES_END = 0x40A50000, 0x40A70000, 0x40AF0000
-STRING_END = 3225
+              'anamorphic': (3153,8), 'h265': (3161,56), 'log': (3217,8),
+              'opengate-e1': (3225,9), 'sdr-heif': (3234,4), 'photo-areas': (3238,12)}
+TEXT, TABLES, TABLES_END = 0x40A50000, 0x40A7C000, 0x40AF0000   # E2: tables moved up 48 KiB for the open-gate help text
+STRING_END = 3225                 # without the open-gate E1 strings (v0.4.0 layout)
 BANK, CONFIG = 0x40980000, 0x40980F00
 ROWS, EVENTS, PAGE, CALLBACK = 0x3AA4758, 0x3AA4EE8, 0x4BCC2B0, 0x4BF3A80
 VIDEO_ROWS, VIDEO_EVENTS = 0x40A30000, 0x40A31000
@@ -27,11 +28,12 @@ class Strings:
         if not self.groups:
             return {}
         text,tables=bytearray(),bytearray()
+        end=max([STRING_END]+[STRING_IDS[n][0]+STRING_IDS[n][1] for n in self.groups])
         for language in range(36):
             table=img.u64(0x311C5A0+8*language)-BASE
             blob=img.u64(0x387AF58+8*language)-BASE
             offsets=list(struct.unpack_from('<3137i',img.old,table))
-            for ident in range(3137,STRING_END):
+            for ident in range(3137,end):
                 value=''
                 for name,translations in self.groups.items():
                     first,count=STRING_IDS[name]
@@ -40,14 +42,14 @@ class Strings:
                 offsets.append(TEXT+len(text)-BASE-blob)
                 text.extend(value.encode('utf-16le'))
             offsets.append(TEXT+len(text)-BASE-blob)
-            require(len(offsets)==STRING_END+1,'Shared string shape')
+            require(len(offsets)==end+1,'Shared string shape')
             at=TABLES+len(tables)
             tables.extend(struct.pack(f'<{len(offsets)}i',*offsets))
             img.put(0x311C5A0+8*language,struct.pack('<Q',at),f'shared language directory {language}')
         require(TEXT+len(text)<=TABLES and TABLES+len(tables)<=TABLES_END,'Shared strings overflow')
         img.put(TEXT-BASE,text,'shared selected-feature strings',expect_zero=True)
         img.put(TABLES-BASE,tables,'shared 36 language offset tables',expect_zero=True)
-        return dict(features=sorted(self.groups),entries=STRING_END+1,text_bytes=len(text),table_bytes=len(tables),text=hex(TEXT),tables=hex(TABLES))
+        return dict(features=sorted(self.groups),entries=end+1,text_bytes=len(text),table_bytes=len(tables),text=hex(TEXT),tables=hex(TABLES))
 
 
 class VideoMenu:
@@ -123,7 +125,7 @@ class VideoMenu:
 def loader(img,features):
     floor=0x408BF8F0
     if 'framing' in features:floor=max(floor,0x40980000)
-    if 'photo-tools' in features:floor=max(floor,0x409F0000)
+    if 'still-photo-tools' in features:floor=max(floor,0x40BA0000)
     if 'video-quality' in features:floor=max(floor,0x40A42000)
     if 'log-colour' in features:floor=max(floor,0x40B50000)
     used=max([floor]+[BASE+e['end'] for e in img.edits if 0x75F8F0<=e['offset']<0xAA0000])

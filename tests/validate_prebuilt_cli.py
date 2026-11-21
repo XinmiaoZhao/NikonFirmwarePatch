@@ -52,8 +52,8 @@ def main():
     try:
         with tempfile.TemporaryDirectory(prefix='nikon-prebuilt-cli-') as directory:
             for label, features, version in (
-                    ('video-photo', ['video-quality', 'photo-tools'], '00.01'),
-                    ('all', ['framing', 'video-quality', 'log-colour', 'photo-tools'], args.all_version)):
+                    ('video-photo', ['video-recording', 'still-photo-tools'], '00.01'),
+                    ('all', ['video-recording', 'log-colour', 'still-photo-tools', 'raw-precapture'], args.all_version)):
                 check = json.loads(run(ROOT / 'patch.py', stock, '--features', *features, '--check'))
                 if check['status'] != 'COMPATIBLE':
                     raise ValueError('Input compatibility check failed')

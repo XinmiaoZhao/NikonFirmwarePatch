@@ -1,0 +1,843 @@
+{
+  "schema": 2,
+  "about": "Text in en, zh-Hans and zh-Hant shown by the macOS app (macos/). Update together with docs/; tests/validate_gui_catalog.py checks languages, feature ids, limit sources and links.",
+  "features": [
+    {
+      "id": "video-recording",
+      "name": {
+        "en": "Video Recording",
+        "zh-Hans": "视频录制",
+        "zh-Hant": "短片錄製"
+      },
+      "summary": {
+        "en": "N-RAW 3:2 at 8.3K up to 30p and 4.1K up to 120p, N-RAW tiers, desqueeze, ProRes and H.265 grades",
+        "zh-Hans": "N-RAW 3:2（8.3K 最高 30p、4.1K 最高 120p）、N-RAW 四档、反挤压、ProRes 与 H.265 档位",
+        "zh-Hant": "N-RAW 3:2（8.3K 最高 30p、4.1K 最高 120p）、N-RAW 四檔、拉伸顯示、ProRes 與 H.265 檔位"
+      },
+      "intro": {
+        "en": "Adds N-RAW 12-bit 3:2 as its own video file type with a ten-entry frame size list: 8.3K 30/25/24p (8256×5504) and, new in v0.5.0, 4.1K at 120/100/60/50/30/25/24p (4128×2752). 4.1K 30/25/24p is oversampled 2:1 from the full 8280×5520 readout; 50p and faster are read out at 4.1K directly. N-RAW gets High/Fine/Normal/Basic tiers and anamorphic desqueeze; ProRes adds HQ/422/LT/Proxy and H.265 five bitrates at 100–20% of stock. Settings are stored per movie shooting bank.",
+        "zh-Hans": "新增独立的视频文件类型 N-RAW 12位 3:2，并带专用的 10 项画面尺寸列表：8.3K 30/25/24p（8256×5504），以及 v0.5.0 新增的 4.1K 120/100/60/50/30/25/24p（4128×2752）。4.1K 30/25/24p 由 8280×5520 全幅读出按 2:1 过采样得到；50p 及以上直接以 4.1K 读出。N-RAW 提供 High／Fine／Normal／Basic 四档与反挤压显示；ProRes 增加 HQ／422／LT／Proxy，H.265 增加原厂码率 100%–20% 五档。设置按视频拍摄菜单库保存。",
+        "zh-Hant": "新增獨立的短片檔案類型 N-RAW 12-bit 3:2，並附專用的 10 項畫面大小清單：8.3K 30/25/24p（8256×5504），以及 v0.5.0 新增的 4.1K 120/100/60/50/30/25/24p（4128×2752）。4.1K 30/25/24p 由 8280×5520 全幅讀出依 2:1 超取樣而得；50p 以上直接以 4.1K 讀出。N-RAW 提供 High／Fine／Normal／Basic 四檔與變形鏡頭拉伸顯示；ProRes 增加 HQ／422／LT／Proxy，H.265 增加原廠位元速率 100%–20% 五檔。設定依短片記錄選單庫儲存。"
+      },
+      "includes": [
+        {
+          "en": "N-RAW 3:2 file type: 8.3K 30/25/24p, 4.1K 120–24p",
+          "zh-Hans": "N-RAW 3:2 文件类型：8.3K 30／25／24p，4.1K 120p–24p",
+          "zh-Hant": "N-RAW 3:2 檔案類型：8.3K 30／25／24p，4.1K 120p–24p"
+        },
+        {
+          "en": "4.1K 3:2 30/25/24p oversampled from the full readout",
+          "zh-Hans": "4.1K 3:2 30／25／24p 由全幅读出过采样",
+          "zh-Hant": "4.1K 3:2 30／25／24p 由全幅讀出超取樣"
+        },
+        {
+          "en": "N-RAW tiers: High / Fine / Normal / Basic",
+          "zh-Hans": "N-RAW 四档：High／Fine／Normal／Basic",
+          "zh-Hant": "N-RAW 四檔：High／Fine／Normal／Basic"
+        },
+        {
+          "en": "Desqueeze: Off plus seven factors, 1.25×–2.00×",
+          "zh-Hans": "反挤压：关闭及 1.25×–2.00× 七档倍率",
+          "zh-Hant": "拉伸顯示：關閉及 1.25×–2.00× 七檔倍率"
+        },
+        {
+          "en": "ProRes HQ / 422 / LT / Proxy, starred HQ",
+          "zh-Hans": "ProRes HQ／422／LT／Proxy，HQ 带星标",
+          "zh-Hant": "ProRes HQ／422／LT／Proxy，HQ 附星號"
+        },
+        {
+          "en": "H.265 at 100 / 60 / 45 / 30 / 20%, starred 100%",
+          "zh-Hans": "H.265 100／60／45／30／20% 五档码率，100% 带星标",
+          "zh-Hant": "H.265 100／60／45／30／20% 五檔位元速率，100% 附星號"
+        }
+      ],
+      "camera_entry": {
+        "en": "Video file type · Frame size/frame rate · Video quality (N-RAW / ProRes / H.265) · Anamorphic desqueeze",
+        "zh-Hans": "视频文件类型 · 画面尺寸/帧频 · 视频品质(N-RAW／ProRes／H.265) · 反挤压",
+        "zh-Hant": "短片檔案類型 · 畫面大小/每秒幅數 · 短片品質(N-RAW／ProRes／H.265) · 變形鏡頭拉伸顯示"
+      },
+      "limits": [
+        {
+          "level": "caution",
+          "title": {
+            "en": "3:2 is N-RAW only and set in the menu",
+            "zh-Hans": "3:2 只限 N-RAW，须在菜单中切换",
+            "zh-Hant": "3:2 僅限 N-RAW，須在選單中切換"
+          },
+          "detail": {
+            "en": "8.3K 3:2 stops at 30p; ProRes and H.265 stay 16:9. The i menu has no file type item, so switch to N-RAW 3:2 in the video recording menu.",
+            "zh-Hans": "8.3K 3:2 最高 30p；ProRes 与 H.265 仍为 16:9。i 菜单没有文件类型项，需在视频拍摄菜单切到 N-RAW 3:2。",
+            "zh-Hant": "8.3K 3:2 最高 30p；ProRes 與 H.265 仍為 16:9。i 選單沒有檔案類型項目，需在短片記錄選單切換到 N-RAW 3:2。"
+          },
+          "source": {
+            "path": "docs/opengate-nraw.md",
+            "quote": "N-RAW 12-bit 3:2 (NEV)"
+          }
+        },
+        {
+          "level": "caution",
+          "title": {
+            "en": "Lower tiers lose fine detail",
+            "zh-Hans": "低码率档位会损失细节",
+            "zh-Hant": "低位元速率檔位會損失細節"
+          },
+          "detail": {
+            "en": "Basic uses 1.0 bit/pixel and camera samples show reduced fine texture. 8.3K 3:2 High uses 2.5 bits/pixel versus 3.0 for ordinary 8.3K and 4.1K 3:2 High.",
+            "zh-Hans": "Basic 为 1.0 bit/像素，实拍可见高频纹理减弱；8.3K 3:2 High 为 2.5 bit/像素，普通 8.3K 与 4.1K 3:2 High 为 3.0。",
+            "zh-Hant": "Basic 為 1.0 bit/像素，實拍可見高頻紋理減弱；8.3K 3:2 High 為 2.5 bit/像素，一般 8.3K 與 4.1K 3:2 High 為 3.0。"
+          },
+          "source": {
+            "path": "docs/known-issues.md",
+            "quote": "Basic 使用 1.0 bit/像素预算"
+          }
+        },
+        {
+          "level": "caution",
+          "title": {
+            "en": "Resetting the movie menu keeps the added grade",
+            "zh-Hans": "重设视频菜单不会重设新增档位",
+            "zh-Hant": "重設短片選單不會重設新增檔位"
+          },
+          "detail": {
+            "en": "Select the grade again after a reset.",
+            "zh-Hans": "重设后请在画质菜单中重新选择档位。",
+            "zh-Hant": "重設後請在品質選單中重新選擇檔位。"
+          },
+          "source": {
+            "path": "docs/known-issues.md",
+            "quote": "重设视频拍摄菜单不会重设新增档位"
+          }
+        },
+        {
+          "level": "note",
+          "title": {
+            "en": "Two-tier readers merge tier names",
+            "zh-Hans": "两档软件显示的名称不能区分四档",
+            "zh-Hant": "只認兩檔的軟體無法區分四檔名稱"
+          },
+          "detail": {
+            "en": "For compatibility, metadata labels Fine as High and Basic as Normal.",
+            "zh-Hans": "为兼容只认两档的软件，Fine 标为 High，Basic 标为 Normal。",
+            "zh-Hant": "為相容只認兩檔的軟體，Fine 標為 High，Basic 標為 Normal。"
+          },
+          "source": {
+            "path": "docs/known-issues.md",
+            "quote": "Fine 映射为 High、Basic 映射为 Normal"
+          }
+        },
+        {
+          "level": "note",
+          "title": {
+            "en": "Desqueeze changes the display only",
+            "zh-Hans": "反挤压只改变显示",
+            "zh-Hant": "拉伸顯示只改變顯示"
+          },
+          "detail": {
+            "en": "Recordings keep their pixel geometry and playback uses the current factor; switch it or turn it off for clips from other lenses.",
+            "zh-Hans": "录像保留原始像素比例，回放按当前倍率；回放其他镜头的片段时请切换倍率或关闭。",
+            "zh-Hant": "錄影保留原始像素比例，重播依目前倍率；重播其他鏡頭的片段時請切換倍率或關閉。"
+          },
+          "source": {
+            "path": "docs/known-issues.md",
+            "quote": "反挤压只改变显示几何"
+          }
+        },
+        {
+          "level": "note",
+          "title": {
+            "en": "The AF point can stay on an extra row after leaving 3:2",
+            "zh-Hans": "离开 3:2 后对焦点可能停在多出的行",
+            "zh-Hant": "離開 3:2 後對焦點可能停在多出的列"
+          },
+          "detail": {
+            "en": "Press the multi selector once to bring it back into the 16:9 grid.",
+            "zh-Hans": "按一次多重选择器即可回到 16:9 网格。",
+            "zh-Hant": "按一次多重選擇器即可回到 16:9 網格。"
+          },
+          "source": {
+            "path": "docs/opengate-nraw.md",
+            "quote": "对焦点"
+          }
+        },
+        {
+          "level": "note",
+          "title": {
+            "en": "H.265 Mbps values are encoder targets",
+            "zh-Hans": "H.265 显示的 Mbps 是编码目标",
+            "zh-Hant": "H.265 顯示的 Mbps 是編碼目標"
+          },
+          "detail": {
+            "en": "Output varies with content; they are neither measured averages nor card-speed requirements.",
+            "zh-Hans": "实际码率随画面变化，不是实测平均值，也不是卡速要求。",
+            "zh-Hant": "實際位元速率隨畫面變化，不是實測平均值，也不是記憶卡速度要求。"
+          },
+          "source": {
+            "path": "docs/h265.md",
+            "quote": "它是编码目标，不是实测文件平均值或卡速要求"
+          }
+        }
+      ],
+      "docs": [
+        {
+          "title": {
+            "en": "N-RAW 3:2 guide",
+            "zh-Hans": "N-RAW 3:2 指南",
+            "zh-Hant": "N-RAW 3:2 指南"
+          },
+          "path": "docs/opengate-nraw.md"
+        },
+        {
+          "title": {
+            "en": "Desqueeze guide",
+            "zh-Hans": "反挤压指南",
+            "zh-Hant": "拉伸顯示指南"
+          },
+          "path": "docs/anamorphic.md"
+        },
+        {
+          "title": {
+            "en": "ProRes guide",
+            "zh-Hans": "ProRes 指南",
+            "zh-Hant": "ProRes 指南"
+          },
+          "path": "docs/prores.md"
+        },
+        {
+          "title": {
+            "en": "H.265 guide",
+            "zh-Hans": "H.265 指南",
+            "zh-Hant": "H.265 指南"
+          },
+          "path": "docs/h265.md"
+        }
+      ],
+      "guide": [
+        {
+          "en": "In the video recording menu, set Video file type to the separate N-RAW 12-bit 3:2 (NEV) entry.",
+          "zh-Hans": "在视频拍摄菜单把“视频文件类型”设为独立的 N-RAW 12位 3:2(NEV)。",
+          "zh-Hant": "在短片記錄選單將「短片檔案類型」設為獨立的 N-RAW 12-bit 3:2(NEV)。"
+        },
+        {
+          "en": "Frame size/frame rate then lists only the 3:2 modes: 8.3K 30/25/24p and 4.1K 120p down to 24p.",
+          "zh-Hans": "“画面尺寸/帧频”随即只列 3:2 模式：8.3K 30／25／24p 和 4.1K 120p 至 24p。",
+          "zh-Hant": "「畫面大小/每秒幅數」隨即只列出 3:2 模式：8.3K 30／25／24p 與 4.1K 120p 至 24p。"
+        },
+        {
+          "en": "Live view shows the 3:2 frame and the N-RAW 3:2 mark.",
+          "zh-Hans": "取景显示 3:2 画面和 N-RAW 3:2 标志。",
+          "zh-Hant": "實時顯示呈現 3:2 畫面與 N-RAW 3:2 標誌。"
+        },
+        {
+          "en": "Pick High, Fine, Normal or Basic in Video quality (N-RAW); 4.1K 3:2 120p budgets are 4259/2897/2212/1529 Mbps.",
+          "zh-Hans": "在“视频品质(N-RAW)”选择 High、Fine、Normal 或 Basic；4.1K 3:2 120p 的码率预算依次为 4259／2897／2212／1529 Mbps。",
+          "zh-Hant": "在「短片品質(N-RAW)」選擇 High、Fine、Normal 或 Basic；4.1K 3:2 120p 的位元速率預算依序為 4259／2897／2212／1529 Mbps。"
+        },
+        {
+          "en": "Choose the lens factor in Anamorphic desqueeze; live view and playback are unsqueezed while recordings keep their pixels.",
+          "zh-Hans": "在“反挤压”选择镜头倍率，取景与回放按倍率还原；录像文件保持原始像素比例。",
+          "zh-Hant": "在「變形鏡頭拉伸顯示」選擇鏡頭倍率，實時顯示與重播依倍率還原；錄影檔案保持原始像素比例。"
+        },
+        {
+          "en": "ProRes offers HQ, 422, LT and Proxy; H.265 offers five bitrates from 100% to 20%. Only HQ and 100% carry a star.",
+          "zh-Hans": "ProRes 可选 HQ、422、LT、Proxy；H.265 可选 100% 至 20% 五档码率。只有 HQ 与 100% 带星标。",
+          "zh-Hant": "ProRes 可選 HQ、422、LT、Proxy；H.265 可選 100% 至 20% 五檔位元速率。只有 HQ 與 100% 顯示星號。"
+        }
+      ]
+    },
+    {
+      "id": "log-colour",
+      "name": {
+        "en": "Log Colour",
+        "zh-Hans": "Log 色彩",
+        "zh-Hant": "Log 色彩"
+      },
+      "summary": {
+        "en": "Choose N-Log, S-Log3 or Log3G10",
+        "zh-Hans": "N-Log、S-Log3 与 Log3G10 三种 Log",
+        "zh-Hant": "N-Log、S-Log3 與 Log3G10 三種 Log"
+      },
+      "intro": {
+        "en": "Choose N-Log / BT.2020, S-Log3 / S-Gamut3.Cine or Log3G10 / REDWideGamutRGB in Log settings, with matching labels, icons and view assist. Recording uses camera-calibrated matrices with constant chroma compensation (Cpxs).",
+        "zh-Hans": "在 Log 设定中选择 N-Log／BT.2020、S-Log3／S-Gamut3.Cine 或 Log3G10／REDWideGamutRGB，附带对应的标签、图标与显示辅助。录像使用经实拍标定的矩阵与常量 Cpxs。",
+        "zh-Hant": "在「Log設定」中選擇 N-Log／BT.2020、S-Log3／S-Gamut3.Cine 或 Log3G10／REDWideGamutRGB，並附帶對應的標籤、圖示與顯示輔助。錄影使用經實拍校正的矩陣與常數 Cpxs。"
+      },
+      "includes": [
+        {
+          "en": "N-Log / BT.2020 (stock)",
+          "zh-Hans": "N-Log／BT.2020（原厂）",
+          "zh-Hant": "N-Log／BT.2020（原廠）"
+        },
+        {
+          "en": "S-Log3 / S-Gamut3.Cine",
+          "zh-Hans": "S-Log3／S-Gamut3.Cine",
+          "zh-Hant": "S-Log3／S-Gamut3.Cine"
+        },
+        {
+          "en": "Log3G10 / REDWideGamutRGB",
+          "zh-Hans": "Log3G10／REDWideGamutRGB",
+          "zh-Hant": "Log3G10／REDWideGamutRGB"
+        },
+        {
+          "en": "Per-clip playback names and view assist",
+          "zh-Hans": "按片段显示回放名称与显示辅助",
+          "zh-Hant": "依片段顯示重播名稱與顯示輔助"
+        }
+      ],
+      "camera_entry": {
+        "en": "Log settings",
+        "zh-Hans": "Log 设定",
+        "zh-Hant": "Log設定"
+      },
+      "limits": [
+        {
+          "level": "caution",
+          "title": {
+            "en": "Editing apps may misidentify the Log curve",
+            "zh-Hans": "剪辑软件可能误识别 Log",
+            "zh-Hant": "剪輯軟體可能誤判 Log"
+          },
+          "detail": {
+            "en": "Resolve tags S-Log3 / Log3G10 clips as Rec709 (Scene). Assign the input gamut and curve manually.",
+            "zh-Hans": "Resolve 会把 S-Log3／Log3G10 片段识别为 Rec709 (Scene)；请在媒体池手动指定输入色域与曲线。",
+            "zh-Hant": "Resolve 會把 S-Log3／Log3G10 片段判定為 Rec709 (Scene)；請在媒體池手動指定輸入色域與曲線。"
+          },
+          "source": {
+            "path": "docs/log-colour.md",
+            "quote": "被识别为 `Rec709 (Scene)`"
+          }
+        },
+        {
+          "level": "note",
+          "title": {
+            "en": "S-Log3 and Log3G10 colour is fitted",
+            "zh-Hans": "S-Log3／Log3G10 的色彩为拟合结果",
+            "zh-Hant": "S-Log3／Log3G10 的色彩為擬合結果"
+          },
+          "detail": {
+            "en": "Their recording matrices are fitted to the decoded same-scene N-RAW; some scenes or low light can show a colour cast. See the colour report.",
+            "zh-Hans": "两种 Log 的录像矩阵按同场景 N-RAW 的解码结果拟合，部分场景或暗光下可能偏色，见色彩报告。",
+            "zh-Hant": "兩種 Log 的錄影矩陣依同場景 N-RAW 的解碼結果擬合，部分場景或暗光下可能偏色，詳見色彩報告。"
+          },
+          "source": {
+            "path": "docs/known-issues.md",
+            "quote": "录像矩阵按同场景 N-RAW 的解码结果拟合"
+          }
+        },
+        {
+          "level": "note",
+          "title": {
+            "en": "Log3G10 omits RED’s F mapping",
+            "zh-Hans": "Log3G10 不含 RED 的 F 映射",
+            "zh-Hant": "Log3G10 不含 RED 的 F 映射"
+          },
+          "detail": {
+            "en": "Use the repository’s 65³ F LUT in post if needed.",
+            "zh-Hans": "需要时在后期使用仓库提供的 65³ F LUT。",
+            "zh-Hant": "需要時，請在後製使用儲存庫提供的 65³ F LUT。"
+          },
+          "source": {
+            "path": "luts/README.md",
+            "quote": "给当前不含 F 的 Log3G10 录像"
+          }
+        },
+        {
+          "level": "note",
+          "title": {
+            "en": "S-Log3 keeps stock clipping at zero",
+            "zh-Hans": "S-Log3 保留原厂非负截断",
+            "zh-Hant": "S-Log3 保留原廠的非負截斷"
+          },
+          "detail": {
+            "en": "See the colour report for saturated cyan-blue, shadows and exposure.",
+            "zh-Hans": "高饱和青蓝、暗部与不同曝光的表现见色彩报告。",
+            "zh-Hant": "高飽和青藍、暗部與不同曝光下的表現，請見色彩報告。"
+          },
+          "source": {
+            "path": "docs/known-issues.md",
+            "quote": "S-Log3 保留原厂的非负截断"
+          }
+        }
+      ],
+      "docs": [
+        {
+          "title": {
+            "en": "Log settings and grading",
+            "zh-Hans": "Log 设置与后期流程",
+            "zh-Hant": "Log 設定與後製流程"
+          },
+          "path": "docs/log-colour.md"
+        },
+        {
+          "title": {
+            "en": "Colour report",
+            "zh-Hans": "色彩报告",
+            "zh-Hant": "色彩報告"
+          },
+          "path": "docs/log-colour-report.md"
+        },
+        {
+          "title": {
+            "en": "F LUT for post",
+            "zh-Hans": "后期 F LUT",
+            "zh-Hant": "後製用 F LUT"
+          },
+          "path": "luts/README.md"
+        }
+      ],
+      "guide": [
+        {
+          "en": "In the video recording menu, open Log settings and choose N-Log, S-Log3 or Log3G10.",
+          "zh-Hans": "视频拍摄菜单 →“Log 设定”，选择 N-Log／BT.2020、S-Log3／S-Gamut3.Cine 或 Log3G10／REDWideGamutRGB。",
+          "zh-Hant": "短片記錄選單 →「Log設定」，選擇 N-Log／BT.2020、S-Log3／S-Gamut3.Cine 或 Log3G10／REDWideGamutRGB。"
+        },
+        {
+          "en": "Turn on view assist for a normal-looking preview of the selected Log; the recording stays in Log.",
+          "zh-Hans": "取景时打开显示辅助，画面按所选 Log 还原观感；录像本身仍是 Log。",
+          "zh-Hant": "實時顯示時開啟顯示輔助，畫面依所選 Log 還原觀感；錄影本身仍是 Log。"
+        },
+        {
+          "en": "In playback each clip shows the Log it was recorded with, and view assist follows the clip; N-RAW plays back its proxy.",
+          "zh-Hans": "回放时每段录像按录制时的 Log 显示名称，显示辅助随片段切换；N-RAW 回放的是代理文件。",
+          "zh-Hant": "重播時每段錄影依錄製時的 Log 顯示名稱，顯示輔助隨片段切換；N-RAW 重播的是代理檔。"
+        }
+      ]
+    },
+    {
+      "id": "still-photo-tools",
+      "name": {
+        "en": "Photo Tools",
+        "zh-Hans": "照片工具",
+        "zh-Hant": "相片工具"
+      },
+      "summary": {
+        "en": "SDR HEIF, 4:3 / 2.39:1 / 65:24 crops and pixel-shift merge",
+        "zh-Hans": "SDR HEIF、4:3／2.39:1／65:24 裁切与像素位移合成",
+        "zh-Hant": "SDR HEIF、4:3／2.39:1／65:24 裁切與像素位移合成"
+      },
+      "intro": {
+        "en": "Ordinary photos can be saved as 10-bit HEIF without switching to HLG: on the Tone mode page the SDR row chooses JPEG or HEIF. The files are written to open with correct colour in macOS, iPhone, Windows 11 Photos and the Xiaomi gallery, and Adobe RGB JPEGs embed the Nikon ICC profile. Choose image area adds 4:3, 2.39:1 and 65:24 (XPan), selectable from the photo menu, the i menu and an assigned Fn button; JPEG/HEIF and NEF are cropped, and live view shows the cropped frame. Pixel shift merge combines complete pixel-shift groups into NEFX in the camera.",
+        "zh-Hans": "普通照片无需切到 HLG 即可保存为 10 位 HEIF：在“色调模式”页的 SDR 行选择 JPEG 或 HEIF。文件写法针对 macOS、iPhone、Windows 11 照片与小米相册做了适配，颜色与同场 JPEG 一致；Adobe RGB JPEG 嵌入 Nikon ICC。“选择图像区域”增加 4:3、2.39:1 和 65:24（XPan），照片菜单、i 菜单和指定的 Fn 键都可选择；JPEG/HEIF 与 NEF 都按比例裁切，取景显示裁切后的画面。“像素变化合成”在机内把完整的像素位移组合成为 NEFX。",
+        "zh-Hant": "一般相片不必切換到 HLG 即可儲存為 10 位元 HEIF：在「色調模式」頁的 SDR 列選擇 JPEG 或 HEIF。檔案寫法針對 macOS、iPhone、Windows 11 相片與小米相簿做了適配，色彩與同場 JPEG 一致；Adobe RGB JPEG 內嵌 Nikon ICC。「選擇影像區域」增加 4:3、2.39:1 與 65:24（XPan），相片選單、i 選單與指定的 Fn 按鈕皆可選擇；JPEG/HEIF 與 NEF 皆依比例裁切，實時顯示呈現裁切後的畫面。「像素位移合成」在機內將完整的像素位移組合成為 NEFX。"
+      },
+      "includes": [
+        {
+          "en": "SDR file format: JPEG or HEIF (10-bit .HIF)",
+          "zh-Hans": "SDR 文件格式：JPEG 或 HEIF（10 位 .HIF）",
+          "zh-Hant": "SDR 檔案格式：JPEG 或 HEIF（10 位元 .HIF）"
+        },
+        {
+          "en": "Adobe RGB JPEGs embed the Nikon ICC profile",
+          "zh-Hans": "Adobe RGB JPEG 嵌入 Nikon ICC",
+          "zh-Hant": "Adobe RGB JPEG 內嵌 Nikon ICC"
+        },
+        {
+          "en": "Image area: 4:3, 2.39:1 and 65:24 (XPan), also in the i menu and on Fn",
+          "zh-Hans": "图像区域：4:3、2.39:1、65:24（XPan），i 菜单与 Fn 键同样可选",
+          "zh-Hant": "影像區域：4:3、2.39:1、65:24（XPan），i 選單與 Fn 按鈕同樣可選"
+        },
+        {
+          "en": "Pixel-shift merge: 4/8/16/32 frames → NEFX",
+          "zh-Hans": "像素变化合成：4／8／16／32 张组 → NEFX",
+          "zh-Hant": "像素位移合成：4／8／16／32 張組 → NEFX"
+        }
+      ],
+      "camera_entry": {
+        "en": "Tone mode › SDR file format · Image area › Choose image area (also i menu / Fn) · Pixel shift merge",
+        "zh-Hans": "色调模式 › SDR文件格式 · 图像区域 › 选择图像区域（也可用 i 菜单／Fn 键） · 像素变化合成",
+        "zh-Hant": "色調模式 › SDR檔案格式 · 影像區域 › 選擇影像區域（也可用 i 選單／Fn 按鈕） · 像素位移合成"
+      },
+      "limits": [
+        {
+          "level": "caution",
+          "title": {
+            "en": "Pixel shift needs complete lossless NEF groups",
+            "zh-Hans": "像素位移只接受完整的无损 NEF 组",
+            "zh-Hant": "像素位移只接受完整的無損 NEF 組"
+          },
+          "detail": {
+            "en": "FX/L 14-bit lossless only; HE/HE★, DX, cropped, incomplete or duplicate groups and pre-capture NEFs cannot be merged. View the NEFX on a computer.",
+            "zh-Hans": "仅限 FX/L 14 位无损；HE／HE★、DX、裁切、残缺或重复的组以及预拍 NEF 不能合成。NEFX 需在电脑上查看。",
+            "zh-Hant": "僅限 FX/L 14-bit 無損；HE／HE★、DX、裁切、不完整或重複的組以及預拍 NEF 無法合成。NEFX 需在電腦上檢視。"
+          },
+          "source": {
+            "path": "docs/known-issues.md",
+            "quote": "HE／HE★、DX、残缺或重复组不能合成"
+          }
+        },
+        {
+          "level": "caution",
+          "title": {
+            "en": "Set the image area back to FX before installing other firmware",
+            "zh-Hans": "刷其他固件前先把图像区域改回 FX",
+            "zh-Hant": "更新其他韌體前先將影像區域改回 FX"
+          },
+          "detail": {
+            "en": "Stock firmware and packages without this group have no settings for the new areas; live view can keep retrying or stay black.",
+            "zh-Hans": "原厂固件和不含本组的包没有新区域的参数，取景可能反复重试或保持黑屏。",
+            "zh-Hant": "原廠韌體和不含本組的套件沒有新區域的參數，實時顯示可能反覆重試或保持黑屏。"
+          },
+          "source": {
+            "path": "docs/photo-crop.md",
+            "quote": "FX"
+          }
+        },
+        {
+          "level": "caution",
+          "title": {
+            "en": "SDR HEIF changes which options are available",
+            "zh-Hans": "选 SDR HEIF 后可用选项会变化",
+            "zh-Hant": "選 SDR HEIF 後可用選項會改變"
+          },
+          "detail": {
+            "en": "HDR overlay and multiple exposure are disabled, and time-lapse movies are fixed to H.265 10-bit. Selecting JPEG restores them.",
+            "zh-Hans": "HDR 叠加与多重曝光禁用，延时视频固定为 H.265 10 位。改回 JPEG 即可恢复。",
+            "zh-Hant": "HDR 疊加與多重曝光停用，縮時短片固定為 H.265 10 位元。改回 JPEG 即可恢復。"
+          },
+          "source": {
+            "path": "docs/sdr-heif.md",
+            "quote": "HDR"
+          }
+        },
+        {
+          "level": "note",
+          "title": {
+            "en": "HEIF support varies by app",
+            "zh-Hans": "HEIF 兼容性因软件而异",
+            "zh-Hant": "HEIF 相容性因軟體而異"
+          },
+          "detail": {
+            "en": "Confirmed in macOS Preview, iPhone Photos, Windows 11 Photos and the Xiaomi 13 Ultra gallery; other apps, devices and system versions may not read the files correctly.",
+            "zh-Hans": "已在 macOS 预览、iPhone 照片、Windows 11 照片和小米 13 Ultra 相册中确认；其他软件、设备和系统版本不保证能正常识别。",
+            "zh-Hant": "已在 macOS 預覽程式、iPhone 相片、Windows 11 相片與小米 13 Ultra 相簿中確認；其他軟體、裝置與系統版本不保證能正常識別。"
+          },
+          "source": {
+            "path": "docs/sdr-heif.md",
+            "quote": "HEIF 兼容性因软件而异"
+          }
+        },
+        {
+          "level": "note",
+          "title": {
+            "en": "No HEIF at C15 to C120",
+            "zh-Hans": "C15 至 C120 不能拍 HEIF",
+            "zh-Hant": "C15 至 C120 無法拍攝 HEIF"
+          },
+          "detail": {
+            "en": "These modes use JPEG for compressed photos and disable HEIF; an ordinary release mode restores the bank’s saved choice.",
+            "zh-Hans": "这些档位的压缩照片临时改用 JPEG，HEIF 禁用；回到普通释放模式即恢复该菜单库保存的选择。",
+            "zh-Hant": "這些檔位的壓縮相片暫時改用 JPEG，HEIF 停用；回到一般快門釋放模式即恢復該選單庫儲存的選擇。"
+          },
+          "source": {
+            "path": "docs/sdr-heif.md",
+            "quote": "C15 至 C120 不能拍 HEIF"
+          }
+        },
+        {
+          "level": "note",
+          "title": {
+            "en": "No added image areas in high-speed capture",
+            "zh-Hans": "高速画面捕捉中不能用新增画幅",
+            "zh-Hant": "高速畫面捕捉中無法使用新增畫幅"
+          },
+          "detail": {
+            "en": "C15/C30 offer only FX and DX; at C60/C120 Choose image area is unavailable, as on the stock camera.",
+            "zh-Hans": "C15/C30 只能选 FX 和 DX；C60/C120 与原厂一样不能选择图像区域。",
+            "zh-Hant": "C15/C30 只能選 FX 與 DX；C60/C120 與原廠一樣無法選擇影像區域。"
+          },
+          "source": {
+            "path": "docs/photo-crop.md",
+            "quote": "高速画面捕捉中不能用新增画幅"
+          }
+        },
+        {
+          "level": "note",
+          "title": {
+            "en": "Software may name the crop wrongly",
+            "zh-Hans": "软件显示的裁切名称可能不对",
+            "zh-Hant": "軟體顯示的裁切名稱可能不正確"
+          },
+          "detail": {
+            "en": "Pixel sizes are correct, but the metadata reuses stock crop codes: exiftool shows 4:3 as \"5:4 Crop\", 2.39:1 as \"3:2 Crop\" and 65:24 as \"2.8x Movie Crop\".",
+            "zh-Hans": "像素尺寸正确，但元数据借用原厂的裁切代码：exiftool 把 4:3 显示为“5:4 Crop”，2.39:1 显示为“3:2 Crop”，65:24 显示为“2.8x Movie Crop”。",
+            "zh-Hant": "像素尺寸正確，但中繼資料借用原廠的裁切代碼：exiftool 將 4:3 顯示為「5:4 Crop」，2.39:1 顯示為「3:2 Crop」，65:24 顯示為「2.8x Movie Crop」。"
+          },
+          "source": {
+            "path": "docs/photo-crop.md",
+            "quote": "2.8x Movie Crop"
+          }
+        }
+      ],
+      "docs": [
+        {
+          "title": {
+            "en": "SDR HEIF guide",
+            "zh-Hans": "SDR HEIF 指南",
+            "zh-Hant": "SDR HEIF 指南"
+          },
+          "path": "docs/sdr-heif.md"
+        },
+        {
+          "title": {
+            "en": "Photo crop guide",
+            "zh-Hans": "照片裁切指南",
+            "zh-Hant": "相片裁切指南"
+          },
+          "path": "docs/photo-crop.md"
+        },
+        {
+          "title": {
+            "en": "Pixel-shift guide",
+            "zh-Hans": "像素偏移指南",
+            "zh-Hant": "像素位移指南"
+          },
+          "path": "docs/pixelshift.md"
+        }
+      ],
+      "guide": [
+        {
+          "en": "In the photo shooting menu open Tone mode, press right on SDR (or tap File format) and choose HEIF.",
+          "zh-Hans": "在照片拍摄菜单打开“色调模式”，在 SDR 行按右键（或点按“文件格式”），选择 HEIF。",
+          "zh-Hant": "在相片拍攝選單開啟「色調模式」，在 SDR 列按右鍵（或點按「檔案格式」），選擇 HEIF。"
+        },
+        {
+          "en": "Tone mode now reads SDR-H and photos are saved as 10-bit .HIF; choose JPEG again to return.",
+          "zh-Hans": "“色调模式”随即显示 SDR-H，照片保存为 10 位 .HIF；再选 JPEG 即可改回。",
+          "zh-Hant": "「色調模式」隨即顯示 SDR-H，相片儲存為 10 位元 .HIF；再選 JPEG 即可改回。"
+        },
+        {
+          "en": "4:3, 2.39:1 and 65:24 are added; choose them in the photo menu, the i menu or with an Fn button.",
+          "zh-Hans": "新增 4:3、2.39:1、65:24，照片菜单、i 菜单和 Fn 键均可选择。",
+          "zh-Hant": "新增 4:3、2.39:1、65:24，相片選單、i 選單與 Fn 按鈕皆可選擇。"
+        },
+        {
+          "en": "Live view shows the cropped frame. At L, 2.39:1 is 8256×3456 and 65:24 is 8256×3048; NEFs are cropped too.",
+          "zh-Hans": "取景显示裁切后的画面。L 尺寸下 2.39:1 为 8256×3456，65:24 为 8256×3048；NEF 同样裁切。",
+          "zh-Hant": "實時顯示呈現裁切後的畫面。L 尺寸下 2.39:1 為 8256×3456，65:24 為 8256×3048；NEF 同樣裁切。"
+        },
+        {
+          "en": "In Pixel shift merge, OK ticks complete groups from either card.",
+          "zh-Hans": "在“像素变化合成”中按 OK 勾选两张卡上的完整组。",
+          "zh-Hant": "在「像素位移合成」中按 OK 勾選兩張記憶卡上的完整組。"
+        },
+        {
+          "en": "Merging writes an NEFX in the camera: 8256×5504 from 4 or 8 frames, 16512×11008 from 16 or 32.",
+          "zh-Hans": "选择合成后在机内生成 NEFX：4／8 张输出 8256×5504，16／32 张输出 16512×11008。",
+          "zh-Hant": "選擇合成後在機內產生 NEFX：4／8 張輸出 8256×5504，16／32 張輸出 16512×11008。"
+        }
+      ]
+    },
+    {
+      "id": "raw-precapture",
+      "name": {
+        "en": "RAW Pre-capture",
+        "zh-Hans": "RAW 预拍摄",
+        "zh-Hant": "RAW 預拍攝"
+      },
+      "summary": {
+        "en": "C15/C30 high-speed capture also saves RAW",
+        "zh-Hans": "C15／C30 高速画面捕捉同时保存 RAW",
+        "zh-Hant": "C15／C30 高速畫面捕捉同時儲存 RAW"
+      },
+      "intro": {
+        "en": "C15/C30 high-speed frame capture can also save RAW (FX/DX, HE/HE★). Image quality uses the ordinary menu: RAW+JPEG, RAW or JPEG, and the remaining count follows the actual RAW and JPEG quality. Pre-capture has no lossless compression: C15/C30 disable the lossless option and record a saved lossless setting as HE★ until ordinary shooting restores it.",
+        "zh-Hans": "高速画面捕捉 C15／C30 可同时保存 RAW（FX／DX，HE／HE★）。画质使用普通画质菜单，可选 RAW+JPEG、RAW 或 JPEG，剩余张数按实际的 RAW 与 JPEG 画质计算。预拍不支持无损压缩：C15／C30 中无损选项禁用，保存的无损按 HE★ 记录，回到普通拍照即恢复。",
+        "zh-Hant": "高速畫面捕捉 C15／C30 可同時儲存 RAW（FX／DX，HE／HE★）。影像品質使用一般畫質選單，可選 RAW+JPEG、RAW 或 JPEG，剩餘張數依實際的 RAW 與 JPEG 畫質計算。預拍不支援無損壓縮：C15／C30 中無損壓縮選項停用，儲存的無損壓縮以 HE★ 記錄，回到一般拍攝即恢復。"
+      },
+      "includes": [
+        {
+          "en": "C15/C30 RAW pre-capture (FX/DX, HE/HE★)",
+          "zh-Hans": "C15／C30 RAW 预拍（FX／DX，HE／HE★）",
+          "zh-Hant": "C15／C30 RAW 預拍（FX／DX，HE／HE★）"
+        },
+        {
+          "en": "Ordinary quality menu: RAW+JPEG, RAW or JPEG",
+          "zh-Hans": "普通画质菜单：RAW+JPEG、RAW 或 JPEG",
+          "zh-Hant": "一般畫質選單：RAW+JPEG、RAW 或 JPEG"
+        },
+        {
+          "en": "Remaining count follows the actual RAW/JPEG quality",
+          "zh-Hans": "剩余张数按实际 RAW／JPEG 画质计算",
+          "zh-Hant": "剩餘張數依實際 RAW／JPEG 畫質計算"
+        }
+      ],
+      "camera_entry": {
+        "en": "Release mode C15/C30 · Image quality · RAW recording",
+        "zh-Hans": "释放模式 C15/C30 · 图像品质 · RAW录制",
+        "zh-Hant": "快門釋放模式 C15/C30 · 影像品質 · RAW 記錄"
+      },
+      "limits": [
+        {
+          "level": "caution",
+          "title": {
+            "en": "Near-full cards still follow the JPEG plan",
+            "zh-Hans": "近满卡时仍按 JPEG 计划",
+            "zh-Hant": "記憶卡將滿時仍按 JPEG 規劃"
+          },
+          "detail": {
+            "en": "Admission, reservations and overflow keep the stock JPEG plan, so the count does not guarantee NEF capacity. Keep space on every destination card.",
+            "zh-Hans": "拍摄准入、预留与溢出换卡沿用原厂 JPEG 计划，显示张数不保证可写 NEF；请在每张目标卡留足空间。",
+            "zh-Hant": "拍攝許可、預留與溢出換卡沿用原廠 JPEG 規劃，顯示的張數不保證能寫入 NEF；請在每張目標記憶卡留足空間。"
+          },
+          "source": {
+            "path": "docs/known-issues.md",
+            "quote": "近满卡处理仍按 JPEG 计划"
+          }
+        },
+        {
+          "level": "caution",
+          "title": {
+            "en": "Stop file Z8PRESTP.BIN",
+            "zh-Hans": "停止文件 Z8PRESTP.BIN",
+            "zh-Hant": "停止檔 Z8PRESTP.BIN"
+          },
+          "detail": {
+            "en": "Failed or over-budget NEF writes create it. While present, later frames fall back to JPEG; restarting does not clear it.",
+            "zh-Hans": "NEF 写入失败或超出处理预算时会创建该文件；存在期间后续帧回退 JPEG，重启不会清除。",
+            "zh-Hant": "NEF 寫入失敗或超出處理預算時會建立此檔；檔案存在期間，後續影像改存 JPEG，重新開機也不會清除。"
+          },
+          "source": {
+            "path": "docs/known-issues.md",
+            "quote": "重启不会清除它"
+          }
+        },
+        {
+          "level": "caution",
+          "title": {
+            "en": "No lossless pre-capture",
+            "zh-Hans": "预拍不支持无损",
+            "zh-Hant": "預拍不支援無損壓縮"
+          },
+          "detail": {
+            "en": "C15/C30 disable the lossless option; a saved lossless setting is recorded as HE★ and restored in ordinary shooting. C60/C120 RAW, HLG/HEIF and separately sized secondary JPEGs are not supported.",
+            "zh-Hans": "C15/C30 中无损选项禁用，保存的无损按 HE★ 记录，回到普通拍照即恢复。不支持 C60/C120 RAW、HLG/HEIF 及副卡独立 JPEG 尺寸。",
+            "zh-Hant": "C15/C30 中無損壓縮選項停用，儲存的無損壓縮以 HE★ 記錄，回到一般拍攝即恢復。不支援 C60/C120 RAW、HLG/HEIF 及副卡獨立 JPEG 尺寸。"
+          },
+          "source": {
+            "path": "docs/known-issues.md",
+            "quote": "预拍支持 FX/DX、L、C15/C30、HE／HE★，不支持无损压缩"
+          }
+        },
+        {
+          "level": "note",
+          "title": {
+            "en": "RAW write backlog shortens bursts",
+            "zh-Hans": "RAW 写卡积压会缩短连拍与预拍窗口",
+            "zh-Hant": "RAW 寫卡積壓會縮短連拍與預拍時間"
+          },
+          "detail": {
+            "en": "HE★ uses more buffer and card space than HE. At C30 FX RAW only, about 5–6 NEFs are written per second and the buffer fills after about 66 (HE★) or 134 (HE) frames.",
+            "zh-Hans": "HE★ 比 HE 占用更多缓冲与卡空间。C30 FX 仅 RAW 时写卡约每秒 5–6 张，缓冲在 HE★ 约 66 张、HE 约 134 张后写满。",
+            "zh-Hant": "HE★ 比 HE 佔用更多緩衝與記憶卡空間。C30 FX 僅 RAW 時寫入約每秒 5–6 張，緩衝在 HE★ 約 66 張、HE 約 134 張後寫滿。"
+          },
+          "source": {
+            "path": "docs/known-issues.md",
+            "quote": "缓冲在 HE★ 约 66 张、HE 约 134 张后写满"
+          }
+        },
+        {
+          "level": "note",
+          "title": {
+            "en": "Pre-capture keeps its own formats and areas",
+            "zh-Hans": "预拍沿用自己的格式与画幅",
+            "zh-Hant": "預拍沿用自己的格式與畫幅"
+          },
+          "detail": {
+            "en": "With the photo tools installed, C15/C30 still write NEF/JPEG in FX or DX; C modes disable HEIF and the added image areas.",
+            "zh-Hans": "同时安装照片工具时，C15/C30 仍按 FX 或 DX 写 NEF／JPEG；C 档中 HEIF 与新增画幅禁用。",
+            "zh-Hant": "同時安裝相片工具時，C15/C30 仍依 FX 或 DX 寫入 NEF／JPEG；C 檔中 HEIF 與新增畫幅停用。"
+          },
+          "source": {
+            "path": "docs/raw-precapture.md",
+            "quote": "HLG/HEIF"
+          }
+        },
+        {
+          "level": "note",
+          "title": {
+            "en": "No in-camera retouch of pre-capture NEFs",
+            "zh-Hans": "机内不能润饰预拍 NEF",
+            "zh-Hant": "機內無法潤飾預拍 NEF"
+          },
+          "detail": {
+            "en": "Retouch › NEF (RAW) processing reports that the picture cannot be edited.",
+            "zh-Hans": "“润饰 › NEF (RAW) 处理”会提示无法编辑。",
+            "zh-Hant": "「潤飾 › NEF (RAW) 處理」會提示無法編輯。"
+          },
+          "source": {
+            "path": "docs/known-issues.md",
+            "quote": "机内不能润饰预拍 NEF"
+          }
+        },
+        {
+          "level": "note",
+          "title": {
+            "en": "Series playback of pre-capture bursts",
+            "zh-Hans": "预拍连拍的系列回放显示异常",
+            "zh-Hant": "預拍連拍的系列重播顯示異常"
+          },
+          "detail": {
+            "en": "Playback does not group pre-capture bursts as a series correctly.",
+            "zh-Hans": "回放时预拍连拍不能按系列正常显示。",
+            "zh-Hant": "重播時預拍連拍無法依系列正常顯示。"
+          },
+          "source": {
+            "path": "docs/known-issues.md",
+            "quote": "系列回放显示异常"
+          }
+        },
+        {
+          "level": "note",
+          "title": {
+            "en": "Some NEF metadata is missing",
+            "zh-Hans": "NEF 缺少部分元数据",
+            "zh-Hant": "NEF 缺少部分中繼資料"
+          },
+          "detail": {
+            "en": "Lens-correction data and a few other blocks are absent, so apps such as Lightroom cannot apply the in-camera lens corrections.",
+            "zh-Hans": "镜头校正数据等部分原厂块缺失，Lightroom 等软件不能自动套用机内镜头校正。",
+            "zh-Hant": "鏡頭校正資料等部分原廠區塊缺失，Lightroom 等軟體無法自動套用機內鏡頭校正。"
+          },
+          "source": {
+            "path": "docs/known-issues.md",
+            "quote": "部分元数据缺失"
+          }
+        }
+      ],
+      "docs": [
+        {
+          "title": {
+            "en": "RAW pre-capture guide",
+            "zh-Hans": "RAW 预拍指南",
+            "zh-Hant": "RAW 預拍指南"
+          },
+          "path": "docs/raw-precapture.md"
+        },
+        {
+          "title": {
+            "en": "Stop-file guide",
+            "zh-Hans": "停止文件指南",
+            "zh-Hant": "停止檔指南"
+          },
+          "path": "docs/stop-file.md"
+        }
+      ],
+      "guide": [
+        {
+          "en": "Choose C15 or C30. Image quality uses the ordinary menu: RAW+JPEG, RAW or JPEG; RAW recording HE or HE★.",
+          "zh-Hans": "选择 C15 或 C30，画质用普通画质菜单：RAW+JPEG、RAW 或 JPEG；RAW 记录选 HE／HE★。",
+          "zh-Hant": "選擇 C15 或 C30，影像品質使用一般畫質選單：RAW+JPEG、RAW 或 JPEG；RAW 記錄選 HE／HE★。"
+        },
+        {
+          "en": "Half-press to start buffering; frames keep cycling until the full press.",
+          "zh-Hans": "半按开始缓存，全按前画面持续循环更新。",
+          "zh-Hant": "半按開始緩衝，全按前畫面持續循環更新。"
+        },
+        {
+          "en": "A full press also saves the frames before it — up to 30 for 1 s at C30.",
+          "zh-Hans": "全按时连同之前的画面一起保存：C30 预拍 1 秒最多 30 张。",
+          "zh-Hant": "全按時連同先前的畫面一起儲存：C30 預拍 1 秒最多 30 張。"
+        }
+      ]
+    }
+  ]
+}

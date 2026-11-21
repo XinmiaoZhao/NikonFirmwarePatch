@@ -33,7 +33,7 @@ def main():
     if a.check and (a.output or a.version or a.tag != 'p0' or a.interactive or a.compiler or a.code_source != 'prebuilt'):
         ap.error('--check cannot be combined with output options')
     if a.interactive:
-        print('1: Framing / 开放门＋反挤压＋N-RAW 四档\n2: Video quality / ProRes＋H.265 品质\n3: Log colour / Log 色彩\n4: Photo tools / RAW 预拍＋像素偏移\n5: All / 全选')
+        print('1: Video recording / 视频录制\n2: Log colour / Log 色彩\n3: Still photo tools / SDR HEIF＋照片裁切＋像素位移\n4: RAW pre-capture / RAW 预拍摄\n5: All / 全选')
         choice=input('Select numbers separated by commas / 用逗号分隔 [1,2,3,4 or 5]: ').strip()
         parts=[v.strip() for v in choice.split(',')]
         require(parts and len(parts)==len(set(parts)) and (parts==['5'] or all(p in ('1','2','3','4') for p in parts)), 'Select 1,2,3,4 or 5 for all')
@@ -84,7 +84,7 @@ def main():
                                  and not any(x in p.relative_to(Path(__file__).resolve().parent).parts for x in ('.git','build','local_data','.venv','venv','__pycache__'))},
                   independent_verification=independent,
                   scope='Selected features plus their declared shared resources, identity and checksums only; this newly generated combination requires camera testing')
-    if 'photo-tools' in selected:
+    if 'raw-precapture' in selected:
         report['capture_control'] = dict(control='camera-menu', configuration_required=False,
                                         history_ceiling=30, c15=True, c30=True,
                                         raw_compression=['HE', 'HE-star'], dx=True, lossless_fallback='HE-star',

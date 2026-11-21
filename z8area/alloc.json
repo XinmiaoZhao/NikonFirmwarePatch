@@ -1,0 +1,13 @@
+{
+  "regions": {
+    "pipeline": [
+      "0x40B7D000",
+      "0x40B7E000"
+    ],
+    "tables": [
+      "0x40B90000",
+      "0x40BA0000"
+    ]
+  },
+  "loader_end": "0x40BA0000"
+}

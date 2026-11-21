@@ -19,12 +19,34 @@ SCREENSHOTS = {
     'docs/images/pixelshift-groups.png',
     'docs/images/nraw-quality-tiers.png',
     'docs/images/opengate-frame-rates.png',
+    'docs/images/video-file-type-nraw32.png',
+    'docs/images/sdr-heif-format.png',
+    'docs/images/tone-mode-heif.png',
+    'docs/images/image-area-crops.png',
+    'docs/images/photo-menu-values.png',
 }
+SCREENSHOTS.update({
+    'z8area/icons/0-7100_menu_36x36_2.39x1.png',
+    'z8area/icons/1-7101_menu_36x36_XPan.png',
+    'z8area/icons/2-7102_lv_36x32_2.39x1.png',
+    'z8area/icons/3-7103_lv_36x32_XPan.png',
+    'z8area/icons/4-7104_pb_28x28_2.39x1.png',
+    'z8area/icons/5-7105_pb_28x28_XPan.png',
+    'z8area/icons/new/059f_43.png',
+    'z8area/icons/new/05a0_43.png',
+    'z8area/icons/new/084a_43.png',
+    'z8area/icons/new/0d22_43.png',
+    'z8area/icons/new/13c8_43.png',
+})
 # Reviewed small UI source assets, not firmware inputs.
+SCREENSHOTS.update({'z8opengate/icons/og32_menu.png', 'z8opengate/icons/og32_lv_solid.png', 'z8opengate/icons/og32_lv_outline.png',
+                    'z8opengate/icons/og32_blank.png'})
 SCREENSHOTS.update({'z8log/icons/slog3_fill.png', 'z8quality/icons/fill_0a5e.png', 'z8quality/icons/menu_1289.png', 'z8log/icons/slog3_outline.png', 'z8quality/icons/outline_0769.png', 'z8quality/icons/fill_0a5b.png', 'z8quality/icons/fill_0a5c.png', 'z8quality/icons/fill_0a5d.png', 'z8log/icons/log3g10_fill.png', 'z8quality/icons/menu_1288.png', 'z8quality/icons/outline_0aa1.png', 'z8quality/icons/outline_0a9e.png', 'z8quality/icons/menu_1285.png', 'z8quality/icons/menu_1286.png', 'z8quality/icons/menu_10f4.png', 'z8quality/icons/outline_0765.png', 'z8quality/icons/menu_1287.png', 'z8quality/icons/outline_0a9f.png', 'z8quality/icons/fill_0a5f.png', 'z8log/icons/log3g10_outline.png', 'z8quality/icons/menu_10f0.png', 'z8quality/icons/menu_10f2.png', 'z8quality/icons/outline_0a9d.png', 'z8quality/icons/outline_0aa0.png', 'z8quality/icons/outline_0761.png'})
 
 
 SCREENSHOTS.update({'docs/images/log-slog3-errors.png', 'docs/images/log-slog3-chromaticity.png', 'docs/images/log-slog3-errors-zh.png', 'docs/images/log-rwg-conditions-zh.png', 'docs/images/log-rwg-conditions.png', 'docs/images/log-colour-spaces-zh.png', 'docs/images/log-rwg-prediction.png', 'docs/images/log-colour-spaces.png', 'docs/images/log-slog3-chromaticity-zh.png', 'docs/images/log-rwg-prediction-zh.png'})
+# Mac app window captures in docs/macos-app.md (release build, light appearance).
+SCREENSHOTS.update({'docs/images/macos-app-main-zh.png', 'docs/images/macos-app-main-en.png', 'docs/images/macos-app-risk-zh.png', 'docs/images/macos-app-risk-en.png', 'docs/images/macos-app-result-zh.png', 'docs/images/macos-app-result-en.png', 'docs/images/macos-app-settings-zh.png', 'docs/images/macos-app-settings-en.png'})
 
 SCREENSHOTS.update({'docs/images/log-measured-conditions.png', 'docs/images/log-slog3-revised-codes-zh.png', 'docs/images/log-measured-distribution.png', 'docs/images/log-measured-conditions-zh.png', 'docs/images/log-measured-chromaticity-zh.png', 'docs/images/log-measured-chromaticity.png', 'docs/images/log-slog3-revised-codes.png', 'docs/images/log-measured-distribution-zh.png'})
 

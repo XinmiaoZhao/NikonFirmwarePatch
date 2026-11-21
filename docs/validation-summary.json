@@ -1,147 +1,170 @@
 {
-  "schema": 3,
-  "release": "v0.4.0",
-  "platform": "macOS arm64",
-  "cases": [
-    {
-      "features": [
-        "framing"
-      ],
-      "independent_package_verification": "PASS",
-      "bounded_startup": "PASS"
-    },
-    {
-      "features": [
-        "video-quality"
-      ],
-      "independent_package_verification": "PASS",
-      "bounded_startup": "PASS"
-    },
-    {
-      "features": [
-        "framing",
-        "video-quality"
-      ],
-      "independent_package_verification": "PASS",
-      "bounded_startup": "PASS"
-    },
-    {
-      "features": [
-        "log-colour"
-      ],
-      "independent_package_verification": "PASS",
-      "bounded_startup": "PASS"
-    },
-    {
-      "features": [
-        "framing",
-        "log-colour"
-      ],
-      "independent_package_verification": "PASS",
-      "bounded_startup": "PASS"
-    },
-    {
-      "features": [
-        "video-quality",
-        "log-colour"
-      ],
-      "independent_package_verification": "PASS",
-      "bounded_startup": "PASS"
-    },
-    {
-      "features": [
-        "framing",
-        "video-quality",
-        "log-colour"
-      ],
-      "independent_package_verification": "PASS",
-      "bounded_startup": "PASS"
-    },
-    {
-      "features": [
-        "photo-tools"
-      ],
-      "independent_package_verification": "PASS",
-      "bounded_startup": "PASS"
-    },
-    {
-      "features": [
-        "framing",
-        "photo-tools"
-      ],
-      "independent_package_verification": "PASS",
-      "bounded_startup": "PASS"
-    },
-    {
-      "features": [
-        "video-quality",
-        "photo-tools"
-      ],
-      "independent_package_verification": "PASS",
-      "bounded_startup": "PASS"
-    },
-    {
-      "features": [
-        "framing",
-        "video-quality",
-        "photo-tools"
-      ],
-      "independent_package_verification": "PASS",
-      "bounded_startup": "PASS"
-    },
-    {
-      "features": [
-        "log-colour",
-        "photo-tools"
-      ],
-      "independent_package_verification": "PASS",
-      "bounded_startup": "PASS"
-    },
-    {
-      "features": [
-        "framing",
-        "log-colour",
-        "photo-tools"
-      ],
-      "independent_package_verification": "PASS",
-      "bounded_startup": "PASS"
-    },
-    {
-      "features": [
-        "video-quality",
-        "log-colour",
-        "photo-tools"
-      ],
-      "independent_package_verification": "PASS",
-      "bounded_startup": "PASS"
-    },
-    {
-      "features": [
-        "framing",
-        "video-quality",
-        "log-colour",
-        "photo-tools"
-      ],
-      "independent_package_verification": "PASS",
-      "bounded_startup": "PASS"
-    }
+ "schema": 3,
+ "release": "v0.5.0",
+ "platform": "macOS arm64",
+ "input_sha256": "d67413c2ede6b9ce8887175f20700bd9fbad2a973a4820968c45503d15d80d96",
+ "cases": [
+  {
+   "features": [
+    "video-recording"
+   ],
+   "independent_package_verification": "PASS",
+   "bounded_startup": "PASS",
+   "startup": "emulator"
+  },
+  {
+   "features": [
+    "log-colour"
+   ],
+   "independent_package_verification": "PASS",
+   "bounded_startup": "PASS",
+   "startup": "emulator"
+  },
+  {
+   "features": [
+    "video-recording",
+    "log-colour"
+   ],
+   "independent_package_verification": "PASS",
+   "bounded_startup": "PASS",
+   "startup": "emulator"
+  },
+  {
+   "features": [
+    "still-photo-tools"
+   ],
+   "independent_package_verification": "PASS",
+   "bounded_startup": "PASS",
+   "startup": "emulator"
+  },
+  {
+   "features": [
+    "video-recording",
+    "still-photo-tools"
+   ],
+   "independent_package_verification": "PASS",
+   "bounded_startup": "PASS",
+   "startup": "emulator"
+  },
+  {
+   "features": [
+    "log-colour",
+    "still-photo-tools"
+   ],
+   "independent_package_verification": "PASS",
+   "bounded_startup": "PASS",
+   "startup": "emulator"
+  },
+  {
+   "features": [
+    "video-recording",
+    "log-colour",
+    "still-photo-tools"
+   ],
+   "independent_package_verification": "PASS",
+   "bounded_startup": "PASS",
+   "startup": "emulator"
+  },
+  {
+   "features": [
+    "raw-precapture"
+   ],
+   "independent_package_verification": "PASS",
+   "bounded_startup": "PASS",
+   "startup": "emulator"
+  },
+  {
+   "features": [
+    "video-recording",
+    "raw-precapture"
+   ],
+   "independent_package_verification": "PASS",
+   "bounded_startup": "PASS",
+   "startup": "emulator"
+  },
+  {
+   "features": [
+    "log-colour",
+    "raw-precapture"
+   ],
+   "independent_package_verification": "PASS",
+   "bounded_startup": "PASS",
+   "startup": "emulator"
+  },
+  {
+   "features": [
+    "video-recording",
+    "log-colour",
+    "raw-precapture"
+   ],
+   "independent_package_verification": "PASS",
+   "bounded_startup": "PASS",
+   "startup": "emulator"
+  },
+  {
+   "features": [
+    "still-photo-tools",
+    "raw-precapture"
+   ],
+   "independent_package_verification": "PASS",
+   "bounded_startup": "PASS",
+   "startup": "emulator"
+  },
+  {
+   "features": [
+    "video-recording",
+    "still-photo-tools",
+    "raw-precapture"
+   ],
+   "independent_package_verification": "PASS",
+   "bounded_startup": "PASS",
+   "startup": "emulator"
+  },
+  {
+   "features": [
+    "log-colour",
+    "still-photo-tools",
+    "raw-precapture"
+   ],
+   "independent_package_verification": "PASS",
+   "bounded_startup": "PASS",
+   "startup": "emulator"
+  },
+  {
+   "features": [
+    "video-recording",
+    "log-colour",
+    "still-photo-tools",
+    "raw-precapture"
+   ],
+   "independent_package_verification": "PASS",
+   "bounded_startup": "PASS",
+   "startup": "camera"
+  }
+ ],
+ "body": {
+  "current_full_selection": [
+   "2.39:1 RAW, RAW+HEIF, RAW+JPEG fine-star and HEIF L/M/S; 65:24 JPEG+NEF and SDR/HLG HEIF L/M/S",
+   "Fn image-area strip from FX and 65:24, i-menu selection and cancel",
+   "C15 FX pre-capture: 5 history and 15 burst frames, HE-star, lossless NEFs before and after",
+   "C30 DX RAW-only pre-capture with HE-star selected directly: 9 history and 30 burst frames, 5408x3608 RAW samples, about 29.9 fps; all 39 decoded",
+   "N-RAW 4.1K 3:2 30p for 3 min 05 s (5,556 frames) and 60p/100p/120p clips: frame counts match timecode, constant frame size, 1080p proxies decode in full with the same rate and count; in-camera playback and warm restart",
+   "Pixel-shift merge in the camera by the release candidate: four-shot NEFX byte-identical to the v0.4.0 merge of the same group; cropped and HE-star groups refused; MENU/OK touch bar",
+   "Checked on the camera: sRGB HIF playback colour after shooting and after restart, File format touch target, desqueeze edges/small viewfinder/subject boxes, ProRes star refresh and ProRes 422 help title, Log after bank switch and power cycle",
+   "C-mode JPEG fallback and HEIF restore",
+   "Adobe RGB JPEG with embedded Nikon ICC used by macOS ImageIO; 40 files from 32 exposures decoded",
+   "06.63.p0 retest after the fixes: 2.39:1 tracking, wide-area, subject and touch AF boxes; single-point AF at the four corners inside the 2.39:1 frame with the FX box size; C15/C30 RAW+JPEG pre-capture with 5 and 9 history frames, HE-star NEF and L fine JPEG, Fn size fixed at L with M/S grey also after power off/on and battery removal; lossless and L/M/S restored in single-frame shooting; C60/C120 JPEG-only bursts with 18 and 36 history frames as in stock"
   ],
-  "body": {
-    "current_full_selection": "New and previously recorded N-RAW playback label and assist appearance confirmed by the camera tester",
-    "earlier_same_component_tests": [
-      "HQ and LT ProRes recordings",
-      "DX and FX lossless selection produced HE-star NEFs",
-      "4- and 16-shot pixel-shift groups at non-default starting numbers decoded"
-    ]
-  },
-  "offline_checks": {
-    "selections_and_negative_controls": 46,
-    "distribution_source_and_negative_controls": 37
-  },
-  "windows_firmware_smoke": "See Host checks workflow_dispatch for this release commit; Python 3.12 and 3.13, digest-verified release archive",
-  "limits": [
-    "Synthetic peripherals, decrypted MAIN entry; no firmware installation emulation",
-    "No physical display colorimetry",
-    "Power cycles, shared settings across banks and per-page icons require individual observations"
+  "earlier_same_component_tests": [
+   "4.1K 3:2 24/25/30p and 50p, 120/100/60p and 8.3K 3:2 30/25/24p on development builds",
+   "SDR HEIF BT.601 10-bit files in macOS Preview, Windows 11 Photos, iPhone Photos and Xiaomi gallery",
+   "HQ and LT ProRes recordings",
+   "DX and FX lossless selection produced HE-star NEFs; C30 at 29.9 fps",
+   "4- and 16-shot pixel-shift groups at non-default starting numbers merged"
   ]
+ },
+ "windows_firmware_smoke": "See Host checks workflow_dispatch for this release commit; Python 3.12 and 3.13, digest-verified release archive",
+ "scope": [
+  "Emulator start-up uses synthetic peripherals and the decrypted MAIN; firmware installation is not emulated"
+ ]
 }

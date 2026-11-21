@@ -1,4 +1,4 @@
-# 开放门与 N-RAW 四档 / Open gate and N-RAW tiers
+# N-RAW 3:2 与 N-RAW 四档 / N-RAW 3:2 and N-RAW tiers
 
 [简体中文](#简体中文) · [English](#english)
 
@@ -6,59 +6,75 @@
 
 ### 功能
 
-`--features framing` 同时增加 FX 3:2 开放门和 **High／Fine／Normal／Basic** 四档 N-RAW 画质。与反挤压显示一起安装；画幅组可以独立构建。
+`--features video-recording` 增加独立的视频文件类型 **N-RAW 12位 3:2(NEV)**，以及 N-RAW 的 **High／Fine／Normal／Basic** 四档画质。同一组还包含[反挤压显示](anamorphic.md)、[ProRes 档位](prores.md)和 [H.265 码率](h265.md)。
 
 ### 支持范围
 
-开放门支持 **N-RAW、FX 3:2、8.3K 30／25／24p**，有效图像 **8256×5504**。普通 16:9 模式仍可选择，其 8.3K 有效图像为 8256×4644。不增加 50／60p 开放门，也不把 ProRes／H.265 改成 3:2。
+N-RAW 3:2 有自己的“画面尺寸／帧频”列表，共 10 项，均为 FX 画幅：
+
+| 菜单项 | 有效图像 | 编码尺寸 | 读出方式 |
+|---|---|---|---|
+| `[FX] 8256x5504` 30p／25p／24p | 8256×5504 | 8268×5512 | 全幅读出 |
+| `[FX] 4128x2752` 120p／100p／60p／50p | 4128×2752 | 4140×2756 | 直接以 4.1K 读出 |
+| `[FX] 4128x2752` 30p／25p／24p | 4128×2752 | 4140×2756 | 8280×5520 全幅读出后按 2:1 过采样 |
+
+4.1K 3:2 的 120p 到 24p 是 v0.5.0 新增的。8.3K 3:2 最高 30p。ProRes、H.265 等其他文件类型保持 16:9，普通 N-RAW 12位(NEV) 的 16:9 列表不变。
 
 ### 使用步骤
 
-1. 在视频文件类型中选择 N-RAW。
-2. 打开“画面尺寸／帧频”，顶部三项为 `[FX 3:2]` 30p、25p、24p，按需选择。
-3. 在视频画质中选择 High、Fine、Normal 或 Basic。
-4. 按通常方式录制。普通视频与开放门可在菜单中切换，设置按视频拍摄菜单库保存。
+1. 在视频拍摄菜单打开“视频文件类型”，选择 **N-RAW 12位 3:2(NEV)**。i 菜单没有文件类型项，这一步须在菜单中完成。
+2. 打开“画面尺寸／帧频”，从 10 项中选择 8.3K 或 4.1K 及帧频。i 菜单的画面尺寸项也只列出这 10 项。
+3. 在“视频品质(N-RAW)”中选择 High、Fine、Normal 或 Basic。
+4. 按通常方式录制。改回“N-RAW 12位(NEV)”即回到普通 16:9。设置按视频拍摄菜单库保存；两种 N-RAW 各自记住画面尺寸和色调。
 
 ### 输出与显示
 
-输出为 NEV，取景和回放按所选画幅显示。档位名和回放信息用于区分设置；码率预算与剩余时间参考中英共用的下表。
+输出为 NEV。选择 N-RAW 3:2 时，取景画面使用 3:2 专用的画幅标志，取景、对焦区域和回放均按 3:2 显示。REDline 解出的 4.1K 3:2 为 4128×2752，视野与 8.3K 3:2 相同。
 
-下表的 8268×5512／8268×4652 是编码尺寸，不能当作有效画幅。
+同时安装 [Log 色彩](log-colour.md)时，两条 N-RAW 文件类型行都显示所选 Log 名称。
 
 ### 已知问题
 
+- 离开 3:2 后，对焦点可能停在 16:9 网格之外多出的一行。按一次多重选择器即可回到网格内。
 - 为兼容只识别两档的软件，Fine 的兼容名称映射为 High，Basic 映射为 Normal；这些名称不能区分实际四档编码。
-- Basic 的 1.0 bit/像素预算会损失高频细节。开放门 High 为 2.5 bit/像素，普通 8.3K 30／25／24p High 为 3.0，不能视为相同压缩预算。
-- 开放门、N-RAW 四档和反挤压属于同一个画幅组。
+- Basic 的 1.0 bit/像素预算会损失高频细节。8.3K 3:2 High 为 2.5 bit/像素，普通 8.3K 30／25／24p High 为 3.0；4.1K 3:2 与普通 4.1K 相同。
 
 ## English
 
 ### Overview
 
-`--features framing` adds FX 3:2 open gate and **High/Fine/Normal/Basic** N-RAW quality tiers. It is bundled with anamorphic desqueeze; the framing group can be built independently.
+`--features video-recording` adds a separate movie file type, **N-RAW 12-bit 3:2 (NEV)**, and four N-RAW quality tiers: **High/Fine/Normal/Basic**. The same group also installs [anamorphic desqueeze](anamorphic.md), [ProRes grades](prores.md) and [H.265 bitrates](h265.md).
 
 ### Supported modes
 
-Open gate supports **N-RAW, FX 3:2, 8.3K 30/25/24p**, with **8256×5504** active pixels. Ordinary 16:9 modes remain available; 8.3K 16:9 has 8256×4644 active pixels. It adds neither 50/60p open gate nor ProRes/H.265 3:2.
+N-RAW 3:2 has its own Frame size/frame rate list with ten FX entries:
+
+| Menu entry | Active image | Coded size | Readout |
+|---|---|---|---|
+| `[FX] 8256×5504` 30p/25p/24p | 8256×5504 | 8268×5512 | Full readout |
+| `[FX] 4128×2752` 120p/100p/60p/50p | 4128×2752 | 4140×2756 | Read out directly at 4.1K |
+| `[FX] 4128×2752` 30p/25p/24p | 4128×2752 | 4140×2756 | Full 8280×5520 readout oversampled 2:1 |
+
+4.1K 3:2 at 120p to 24p is new in v0.5.0. 8.3K 3:2 stops at 30p. ProRes, H.265 and the other file types stay 16:9, and the 16:9 list of ordinary N-RAW 12-bit (NEV) is unchanged.
 
 ### Steps
 
-1. Select N-RAW as the movie file type.
-2. Open Frame size/frame rate. The first three entries are `[FX 3:2]` 30p, 25p and 24p; select one.
-3. Choose High, Fine, Normal or Basic in movie quality.
-4. Record normally. Switch between ordinary video and open gate in the menu; settings are stored per movie shooting bank.
+1. In the video recording menu, open Video file type and select **N-RAW 12-bit 3:2 (NEV)**. The i menu has no file type item, so use the menu.
+2. Open Frame size/frame rate and pick 8.3K or 4.1K and a frame rate from the ten entries. The i menu frame size item lists the same ten entries.
+3. Choose High, Fine, Normal or Basic in Video quality (N-RAW).
+4. Record normally. Select N-RAW 12-bit (NEV) again to return to ordinary 16:9. Settings are stored per movie shooting bank, and each N-RAW type keeps its own frame size and tone.
 
 ### Files and display
 
-Output is NEV. Live view and playback use the selected aspect ratio. Menu/playback grade labels identify settings. The shared tables below provide bitrate and remaining-time budgets.
+Output is NEV. With N-RAW 3:2 selected, live view shows a separate 3:2 framing mark, and live view, the focus area and playback use the 3:2 frame. REDline decodes 4.1K 3:2 as 4128×2752 with the same field of view as 8.3K 3:2.
 
-8268×5512/8268×4652 in those tables are coded dimensions, not the active image sizes.
+With [Log colour](log-colour.md) installed, both N-RAW file type rows show the selected Log name.
 
 ### Known issues
 
+- After leaving 3:2, the focus point can remain on an extra row outside the 16:9 grid. Press the multi selector once to bring it back.
 - For compatibility with two-tier readers, Fine maps to the High label and Basic to Normal; those labels cannot distinguish the four actual encoding tiers.
-- Basic's 1.0-bit/pixel budget reduces fine texture. Open-gate High uses 2.5 bits/pixel versus 3.0 for ordinary 8.3K 30/25/24p High; the budgets are different.
-- Open gate, four N-RAW tiers and desqueeze are one build group.
+- Basic's 1.0-bit/pixel budget reduces fine texture. 8.3K 3:2 High uses 2.5 bits/pixel versus 3.0 for ordinary 8.3K 30/25/24p High; 4.1K 3:2 uses the same budget as ordinary 4.1K.
 
 ## 码率参考 / Bitrate reference
 
@@ -66,9 +82,9 @@ Output is NEV. Live view and playback use the selected aspect ratio. Menu/playba
 
 These are firmware bitrate/time-estimation budgets in **decimal Mbps**, not measured average output or minimum card speeds. Coded dimensions differ from active image dimensions. Audio, proxies and container overhead also affect file size. Approximate conversions: MB/s = Mbps÷8; GB/min = Mbps×0.0075.
 
-Fine/Normal/Basic 分别采用 2.0／1.5／1.0 bit/像素，加估计开销；Fine/Basic 向上取整至 1 Mbps。普通 16:9 High 多为 3.0，8.3K 50/60p 与开放门 High 为 2.5 bit/像素。因此开放门 High 不能简单由普通 High 按高度放大。
+Fine/Normal/Basic 分别采用 2.0／1.5／1.0 bit/像素，加估计开销；Fine/Basic 向上取整至 1 Mbps。普通 16:9 High 多为 3.0，8.3K 50/60p 与 8.3K 3:2 High 为 2.5 bit/像素，因此 8.3K 3:2 High 不能简单由普通 High 按高度放大。4.1K 3:2 四档按普通 4.1K 的同帧率项乘以 2756/2330 计算，再向上取整至 1 Mbps。
 
-Fine/Normal/Basic use 2.0/1.5/1.0 bits/pixel plus estimated overhead; Fine/Basic round up to 1 Mbps. Ordinary 16:9 High generally uses 3.0, while 8.3K 50/60p and open-gate High use 2.5 bits/pixel. Open-gate High cannot be calculated by simply scaling ordinary High by height.
+Fine/Normal/Basic use 2.0/1.5/1.0 bits/pixel plus estimated overhead; Fine/Basic round up to 1 Mbps. Ordinary 16:9 High generally uses 3.0, while 8.3K 50/60p and 8.3K 3:2 High use 2.5 bits/pixel, so 8.3K 3:2 High cannot be calculated by simply scaling ordinary High by height. The four 4.1K 3:2 tiers are the ordinary 4.1K entries at the same rate multiplied by 2756/2330 and rounded up to 1 Mbps.
 
 ### 普通画幅 / Standard formats
 
@@ -95,13 +111,20 @@ Fine/Normal/Basic use 2.0/1.5/1.0 bits/pixel plus estimated overhead; Fine/Basic
 | 3852×2168 | 100 | 2630 | 1798 | 1380 | 963 |
 
 
-### FX 3:2 开放门 / Open gate
+### N-RAW 3:2
 
 | 编码尺寸 / Coded size | 帧率（菜单） / fps (menu) | High | Fine | Normal | Basic |
 |---|---:|---:|---:|---:|---:|
 | 8268×5512 | 29.970 (30p) | 3455 | 2773 | 2089 | 1407 |
 | 8268×5512 | 25.000 (25p) | 2885 | 2316 | 1745 | 1177 |
 | 8268×5512 | 23.976 (24p) | 2774 | 2228 | 1681 | 1136 |
+| 4140×2756 | 119.88 (120p) | 4259 | 2897 | 2212 | 1529 |
+| 4140×2756 | 100 (100p) | 3573 | 2441 | 1869 | 1299 |
+| 4140×2756 | 59.94 (60p) | 2125 | 1451 | 1108 | 766 |
+| 4140×2756 | 50 (50p) | 1782 | 1216 | 930 | 645 |
+| 4140×2756 | 29.97 (30p) | 1063 | 726 | 554 | 384 |
+| 4140×2756 | 25 (25p) | 897 | 614 | 471 | 329 |
+| 4140×2756 | 23.976 (24p) | 862 | 588 | 448 | 315 |
 
 原厂记录为零的 3852×2168 50/60p 项未列入，不表示新增支持。The stock zero-valued 3852×2168 50/60p entries are omitted and are not added modes.
 

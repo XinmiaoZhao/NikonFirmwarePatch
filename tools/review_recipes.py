@@ -2,6 +2,7 @@
 """Generate maintainer candidate recipes; independently validate before release."""
 import argparse
 import itertools
+import re
 import json
 from pathlib import Path
 import sys
@@ -10,6 +11,15 @@ ROOT=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT))
 from z8prores.package import Package,require_official_input
 from features import FEATURES,compose
+
+def format_catalog(catalog):
+    # Keep range records readable and wrap profile index lists in groups of 16.
+    def wrap(match):
+        numbers = re.findall(r'\d+',match[1])
+        return '"patches": [\n'+',\n'.join('        '+', '.join(numbers[i:i+16])
+                                          for i in range(0,len(numbers),16))+'\n      ]'
+    return re.sub(r'"patches": \[([\s\d,]+)\]', wrap, json.dumps(catalog,indent=2))+'\n'
+
 
 def main():
     ap=argparse.ArgumentParser(description=__doc__)
@@ -23,7 +33,7 @@ def main():
         if not names:continue
         _,detail,rows=compose(package.eg,names,check_recipe=False)
         key='+'.join(names)
-        profiles[key]=dict(id='z8-c311-groups-v1-'+''.join('1' if b else '0' for b in bits),features=names,patches=rows)
+        profiles[key]=dict(id='z8-c311-v050-'+''.join('1' if b else '0' for b in bits),features=names,patches=rows)
         print(key,len(rows),flush=True)
     catalog=[];lookup={}
     for profile in profiles.values():
@@ -34,7 +44,6 @@ def main():
             ids.append(lookup[key])
         profile['patches']=ids
     with a.output.open('x') as f:
-        json.dump(dict(schema=2,scope='Pinned feature-byte recipes; independent validation and camera coverage are documented separately.',profiles=profiles,patches=catalog),f,indent=2)
-        f.write('\n')
+        f.write(format_catalog(dict(schema=2,scope='Pinned feature-byte recipes; independent validation and camera coverage are documented separately.',profiles=profiles,patches=catalog)))
 
 if __name__=='__main__':main()

@@ -1149,7 +1149,7 @@ menu_summary_match_hook:
 1:  ldur w3, [x20, #-0xc]
     mov w8, #0x35c0
     sub w8, w3, w8
-    cmp w8, #2
+    cmp w8, #9                          // E1: ten 3:2 rows (35C0..35C9) -> stock N-RAW rows 2..11
     b.hi 2f
     // New rows reuse the same rate/quality resource as stock N-RAW 8.3K.
     // The parent control is an image widget; a dynamic text slot is not its resource ID.
@@ -1471,13 +1471,13 @@ preview_full_page_hook:
     ldr x21, [sp, #72]
     cbz x21, preview_full_page_release
     ldrh w8, [x21, #0xc]
-    mov w9, #8256
-    cmp w8, w9
-    b.ne preview_full_page_release
-    ldrh w8, [x21, #0xe]
-    mov w9, #5504
-    cmp w8, w9
-    b.ne preview_full_page_release
+    ldrh w9, [x21, #0xe]
+    orr w8, w9, w8, lsl #16
+    bl og32_dims                        // E2: 8256x5504 or 4128x2752 (same instruction count)
+    cbz w8, preview_full_page_release
+    nop
+    nop
+    nop
     ldr w8, [x21, #4]
     ubfx w8, w8, #20, #3
     cmp w8, #6

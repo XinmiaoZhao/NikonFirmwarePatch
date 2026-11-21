@@ -164,12 +164,27 @@ static void browser_label(uint32_t row,char text[50]){
     end=copy(end,g->duplicate?ui_label(UI_DUPLICATE):g->status?ui_status(g->status):
                   found!=g->count?ui_label(UI_MISSING):g->merged?ui_label(UI_MERGED):ui_label(UI_NEW));*end=0;
 }
+/* Static menu strings get their language metrics in 4032B648. The wide setter
+   supplies a dynamic preset with 100% width and extra tracking instead. Use
+   the same accessors as a static photo-menu label before caching the glyphs.
+   Narrow filename slots keep the dedicated ASCII family and fit-to-row sizes. */
+#define FW_MENU_SIZE ((uint8_t (*)(uint32_t,uint32_t))(uintptr_t)0x4032E2A0)
+#define FW_MENU_SCALE ((void (*)(uint32_t,uint32_t,uint8_t *,uint8_t *))(uintptr_t)0x4032E364)
+#define FW_MENU_TRACKING ((uint8_t (*)(uint32_t,uint32_t))(uintptr_t)0x4032E554)
+static void browser_menu_metrics(uint32_t font,uint32_t language,int fit){
+    uint8_t *style=(uint8_t *)(uintptr_t)(DYNAMIC_FONTS+16ull*font);
+    uint8_t vertical;
+    FW_MENU_SCALE(language,0x8ae,&style[2],&vertical);
+    style[3]=FW_MENU_TRACKING(language,0x8ae);
+    if(!fit)style[1]=FW_MENU_SIZE(language,0x8ae);
+}
 __attribute__((noinline)) static void browser_bind_text(void *node,uint32_t index,const char *text,int force){
     if(index>=BROWSER_TEXT_COUNT)return;uint32_t slot=BROWSER_TEXT_BASE+index;
     const uint8_t *entry=(const uint8_t *)(uintptr_t)(0xA032BD4A8ull+24ull*BROWSER_TEXT_BASE+24ull*index);
     const char *old=*(const char *const *)(entry+8);unsigned i=0;int changed;
-    int ascii_path=ui_language()&&R->browser.phase==PSB_LIST&&index>=2&&index<22;
-    int wide=ui_language()&&!ascii_path;
+    int path_row=R->browser.phase==PSB_LIST&&index>=2&&index<22;
+    uint32_t language=FW_LANGUAGE();
+    int wide=!path_row&&(language==1||language==8||language==9);
     if(wide){
         uint16_t wide[25];unsigned n=ps9_utf16(text,wide);
         changed=!n||*(const uint32_t *)entry!=n-1||!ui_equal(old,wide,n*2u);
@@ -178,11 +193,14 @@ __attribute__((noinline)) static void browser_bind_text(void *node,uint32_t inde
     }
     if(force||changed){
         static const uint16_t fonts[]={0x207,0x20a,0x20d,0x210,0x213}; /* stock 28,26,24,22,20 px */
-        int group=R->browser.phase==PSB_LIST&&index>=2&&index!=24;
+        int group=path_row||index>=25;
         const int16_t *rect=(const int16_t *)((const uint8_t *)node+0xc0);
         for(unsigned k=0;k<(group?5u:1u);++k){
             uint32_t font=group?fonts[k]+(index>=25?1u:0u):0x21f;
-            if(ascii_path)FW_SET_TEXT(text,slot,font);else ui_set_text(text,slot,font);
+            if(wide){
+                ui_set_menu_text(text,slot,font);
+                browser_menu_metrics(font,language,group);
+            }else FW_SET_TEXT(text,slot,font);
             FW_BIND_TEXT(node,0,0);FW_BIND_TEXT(node,slot,wide?4:3);
             int16_t size[2]={0};if(!group||(FW_TEXT_SIZE(node,size)&&size[0]<=rect[2]-rect[0]))break;
         }
@@ -384,7 +402,7 @@ __attribute__((noinline)) static void browser_down(void *page,void *event){FW_RO
 int ps8_browser_event(void *event,uint32_t code){
     psb_browser *b=&R->browser;void *page=R->browser_page;
     if(!page)return 0;
-    if(code==0x27e){
+    if(code==0x27e||code==0x285||code==0x2a0){
         R->merge_pending=0;if(b->phase==PSB_CONFIRM){psb_back(b);R->restore_cursor=1;}else FW_TRANSITION(2,0x19);
     }else if(b->phase==PSB_LIST||b->phase==PSB_CONFIRM){
         if(code==0x283||code==0x29d)browser_up(page,event);

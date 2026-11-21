@@ -1,0 +1,70 @@
+{
+  "icons": [
+    {
+      "number": "0x7110",
+      "family": "menu_36x36",
+      "area": 3,
+      "text": "2.39",
+      "file": "0-7100_menu_36x36_2.39x1.png",
+      "png": {
+        "sha256": "33296590a5157da86376c39409657d72a2f74144c32b3ca6903617645dd4880b",
+        "bytes": 357
+      }
+    },
+    {
+      "number": "0x7111",
+      "family": "menu_36x36",
+      "area": 6,
+      "text": "XPan",
+      "file": "1-7101_menu_36x36_XPan.png",
+      "png": {
+        "sha256": "9e36e67defa046980fbfc248c792fe459f2924cf8bd0ae85b4902f657ac2ee39",
+        "bytes": 325
+      }
+    },
+    {
+      "number": "0x7112",
+      "family": "lv_36x32",
+      "area": 3,
+      "text": "2.39",
+      "file": "2-7102_lv_36x32_2.39x1.png",
+      "png": {
+        "sha256": "3baf201fb5b17a2564eedcf1272f8baccd6197e42a0536db0c7a5d92ef9bc66f",
+        "bytes": 356
+      }
+    },
+    {
+      "number": "0x7113",
+      "family": "lv_36x32",
+      "area": 6,
+      "text": "XPan",
+      "file": "3-7103_lv_36x32_XPan.png",
+      "png": {
+        "sha256": "562b38fcc18a0648beaa60f2caf8966867a863eb8f4bf2203724c5a720a98b1d",
+        "bytes": 319
+      }
+    },
+    {
+      "number": "0x7114",
+      "family": "pb_28x28",
+      "area": 3,
+      "text": "2.39",
+      "file": "4-7104_pb_28x28_2.39x1.png",
+      "png": {
+        "sha256": "e4e47c156303d810bb6159e117a1b24e3e02eddbbcfb0fc5a97c0380ee735349",
+        "bytes": 238
+      }
+    },
+    {
+      "number": "0x7115",
+      "family": "pb_28x28",
+      "area": 6,
+      "text": "XPan",
+      "file": "5-7105_pb_28x28_XPan.png",
+      "png": {
+        "sha256": "a18f0fcf64bec7db3388088d0d3aff75c681983d6539305b12012a39097b1197",
+        "bytes": 243
+      }
+    }
+  ]
+}

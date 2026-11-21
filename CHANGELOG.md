@@ -1,5 +1,45 @@
 # 更新日志 / Changelog
 
+## [v0.5.0](https://github.com/XinmiaoZhao/NikonFirmwarePatch/releases/tag/v0.5.0) — 四组补丁重新分组 / Regrouped feature set
+
+2026-11-21 发布。以下变化相对于 v0.4.0。
+
+### 新增
+
+- **N-RAW 4.1K 3:2。** N-RAW 3:2 改为独立的视频文件类型“N-RAW 12位 3:2(NEV)”，带专用的 10 项画面尺寸列表和取景画幅标志。除原有 8.3K 30／25／24p 外，新增 4.1K（4128×2752）120／100／60／50／30／25／24p；4.1K 30／25／24p 由 8280×5520 全幅读出按 2:1 过采样。列表中的 `[FX 3:2]` 改为 `[FX]`。
+- **SDR HEIF。** “色调模式”的 SDR 行可选 JPEG 或 HEIF，普通照片无需切换 HLG 即可保存 10 位 `.HIF`；照片菜单显示 SDR-J／SDR-H。颜色与同场 JPEG 一致，sRGB 与 Adobe RGB 均可用。
+- **照片裁切比例。** “选择图像区域”新增 4:3、2.39:1 和 65:24（XPan），取景、JPEG／HEIF 与 NEF 均按比例裁切，L／M／S 各有对应尺寸。照片拍摄菜单、i 菜单和指定的 Fn 键（按住并转动拨盘）都可选择七种画幅。
+- **Mac app。** 新增图形界面的 Z8 补丁构建器（Apple 芯片，macOS 14 或更高），内置同一版工具包，按顺序完成输入检查、构建、独立核验和读回校验，界面有简体中文、繁體中文和英文。见 [Mac app 说明](docs/macos-app.md)。
+
+### 修改与修复
+
+- **分组。** 构建选项改为 `video-recording`、`log-colour`、`still-photo-tools`、`raw-precapture`。原 `framing` 与 `video-quality` 合并为视频录制；原 `photo-tools` 拆为照片工具和 RAW 预拍，只装预拍时不再附带像素位移合成。v0.4.0 的组名会被拒绝。
+- **像素位移页面。** 改用原厂菜单的按键、可点按底栏（MENU 取消／OK 确定）和字形宽度；左键与 MENU 一样返回，确认页取消回到列表，有损压缩的组提示“仅支持无损压缩”。合成引擎不变。
+- **ProRes 文件类型名称。** 装入视频录制组后，ProRes 行显示“ProRes 422 10位(MOV)”，文件类型帮助的标题相应改为 ProRes 422。
+- **高速画面捕捉的照片格式。** 在 C15、C30、C60、C120 中，压缩照片临时使用 JPEG，HEIF 禁用；C15/C30 中无损压缩选项禁用，保存的无损按高效率★记录。回到普通释放模式即恢复当前菜单库的偏好。
+- **Adobe RGB JPEG。** 安装照片工具后，Adobe RGB 的 SDR JPEG 嵌入 Nikon Adobe RGB ICC，macOS 预览、小米相册等软件因此按 Adobe RGB 显示。
+- **分发。** 工具包只收构建与核验所需的文件和文字说明，带十九份与源码匹配的编译单元。截图、色彩报告与数据和 macOS app 源码只留在仓库中。
+
+### English
+
+Released 2026-11-21. Changes are relative to v0.4.0.
+
+**Added**
+
+- N-RAW 3:2 is now its own movie file type, N-RAW 12-bit 3:2 (NEV), with a ten-entry frame size list and a separate live-view framing mark. Besides 8.3K 30/25/24p it adds 4.1K (4128×2752) at 120/100/60/50/30/25/24p; 4.1K 30/25/24p is oversampled 2:1 from the full 8280×5520 readout. `[FX 3:2]` in the list becomes `[FX]`.
+- The SDR row of Tone mode chooses JPEG or HEIF, so ordinary photos can be saved as 10-bit `.HIF` without HLG; the photo menu shows SDR-J or SDR-H. Colours match a same-scene JPEG in sRGB and Adobe RGB.
+- Choose image area adds 4:3, 2.39:1 and 65:24 (XPan). Live view, JPEG/HEIF and NEF are cropped, with matching L/M/S sizes. The photo shooting menu, the i menu and an assigned Fn button (hold and turn the dial) all offer the seven areas.
+- Z8 Patch Builder, a Mac app for Apple silicon and macOS 14 or later, bundles the same toolkit and runs the input check, build, independent verification and read-back in one pass, in Simplified Chinese, Traditional Chinese and English. See the [Mac app guide](docs/macos-app.md).
+
+**Changed and fixed**
+
+- Build options are now `video-recording`, `log-colour`, `still-photo-tools` and `raw-precapture`. `framing` and `video-quality` merge into video recording; `photo-tools` splits into the still-photo tools and RAW pre-capture, so pre-capture alone no longer brings pixel-shift merge. v0.4.0 group names are rejected.
+- The pixel-shift page uses the stock menu keys, a tappable footer (MENU Cancel / OK) and stock glyph widths. The left key goes back like MENU, Cancel on the confirmation page returns to the list, and lossy groups show "Use lossless". The merge engine is unchanged.
+- With video recording installed, the ProRes file type row reads "ProRes 422 10-bit (MOV)", and the file type help heading reads ProRes 422.
+- In C15, C30, C60 and C120, compressed photos use JPEG and HEIF is disabled; C15/C30 disable the lossless option and record a saved lossless setting as HE★. An ordinary release mode restores the active bank’s preferences.
+- With the still-photo tools installed, Adobe RGB SDR JPEGs embed the Nikon Adobe RGB ICC profile, so apps such as macOS Preview and the Xiaomi gallery display them as Adobe RGB.
+- The toolkit now carries only the files that build and verify firmware, plus the text guides, with nineteen matching compiled units. Screenshots, the colour report and its data and the macOS app source stay in the repository.
+
 ## [v0.4.0](https://github.com/XinmiaoZhao/NikonFirmwarePatch/releases/tag/v0.4.0) — 四组补丁 / Four feature groups
 
 2026-11-10 发布。以下变化相对于上一公开功能系列 v0.3.0／v0.3.0-r1。v0.4.0 的源码、九份预编译补丁单元和固件补丁与预发布版 v0.4.0-rc.2 相同，只更新版本标注和下载链接；RC2 补全了 README 使用说明、致谢和模拟器截图，固件补丁与 RC1 相同。

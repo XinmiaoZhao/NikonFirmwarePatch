@@ -6,12 +6,12 @@ from unittest.mock import patch
 sys.dont_write_bytecode=True
 ROOT=Path(__file__).resolve().parents[1];sys.path.insert(0,str(ROOT))
 from z8patch.compiled import load
-from tools.check_release import CODE_FILES,MANIFEST,check_release
+from tools.check_release import CODE_FILES,MANIFEST,check_lut,check_release
 
 def need(ok,message):
     if not ok:raise RuntimeError(message)
 def main():
-    ap=argparse.ArgumentParser(description=__doc__);ap.add_argument('--stock',type=Path);ap.add_argument('--archive',type=Path)
+    ap=argparse.ArgumentParser(description=__doc__);ap.add_argument('--stock',type=Path);ap.add_argument('--archive',type=Path);ap.add_argument('--lut',type=Path,help='F LUT ZIP built with the toolkit')
     ap.add_argument('--archive-only',action='store_true');ap.add_argument('--report',type=Path,required=True);a=ap.parse_args()
     need(not a.report.exists(),'Report exists');need(a.archive if a.archive_only else a.stock,'Provide stock or archive-only')
     rows=[];failures=[]
@@ -37,7 +37,7 @@ def main():
                     raw=(ROOT/u['resource']).read_bytes();path.write_bytes(bytes([raw[0]^1])+raw[1:])
                     reject(name+' corrupt asset',lambda:load(name));path.unlink()
             out=temp/'missing-output'
-            cmd=[sys.executable,'-B',str(isolated/'patch.py'),str(a.stock.resolve()),'--features','framing','video-quality','log-colour','photo-tools','--version','00.00','--tag','t0','--output',str(out)]
+            cmd=[sys.executable,'-B',str(isolated/'patch.py'),str(a.stock.resolve()),'--features','video-recording','log-colour','still-photo-tools','raw-precapture','--version','00.00','--tag','t0','--output',str(out)]
             result=subprocess.run(cmd,capture_output=True,text=True,env=dict(os.environ,PATH=''))
             need(result.returncode!=0 and 'Precompiled patch missing' in result.stderr and not out.exists(),'Missing prebuilt must stop CLI before output')
             rows.append(dict(test='missing asset CLI no compiler/no output',result='PASS'))
@@ -70,6 +70,18 @@ def main():
                     return raw
                 write([(e,reseal(e,raw)) for e,raw in altered]);reject('resealed changed '+code,lambda:check_release(bad))
             reject('wrong source commit',lambda:check_release(a.archive,'0'*40))
+        if a.lut:
+            rows.append(dict(test='exact LUT archive',**check_lut(a.lut)))
+            with zipfile.ZipFile(a.lut) as archive:members=[(e,archive.read(e)) for e in archive.infolist()]
+            prefix=members[0][0].filename.split('/')[0];bad=temp/'bad-F-LUT.zip'
+            def write(entries):
+                bad.unlink(missing_ok=True)
+                with zipfile.ZipFile(bad,'w') as archive:
+                    for e,raw in entries:archive.writestr(e,raw)
+            write(members+[(prefix+'/Z_8_0311.bin',b'excluded')]);reject('LUT extra firmware',lambda:check_lut(bad))
+            write(members[:-1]);reject('LUT missing member',lambda:check_lut(bad))
+            cube=prefix+'/RWG_Log3G10_F_v1_65.cube'
+            write([(e,raw.replace(b'\n',b'\n0 0 0\n',1) if e.filename==cube else raw) for e,raw in members]);reject('LUT altered cube',lambda:check_lut(bad))
     except Exception as e:
         failures.append(str(e));raise
     finally:

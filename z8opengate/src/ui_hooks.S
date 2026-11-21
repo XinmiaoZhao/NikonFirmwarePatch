@@ -205,13 +205,13 @@ ui_preview_source:
     ldr x21, [sp, #72]
     cbz x21, ui_preview_release
     ldrh w8, [x21, #0xc]
-    mov w9, #8256
-    cmp w8, w9
-    b.ne ui_preview_release
-    ldrh w8, [x21, #0xe]
-    mov w9, #5504
-    cmp w8, w9
-    b.ne ui_preview_release
+    ldrh w9, [x21, #0xe]
+    orr w8, w9, w8, lsl #16
+    bl og32_dims                        // E2: 8256x5504 or 4128x2752 (same instruction count)
+    cbz w8, ui_preview_release
+    nop
+    nop
+    nop
     ldr w8, [x21, #4]
     ubfx w8, w8, #20, #3
     cmp w8, #6

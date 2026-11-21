@@ -1,41 +1,46 @@
 # NikonFirmwarePatch — Nikon Z8 功能扩展
 
-[简体中文](#简体中文) · [English](#english) · [功能预览 / Preview](#功能预览--feature-preview) · [介绍视频 / Intro video](https://www.bilibili.com/video/BV13yW36LEED/) · [Changelog](CHANGELOG.md)
+[简体中文](#简体中文) · [English](#english) · [功能预览 / Preview](#功能预览--feature-preview) · [Changelog](CHANGELOG.md)
 
 ## 功能预览 / Feature preview
 
 英文模拟器菜单，点击可查看原图。Select a panel to view the original emulator screenshot.
 
-| **ProRes 画质 / ProRes quality** | **H.265 码率 / H.265 bitrate** |
-|---|---|
-| <a href="docs/images/prores-quality-options.png"><img src="docs/images/prores-quality-options.png" width="420" alt="ProRes 画质 / ProRes quality" /></a> | <a href="docs/images/h265-bitrate.png"><img src="docs/images/h265-bitrate.png" width="420" alt="H.265 码率 / H.265 bitrate" /></a> |
-| **开放门帧率 / Open-gate frame rates** | **N-RAW 四档 / N-RAW quality tiers** |
-| <a href="docs/images/opengate-frame-rates.png"><img src="docs/images/opengate-frame-rates.png" width="420" alt="开放门帧率 / Open-gate frame rates" /></a> | <a href="docs/images/nraw-quality-tiers.png"><img src="docs/images/nraw-quality-tiers.png" width="420" alt="N-RAW 四档 / N-RAW quality tiers" /></a> |
-| **Log 与色域 / Log and gamut** | **反挤压倍率 / Desqueeze factor** |
-| <a href="docs/images/log-settings.png"><img src="docs/images/log-settings.png" width="420" alt="Log 与色域 / Log and gamut" /></a> | <a href="docs/images/desqueeze-options.png"><img src="docs/images/desqueeze-options.png" width="420" alt="反挤压倍率 / Desqueeze factor" /></a> |
-| **像素位移合成 / Pixel-shift merge** | **视频菜单取值 / Saved video settings** |
-| <a href="docs/images/pixelshift-groups.png"><img src="docs/images/pixelshift-groups.png" width="420" alt="像素位移合成 / Pixel-shift merge" /></a> | <a href="docs/images/video-menu-values.png"><img src="docs/images/video-menu-values.png" width="420" alt="视频菜单取值 / Saved video settings" /></a> |
+| **N-RAW 3:2 文件类型 / N-RAW 3:2 file type** | **N-RAW 3:2 画面尺寸 / N-RAW 3:2 frame sizes** | **N-RAW 四档 / N-RAW quality tiers** |
+|---|---|---|
+| <a href="docs/images/video-file-type-nraw32.png"><img src="docs/images/video-file-type-nraw32.png" width="240" alt="N-RAW 3:2 文件类型 / N-RAW 3:2 file type" /></a> | <a href="docs/images/opengate-frame-rates.png"><img src="docs/images/opengate-frame-rates.png" width="240" alt="N-RAW 3:2 画面尺寸 / N-RAW 3:2 frame sizes" /></a> | <a href="docs/images/nraw-quality-tiers.png"><img src="docs/images/nraw-quality-tiers.png" width="240" alt="N-RAW 四档 / N-RAW quality tiers" /></a> |
+| **ProRes 画质 / ProRes quality** | **H.265 码率 / H.265 bitrate** | **视频菜单取值 / Saved video settings** |
+| <a href="docs/images/prores-quality-options.png"><img src="docs/images/prores-quality-options.png" width="240" alt="ProRes 画质 / ProRes quality" /></a> | <a href="docs/images/h265-bitrate.png"><img src="docs/images/h265-bitrate.png" width="240" alt="H.265 码率 / H.265 bitrate" /></a> | <a href="docs/images/video-menu-values.png"><img src="docs/images/video-menu-values.png" width="240" alt="视频菜单取值 / Saved video settings" /></a> |
+| **Log 与色域 / Log and gamut** | **反挤压倍率 / Desqueeze factor** | **SDR HEIF 色调模式 / Tone mode with SDR HEIF** |
+| <a href="docs/images/log-settings.png"><img src="docs/images/log-settings.png" width="240" alt="Log 与色域 / Log and gamut" /></a> | <a href="docs/images/desqueeze-options.png"><img src="docs/images/desqueeze-options.png" width="240" alt="反挤压倍率 / Desqueeze factor" /></a> | <a href="docs/images/tone-mode-heif.png"><img src="docs/images/tone-mode-heif.png" width="240" alt="SDR HEIF 色调模式 / Tone mode with SDR HEIF" /></a> |
+| **SDR 文件格式 / SDR file format** | **照片裁切比例 / Still crop ratios** | **照片菜单取值 / Saved photo settings** |
+| <a href="docs/images/sdr-heif-format.png"><img src="docs/images/sdr-heif-format.png" width="240" alt="SDR 文件格式 / SDR file format" /></a> | <a href="docs/images/image-area-crops.png"><img src="docs/images/image-area-crops.png" width="240" alt="照片裁切比例 / Still crop ratios" /></a> | <a href="docs/images/photo-menu-values.png"><img src="docs/images/photo-menu-values.png" width="240" alt="照片菜单取值 / Saved photo settings" /></a> |
 
 ## 简体中文
 
-Nikon Z8 C 3.11 实验补丁的离线构建工具。提供四组可独立选择的功能，并可一次构建任意组合。本版为 **v0.4.0**。[下载完整工具包与校验清单](https://github.com/XinmiaoZhao/NikonFirmwarePatch/releases/tag/v0.4.0)。v0.4.0 的功能介绍视频见 [B 站](https://www.bilibili.com/video/BV13yW36LEED/)。使用本轮补丁构建的全选固件，已实机验证新录与旧录 N-RAW 的 Log 回放名称和辅助观感。
+Nikon Z8 C 3.11 实验补丁的离线构建工具。提供四组可独立选择的功能，并可一次构建任意组合。本版为 **v0.5.0**，新增 N-RAW 4.1K 3:2（最高 120p）、SDR HEIF 和三种照片裁切比例。[下载工具包与校验清单](https://github.com/XinmiaoZhao/NikonFirmwarePatch/releases/tag/v0.5.0)。
 
 **使用风险。** 这是实验固件，构建或安装可能造成数据丢失、卡损坏或相机故障。离线检查不等于实机安全保证，请勿用于不可替代的工作。无担保及责任条款见 [LICENSE](LICENSE) 和 [NOTICE](NOTICE.md)。
 
 | 构建选项 | 功能 |
 |---|---|
-| `framing` | FX 8.3K 30/25/24p N-RAW 开放门 3:2、反挤压预览／回放、N-RAW 四档品质 |
-| `video-quality` | ProRes HQ／422／LT／Proxy 及 HQ 星标；H.265 五档码率、星标与保护计时修正 |
+| `video-recording` | N-RAW 12位 3:2（8.3K 30／25／24p，4.1K 120p 至 24p）、N-RAW 四档、反挤压显示、ProRes HQ／422／LT／Proxy 及 HQ 星标、H.265 五档码率 |
 | `log-colour` | Log 菜单选择 N-Log／BT.2020、S-Log3／S-Gamut3.Cine、Log3G10／REDWideGamutRGB，含标签、图标和显示辅助 |
-| `photo-tools` | C15/C30 RAW 预拍（FX/DX，无损选择回退 HE★）与像素偏移合成（修复任意起始编号的组识别） |
+| `still-photo-tools` | SDR HEIF（10 位 `.HIF`）、4:3／2.39:1／65:24 照片裁切、机内像素位移合成 |
+| `raw-precapture` | C15/C30 RAW 预拍（FX/DX，HE／HE★，画质沿用普通菜单） |
 
-N-RAW 四档始终与开放门在同一组；`video-quality` 指 ProRes＋H.265。反挤压可关闭，开放门只在选择相应画幅时启用。照片组的两项功能各有机内入口。像素位移合成需要完整的 FX 无损 NEF 组，预拍输出不适用。Log 录像使用经实拍标定的矩阵与常量 Cpxs；S-Log3 沿用原厂截零，Log3G10 录像不含 RED 的 F 映射。
+N-RAW 3:2 是单独的视频文件类型，ProRes 与 H.265 仍为 16:9；反挤压可关闭。SDR HEIF 与新增画幅用于普通照片。SDR HEIF 的写法针对 macOS、iPhone、Windows 11 照片和小米相册做了适配，见 [SDR HEIF 兼容性](docs/sdr-heif.md#兼容性)；新增画幅在照片菜单、i 菜单和指定的 Fn 键中均可选择。C15 至 C120 的压缩照片使用 JPEG，C15/C30 预拍沿用原有 FX/DX 和 NEF／JPEG 输出。像素位移合成需要完整的 FX 无损 NEF 组，预拍输出不适用。Log 录像使用经实拍标定的矩阵与常量 Cpxs；S-Log3 沿用原厂截零，Log3G10 录像不含 RED 的 F 映射。刷入其他固件之前，请先把照片的图像区域改回 FX。
 
-四组有 15 种非空组合。旧选项 `prores / precapture / pixelshift / opengate-nraw` 不再被当前 CLI 接受，也不会静默扩大为新组；需要复现旧包时使用对应旧发布源码与工具包。
+四组有 15 种非空组合。v0.4.0 的 `framing / video-quality / photo-tools` 和更早的 `prores / precapture / pixelshift / opengate-nraw` 都不被当前 CLI 接受，也不会静默换成新组；新旧组的对应见[四组说明](docs/feature-groups.md)。需要复现旧包时使用对应旧发布源码与工具包。
 
 ### 获取固件与工具包
 
-使用完整版 [toolkit ZIP](https://github.com/XinmiaoZhao/NikonFirmwarePatch/releases/download/v0.4.0/NikonFirmwarePatch-v0.4.0-toolkit.zip)，按 [SHA256SUMS.txt](https://github.com/XinmiaoZhao/NikonFirmwarePatch/releases/download/v0.4.0/SHA256SUMS.txt) 核对下载后解压。GitHub 自动生成的 Source code 包和 Git 克隆只含源码；完整工具包还带九个经审阅的预编译补丁单元。工具源码、预编译单元及配方须来自同一版。
+下载 [toolkit ZIP](https://github.com/XinmiaoZhao/NikonFirmwarePatch/releases/download/v0.5.0/NikonFirmwarePatch-v0.5.0-toolkit.zip)，按 [SHA256SUMS.txt](https://github.com/XinmiaoZhao/NikonFirmwarePatch/releases/download/v0.5.0/SHA256SUMS.txt) 核对后解压。工具包含有构建和核验固件所需的全部文件，即源码、配方、测试和十九个经审阅的预编译补丁单元，另附许可证和文字说明。截图和色彩报告不在工具包内，请在 GitHub 上查看，或下载同一版本的 Source code 归档。GitHub 自动生成的 Source code 归档和 Git 克隆不带预编译单元。工具源码、预编译单元及配方须来自同一版。
+
+同一 release 另有两个附件，校验值同样列在 SHA256SUMS.txt：
+
+- [后期 F LUT](https://github.com/XinmiaoZhao/NikonFirmwarePatch/releases/download/v0.5.0/NikonFirmwarePatch-v0.5.0-F-LUT.zip)：65³ `.cube`，附文件身份、数值核验和使用说明，用法见 [LUT 说明](luts/README.md)。
+- [macOS app](https://github.com/XinmiaoZhao/NikonFirmwarePatch/releases/download/v0.5.0/NikonFirmwarePatch-v0.5.0-macOS.dmg)：图形界面的构建工具，内置同一版工具包，适用于 Apple 芯片、macOS 14 或更高，见 [Mac app 说明](docs/macos-app.md)。
 
 请自行从 Nikon 取得 [Z8 C 3.11 官方输入](https://download.nikonimglib.com/archive8/wP5Vr003qbpC07ibhJ666rmRfF47/Z_8_0311.bin) 并遵守其许可条款。尼康原 C 3.11 说明页已下线，可查阅[原说明页的 Wayback 快照](https://web.archive.org/web/20260920232234/https://downloadcenter.nikonimglib.com/en/download/fw/606.html)。固件由尼康服务器提供，另有[尼康备用下载链接](https://download.nikonimglib.com/archive8/ulkCY0035nUW07Elwhy66zV8P546/Z_8_0311.bin)。两个链接的完整文件核验记录见 [issue #11](https://github.com/XinmiaoZhao/NikonFirmwarePatch/issues/11#issuecomment-6493044598)。
 
@@ -75,27 +80,27 @@ python -m pip install -r requirements.txt
 python patch.py Z_8_0311.bin --check
 ```
 
-以下命令使用完整工具包的默认预编译模式。直接从 Git 源码构建时，在构建命令末尾加 `--code-source source --compiler clang`；已核对的编译器为 Apple clang 21.0.0（clang-2100.1.1.101）。其他编译器须产生相同字节、符号与入口地址。缺少或损坏预编译单元时工具会停止。
+以下命令使用工具包的默认预编译模式。直接从 Git 源码构建时，在构建命令末尾加 `--code-source source --compiler clang`；已核对的编译器为 Apple clang 21.0.0（clang-2100.1.1.101）。其他编译器须产生相同字节、符号与入口地址。缺少或损坏预编译单元时工具会停止。
 
 ```sh
-# 单独构建画幅组。
-python patch.py Z_8_0311.bin --features framing --version 04.06 --tag p0 --output build/framing
+# 单独构建视频录制组。
+python patch.py Z_8_0311.bin --features video-recording --version 04.07 --tag p0 --output build/video
 
 # 全选四组，版本号用于标识本次输出。
-python patch.py Z_8_0311.bin --features framing video-quality log-colour photo-tools --version 04.06 --tag p0 --output build/all
-# v0.4.0 四组全选、版本 04.06、tag p0：build/all/Z_8_0406.bin 的 SHA-256
-# 4deca457f0e3af1ea858e53db55ce4946cd99d916c663304e351047c049d2a63
+python patch.py Z_8_0311.bin --features video-recording log-colour still-photo-tools raw-precapture --version 04.07 --tag p0 --output build/all
+# v0.5.0 四组全选、版本 04.07、tag p0：build/all/Z_8_0407.bin 的 SHA-256
+# e084a43bfb37650ead5a55f2a0c582b4b0ff82513aca95da0d99144d3d576533
 
 # 交互选择四组；预编译工具包默认不调用编译器。
-python patch.py Z_8_0311.bin --interactive --version 04.06 --tag p0 --output build/chosen
+python patch.py Z_8_0311.bin --interactive --version 04.07 --tag p0 --output build/chosen
 ```
 
-构建输出为 `.bin`、`manifest.json` 和 `SHA256SUMS.txt`。输出目录必须不存在；输入原件不会被覆盖。本页各命令统一用 04.06 演示。不同功能组合可能使用相同文件名；保留各自的输出目录，按 manifest 中的功能清单和 SHA-256 区分。实际上机时建议给不同内容分配不同身份。`00.xx.t0` 仅用于离线测试，不能作为上机包。
+构建输出为 `.bin`、`manifest.json` 和 `SHA256SUMS.txt`。输出目录必须不存在；输入原件不会被覆盖。本页各命令统一用 04.07 演示。不同功能组合可能使用相同文件名；保留各自的输出目录，按 manifest 中的功能清单和 SHA-256 区分。实际上机时建议给不同内容分配不同身份。`00.xx.t0` 仅用于离线测试，不能作为上机包。
 
 独立核验示例：
 
 ```sh
-python verify.py Z_8_0311.bin build/all/Z_8_0406.bin --features framing video-quality log-colour photo-tools --version 04.06 --tag p0
+python verify.py Z_8_0311.bin build/all/Z_8_0407.bin --features video-recording log-colour still-photo-tools raw-precapture --version 04.07 --tag p0
 ```
 
 `verify.py` 不导入构建器，独立检查封装、输入身份、补丁窗口和未改字节，并检查共享菜单、分组可见性、字符串边界与初始化状态。它不能证明相机上的硬件行为。
@@ -105,10 +110,11 @@ python verify.py Z_8_0311.bin build/all/Z_8_0406.bin --features framing video-qu
 ### 功能说明与验证
 
 - [四组结构与迁移](docs/feature-groups.md)
-- [开放门／N-RAW](docs/opengate-nraw.md)、[反挤压](docs/anamorphic.md)
+- [N-RAW 3:2 与 N-RAW 四档](docs/opengate-nraw.md)、[反挤压](docs/anamorphic.md)
 - [ProRes](docs/prores.md)、[H.265](docs/h265.md)
 - [Log 设置与后期流程](docs/log-colour.md)、[色彩报告：中文](docs/log-colour-report.md)／[English](docs/log-colour-report.en.md)、[后期 F LUT](luts/README.md)
-- [RAW 预拍](docs/raw-precapture.md)、[像素偏移](docs/pixelshift.md)
+- [SDR HEIF](docs/sdr-heif.md)、[照片裁切比例](docs/photo-crop.md)、[像素位移合成](docs/pixelshift.md)
+- [RAW 预拍](docs/raw-precapture.md)
 - [当前验证](docs/validation.md)、[已知问题](docs/known-issues.md)、[更新日志](CHANGELOG.md)
 
 [发布包内容和验证流程](docs/releases.md)列出维护者回归命令；构建组合回归可运行 `python tests/validate_combinations.py --stock /path/to/Z_8_0311.bin --report build/combinations.json`，需要审阅过的源码编译器。
@@ -119,30 +125,35 @@ python verify.py Z_8_0311.bin build/all/Z_8_0406.bin --features framing video-qu
 
 [中文版色彩报告](docs/log-colour-report.md)与[英文版](docs/log-colour-report.en.md)分别展示当前录像与同场 N-RAW 的实拍色差，以及简化矩阵、原厂色相表和恒等 Cpxs 的模拟偏色。当前后期操作见 [Log 设置与 Resolve／FCP 流程](docs/log-colour.md)：明确指定输入色域与曲线，检查自动识别，并避免重复转换。
 
-[65³ 后期 F LUT](luts/README.md)以 RWG／Log3G10 输入和输出，给当前无 F 素材近似补上 RED 解码 N-RAW 时引入的饱和度映射，再接显示变换。LUT、生成脚本和独立数值核验随仓库提供。
+[65³ 后期 F LUT](luts/README.md)以 RWG／Log3G10 输入和输出，给当前无 F 素材近似补上 RED 解码 N-RAW 时引入的饱和度映射，再接显示变换。LUT 作为 release 附件单独提供：[F LUT ZIP](https://github.com/XinmiaoZhao/NikonFirmwarePatch/releases/download/v0.5.0/NikonFirmwarePatch-v0.5.0-F-LUT.zip)，内含 `.cube`、文件身份、数值核验和使用说明。生成脚本和核验程序在仓库中。
 
 源码和自编译补丁采用 GPL-3.0-only。Nikon 固件适用其原有许可。本项目与 Nikon 无隶属关系。见 [LICENSE](LICENSE)、[NOTICE](NOTICE.md)。
 
 ## English
 
-This offline toolkit builds experimental patches for the original Nikon Z8 C 3.11 firmware. Select any of four feature groups or combine them in one build. The current release is **v0.4.0**. [Download the toolkit and checksums](https://github.com/XinmiaoZhao/NikonFirmwarePatch/releases/tag/v0.4.0). A short v0.4.0 feature video is on [Bilibili](https://www.bilibili.com/video/BV13yW36LEED/) (Chinese, with English captions). On a Z8, the all-feature firmware built with this update showed the expected Log names and assist rendering when playing both newly recorded and existing N-RAW clips.
+This offline toolkit builds experimental patches for the original Nikon Z8 C 3.11 firmware. Select any of four feature groups or combine them in one build. The current release is **v0.5.0**. It adds N-RAW 4.1K 3:2 up to 120p, SDR HEIF and three still crop ratios. [Download the toolkit and checksums](https://github.com/XinmiaoZhao/NikonFirmwarePatch/releases/tag/v0.5.0).
 
 **Risk of use.** Building or installing experimental firmware can cause data loss, card corruption or camera malfunction. Offline checks cannot guarantee safe operation on a camera. Avoid using experimental firmware for irreplaceable work. See the warranty and liability terms in [LICENSE](LICENSE) and [NOTICE](NOTICE.md).
 
 | Build group | Included features |
 |---|---|
-| `framing` | FX 8.3K 30/25/24p N-RAW 3:2 open gate, anamorphic desqueeze in preview and playback, and four N-RAW quality tiers |
-| `video-quality` | ProRes HQ/422/LT/Proxy with an HQ star, plus five H.265 bitrate settings, star indication and a protection-timer fix |
+| `video-recording` | N-RAW 12-bit 3:2 (8.3K 30/25/24p, 4.1K 120p to 24p), four N-RAW tiers, anamorphic desqueeze, ProRes HQ/422/LT/Proxy with an HQ star, five H.265 bitrates |
 | `log-colour` | N-Log / BT.2020, S-Log3 / S-Gamut3.Cine or Log3G10 / REDWideGamutRGB, with labels, icons and view assist |
-| `photo-tools` | C15/C30 RAW pre-capture in FX/DX with lossless selection falling back to HE★, and pixel-shift merging with any starting file number |
+| `still-photo-tools` | SDR HEIF (10-bit `.HIF`), 4:3 / 2.39:1 / 65:24 still crops and in-camera pixel-shift merge |
+| `raw-precapture` | C15/C30 RAW pre-capture in FX/DX with HE/HE★, using the ordinary quality menu |
 
-The four N-RAW tiers belong to the open-gate group. ProRes and H.265 belong to `video-quality`. Desqueeze can be disabled, and open gate applies only when the corresponding frame size is selected. The two photo tools have separate camera controls. Pixel-shift merging requires a complete group of lossless FX NEFs, which excludes pre-capture outputs. Log recording uses camera-calibrated matrices and constant chroma compensation (Cpxs). S-Log3 retains stock clipping at zero; Log3G10 recording omits RED’s F mapping.
+N-RAW 3:2 is a separate movie file type; ProRes and H.265 stay 16:9, and desqueeze can be turned off. SDR HEIF and the added image areas apply to ordinary photos. SDR HEIF is written to display correctly in macOS, iPhone, Windows 11 Photos and the Xiaomi gallery; see [SDR HEIF compatibility](docs/sdr-heif.md#compatibility). The added areas are available in the photo menu, the i menu and an assigned Fn button. C15 through C120 use JPEG for compressed photos, and C15/C30 pre-capture keeps its FX/DX and NEF/JPEG output. Pixel-shift merging requires a complete group of lossless FX NEFs, which excludes pre-capture output. Log recording uses camera-calibrated matrices and constant chroma compensation (Cpxs). S-Log3 retains stock clipping at zero; Log3G10 recording omits RED’s F mapping. Return the photo image area to FX before installing other firmware.
 
-There are 15 nonempty combinations. The current CLI rejects the legacy names `prores / precapture / pixelshift / opengate-nraw` to avoid silently expanding a selection. To reproduce an earlier package, use that release’s source and toolkit.
+There are 15 nonempty combinations. The current CLI rejects the v0.4.0 names `framing / video-quality / photo-tools` and the earlier `prores / precapture / pixelshift / opengate-nraw` rather than substituting new groups; [the group guide](docs/feature-groups.md#english) maps old groups to new ones. To reproduce an earlier package, use that release’s source and toolkit.
 
 ### Get the firmware and toolkit
 
-Download the complete [toolkit ZIP](https://github.com/XinmiaoZhao/NikonFirmwarePatch/releases/download/v0.4.0/NikonFirmwarePatch-v0.4.0-toolkit.zip), check it against [SHA256SUMS.txt](https://github.com/XinmiaoZhao/NikonFirmwarePatch/releases/download/v0.4.0/SHA256SUMS.txt), then extract it. Git clones and GitHub’s automatic source archives contain the source only. The complete toolkit includes nine reviewed precompiled patch units. Use tools, patch units and recipes from the same release.
+Download the [toolkit ZIP](https://github.com/XinmiaoZhao/NikonFirmwarePatch/releases/download/v0.5.0/NikonFirmwarePatch-v0.5.0-toolkit.zip), check it against [SHA256SUMS.txt](https://github.com/XinmiaoZhao/NikonFirmwarePatch/releases/download/v0.5.0/SHA256SUMS.txt), then extract it. The toolkit holds everything needed to build and verify firmware: source, recipes, tests and nineteen reviewed precompiled patch units, plus the license and text guides. Screenshots and the colour report are not in the toolkit; view them on GitHub or download the Source code archive of the same release. Git clones and GitHub’s automatic source archives do not include the precompiled units. Use tools, patch units and recipes from the same release.
+
+The release has two more downloads, also listed in SHA256SUMS.txt:
+
+- [Post-production F LUT](https://github.com/XinmiaoZhao/NikonFirmwarePatch/releases/download/v0.5.0/NikonFirmwarePatch-v0.5.0-F-LUT.zip): the 65³ `.cube` with its identity record, numerical checks and guide; see the [LUT documentation](luts/README.md).
+- [macOS app](https://github.com/XinmiaoZhao/NikonFirmwarePatch/releases/download/v0.5.0/NikonFirmwarePatch-v0.5.0-macOS.dmg): a graphical builder with the same toolkit inside, for Apple silicon and macOS 14 or later; see the [Mac app guide](docs/macos-app.md).
 
 Obtain the [original Z8 C 3.11 firmware](https://download.nikonimglib.com/archive8/wP5Vr003qbpC07ibhJ666rmRfF47/Z_8_0311.bin) from Nikon under its license terms. Nikon has withdrawn the original C 3.11 landing page. The [Wayback snapshot of the original instructions](https://web.archive.org/web/20260920232234/https://downloadcenter.nikonimglib.com/en/download/fw/606.html) preserves that page. The firmware download is served by Nikon, with an [alternate Nikon download](https://download.nikonimglib.com/archive8/ulkCY0035nUW07Elwhy66zV8P546/Z_8_0311.bin). Both downloads were verified in full in [issue #11](https://github.com/XinmiaoZhao/NikonFirmwarePatch/issues/11#issuecomment-6493044598).
 
@@ -182,27 +193,27 @@ Check the input firmware.
 python patch.py Z_8_0311.bin --check
 ```
 
-The commands below use the complete toolkit’s default prebuilt mode. When building directly from Git source, append `--code-source source --compiler clang` to the build command. The reviewed compiler is Apple clang 21.0.0 (clang-2100.1.1.101). Any other compiler must reproduce the pinned bytes, symbols and entry addresses. Missing or damaged prebuilt units stop the build.
+The commands below use the toolkit’s default prebuilt mode. When building directly from Git source, append `--code-source source --compiler clang` to the build command. The reviewed compiler is Apple clang 21.0.0 (clang-2100.1.1.101). Any other compiler must reproduce the pinned bytes, symbols and entry addresses. Missing or damaged prebuilt units stop the build.
 
 ```sh
-# Build only the framing group.
-python patch.py Z_8_0311.bin --features framing --version 04.06 --tag p0 --output build/framing
+# Build only the video recording group.
+python patch.py Z_8_0311.bin --features video-recording --version 04.07 --tag p0 --output build/video
 
 # Build all four groups; the version identifies the output.
-python patch.py Z_8_0311.bin --features framing video-quality log-colour photo-tools --version 04.06 --tag p0 --output build/all
-# SHA-256 of build/all/Z_8_0406.bin with v0.4.0, all four groups, version 04.06 and tag p0
-# 4deca457f0e3af1ea858e53db55ce4946cd99d916c663304e351047c049d2a63
+python patch.py Z_8_0311.bin --features video-recording log-colour still-photo-tools raw-precapture --version 04.07 --tag p0 --output build/all
+# SHA-256 of build/all/Z_8_0407.bin with v0.5.0, all four groups, version 04.07 and tag p0
+# e084a43bfb37650ead5a55f2a0c582b4b0ff82513aca95da0d99144d3d576533
 
 # Choose groups interactively; prebuilt mode runs without a compiler.
-python patch.py Z_8_0311.bin --interactive --version 04.06 --tag p0 --output build/chosen
+python patch.py Z_8_0311.bin --interactive --version 04.07 --tag p0 --output build/chosen
 ```
 
-Each build produces a firmware `.bin`, `manifest.json` and `SHA256SUMS.txt`. Choose an output directory that does not already exist. The original input is preserved. All examples use 04.06. Different selections can therefore produce the same filename. Keep their output directories separate and identify each package by the feature list and SHA-256 in its manifest. Assign distinct identities to different packages for camera use. Reserve `00.xx.t0` for offline testing.
+Each build produces a firmware `.bin`, `manifest.json` and `SHA256SUMS.txt`. Choose an output directory that does not already exist. The original input is preserved. All examples use 04.07. Different selections can therefore produce the same filename. Keep their output directories separate and identify each package by the feature list and SHA-256 in its manifest. Assign distinct identities to different packages for camera use. Reserve `00.xx.t0` for offline testing.
 
 Independently verify the full-selection example.
 
 ```sh
-python verify.py Z_8_0311.bin build/all/Z_8_0406.bin --features framing video-quality log-colour photo-tools --version 04.06 --tag p0
+python verify.py Z_8_0311.bin build/all/Z_8_0407.bin --features video-recording log-colour still-photo-tools raw-precapture --version 04.07 --tag p0
 ```
 
 `verify.py` checks the container, original input identity, patch windows and preserved bytes independently of the builder. It also checks shared menus, feature visibility, string boundaries and initial state. Hardware behaviour requires camera testing.
@@ -212,10 +223,11 @@ The version format is `NN.NN`; the internal tag is one lowercase letter followed
 ### Feature guides and verification
 
 - [Four feature groups and migration](docs/feature-groups.md)
-- [Open gate / N-RAW](docs/opengate-nraw.md) and [desqueeze](docs/anamorphic.md)
+- [N-RAW 3:2 and N-RAW tiers](docs/opengate-nraw.md#english) and [desqueeze](docs/anamorphic.md)
 - [ProRes](docs/prores.md) and [H.265](docs/h265.md)
 - [Log settings and grading workflow](docs/log-colour.md#english), colour report in [Chinese](docs/log-colour-report.md) or [English](docs/log-colour-report.en.md), and [F LUT for post](luts/README.md)
-- [RAW pre-capture](docs/raw-precapture.md) and [pixel shift](docs/pixelshift.md)
+- [SDR HEIF](docs/sdr-heif.md#english), [still crop ratios](docs/photo-crop.md#english) and [pixel-shift merge](docs/pixelshift.md#english)
+- [RAW pre-capture](docs/raw-precapture.md#english)
 - [Current validation](docs/validation.md), [known limits](docs/known-issues.md) and [changelog](CHANGELOG.md)
 
 [Release contents and verification](docs/releases.md) lists the maintainer checks. Run the combination regression with `python tests/validate_combinations.py --stock /path/to/Z_8_0311.bin --report build/combinations.json` using the reviewed source compiler.
@@ -226,7 +238,7 @@ If `Z8PRESTP.BIN` appears or a RAW selection unexpectedly produces only JPEG, st
 
 The [Chinese](docs/log-colour-report.md) and [English](docs/log-colour-report.en.md) reports compare recorded footage with same-scene N-RAW. They also simulate colour shifts with simplified matrices, the stock hue table and identity Cpxs. The [Resolve and Final Cut Pro guide](docs/log-colour.md#english) explains how to set the input gamut and curve, check automatic identification and avoid applying a conversion twice.
 
-The [65³ F LUT](luts/README.md) takes RWG / Log3G10 input and produces RWG / Log3G10 output. It approximates the saturation mapping introduced by RED’s N-RAW decode for footage recorded without F. Apply the display transform after this step. The repository includes the LUT, generator and independent numerical checks.
+The [65³ F LUT](luts/README.md) takes RWG / Log3G10 input and produces RWG / Log3G10 output. It approximates the saturation mapping introduced by RED’s N-RAW decode for footage recorded without F. Apply the display transform after this step. Download it from the release as the [F LUT ZIP](https://github.com/XinmiaoZhao/NikonFirmwarePatch/releases/download/v0.5.0/NikonFirmwarePatch-v0.5.0-F-LUT.zip), which holds the `.cube`, its identity record, numerical checks and guide. The generator and checks are in the repository.
 
 Original source and compiled patches use GPL-3.0-only. Nikon firmware retains its own licensing. This project is independent of Nikon. See [LICENSE](LICENSE) and [NOTICE](NOTICE.md).
 

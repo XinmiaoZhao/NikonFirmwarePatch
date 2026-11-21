@@ -99,17 +99,16 @@ static const char *ui_status(uint32_t id){return ps9_status[ui_language()][id<19
 static int ui_equal(const void *a,const void *b,unsigned bytes){
     const uint8_t *x=a,*y=b;for(unsigned i=0;i<bytes;++i)if(x[i]!=y[i])return 0;return 1;
 }
+static void ui_set_menu_text(const char *text,uint32_t slot,uint32_t font){
+    uint16_t wide[25];
+    if(!ps9_utf16(text,wide)){wide[0]='?';wide[1]=0;}
+    FW_SET_WIDE(wide,slot,font);
+    /* Match the menu label's language family while preserving preset size and spacing. */
+    *(uint8_t *)(uintptr_t)(DYNAMIC_FONTS+16ull*font)=(uint8_t)FW_TEXT_FONT(FW_LANGUAGE(),0x8ae);
+}
 static void ui_set_text(const char *text,uint32_t slot,uint32_t font){
-    if(ui_language()){
-        uint16_t wide[25];
-        if(!ps9_utf16(text,wide)){wide[0]='?';wide[1]=0;}
-        FW_SET_WIDE(wide,slot,font);
-        /* The stock dynamic presets choose only Japanese/Latin (12/13).
-           Resolve the same language-specific font family as the stock pixel
-           shift label (CN=2, TW=0), retaining size/spacing/color. Browser fonts
-           are saved/restored with the borrowed text slots. */
-        *(uint8_t *)(uintptr_t)(DYNAMIC_FONTS+16ull*font)=(uint8_t)FW_TEXT_FONT(FW_LANGUAGE(),0x8ae);
-    }else FW_SET_TEXT(text,slot,font);
+    if(ui_language())ui_set_menu_text(text,slot,font);
+    else FW_SET_TEXT(text,slot,font);
 }
 static void ui_bind_text(void *node,uint32_t slot){
     /* The generic 40325D48 setter refuses 3 -> 0, so it cannot switch an

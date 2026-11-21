@@ -9,7 +9,7 @@ from z8prores.menu import Image
 from z8patch.compiled import load
 from z8patch.shared import Strings, VideoMenu, loader
 
-FEATURES = ('framing','video-quality','log-colour','photo-tools')
+FEATURES = ('video-recording','log-colour','still-photo-tools','raw-precapture')
 ROOT = Path(__file__).resolve().parent
 STOCK_SHA = 'f85e0138e2f5e660ece8560de62e0d12cb795e0e14983e50f20b61dce906c46c'
 
@@ -34,6 +34,14 @@ def compose(eg, features, compiler='clang', code_source='prebuilt', *, check_rec
     chosen = selected_features(features)
     require(len(eg)==81807711 and sha(eg)==STOCK_SHA, 'Incompatible input: exact original C3.11 EG required')
     require(code_source in ('source','prebuilt'), 'Select prebuilt or source')
+    modules = []
+    if 'video-recording' in chosen:
+        modules.extend(('framing','video-quality'))
+    if 'log-colour' in chosen:
+        modules.append('log-colour')
+    photo = 'still-photo-tools' in chosen
+    joint = photo and 'video-recording' in chosen
+    condition_sources = {}
     img = Image(eg)
     strings,menu=Strings(),VideoMenu(eg)
     detail,callbacks={},{}
@@ -44,6 +52,15 @@ def compose(eg, features, compiler='clang', code_source='prebuilt', *, check_rec
 
     def merge(feature,source,refinements=()):
         for e in source.edits:
+            pc = 0x40160000+e['offset']
+            if pc == 0x41184D8C and feature == 'photo-areas':
+                continue  # final loader includes this area's private zero-filled buffers
+            if joint and pc == 0x403A036C and feature in ('opengate-nraw','sdr-heif'):
+                from z8patch.photo_shared import branch_target
+                condition_sources[feature] = branch_target(e)
+                continue
+            if joint and pc in (0x4032DC64,0x4032DD34) and feature == 'stars':
+                continue  # first test the relocated photo icon range; miss enters this star accessor
             if menu.consumed(e):continue
             overlap=[x for x in img.edits if e['offset']<x['end'] and x['offset']<e['end']]
             if overlap:
@@ -59,10 +76,11 @@ def compose(eg, features, compiler='clang', code_source='prebuilt', *, check_rec
                 require(eg[e['offset']:e['end']]==e['old'],'Feature expects a non-stock base')
                 img.put(e['offset'],e['new'],feature+': '+e['purpose'])
 
-    if 'framing' in chosen:
+    if 'framing' in modules:
         from z8opengate.patcher import build_main
         code,entries=unit('opengate')
         part,detail['opengate-nraw']=build_main(eg,code,entries,strings)
+        menu.collect(part,0x2FC1)       # E2: "Video file type" row help id
         merge('opengate-nraw',part)
         from z8anamorphic.patcher import build_main
         code,entries=unit('anamorphic')
@@ -70,8 +88,12 @@ def compose(eg, features, compiler='clang', code_source='prebuilt', *, check_rec
         menu.collect(ap,0x310F)
         merge('anamorphic',ap,(0x40960C98,0x40962B58,0x409616A4,0x407138D0))
         callbacks['anamorphic']=entries['ap_menu_refresh_hook']
-    if 'video-quality' in chosen:
+    if 'video-quality' in modules:
         star,star_entries=unit('quality')
+        if 'opengate-e1' in strings.groups:
+            from z8prores.help_text import family_help
+            for translations in strings.groups['opengate-e1']:
+                translations[-1] = family_help(translations[-1])
         from z8prores.menu import build_main
         part,detail['prores']=build_main(eg,strings,star_entries['tier_hq_ok'])
         menu.collect(part,0x311B);merge('prores',part)
@@ -92,23 +114,41 @@ def compose(eg, features, compiler='clang', code_source='prebuilt', *, check_rec
         part,detail['log']=build_main(eg,code,entries,strings)
         menu.collect(part,0x2E38);merge('log',part)
         callbacks['log']=entries['lg_menu_refresh_hook']
-    if 'photo-tools' in chosen:
+    if 'raw-precapture' in chosen:
         from z8precapture.patcher import edits
         code,meta=load('precapture',code_source,compiler)
         for e in edits(code,meta['symbols']):img.put(e['offset'],e['new'],e['purpose'])
+        from z8precapture.menu.sites import apply as raw_menu
+        code_menu,entries=unit('precapture-menu')
+        require(0x409F0000+len(code)<=0x409F9000,'Pre-capture code reaches RAW menu')
+        for site,old,new in raw_menu(eg,code_menu,entries):
+            img.put(site-0x40160000,new,'pre-capture RAW recording menu',expect=old)
         detail['precapture']=dict(code_sha256=meta['sha256'],code_bytes=len(code),diagnostics=False,
                                   space_fallback=True,remaining_count=True,dx=True,lossless_fallback='HE*')
+    if photo:
         from z8pixelshift.patcher import build_main
         code,meta=load('pixelshift',code_source,compiler)
         af,_=load('pixelshift-af',code_source,compiler)
         part,detail['pixelshift']=build_main(eg,code,meta['symbols'],af,strings)
         merge('pixelshift',part)
+        from z8heif.patcher import build_main as heif
+        part, detail['sdr-heif'] = heif(eg,strings,unit)
+        merge('sdr-heif',part)
+        from z8area.patcher import build_main as crop
+        part, detail['photo-areas'] = crop(eg,strings,unit,star_entries if joint else None)
+        merge('photo-areas',part)
+        if joint:
+            from z8patch.photo_shared import emit_condition
+            emit_condition(img,condition_sources)
+    if 'framing' in modules:
+        from z8opengate.e1 import refresh_file_type_rows
+        detail['opengate-nraw']['e1']['file_type_page']['rows_rebuilt_after_groups']=refresh_file_type_rows(img)
     detail['strings']=strings.emit(img)
     if callbacks:
         code,entries=unit('shared')
-        detail['menu']=menu.emit(img,chosen,code,entries,callbacks)
+        detail['menu']=menu.emit(img,modules,code,entries,callbacks)
     else:detail['menu']=None
-    detail['loader']=loader(img,chosen)
+    detail['loader']=loader(img,modules + (['still-photo-tools'] if photo else []))
     rows = [dict(offset=hex(e['offset']),bytes=len(e['new']),purpose=e['purpose'],
                  old_sha256=sha(e['old']),new_sha256=sha(e['new'])) for e in sorted(img.edits,key=lambda r:r['offset'])]
     if check_recipe:

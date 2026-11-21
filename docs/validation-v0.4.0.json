@@ -1,0 +1,147 @@
+{
+  "schema": 3,
+  "release": "v0.4.0",
+  "platform": "macOS arm64",
+  "cases": [
+    {
+      "features": [
+        "framing"
+      ],
+      "independent_package_verification": "PASS",
+      "bounded_startup": "PASS"
+    },
+    {
+      "features": [
+        "video-quality"
+      ],
+      "independent_package_verification": "PASS",
+      "bounded_startup": "PASS"
+    },
+    {
+      "features": [
+        "framing",
+        "video-quality"
+      ],
+      "independent_package_verification": "PASS",
+      "bounded_startup": "PASS"
+    },
+    {
+      "features": [
+        "log-colour"
+      ],
+      "independent_package_verification": "PASS",
+      "bounded_startup": "PASS"
+    },
+    {
+      "features": [
+        "framing",
+        "log-colour"
+      ],
+      "independent_package_verification": "PASS",
+      "bounded_startup": "PASS"
+    },
+    {
+      "features": [
+        "video-quality",
+        "log-colour"
+      ],
+      "independent_package_verification": "PASS",
+      "bounded_startup": "PASS"
+    },
+    {
+      "features": [
+        "framing",
+        "video-quality",
+        "log-colour"
+      ],
+      "independent_package_verification": "PASS",
+      "bounded_startup": "PASS"
+    },
+    {
+      "features": [
+        "photo-tools"
+      ],
+      "independent_package_verification": "PASS",
+      "bounded_startup": "PASS"
+    },
+    {
+      "features": [
+        "framing",
+        "photo-tools"
+      ],
+      "independent_package_verification": "PASS",
+      "bounded_startup": "PASS"
+    },
+    {
+      "features": [
+        "video-quality",
+        "photo-tools"
+      ],
+      "independent_package_verification": "PASS",
+      "bounded_startup": "PASS"
+    },
+    {
+      "features": [
+        "framing",
+        "video-quality",
+        "photo-tools"
+      ],
+      "independent_package_verification": "PASS",
+      "bounded_startup": "PASS"
+    },
+    {
+      "features": [
+        "log-colour",
+        "photo-tools"
+      ],
+      "independent_package_verification": "PASS",
+      "bounded_startup": "PASS"
+    },
+    {
+      "features": [
+        "framing",
+        "log-colour",
+        "photo-tools"
+      ],
+      "independent_package_verification": "PASS",
+      "bounded_startup": "PASS"
+    },
+    {
+      "features": [
+        "video-quality",
+        "log-colour",
+        "photo-tools"
+      ],
+      "independent_package_verification": "PASS",
+      "bounded_startup": "PASS"
+    },
+    {
+      "features": [
+        "framing",
+        "video-quality",
+        "log-colour",
+        "photo-tools"
+      ],
+      "independent_package_verification": "PASS",
+      "bounded_startup": "PASS"
+    }
+  ],
+  "body": {
+    "current_full_selection": "New and previously recorded N-RAW playback label and assist appearance confirmed by the camera tester",
+    "earlier_same_component_tests": [
+      "HQ and LT ProRes recordings",
+      "DX and FX lossless selection produced HE-star NEFs",
+      "4- and 16-shot pixel-shift groups at non-default starting numbers decoded"
+    ]
+  },
+  "offline_checks": {
+    "selections_and_negative_controls": 46,
+    "distribution_source_and_negative_controls": 37
+  },
+  "windows_firmware_smoke": "See Host checks workflow_dispatch for this release commit; Python 3.12 and 3.13, digest-verified release archive",
+  "limits": [
+    "Synthetic peripherals, decrypted MAIN entry; no firmware installation emulation",
+    "No physical display colorimetry",
+    "Power cycles, shared settings across banks and per-page icons require individual observations"
+  ]
+}

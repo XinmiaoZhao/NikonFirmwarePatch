@@ -1,6 +1,6 @@
 # 后期 F 色彩映射 / Post-production F colour mapping
 
-[下载 65³ LUT](RWG_Log3G10_F_v1_65.cube) · [文件身份](RWG_Log3G10_F_v1_65.json) · [数值核验](verification.json) · [中文报告](../docs/log-colour-report.md)／[English report](../docs/log-colour-report.en.md)
+[下载 65³ LUT](RWG_Log3G10_F_v1_65.cube)（各版本 [release](https://github.com/XinmiaoZhao/NikonFirmwarePatch/releases) 附有 `NikonFirmwarePatch-<版本>-F-LUT.zip`）· [文件身份](RWG_Log3G10_F_v1_65.json) · [数值核验](verification.json) · [中文报告](../docs/log-colour-report.md)／[English report](../docs/log-colour-report.en.md)
 
 `RWG_Log3G10_F_v1_65.cube` 为本项目提供的 **F 饱和度映射模型**，用于给当前不含 F 的 Log3G10 录像，近似补上 **RED 解码 Nikon N-RAW 时引入的饱和度映射**。本项目参照使用的 REDline 65.2.1 会在解码链中加入 F；它与 RWG 色域、Log3G10 曲线是独立的处理环节。输入、输出都是 **REDWideGamutRGB / Log3G10**，归一化范围 0—1。它不包含 Rec.709、HDR 或胶片风格的显示变换。
 
@@ -14,7 +14,7 @@
 
 ## 使用顺序
 
-Resolve／FCP 的具体设置与处理顺序见 [Log 后期流程](../docs/log-colour.md)。当前机内色彩矩阵仍未定稿；本 LUT 的数值核验不等于机内颜色已通过验收，也不能补偿未知的矩阵误差。
+Resolve／FCP 的具体设置与处理顺序见 [Log 后期流程](../docs/log-colour.md)。本 LUT 的数值核验只说明 LUT 与 F 模型一致，不能补偿机内矩阵的残余色差；录像颜色见[色彩报告](../docs/log-colour-report.md)。
 
 **正确解码素材 → 白平衡／曝光调整 → 本 F LUT → 显示变换或还原 LUT → 输出。**
 
@@ -62,7 +62,7 @@ python tests/validate_f_lut.py --lut build/luts/RWG_Log3G10_F_v1_65.cube
 
 ## English
 
-See the [Resolve/FCP workflow](../docs/log-colour.md#english) for application settings and ordering. The camera colour matrices are not final; numerical validation of this LUT neither establishes camera-colour accuracy nor repairs unknown matrix errors.
+Each [release](https://github.com/XinmiaoZhao/NikonFirmwarePatch/releases) also offers this folder as `NikonFirmwarePatch-<version>-F-LUT.zip`. See the [Resolve/FCP workflow](../docs/log-colour.md#english) for application settings and ordering. Numerical validation shows that the LUT matches the F model; it does not correct residual colour error of the camera matrices. See the [colour report](../docs/log-colour-report.en.md) for recorded colour.
 
 The supplied 65³ CUBE approximates the F saturation mapping introduced by RED when decoding Nikon N-RAW. The reference path used in this project, REDline 65.2.1, applies F in addition to the RWG gamut conversion and Log3G10 encoding. Both input and output are **REDWideGamutRGB / Log3G10**, normalized to 0–1. Place it after white-balance adjustment and before a display/output transform. It is not a Rec.709 LUT, and its output remains Log. N-RAW decoded through that RED path already contains F and should not receive it again.
 

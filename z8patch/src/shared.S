@@ -27,6 +27,8 @@ shared_bank:
     cmp w13, w9
     b.ne 3f
     tbz w12, #0, 9f
+    ldrh w9, [x8, #2]               // framing: +2/+3 = the other N-RAW mode's size/rate (open-gate E2)
+    strh w9, [x10, #2]
     b 8f
 3:  mov w9, #0x1238
     cmp w13, w9

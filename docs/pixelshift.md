@@ -6,11 +6,13 @@
 
 ### 功能
 
-`--features photo-tools` 在照片拍摄菜单加入“像素变化合成”，浏览两张卡上的像素位移组，选择一组或多组并在机内合成 NEFX。
+`--features still-photo-tools` 在照片拍摄菜单加入“像素变化合成”，浏览两张卡上的像素位移组，选择一组或多组并在机内合成 NEFX。同一组还包含 [SDR HEIF](sdr-heif.md) 和[照片裁切比例](photo-crop.md)。
+
+v0.5.0 的页面改用原厂菜单的按键、底栏和字形：底栏显示可点按的“MENU 取消”和“OK 确定”，左键与 MENU 一样返回，确认页选择取消会回到列表，有损压缩的组显示“仅支持无损压缩”。合成引擎与 v0.4.0 相同。
 
 ### 支持范围
 
-起始文件编号、文件夹和卡槽不限（本版已包含组识别修复；v0.3.0／r1 只认起始编号 `0001`、`2049` 等，见[已知问题](known-issues.md)）。同一文件夹中可连续拍多组，跨过 `DSC_9999` 进入下一文件夹的组也可识别。
+起始文件编号、文件夹和卡槽不限（v0.4.0 起已包含组识别修复；v0.3.0／r1 只认起始编号 `0001`、`2049` 等，见[已知问题](known-issues.md)）。同一文件夹中可连续拍多组，跨过 `DSC_9999` 进入下一文件夹的组也可识别。
 
 支持完整的 **4／8／16／32 张、FX/L、8256×5504、14-bit 无损压缩 NEF** 组。HE／HE★、DX、残缺或重复组不能合成；RAW 预拍生成的 HE／HE★ NEF 也不适用。补丁不改变像素位移拍摄动作。
 
@@ -19,7 +21,7 @@
 1. 使用原厂像素变化拍摄取得完整组，等待写卡完成。
 2. 打开照片拍摄菜单中的“像素变化合成”。
 3. 上下移动，OK 勾选，选择开始合成并确认；已有输出的组可再次合成。
-4. 合成中按 MENU 取消；OK 不取消。半按离开页面也会取消，再次进入可查看结果。等写入结束再关机或取卡。
+4. 列表中按 MENU 或左键返回。合成中按 MENU 取消；OK 不取消。半按离开页面也会取消，再次进入可查看结果。等写入结束再关机或取卡。
 
 ### 输出与显示
 
@@ -37,11 +39,13 @@
 
 ### Overview
 
-`--features photo-tools` bundles RAW pre-capture and adds Pixel shift merge to the photo shooting menu. Browse groups on both cards, select one or more, and merge them into NEFX in the camera.
+`--features still-photo-tools` adds Pixel shift merge to the photo shooting menu. Browse groups on both cards, select one or more, and merge them into NEFX in the camera. The same group installs [SDR HEIF](sdr-heif.md) and the [still crop ratios](photo-crop.md).
+
+In v0.5.0 the page uses the stock menu keys, footer and glyphs. The footer shows tappable MENU Cancel and OK keys, the left key goes back like MENU, Cancel on the confirmation page returns to the list, and lossy groups show "Use lossless". The merge engine is unchanged from v0.4.0.
 
 ### Supported modes
 
-Any starting file number, folder and card slot is accepted (fixed in this toolkit; v0.3.0/r1 accept only groups starting at `0001`, `2049` and similar, see [known issues](known-issues.md#english)). Several groups can be shot in one folder, and a group rolling over `DSC_9999` into the next folder is recognized.
+Any starting file number, folder and card slot is accepted (fixed since v0.4.0; v0.3.0/r1 accept only groups starting at `0001`, `2049` and similar, see [known issues](known-issues.md#english)). Several groups can be shot in one folder, and a group rolling over `DSC_9999` into the next folder is recognized.
 
 Supports complete **4/8/16/32-frame, FX/L, 8256×5504, 14-bit lossless-compressed NEF** groups. HE/HE★, DX, incomplete and duplicate groups are unsupported, including HE/HE★ NEFs from pre-capture. The patch does not change pixel-shift shooting itself.
 
@@ -50,7 +54,7 @@ Supports complete **4/8/16/32-frame, FX/L, 8256×5504, 14-bit lossless-compresse
 1. Capture a complete group using stock pixel-shift shooting and wait for writes to finish.
 2. Open Pixel shift merge in the photo shooting menu.
 3. Move up/down, use OK to select groups, then start and confirm merging. Groups with existing outputs can be merged again.
-4. MENU cancels an active merge; OK does not. Leaving by half-press also cancels, and the result is available on re-entry. Wait for writes before power-off or card removal.
+4. In the list, MENU or the left key goes back. MENU cancels an active merge; OK does not. Leaving by half-press also cancels, and the result is available on re-entry. Wait for writes before power-off or card removal.
 
 ### Files and display
 

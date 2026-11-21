@@ -314,6 +314,8 @@ def build_main(data, strings_context, ok_action=None):
     img = Image(data)
     if any(data[GAP[0]:GAP[1]]):
         raise ValueError('Required text gap is occupied (already patched or incompatible)')
+    from .help_text import apply_stock_help
+    apply_stock_help(img)
     ids = strings(img, strings_context)
     ids['file_type_sites'] = file_type_label(img, ids)
     blk, code_bytes, listing = code(cs)

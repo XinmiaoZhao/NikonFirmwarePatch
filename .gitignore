@@ -43,3 +43,5 @@ secrets.json
 
 # Reviewed project-generated post-production LUT, requested as a repository asset.
 !/luts/RWG_Log3G10_F_v1_65.cube
+/macos/.build/
+/macos/.swiftpm/

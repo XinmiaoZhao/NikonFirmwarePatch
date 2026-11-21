@@ -24,7 +24,7 @@
 
 ## 自动识别：已有测试说明了什么
 
-已有软件测试使用 **Final Cut Pro 11.2** 和 **DaVinci Resolve 21.1.2（免费版）**。其中包含只改元数据的样片，验证的是软件识别结果；不是最终组合包在各软件中的完整调色验收，也不证明颜色准确度。
+软件测试使用 **Final Cut Pro 11.2** 和 **DaVinci Resolve 21.1.2（免费版）**，其中包含只改元数据的样片。下面的结论说明软件如何识别 Log 标签；录像颜色的准确度见[色彩报告](log-colour-report.md)。
 
 | 软件 | 已观察到的行为 | 使用当前补丁素材时应做什么 |
 |---|---|---|
@@ -80,17 +80,17 @@
 
 对于普通 SDR 交付，可在 Camera LUT 菜单选择 **Add Custom Camera LUT**，导入明确标注 **RWG / Log3G10 → Rec.709** 的技术 LUT，并把导入对话框的 **Output Color Space** 设为该 LUT 的实际输出 Rec.709。RED 的 IPP2 Output Presets 是这类显示变换的一种来源；不同对比度／高光过渡预设会改变观感。[Nikon 对 IPP2 输出预设的说明](https://nps.nikonimaging.com/technical_info/technical_solutions/z_cinema_tips/guide/en/edit_with_davinci_resolve_13.html)
 
-这是依据软件接口和 LUT 输入／输出定义整理的手动流程，**尚无本仓库最终组合素材逐片完成这条 FCP 流程的验收记录**。选用已经输出 Rec.709 的 LUT 后，后续处理应以它的输出为准，不能再把它解释成原始 Log。
+这条流程依据软件接口和 LUT 的输入／输出定义。选用已经输出 Rec.709 的 LUT 后，后续处理应以它的输出为准，不能再把它解释成原始 Log。
 
 ## 可选 F LUT：不是还原 LUT
 
-仓库的 [65³ F 模型 LUT](../luts/README.md)输入、输出均为 **RWG / Log3G10**，只近似增加参照 RED 解码路径中的饱和度映射。它不把 Log 变成 Rec.709；录像矩阵的标定与 F 映射各自独立。
+[65³ F 模型 LUT](../luts/README.md)（release 附件 `NikonFirmwarePatch-<版本>-F-LUT.zip`）输入、输出均为 **RWG / Log3G10**，只近似增加参照 RED 解码路径中的饱和度映射。它不把 Log 变成 Rec.709；录像矩阵的标定与 F 映射各自独立。
 
 - **Resolve：** 如果节点已经处于 DaVinci Wide Gamut / Intermediate，在完成白平衡后，用 CST 转到 RWG / Log3G10 → F LUT → CST 转回工作空间，再继续调色／输出。夹住 F 的这对 CST 只做空间转换，不加额外的色调映射或色域压缩。若输入本来就是未经转换的 RWG / Log3G10，可在显示变换前直接放 F。导入 `.cube` 可用 Project Settings → Color Management → Open LUT Folder，放入文件后 Update Lists；插值可设 Tetrahedral。
-- **FCP：** 不要把这个 Log→Log 的 F LUT 直接当作唯一的 Camera LUT，也不要放在已经转换完成的相机 LUT 后。若要用相机 LUT 路径同时加入 F，需要另备包含 **F＋显示变换**、输出空间明确的组合 LUT；本仓库尚未提供或验证这种组合。当前可先在有明确 RWG／Log3G10 节点的流程中完成 F，再交给 FCP 处理。
-- **RAW 参照：** 已经经由本项目参照的 RED 解码路径引入 F 的素材，不再加一次。N-RAW 在 Resolve 中先核对 Camera RAW 的实际解码输出；本项目保留的原生 N-Log 默认是 Rec.2020 / Nikon N-Log。ProRes RAW 未做同等的标签对照测试，不外推其软件行为。
+- **FCP：** 不要把这个 Log→Log 的 F LUT 直接当作唯一的 Camera LUT，也不要放在已经转换完成的相机 LUT 后。若要用相机 LUT 路径同时加入 F，需要另备包含 **F＋显示变换**、输出空间明确的组合 LUT，本仓库不提供这种组合。可以先在有明确 RWG／Log3G10 节点的流程中完成 F，再交给 FCP 处理。
+- **RAW 参照：** 已经经由本项目参照的 RED 解码路径引入 F 的素材，不再加一次。N-RAW 在 Resolve 中先核对 Camera RAW 的实际解码输出；本项目保留的原生 N-Log 默认是 Rec.2020 / Nikon N-Log。上述标签结论不适用于 ProRes RAW。
 
-F LUT 的数值核验、使用顺序和限制见 [LUT 说明](../luts/README.md)。上述位置说明不等于已在两款软件中完成 F LUT 的端到端画面验收。
+F LUT 的数值核验、使用顺序和限制见 [LUT 说明](../luts/README.md)。
 
 ## 色彩依据
 
@@ -116,12 +116,12 @@ These instructions cover encoded H.265/ProRes 422 clips. N-RAW and ProRes RAW re
 
 ### What the existing tests establish
 
-Metadata tests used **Final Cut Pro 11.2** and **DaVinci Resolve 21.1.2 Free**. Some samples changed tags only: they test recognition, not colour accuracy or the final combined firmware.
+Metadata tests used **Final Cut Pro 11.2** and **DaVinci Resolve 21.1.2 Free**, including samples with changed tags only. The results describe how each application recognizes the Log tags; see the [colour report](log-colour-report.en.md) for colour accuracy.
 
 - Resolve identified the Nikon tag used by the current S-Log3/Log3G10 implementation as `Rec709 (Scene)`. Changing the Apple colour key did not make it recognise S-Log3. Explicitly override each clip's input; changing only the project default may leave the clip tag in effect.
 - FCP selected Nikon N-Log or Sony S-Log3/S-Gamut3.Cine for appropriately tagged ProRes and H.265 samples; removing the key gave None. Check Camera LUT after import. The current Log3G10 implementation does not borrow a Nikon/Sony camera-LUT identifier.
 
-`Rec709 (Scene)` and `None` do not mean that the recorded Log image has already been converted. Recheck behaviour when changing software versions. In other editors, assign the table's input pair or use a technical LUT with explicit input/output spaces; automatic recognition has not been established by this repository.
+`Rec709 (Scene)` and `None` do not mean that the recorded Log image has already been converted. Recheck behaviour when changing software versions. In other editors, assign the table's input pair or use a technical LUT with explicit input/output spaces.
 
 ### Resolve: managed or explicit CST workflow
 
@@ -143,14 +143,14 @@ Select a browser clip, open the Info inspector (⌘4), choose the Settings metad
 
 For Log3G10, the tested FCP version has no suitable built-in RWG/Log3G10 camera LUT for these clips. For SDR, use **Add Custom Camera LUT** with a technical **RWG/Log3G10 → Rec.709** LUT, and set its imported **Output Color Space** to the LUT's actual Rec.709 output. RED IPP2 output presets are one source; contrast/highlight-roll-off choices affect rendering. [Nikon's IPP2 preset description](https://nps.nikonimaging.com/technical_info/technical_solutions/z_cinema_tips/guide/en/edit_with_davinci_resolve_13.html)
 
-This manual route follows documented interfaces and LUT contracts; it has not received an end-to-end test with the final combined firmware. Do not reinterpret an already converted Rec.709 result as source Log.
+This manual route follows documented interfaces and LUT contracts. Do not reinterpret an already converted Rec.709 result as source Log.
 
 ### Optional F processing and RAW
 
-The supplied [65³ F-model LUT](../luts/README.md) maps **RWG/Log3G10 to RWG/Log3G10**. It is optional saturation processing, not a display conversion or a recalibration of the recording matrices.
+The [65³ F-model LUT](../luts/README.md) (release asset `NikonFirmwarePatch-<version>-F-LUT.zip`) maps **RWG/Log3G10 to RWG/Log3G10**. It is optional saturation processing, not a display conversion or a recalibration of the recording matrices.
 
 - In Resolve, after white balance, convert the working space to RWG/Log3G10, apply F, and convert back before subsequent grading/output. Use no tone/gamut mapping in this conversion pair. If the node already receives unconverted RWG/Log3G10, place F before the display transform. Import the CUBE through Open LUT Folder / Update Lists; use tetrahedral interpolation when available.
-- In FCP, F alone is not a valid replacement for the camera's Log-to-working/display conversion, and adding it after an active camera LUT gives it the wrong input. A camera-LUT route needs a separately prepared **F plus display transform** LUT with a defined output; this repository has not supplied or tested one. An explicit RWG/Log3G10 pipeline can apply F before handing off to FCP.
-- Do not add F again to footage already processed through the reference RED decode path. For N-RAW, inspect Camera RAW's actual output; the retained native N-Log default in the existing Resolve test was Rec.2020 / Nikon N-Log. ProRes RAW did not receive the equivalent tag comparison.
+- In FCP, F alone is not a valid replacement for the camera's Log-to-working/display conversion, and adding it after an active camera LUT gives it the wrong input. A camera-LUT route needs a separately prepared **F plus display transform** LUT with a defined output, which this repository does not provide. An explicit RWG/Log3G10 pipeline can apply F before handing off to FCP.
+- Do not add F again to footage already processed through the reference RED decode path. For N-RAW, inspect Camera RAW's actual output; the retained native N-Log default in the existing Resolve test was Rec.2020 / Nikon N-Log. These tag results do not apply to ProRes RAW.
 
-See the [LUT documentation](../luts/README.md) for its numerical checks and limits. No end-to-end F-LUT UI acceptance in either editor is claimed. The [English colour report](log-colour-report.en.md) presents the current camera measurements and simulated colour shifts with simplified processing.
+See the [LUT documentation](../luts/README.md) for its numerical checks and limits. The [English colour report](log-colour-report.en.md) presents the current camera measurements and simulated colour shifts with simplified processing.

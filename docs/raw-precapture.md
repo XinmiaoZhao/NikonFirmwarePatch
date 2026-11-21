@@ -6,7 +6,7 @@
 
 ### 功能
 
-`--features photo-tools` 让 C15／C30 的预拍历史帧和正式帧按普通“画质”设置输出 RAW／RAW+JPEG／JPEG，使用“RAW 记录”选择 HE／HE★。QUAL／f2、i 菜单和取景画质标识使用相同的普通画质设置。
+`--features raw-precapture` 让 C15／C30 的预拍历史帧和正式帧按普通“画质”设置输出 RAW／RAW+JPEG／JPEG，使用“RAW 记录”选择 HE／HE★。QUAL／f2、i 菜单和取景画质标识使用相同的普通画质设置。预拍不支持无损压缩：C15／C30 中无损选项禁用，普通拍照保存的无损按高效率★记录。在 C15／C30 中按分配了“图像品质/尺寸”的按键时，尺寸固定为 L，M／S 灰显。
 
 ### 支持范围
 
@@ -38,17 +38,19 @@ NEF 使用原厂照片数据库与写入器，写完可直接回放，FX 输出�
 
 ### 已知问题
 
-- 选择“无损压缩”记录 HE★，并非无损。实拍 SD 文件确认 DX 预拍使用 5392×3592 有效区，DX／FX 菜单选择无损时均写出 HE★。
+- C15/C30 中无损选项禁用，普通拍照保存的无损按高效率★记录，退出后恢复该库的无损偏好。实拍 SD 文件确认 DX 预拍使用 5392×3592 有效区。
 - 实际拍摄准入、空间预留、自动溢出和 r／缓冲显示仍按高速 JPEG 计划。数据库拒绝登记或锁失败时尝试 JPEG 回退，包括 RAW-only；该拒绝不创建停止文件。
 - RAW 帧保留到 NEF 写完，写卡积压会减少连拍／预拍可用帧数；HE★ 占用更多。每张目标卡应保留充足空间。
 - 实际 NEF 写入失败、写后找不到文件或达到默认 1.5 秒预算时，仍会尝试创建 `Z8PRESTP.BIN`。重启不清除停止文件；保留两卡文件并按[停止文件指南](stop-file.md)处理。停止额外 RAW 拍摄可选择 JPEG-only 或退出 C15／C30。
-- 生成的 NEF 缺少部分原厂镜头校正块、灰度子图及 XMP 校正数据。
+- 生成的 NEF 缺少部分原厂镜头校正块、灰度子图及 XMP 校正数据，Lightroom 等软件不能自动套用机内镜头校正。
+- 机内“润饰 › NEF (RAW) 处理”不能处理预拍 NEF；预拍连拍在系列回放中不能正常显示。
+- 同时安装[照片工具](sdr-heif.md)时，C15／C30 仍按 FX 或 DX 写 NEF／JPEG。C15 至 C120 中 SDR HEIF 禁用、压缩照片使用 JPEG；[新增画幅](photo-crop.md)只用于普通拍摄，在 C 档中禁用。
 
 ## English
 
 ### Overview
 
-`--features photo-tools` makes C15/C30 history and post-release frames follow ordinary Image quality: RAW/RAW+JPEG/JPEG. RAW recording selects HE/HE★. QUAL/f2, the i menu and shooting-screen indicators use the same ordinary quality setting.
+`--features raw-precapture` makes C15/C30 history and post-release frames follow ordinary Image quality: RAW/RAW+JPEG/JPEG. RAW recording selects HE/HE★. QUAL/f2, the i menu and shooting-screen indicators use the same ordinary quality setting. Pre-capture has no lossless compression: C15/C30 disable the lossless option and record a lossless setting saved for ordinary shooting as HE★. At C15/C30 the button assigned to Image quality/size fixes the size at L and greys out M/S.
 
 ### Supported modes
 
@@ -80,11 +82,13 @@ Remaining counts include NEF size and refresh with file type, RAW compression, J
 
 ### Known issues
 
-- Selecting lossless records HE★, not lossless. SD recordings confirm a 5392×3592 active DX area and HE★ files after lossless selection in DX and FX.
+- C15/C30 disable the lossless option; a saved lossless setting is recorded as HE★ and restored afterwards. Camera files confirmed the 5392×3592 active area for DX pre-capture.
 - Admission, reservations, overflow switching and r/buffer display retain the stock high-speed JPEG plan. Database/lock refusal attempts JPEG fallback, even for RAW-only; that refusal does not create a stop marker.
 - RAW buffers remain occupied until NEF writing finishes. Backlog reduces burst/history capacity; HE★ uses more space. Leave ample space on each destination card.
 - Failed/missing NEF writes or reaching the default 1.5-second budget still attempt to create `Z8PRESTP.BIN`. Restarting does not clear it. Preserve both cards and follow the [stop-file guide](stop-file.md#english-summary). Select JPEG-only or leave C15/C30 to stop extra RAW capture.
-- Some optional factory lens-correction blocks, grayscale subimage and XMP correction metadata are absent.
+- Some factory lens-correction blocks, the grayscale subimage and XMP correction metadata are absent, so applications such as Lightroom cannot apply the in-camera lens corrections.
+- In-camera Retouch › NEF (RAW) processing refuses pre-capture NEFs, and series playback does not show pre-capture bursts correctly.
+- With the [still-photo tools](sdr-heif.md) installed, C15/C30 still writes NEF/JPEG in FX or DX. C15 through C120 disable SDR HEIF and use JPEG for compressed photos; the [added image areas](photo-crop.md) apply to ordinary shooting only and are disabled in C modes.
 
 ## 相关文档 / Related documents
 

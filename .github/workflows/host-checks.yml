@@ -49,6 +49,20 @@ jobs:
           python-version: ${{ matrix.python }}
       - run: python -B tests/test_compiled_paths.py
 
+  macos-app:
+    # Catalog checks and the app's unit tests; firmware builds run locally (macos/README.md).
+    runs-on: macos-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: '3.12'
+      - run: python -B tests/validate_gui_catalog.py
+      - run: swift test --package-path macos
+
   windows-toolkit:
     if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main' && inputs.firmware_smoke
     needs: paths
@@ -79,7 +93,7 @@ jobs:
           from tools.check_release import check_release
           work = Path(os.environ['RUNNER_TEMP']) / 'nikon-smoke'
           work.mkdir(exist_ok=False)
-          tag = 'v0.4.0'
+          tag = 'v0.5.0'
           prefix = 'NikonFirmwarePatch-' + tag
           filename = prefix + '-toolkit.zip'
           url = 'https://github.com/XinmiaoZhao/NikonFirmwarePatch/releases/download/' + tag + '/' + filename

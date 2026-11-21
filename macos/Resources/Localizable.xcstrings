@@ -1,0 +1,3205 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "%@ bytes" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ 字节"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ 位元組"
+          }
+        }
+      }
+    },
+    "%@ was used on this Mac for a different selection. Choose another version so two different packages do not show the same version on the camera." : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "这台 Mac 上曾用 %@ 构建过另一组功能。建议换一个版本号，以免两个不同的包在相机里显示相同的版本。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "這台 Mac 曾以 %@ 建置過另一組功能。建議換一個版本號碼，以免兩個不同的包在相機裡顯示相同的版本。"
+          }
+        }
+      }
+    },
+    "%lld files match the release manifest" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%#@count@"
+          },
+          "substitutions" : {
+            "count" : {
+              "argNum" : 1,
+              "formatSpecifier" : "lld",
+              "variations" : {
+                "plural" : {
+                  "one" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg file matches the release manifest"
+                    }
+                  },
+                  "other" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg files match the release manifest"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld 个文件与发布清单一致"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld 個檔案與發佈清單一致"
+          }
+        }
+      }
+    },
+    "%lld known limits" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%#@count@"
+          },
+          "substitutions" : {
+            "count" : {
+              "argNum" : 1,
+              "formatSpecifier" : "lld",
+              "variations" : {
+                "plural" : {
+                  "one" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg known limit"
+                    }
+                  },
+                  "other" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg known limits"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld 项已知限制"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld 項已知限制"
+          }
+        }
+      }
+    },
+    "%lld of 4 selected" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "已选 %lld／4 组"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "已選 %lld／4 組"
+          }
+        }
+      }
+    },
+    "%lld problems; building disabled" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%#@count@"
+          },
+          "substitutions" : {
+            "count" : {
+              "argNum" : 1,
+              "formatSpecifier" : "lld",
+              "variations" : {
+                "plural" : {
+                  "one" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg problem; building disabled"
+                    }
+                  },
+                  "other" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg problems; building disabled"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld 处不一致，构建已禁用"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld 處不一致，已停用建置"
+          }
+        }
+      }
+    },
+    ", " : {
+      "comment" : "Separator between feature group names",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "、"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "、"
+          }
+        }
+      }
+    },
+    "00.xx is reserved for offline tests and must not be installed." : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "00.xx 仅用于离线测试，不能作为上机包。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "00.xx 僅供離線測試，不能作為上機包。"
+          }
+        }
+      }
+    },
+    "About" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "关于"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "關於"
+          }
+        }
+      }
+    },
+    "About %@" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "关于%@"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "關於%@"
+          }
+        }
+      }
+    },
+    "Acknowledgements" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "致谢"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "致謝"
+          }
+        }
+      }
+    },
+    "Add the original C 3.11 firmware to begin" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "添加原厂 C 3.11 固件以开始"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "加入原廠 C 3.11 韌體以開始"
+          }
+        }
+      }
+    },
+    "Advanced" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "高级"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "進階"
+          }
+        }
+      }
+    },
+    "All known issues" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "全部已知问题"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "所有已知問題"
+          }
+        }
+      }
+    },
+    "Appearance" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "外观"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "外觀"
+          }
+        }
+      }
+    },
+    "Avoid irreplaceable work. If something goes wrong, reinstall a complete package that previously worked." : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "请勿用于不可替代的拍摄。出现问题时，刷回此前能正常工作的完整固件包。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "請勿用於無法重來的拍攝。出現問題時，刷回先前能正常運作的完整韌體包。"
+          }
+        }
+      }
+    },
+    "Before You Build Experimental Firmware" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "构建实验固件前，请确认风险"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "建置實驗韌體前，請確認風險"
+          }
+        }
+      }
+    },
+    "Build" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "构建"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "建置"
+          }
+        }
+      }
+    },
+    "Build Firmware…" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "构建固件…"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "建置韌體…"
+          }
+        }
+      }
+    },
+    "Build Modified Firmware" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "构建修改固件"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "建置修改版韌體"
+          }
+        }
+      }
+    },
+    "Build Stopped" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "构建已停止"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "建置已停止"
+          }
+        }
+      }
+    },
+    "Build firmware" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "构建固件"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "建置韌體"
+          }
+        }
+      }
+    },
+    "Building %@" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "正在构建 %@"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "正在建置 %@"
+          }
+        }
+      }
+    },
+    "Bundled Toolkit" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "内置工具包"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "內建工具包"
+          }
+        }
+      }
+    },
+    "Bundled Toolkit Unavailable" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "内置工具包不可用"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "內建工具包無法使用"
+          }
+        }
+      }
+    },
+    "Bundled components" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "内置组件"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "內建元件"
+          }
+        }
+      }
+    },
+    "Camera Controls" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "相机中的入口"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "相機中的入口"
+          }
+        }
+      }
+    },
+    "Cancel" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "取消"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "取消"
+          }
+        }
+      }
+    },
+    "Cancel Build" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "取消构建"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "取消建置"
+          }
+        }
+      }
+    },
+    "Check" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "检测"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "偵測"
+          }
+        }
+      }
+    },
+    "Check input" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "检查输入"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "檢查輸入"
+          }
+        }
+      }
+    },
+    "Checking the bundled toolkit…" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "正在核对内置工具包…"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "正在核對內建工具包…"
+          }
+        }
+      }
+    },
+    "Checking the compiler…" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "正在检测编译器…"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "正在偵測編譯器…"
+          }
+        }
+      }
+    },
+    "Choose Export Location…" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "选择导出位置…"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "選擇匯出位置…"
+          }
+        }
+      }
+    },
+    "Choose File…" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "选择文件…"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "選擇檔案…"
+          }
+        }
+      }
+    },
+    "Choose an export location" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "选择导出位置"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "選擇匯出位置"
+          }
+        }
+      }
+    },
+    "Choose…" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "选择…"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "選擇…"
+          }
+        }
+      }
+    },
+    "Clear" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "清除"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "清除"
+          }
+        }
+      }
+    },
+    "Clear Selection" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "清除选择"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "清除選擇"
+          }
+        }
+      }
+    },
+    "Close" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "关闭"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "關閉"
+          }
+        }
+      }
+    },
+    "Collapsed" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "已收起"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "已收合"
+          }
+        }
+      }
+    },
+    "Compile from source" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "从源码编译"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "從原始碼編譯"
+          }
+        }
+      }
+    },
+    "Compiler" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "编译器"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "編譯器"
+          }
+        }
+      }
+    },
+    "Compose the selected groups from reviewed recipes and repackage (patch.py)" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "按审阅配方合成所选功能并重新封装（patch.py）"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "依審閱過的配方組合所選功能並重新封裝（patch.py）"
+          }
+        }
+      }
+    },
+    "Computing SHA-256…" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "正在计算 SHA-256…"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "正在計算 SHA-256…"
+          }
+        }
+      }
+    },
+    "Container, modules and CRC pass · identity %@" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "封装、模块与 CRC 通过 · 身份 %@"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "封裝、模組與 CRC 通過 · 身分 %@"
+          }
+        }
+      }
+    },
+    "Contributors" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "贡献者名单"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "貢獻者名單"
+          }
+        }
+      }
+    },
+    "Copied" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "已拷贝"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "已拷貝"
+          }
+        }
+      }
+    },
+    "Copy Log" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "拷贝日志"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "拷貝記錄"
+          }
+        }
+      }
+    },
+    "Copy SHA-256" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "拷贝 SHA-256"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "拷貝 SHA-256"
+          }
+        }
+      }
+    },
+    "Copyright" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "版权"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "版權"
+          }
+        }
+      }
+    },
+    "Creates" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "将生成"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "將產生"
+          }
+        }
+      }
+    },
+    "Dark" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "深色"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "深色"
+          }
+        }
+      }
+    },
+    "Detailed log" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "详细日志"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "詳細記錄"
+          }
+        }
+      }
+    },
+    "Details" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "详情"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "詳細資訊"
+          }
+        }
+      }
+    },
+    "Differs from the reviewed compiler (%@). The toolkit stops if the bytes differ." : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "与审阅时的编译器不同（%@）。字节不一致时，工具包会停止构建。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "與審閱時的編譯器不同（%@）。位元組不一致時，工具包會停止建置。"
+          }
+        }
+      }
+    },
+    "Documentation" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "文档"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "文件"
+          }
+        }
+      }
+    },
+    "Does not match original C 3.11" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "与原厂 C 3.11 不符"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "與原廠 C 3.11 不符"
+          }
+        }
+      }
+    },
+    "Done" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "完成"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "完成"
+          }
+        }
+      }
+    },
+    "Drop Z_8_0311.bin here" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "将 Z_8_0311.bin 拖到这里"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "將 Z_8_0311.bin 拖到這裡"
+          }
+        }
+      }
+    },
+    "Enter NN.NN, e.g. 04.07. Give different selections different versions so they are distinguishable on the camera." : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "填写 NN.NN，例如 04.07。不同的功能组合请使用不同的版本号，便于在相机菜单中区分。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "輸入 NN.NN，例如 04.07。不同的功能組合請使用不同的版本號碼，方便在相機選單中區分。"
+          }
+        }
+      }
+    },
+    "Enter the version and internal tag" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "填写版本号与内部标记"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "輸入版本號碼與內部標記"
+          }
+        }
+      }
+    },
+    "Expanded" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "已展开"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "已展開"
+          }
+        }
+      }
+    },
+    "Expected %@" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "应为 %@"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "應為 %@"
+          }
+        }
+      }
+    },
+    "Experimental firmware: installing it can cause data loss, card corruption or camera malfunction." : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "实验固件：安装可能导致数据丢失、存储卡损坏或相机故障。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "實驗韌體：安裝後可能導致資料遺失、記憶卡損壞或相機故障。"
+          }
+        }
+      }
+    },
+    "Export" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "导出"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "匯出"
+          }
+        }
+      }
+    },
+    "Export to" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "导出到"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "匯出到"
+          }
+        }
+      }
+    },
+    "Feature Groups" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "功能"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "功能"
+          }
+        }
+      }
+    },
+    "Feature groups" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "选择功能"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "選擇功能"
+          }
+        }
+      }
+    },
+    "File check" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "文件自检"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "檔案自我檢查"
+          }
+        }
+      }
+    },
+    "File length" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "文件长度"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "檔案長度"
+          }
+        }
+      }
+    },
+    "Files inside the app differ from the release manifest. Download the app again from the GitHub release." : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "应用内的文件与发布清单不一致。请从 GitHub Release 重新下载应用。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "App 內的檔案與發佈清單不一致。請從 GitHub Release 重新下載 App。"
+          }
+        }
+      }
+    },
+    "Firmware Built and Verified Offline" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "固件已生成并通过离线核验"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "韌體已產生並通過離線驗證"
+          }
+        }
+      }
+    },
+    "Format NN.NN. Give different selections different versions so they are distinguishable on the camera." : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "格式 NN.NN。不同的功能组合请使用不同的版本号，便于在相机菜单中区分。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "格式為 NN.NN。不同的功能組合請使用不同的版本號碼，方便在相機選單中區分。"
+          }
+        }
+      }
+    },
+    "Full press: earlier frames saved" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "全按：写出之前的帧"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "全按：寫出先前的影像"
+          }
+        }
+      }
+    },
+    "Getting official C 3.11" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "如何取得官方 C 3.11"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "如何取得官方 C 3.11"
+          }
+        }
+      }
+    },
+    "GitHub Repository" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "GitHub 仓库"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "GitHub 儲存庫"
+          }
+        }
+      }
+    },
+    "Groups" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "功能"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "功能"
+          }
+        }
+      }
+    },
+    "Guide keyframes · %@" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "操作演示关键帧 · %@"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "操作示範關鍵影格 · %@"
+          }
+        }
+      }
+    },
+    "Half-press: buffering" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "半按：缓存"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "半按：緩衝"
+          }
+        }
+      }
+    },
+    "Hide Inspector" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "隐藏检查器"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "隱藏檢閱器"
+          }
+        }
+      }
+    },
+    "I have read and understand these risks and accept responsibility for installing the result." : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "我已阅读并理解上述风险，自行承担安装后果。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "我已閱讀並理解上述風險，自行承擔安裝後果。"
+          }
+        }
+      }
+    },
+    "Identity" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "固件身份"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "韌體身分"
+          }
+        }
+      }
+    },
+    "Illustrative animation; camera menus are redrawn in the camera’s own wording." : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "示意动画，相机菜单按相机原文重绘。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "示意動畫，相機選單依相機原文重繪。"
+          }
+        }
+      }
+    },
+    "Include in this build" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "加入本次构建"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "加入本次建置"
+          }
+        }
+      }
+    },
+    "Includes" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "包含"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "包含"
+          }
+        }
+      }
+    },
+    "Independent verification failed; the result must not be installed." : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "独立核验未通过，结果不可用于安装。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "獨立驗證未通過，結果不可用於安裝。"
+          }
+        }
+      }
+    },
+    "Inspector" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "检查器"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "檢閱器"
+          }
+        }
+      }
+    },
+    "Internal tag" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "内部标记"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "內部標記"
+          }
+        }
+      }
+    },
+    "It switches when the app relaunches." : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "重新启动应用后整体切换。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "重新啟動 App 後整體切換。"
+          }
+        }
+      }
+    },
+    "It switches when the app relaunches. The opened firmware and selected groups need choosing again." : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "重新启动应用后整体切换。已打开的固件和所选功能需要重新选择。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "重新啟動 App 後整體切換。已開啟的韌體和所選功能需要重新選擇。"
+          }
+        }
+      }
+    },
+    "Keep the app open. The original input is read-only and stays unchanged." : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "请保持应用打开。原厂输入只读，不会被修改。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "請讓 App 保持開啟。原廠輸入為唯讀，不會被修改。"
+          }
+        }
+      }
+    },
+    "Known Issues and Limits" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "已知问题与功能限制"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "已知問題與功能限制"
+          }
+        }
+      }
+    },
+    "Known Limits" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "已知限制"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "已知限制"
+          }
+        }
+      }
+    },
+    "Known limits of the selected groups (%lld)" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "所选功能的已知限制（%lld 项）"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "所選功能的已知限制（%lld 項）"
+          }
+        }
+      }
+    },
+    "Language" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "语言"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "語言"
+          }
+        }
+      }
+    },
+    "Length, SHA-256, container and module CRC (patch.py --check)" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "长度、SHA-256、封装与模块 CRC（patch.py --check）"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "長度、SHA-256、封裝與模組 CRC（patch.py --check）"
+          }
+        }
+      }
+    },
+    "License" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "许可证"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "授權條款"
+          }
+        }
+      }
+    },
+    "Light" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "浅色"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "淺色"
+          }
+        }
+      }
+    },
+    "Location" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "位置"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "位置"
+          }
+        }
+      }
+    },
+    "Matches original C 3.11" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "与原厂 C 3.11 一致"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "與原廠 C 3.11 一致"
+          }
+        }
+      }
+    },
+    "No feature group selected" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "尚未选择功能"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "尚未選擇功能"
+          }
+        }
+      }
+    },
+    "No usable compiler found. Install Xcode or the Command Line Tools, or use the prebuilt units." : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "没有找到可用的编译器。安装 Xcode 或命令行工具，或改用预编译单元。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "找不到可用的編譯器。請安裝 Xcode 或命令列工具，或改用預先編譯的單元。"
+          }
+        }
+      }
+    },
+    "No warranty" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "不提供任何担保"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "不提供任何擔保"
+          }
+        }
+      }
+    },
+    "Not affiliated with Nikon" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "与 Nikon 无隶属关系"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "與 Nikon 無隸屬關係"
+          }
+        }
+      }
+    },
+    "Not chosen" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "未选择"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "未選擇"
+          }
+        }
+      }
+    },
+    "Not run: input is not original C 3.11" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "未运行：输入不是原厂 C 3.11"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "未執行：輸入不是原廠 C 3.11"
+          }
+        }
+      }
+    },
+    "Not selected" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "未选择"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "未選擇"
+          }
+        }
+      }
+    },
+    "Nothing was written." : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "没有写出任何文件。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "沒有寫出任何檔案。"
+          }
+        }
+      }
+    },
+    "Offline checks cover the file, patch windows and preserved bytes; they cannot prove safe operation on a camera." : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "离线检查只核对文件、补丁窗口与未改动的字节，不能证明在相机上安全运行。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "離線檢查只核對檔案、補丁區段與未更動的位元組，無法證明在相機上能安全執行。"
+          }
+        }
+      }
+    },
+    "Offline verification is not a safety guarantee on camera. Review the known limits again before installing." : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "离线核验不代表实机安全。安装前请再次阅读所选功能的已知限制。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "離線驗證不代表實機安全。安裝前請再次閱讀所選功能的已知限制。"
+          }
+        }
+      }
+    },
+    "One lowercase letter and one digit, written as identity %@.%@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "One lowercase letter and one digit, written as identity %1$@.%2$@"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "一个小写字母加一位数字，写入固件身份 %1$@.%2$@"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "一個小寫字母加一位數字，寫入韌體身分 %1$@.%2$@"
+          }
+        }
+      }
+    },
+    "Only the complete original Nikon Z8 C 3.11 (Z_8_0311.bin) is accepted; patched firmware cannot be patched again." : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "只接受完整的原厂 Nikon Z8 C 3.11（Z_8_0311.bin）；不能向已修改的固件继续叠加。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "只接受完整的原廠 Nikon Z8 C 3.11（Z_8_0311.bin）；無法在已修改的韌體上繼續疊加。"
+          }
+        }
+      }
+    },
+    "Open Original Firmware…" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "打开原厂固件…"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "開啟原廠韌體…"
+          }
+        }
+      }
+    },
+    "Open larger" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "放大查看"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "放大檢視"
+          }
+        }
+      }
+    },
+    "Operation Guide" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "操作演示"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "操作示範"
+          }
+        }
+      }
+    },
+    "Operation guide animation" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "操作演示动画"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "操作示範動畫"
+          }
+        }
+      }
+    },
+    "Original Firmware" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "原厂固件"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "原廠韌體"
+          }
+        }
+      }
+    },
+    "Original Z8 C 3.11" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "原厂 Z8 C 3.11"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "原廠 Z8 C 3.11"
+          }
+        }
+      }
+    },
+    "Original firmware" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "原厂固件"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "原廠韌體"
+          }
+        }
+      }
+    },
+    "Output kept at %@ because it contains files from elsewhere; it was not removed. Do not install it." : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "输出保留在 %@，其中有非本次构建的文件，未自动删除。请勿安装。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "輸出保留在 %@，其中有非本次建置的檔案，未自動刪除。請勿安裝。"
+          }
+        }
+      }
+    },
+    "Patch code" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "补丁代码来源"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "補丁程式碼來源"
+          }
+        }
+      }
+    },
+    "Pause" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "暂停"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "暫停"
+          }
+        }
+      }
+    },
+    "Play" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "播放"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "播放"
+          }
+        }
+      }
+    },
+    "Prebuilt units (recommended)" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "预编译单元（推荐）"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "預先編譯的單元（建議）"
+          }
+        }
+      }
+    },
+    "Re-read the .bin and compare with manifest.json and SHA256SUMS.txt" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "重新读取 .bin，与 manifest.json、SHA256SUMS.txt 比对"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "重新讀取 .bin，與 manifest.json、SHA256SUMS.txt 比對"
+          }
+        }
+      }
+    },
+    "Read back" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "读回校验"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "讀回比對"
+          }
+        }
+      }
+    },
+    "Read-back verification failed; the result must not be installed." : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "读回校验未通过，结果不可用于安装。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "讀回比對未通過，結果不可用於安裝。"
+          }
+        }
+      }
+    },
+    "Ready: %lld groups → %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ready: %#@count@ → %2$@"
+          },
+          "substitutions" : {
+            "count" : {
+              "argNum" : 1,
+              "formatSpecifier" : "lld",
+              "variations" : {
+                "plural" : {
+                  "one" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg group"
+                    }
+                  },
+                  "other" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg groups"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "准备就绪：%1$lld 组功能 → %2$@"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "準備就緒：%1$lld 組功能 → %2$@"
+          }
+        }
+      }
+    },
+    "Relaunch" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "重新启动"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "重新啟動"
+          }
+        }
+      }
+    },
+    "Release Notes" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "发布说明"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "發行說明"
+          }
+        }
+      }
+    },
+    "Removed the incomplete output folder %@." : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "已删除未完成的输出文件夹 %@。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "已刪除未完成的輸出資料夾 %@。"
+          }
+        }
+      }
+    },
+    "Replace…" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "更换…"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "更換…"
+          }
+        }
+      }
+    },
+    "Repository" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "仓库"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "儲存庫"
+          }
+        }
+      }
+    },
+    "Reviewed with %@; any other compiler must reproduce the same bytes, symbols and entry points or the build stops." : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "审阅时使用 %@；其他编译器必须产生相同的字节、符号与入口地址，否则构建会停止。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "審閱時使用 %@；其他編譯器必須產生相同的位元組、符號與進入點位址，否則建置會停止。"
+          }
+        }
+      }
+    },
+    "Running patch.py --check…" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "正在运行 patch.py --check…"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "正在執行 patch.py --check…"
+          }
+        }
+      }
+    },
+    "Same compiler as the review: %@" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "与审阅时的编译器一致：%@"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "與審閱時的編譯器一致：%@"
+          }
+        }
+      }
+    },
+    "Select All" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "全选"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "全選"
+          }
+        }
+      }
+    },
+    "Select All Feature Groups" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "全选功能"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "全選功能"
+          }
+        }
+      }
+    },
+    "Select a Feature Group" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "选择一组功能"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "選擇一組功能"
+          }
+        }
+      }
+    },
+    "Select a card to see its description, camera controls and known limits." : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "点按左侧的功能卡片，在这里查看介绍、机内入口与已知限制。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "按一下左側的功能卡片，即可在這裡檢視介紹、機內入口與已知限制。"
+          }
+        }
+      }
+    },
+    "Select at least one feature group" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "至少选择一组功能"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "至少選擇一組功能"
+          }
+        }
+      }
+    },
+    "Selected" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "已选择"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "已選擇"
+          }
+        }
+      }
+    },
+    "Settings" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "设置"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "設定"
+          }
+        }
+      }
+    },
+    "Settings (language, appearance, bundled toolkit)" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "设置（语言、外观、内置工具包）"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "設定（語言、外觀、內建工具包）"
+          }
+        }
+      }
+    },
+    "Show Inspector" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "显示检查器"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "顯示檢閱器"
+          }
+        }
+      }
+    },
+    "Show details" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "显示详情"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "顯示詳細資訊"
+          }
+        }
+      }
+    },
+    "Show in Finder" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在 Finder 中显示"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在 Finder 中顯示"
+          }
+        }
+      }
+    },
+    "Show or hide feature details" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "显示或隐藏功能详情"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "顯示或隱藏功能詳細資訊"
+          }
+        }
+      }
+    },
+    "Source commit" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "源提交"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "來源提交"
+          }
+        }
+      }
+    },
+    "Start Build" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "开始构建"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "開始建置"
+          }
+        }
+      }
+    },
+    "Start from the original Z8 C 3.11 firmware, choose feature groups, then check, build and verify in one pass." : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "从原厂 Z8 C 3.11 固件开始，选择要加入的功能组，一次完成检查、构建与独立核验。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "從原廠 Z8 C 3.11 韌體開始，選擇要加入的功能組，一次完成檢查、建置與獨立驗證。"
+          }
+        }
+      }
+    },
+    "Step %lld" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "第 %lld 步"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "第 %lld 步"
+          }
+        }
+      }
+    },
+    "Step %lld · %@ s" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Step %1$lld · %2$@ s"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "第 %1$lld 步 · %2$@ 秒"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "第 %1$lld 步 · %2$@ 秒"
+          }
+        }
+      }
+    },
+    "Supported input" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "支持的输入"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "支援的輸入"
+          }
+        }
+      }
+    },
+    "System" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "跟随系统"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "跟隨系統"
+          }
+        }
+      }
+    },
+    "System (%@)" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "跟随系统（%@）"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "跟隨系統（%@）"
+          }
+        }
+      }
+    },
+    "System: the first language in the macOS Preferred Languages list that the app provides (Simplified Chinese, Traditional Chinese or English); English if none is listed." : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "跟随系统：按 macOS“首选语言”的顺序，取第一个本应用提供的语言（简体中文、繁体中文或英文）；都没有时用英文。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "跟隨系統：依 macOS「偏好的語言」順序，採用第一個本 App 提供的語言（簡體中文、繁體中文或英文）；都沒有時使用英文。"
+          }
+        }
+      }
+    },
+    "The app never writes to memory cards and never updates the camera." : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "本应用不会写入存储卡，也不会更新相机。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "本 App 不會寫入記憶卡，也不會更新相機。"
+          }
+        }
+      }
+    },
+    "The build did not complete." : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "构建没有完成，已停止。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "建置沒有完成，已停止。"
+          }
+        }
+      }
+    },
+    "The build was cancelled." : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "构建已取消。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "建置已取消。"
+          }
+        }
+      }
+    },
+    "The bundled toolkit failed its self-check" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "内置工具包未通过自检，无法构建"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "內建工具包未通過自我檢查，無法建置"
+          }
+        }
+      }
+    },
+    "The bundled toolkit failed its self-check; building is disabled" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "内置工具包未通过自检，构建已禁用"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "內建工具包未通過自我檢查，已停用建置"
+          }
+        }
+      }
+    },
+    "The firmware file was renamed to %@ so it cannot be installed by mistake; the manifest is kept for diagnosis." : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "固件文件已改名为 %@，以免被误装；manifest 保留供排查。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "韌體檔案已改名為 %@，以免被誤裝；manifest 保留供排查。"
+          }
+        }
+      }
+    },
+    "The input check failed. Nothing was written." : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "输入检查未通过，已停止。没有写出任何文件。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "輸入檢查未通過，已停止。沒有寫出任何檔案。"
+          }
+        }
+      }
+    },
+    "The menu bar is still in %@" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "菜单栏仍是 %@"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "選單列仍是 %@"
+          }
+        }
+      }
+    },
+    "The toolkit inside the app is missing or modified, so building is disabled. Download the app again from the GitHub release." : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "应用内的工具包缺失或已被改动，不能构建。请从 GitHub Release 重新下载应用。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "App 內的工具包遺失或已被更動，無法建置。請從 GitHub Release 重新下載 App。"
+          }
+        }
+      }
+    },
+    "This is unofficial, experimental firmware. Installing it can cause data loss, card corruption or camera malfunction." : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "这是非官方的实验固件。安装后可能导致数据丢失、存储卡损坏或相机故障。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "這是非官方的實驗韌體。安裝後可能導致資料遺失、記憶卡損壞或相機故障。"
+          }
+        }
+      }
+    },
+    "This may be C 3.12, an incomplete download or already-patched firmware. Use the official C 3.11 file; to recover, reinstall a complete package that previously worked." : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "这可能是 C 3.12、下载不完整或已经打过补丁的固件。请使用官方 C 3.11 原件；需要恢复时刷回此前能正常工作的完整固件包。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "這可能是 C 3.12、下載不完整或已打過補丁的韌體。請使用官方 C 3.11 原始檔；需要復原時，刷回先前能正常運作的完整韌體包。"
+          }
+        }
+      }
+    },
+    "This project is not affiliated with Nikon and is provided under GPL-3.0 without warranty." : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "本项目与 Nikon 无隶属关系，按 GPL-3.0 提供，不附带任何担保。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "本專案與 Nikon 無隸屬關係，依 GPL-3.0 提供，不附帶任何擔保。"
+          }
+        }
+      }
+    },
+    "This software comes with no warranty. This project is not affiliated with Nikon; Nikon firmware keeps its own license. Component licenses ship in Resources/licenses." : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "本软件不提供任何担保。本项目与 Nikon 无隶属关系，Nikon 固件适用其原有许可。各组件的许可证随应用附在 Resources/licenses。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "本軟體不提供任何擔保。本專案與 Nikon 無隸屬關係，Nikon 韌體適用其原有授權。各元件的授權條款隨 App 附於 Resources/licenses。"
+          }
+        }
+      }
+    },
+    "This step only creates local files. Installing them on a camera is your decision." : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "这一步只在本机生成文件；是否安装到相机由你决定。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "這一步只在本機產生檔案；是否安裝到相機由你決定。"
+          }
+        }
+      }
+    },
+    "Toolkit %@ · Original C 3.11" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "工具包 %@ · 原厂 C 3.11"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "工具包 %@ · 原廠 C 3.11"
+          }
+        }
+      }
+    },
+    "Toolkit %@ · source %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Toolkit %1$@ · source %2$@"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "工具包 %1$@ · 源提交 %2$@"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "工具包 %1$@ · 來源提交 %2$@"
+          }
+        }
+      }
+    },
+    "Toolkit check" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "工具包兼容检查"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "工具包相容性檢查"
+          }
+        }
+      }
+    },
+    "Use one lowercase letter and one digit, e.g. p0" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "应为一个小写字母加一位数字，例如 p0"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "應為一個小寫字母加一位數字，例如 p0"
+          }
+        }
+      }
+    },
+    "Use two digits, a dot and two digits, e.g. 04.07" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "应为两位数字、点、两位数字，例如 04.07"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "應為兩位數字、點、兩位數字，例如 04.07"
+          }
+        }
+      }
+    },
+    "Uses the reviewed prebuilt units in the toolkit; no compiler needed." : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "使用工具包内经审阅的预编译单元，不需要编译器。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "使用工具包內經審閱的預先編譯單元，不需要編譯器。"
+          }
+        }
+      }
+    },
+    "Validation Coverage" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "当前验证范围"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "目前驗證範圍"
+          }
+        }
+      }
+    },
+    "Verify independently" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "独立核验"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "獨立驗證"
+          }
+        }
+      }
+    },
+    "Version" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "版本"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "版本"
+          }
+        }
+      }
+    },
+    "View Manifest" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "查看 manifest"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "檢視 manifest"
+          }
+        }
+      }
+    },
+    "You can relaunch once the build finishes." : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "构建结束后可以重新启动。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "建置結束後即可重新啟動。"
+          }
+        }
+      }
+    },
+    "Z8 Patch Builder" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Z8 补丁构建器"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Z8 補丁建置工具"
+          }
+        }
+      }
+    },
+    "export.location" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Location"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "导出位置"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "匯出位置"
+          }
+        }
+      }
+    },
+    "export.version" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Version"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "版本号"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "版本號碼"
+          }
+        }
+      }
+    },
+    "inspector.about" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "About"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "功能介绍"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "功能介紹"
+          }
+        }
+      }
+    },
+    "steps.export" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Export"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "导出设置"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "匯出設定"
+          }
+        }
+      }
+    },
+    "verify.py, which never imports the builder, checks the output in a separate process" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "不导入构建器的 verify.py 在独立进程中核对输出"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "不匯入建置器的 verify.py 在獨立程序中核對輸出"
+          }
+        }
+      }
+    },
+    "© 2026 Xinmiao Zhao and contributors" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "© 2026 Xinmiao Zhao 及贡献者"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "© 2026 Xinmiao Zhao 及貢獻者"
+          }
+        }
+      }
+    }
+  },
+  "version" : "1.0"
+}

@@ -1,7 +1,7 @@
 """Public source adapted from the pinned research implementation; regular files only."""
 from z8prores.package import require
 import struct, math, hashlib
-from . import quality, sites
+from . import quality, sites, e1
 from z8prores.menu import Image
 BASE, CAVE, END = (1075183616, 1083572224, 1083637760)
 MENU, RATE, ROWS, EVENTS, TEXT, TABLES = (1082916864, 1082920960, 1082925056, 1082929152, 1082982400, 1083047936)
@@ -94,58 +94,37 @@ def build_main(stock, code, entries, strings_context):
         changes.append(dict(file_offset=o, bytes=len(new)))
     q3 = quality
     extra = tier_names(q3, stock) if with_q3 else None
-    NEW_IDS = sites.NEW_IDS
+    NEW_IDS = e1.NEW_IDS
+    N32 = len(NEW_IDS)
     menu = bytearray(stock[43776736:43776736 + 80 * 24])
     rows = bytearray(stock[61501836:61501836 + 80 * 44])
     ev = bytearray(stock[61505360:61505360 + 80 * 8])
-    require(len(set(NEW_IDS) & {struct.unpack_from('<I', rows, i * 44 + 24)[0] for i in range(80)}) == 0, 'Unexpected firmware structure')
-    for j, rate in enumerate([4, 5, 6]):
-        menu += struct.pack('<6I', NEW_IDS[j], 6, rate, 6, 1, 2147483648 + j)
-        row = list(struct.unpack_from('<11I', rows, (53 + j) * 44))
-        require(row[6] == 12531 + j, 'Unexpected firmware structure')
-        row[0] = 3137 + j
+    require(len(set(NEW_IDS + [e1.FT_CTRL]) & {struct.unpack_from('<I', rows, i * 44 + 24)[0] for i in range(80)}) == 0, 'Unexpected firmware structure')
+    for j, src in enumerate(e1.OG32_STOCK_ROWS):
+        ident, typ, rate, size, flag, text = struct.unpack_from('<6I', menu, src * 24)
+        require((typ, flag) == (6, 0) and (size, rate) == ((6, 4 + j) if j < 3 else (4, j - 3)), 'Unexpected firmware structure')
+        menu += struct.pack('<6I', NEW_IDS[j], 6, rate, size, 1, 2147483648 + j)
+        row = list(struct.unpack_from('<11I', rows, src * 44))
+        require(row[6] == ident, 'Unexpected firmware structure')
+        row[0] = e1.LABEL_IDS[j]
         row[6] = NEW_IDS[j]
         rows += struct.pack('<11I', *row)
-        ev += stock[61505360 + (53 + j) * 8:61505360 + (54 + j) * 8]
-    menu = menu[-72:] + menu[:-72]
-    rows = rows[-132:] + rows[:-132]
-    ev = ev[-24:] + ev[:-24]
-    put(MENU, menu, 'three independent full-height rows first, then all 80 factory mappings')
-    put(ROWS, rows, '83 menu rows, OG first; original 80 row bytes retained')
-    put(EVENTS, ev, '83 row event pointers; three rows share the original corresponding-rate events')
+        ev += stock[61505360 + src * 8:61505360 + (src + 1) * 8]
+    menu = menu[-24 * N32:] + menu[:-24 * N32]
+    rows = rows[-44 * N32:] + rows[:-44 * N32]
+    ev = ev[-8 * N32:] + ev[:-8 * N32]
+    TOTAL = 80 + N32
+    require(MENU + len(menu) <= RATE and ROWS + len(rows) <= EVENTS and EVENTS + len(ev) <= e1.FT_ROWS, 'Unexpected firmware structure')
+    put(MENU, menu, 'ten 3:2 rows first (flag column 1), then all 80 factory mappings')
+    put(ROWS, rows, '90 menu rows, 3:2 first; original 80 row bytes retained')
+    put(EVENTS, ev, '90 row event pointers; 3:2 rows share the events of the same size/rate')
     page = 79480592
     require(struct.unpack_from('<H', stock, page + 32)[0] == 80, 'Unexpected firmware structure')
     put(BASE + page + 16, struct.pack('<QQ', ROWS, EVENTS), 'frame-size page row and event pointer relocation')
-    put(BASE + page + 32, struct.pack('<H', 83), 'frame-size page 83 rows')
-    localized_labels = []
-    blob = bytearray()
-    tables = []
-    count = STOCK_STRINGS + 3 + (2 if with_q3 else 0) + 1
-    for lang in range(36):
-        t = struct.unpack_from('<Q', stock, 51496352 + lang * 8)[0]
-        b = struct.unpack_from('<Q', stock, 59223896 + lang * 8)[0]
-        offsets = list(struct.unpack_from(f'<{STOCK_STRINGS}i', stock, t - BASE))
-        labels = []
-        for idx in (2034, 2035, 2036):
-            x, y = struct.unpack_from('<2i', stock, t - BASE + 4 * idx)
-            native = stock[b + x - BASE:b + y - BASE].decode('utf-16le')
-            require(native.count('[FX]') == 1, 'Unexpected firmware structure')
-            label = native.replace('[FX]', '[FX 3:2]')
-            hits = 0
-            for before, after in [('4644', '5504'), ('4.644', '5.504'), ('4,644', '5,504'), ('4 644', '5 504')]:
-                hits += label.count(before)
-                label = label.replace(before, after)
-            require(hits == 1, (lang, native))
-            labels.append(label)
-        localized_labels.append(labels)
-        for label in labels + (list(extra[lang]) if with_q3 else []):
-            offsets.append(TEXT + len(blob) - b)
-            blob += label.encode('utf-16le')
-        offsets.append(TEXT + len(blob) - b)
-        require(len(offsets) == count, 'Unexpected firmware structure')
-        tables.append(struct.pack(f'<{count}i', *offsets))
-    require(TEXT + len(blob) < TABLES and TABLES + sum(map(len, tables)) < (Q3_STASH if with_q3 else CAVE), 'Unexpected firmware structure')
-    strings_context.add('opengate-nraw', [localized_labels[k] + list(extra[k]) for k in range(36)])
+    put(BASE + page + 32, struct.pack('<H', TOTAL), 'frame-size page 90 rows')
+    lab = e1.labels(stock, 51496352, 59223896)
+    strings_context.add('opengate-nraw', [lab[k][:3] + (list(extra[k]) if with_q3 else []) for k in range(36)])
+    strings_context.add('opengate-e1', [lab[k][3:] for k in range(36)])
     rates = bytearray(stock[43334800:43334800 + 42 * 24])
     rate_edits = []
     for i in range(42):
@@ -157,22 +136,36 @@ def build_main(stock, code, entries, strings_context):
             struct.pack_into('<Q', rates, i * 24 + 16, new)
             rate_edits.append(dict(index=i, numerator=n, denominator=d, quality=q, old_bps=bps, new_bps=new))
     require(len(rate_edits) == 6, 'Unexpected firmware structure')
+    half_edits = []
+    rates, n = e1.half_rows(bytes(rates), 42, 'remaining-time', half_edits)
+    require(n == 14, 'Unexpected firmware structure')
+    rates = bytearray(rates)
     put(RATE, rates, 'private remaining-time records, six low-rate full-height budgets')
-    from .imenu import extend
-    imenu = extend(stock, put)
+    imenu = e1.imenu_active(stock, put)
     q3facts = None
     defs = ['-DWITH_Q3=0']
     if with_q3:
         img, q3facts, data, fine_table, basic_table = q3_feature(q3, stock)
         og_fine, og_basic, tier_rows = og_tier_tables(fine_table, basic_table)
+        og_fine, nf = e1.half_rows(og_fine, 42, 'q3-fine', half_edits)
+        og_basic, nb = e1.half_rows(og_basic, 42, 'q3-basic', half_edits)
+        require(nf == nb == 14, 'Unexpected firmware structure')
         require(data['basic_table'] - data['fine_table'] == len(fine_table) == 1008, 'Unexpected firmware structure')
         put(OG_TIERS, og_fine + og_basic, 'open-gate copies of the Q3 Fine/Basic record tables (8.3K 30/25/24p: 8268x5512, full-height rates)')
         defs = ['-DWITH_Q3=1', f'-DQ3_STASH_RAM={Q3_STASH + Q3_ALIAS:#x}', f"-DQ3_FINE_TABLE={data['fine_table']:#x}", f"-DQ3_BASIC_TABLE={data['basic_table']:#x}", f"-DOG_TIER_DELTA={OG_TIERS - data['fine_table']:#x}"]
         q3facts['og_tier_records'] = tier_rows
-    put(CAVE, code, 'D3 core, D4 policy/menu/time/icon, D5/D6 display, D7 cancel and Q3 joins')
+    recs, pngs, icons = e1.icon_blob(entries)
+    code = bytearray(code)
+    at = entries['og_icon_records_hook'] - CAVE
+    require(code[at:at + len(recs) + len(pngs)] == bytes(len(recs) + len(pngs)), 'Nonempty icon area')
+    code[at:at + len(recs)] = recs
+    code[at + len(recs):at + len(recs) + len(pngs)] = pngs
+    code = bytes(code)
+    require(CAVE + len(code) <= 0x4096F000, 'Open-gate code reaches private state')
+    require(code.count(struct.pack('<10I', *e1.LABEL_IDS)) == 1 and e1.FT_LABEL == 3232, 'E3 strip labels (og32_strip_labels) or 3:2 file-type label out of step with e1.py')
+    put(CAVE, code, 'D3 core, D4 policy/menu/time/icon, D5/D6 display, D7 cancel (unreferenced), Q3 joins, E1 file type, i menu and icons')
     for a, old, name, call in [*sites.SITES, *sites.NAV_SITES]:
-        if name == 'boot_reset_hook':
-            name = 'boot_reset_d8_hook'
+        name = e1.RENAME.get(name, name)
         require(stock[a - BASE:a - BASE + len(bytes.fromhex(old))] == bytes.fromhex(old), 'Unexpected firmware structure')
         delta = entries[name] - a
         new = struct.pack('<I', (2483027968 if call else 335544320) | delta // 4 & 67108863)
@@ -181,16 +174,16 @@ def build_main(stock, code, entries, strings_context):
         put(a, new, name)
     bl = lambda a, t, call: struct.pack('<I', (2483027968 if call else 335544320) | (t - a) // 4 & 67108863)
     for a, name, call in sites.EXTRA:
-        if a == 1090609900:
+        if a == 1090609900 or a in e1.RETIRED:
             continue
+        name = e1.REPLACED.get(a, name)
         delta = entries[name] - a
         require(delta % 4 == 0 and -(1 << 27) <= delta < 1 << 27, 'Unexpected firmware structure')
         put(a, bl(a, entries[name], call), name)
-    for a, w, why in [(1079428924, 4043309087 | 2008 << 10 | 23 << 5, 'list bound = 16 + 83*24'), (1079444276, 1384120321 | 83 << 5, 'selection table count 83'), (1079455300, 2457862165 | 82 << 5, 'summary counter starts -83')]:
+    for a, w, why in [(1079428924, 4043309087 | (16 + 24 * TOTAL) << 10 | 23 << 5, 'list bound = 16 + 90*24'), (1079444276, 1384120321 | TOTAL << 5, 'selection table count 90'), (1079455300, 2457862165 | (TOTAL - 1) << 5, 'summary counter starts -90')]:
         put(a, struct.pack('<I', w), why)
     for a in SESSION_END_SITES:
         require(stock[a - BASE:a - BASE + 4] == bl(a, 1091404800, True), 'Unexpected firmware structure')
-        put(a, bl(a, entries['ds_session_end_d8_hook'], True), 'data-store session end -> ds_session_end_hook')
     if with_q3:
         require(stock[TIER_SITE - BASE:TIER_SITE - BASE + 4] == bytes.fromhex(TIER_WORD), 'Unexpected firmware structure')
         put(TIER_SITE, bl(TIER_SITE, entries['tier_table_hook'], False), 'RAW bit-rate record join -> tier_table_hook')
@@ -198,6 +191,12 @@ def build_main(stock, code, entries, strings_context):
         for e in sorted(img.edits, key=lambda e: e['offset']):
             require(not any((a < e['end'] and e['offset'] < b for a, b in mine)), ('Q3 edit overlaps a D7 edit', hex(e['offset']), e['purpose']))
             put(BASE + e['offset'], e['new'], 'Q3: ' + e['purpose'])
-    for a, name in [(1090000372, 'og_compare_exit_hook'), (1089978268, 'og_apply_hook'), (1089981448, 'og_apply_hook'), (1081663824, 'og_aspect_class_hook'), (1081663964, 'og_aspect_class_thumb_hook')]:
-        put(a, bl(a, entries[name], name == 'og_apply_hook'), name)
-    return (image, dict(code_bytes=len(code), entries={k: hex(v) for k, v in entries.items()}, q3=q3facts, rate_edits=rate_edits))
+    for a, name in [(1081663824, 'og_aspect_class_hook'), (1081663964, 'og_aspect_class_thumb_hook')]:
+        put(a, bl(a, entries[name], False), name)
+    e1_sites = e1.install_sites(stock, put, entries)
+    ft = e1.file_type_page(stock, put, entries)
+    return (image, dict(code_bytes=len(code), entries={k: hex(v) for k, v in entries.items()}, q3=q3facts, rate_edits=rate_edits,
+                        e1=dict(sites=e1_sites, file_type_page=ft, imenu=imenu, icons=icons, half_records=half_edits,
+                                retired={hex(k): v for k, v in e1.RETIRED.items()},
+                                stock_restored=dict(session_end=[hex(a) for a in SESSION_END_SITES],
+                                                    lv_compare=['0x40f815f4', '0x40f7bf9c', '0x40f7cc08']))))

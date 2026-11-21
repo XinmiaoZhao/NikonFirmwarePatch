@@ -76,13 +76,13 @@ og_open_gate_file:
     ldr x20, [sp, #152]
     cbz x20, og_open_gate_file_release
     ldrh w8, [x20, #0xc]
-    mov w9, #8256
-    cmp w8, w9
-    b.ne og_open_gate_file_release
-    ldrh w8, [x20, #0xe]
-    mov w9, #5504
-    cmp w8, w9
-    b.ne og_open_gate_file_release
+    ldrh w9, [x20, #0xe]
+    orr w8, w9, w8, lsl #16
+    bl og32_dims                        // E2: 8256x5504 or 4128x2752 (same instruction count)
+    cbz w8, og_open_gate_file_release
+    nop
+    nop
+    nop
     ldr w8, [x20, #4]
     ubfx w8, w8, #20, #3
     cmp w8, #6                          // N-RAW
@@ -103,3 +103,5 @@ og_open_gate_file_out:
     ldp x1, x2, [sp, #16]
     ldp x29, x30, [sp], #176
     ret
+
+#include "e1_hooks.S"

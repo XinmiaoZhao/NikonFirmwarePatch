@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!-- Hardened Runtime with no exceptions. The app is not sandboxed: it reads the firmware the user
+     chooses, writes a new folder where the user chooses and starts the bundled interpreter. -->
+<plist version="1.0">
+<dict/>
+</plist>

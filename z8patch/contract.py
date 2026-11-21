@@ -3,6 +3,7 @@
 No composer, assembler, linker or resource-generator imports.
 """
 import struct
+STRING_TABLES = 0x40A7C000   # shared language offset tables (E2: moved up from 0x40A70000)
 
 
 def verify_contract(old,new,features):
@@ -10,7 +11,8 @@ def verify_contract(old,new,features):
         if not ok:raise ValueError('Composition contract: '+message)
     base=0x40160000
     read=lambda image,fmt,at:struct.unpack_from(fmt,image,at)
-    framing,quality,log,photo=(s in features for s in ('framing','video-quality','log-colour','photo-tools'))
+    framing = quality = 'video-recording' in features
+    log, photo, raw = (s in features for s in ('log-colour','still-photo-tools','raw-precapture'))
     video=framing or quality or log
     if video:
         rows,events,count=read(new,'<QQH',0x4BCC2C0)
@@ -34,25 +36,56 @@ def verify_contract(old,new,features):
     # 36 offset arrays: native text offsets are byte-for-byte retained, added IDs
     # are present exactly for their selected modules. String IDs stay fixed across masks.
     ranges=[(3137,3142,framing),(3142,3147,photo),(3147,3153,quality),
-            (3153,3161,framing),(3161,3217,quality),(3217,3225,log)]
+            (3153,3161,framing),(3161,3217,quality),(3217,3225,log),(3225,3234,framing),(3234,3238,photo),(3238,3250,photo)]
+    entries=3251 if photo else (3235 if framing else 3226)             # the open-gate E1/E2 strings extend the table only with framing
     for language in range(36):
         table=read(new,'<Q',0x311C5A0+8*language)[0]
         original_table=read(old,'<Q',0x311C5A0+8*language)[0]
-        need(table==0x40A70000+language*3226*4,'language table position')
-        offsets=read(new,'<3226i',table-base)
+        if not (photo or video):
+            need(table==original_table,'RAW-only keeps factory language directory')
+            continue
+        need(table==STRING_TABLES+language*entries*4,'language table position')
+        offsets=read(new,f'<{entries}i',table-base)
         need(offsets[:3137]==read(old,'<3137i',original_table-base),'native string offsets')
         blob=read(new,'<Q',0x387AF58+8*language)[0]
         for lo,hi,enabled in ranges:
+            if hi>entries-1:continue
             for ident in range(lo,hi):
                 a,b=blob+offsets[ident],blob+offsets[ident+1]
-                need(0x40A50000<=a<=b<=0x40A70000,'added string bounds')
+                need(0x40A50000<=a<=b<=STRING_TABLES,'added string bounds')
                 need(bool(b-a)==enabled,'selected string presence')
                 new[a-base:b-base].decode('utf-16le')
     loader=read(new,'<II',0x1024D8C)
     end=((loader[0]>>5)&65535)|(((loader[1]>>5)&65535)<<16)
-    need(0x40AE2000<=end<=0x40C00000 and end%4096==0,'copy boundary covers strings')
+    if video or photo:
+        need(0x40AE2000<=end<=0x40C00000 and end%4096==0,'copy boundary covers resources')
+    else:
+        # The 228-byte RAW recording menu starts at 0x409F9000 and needs the next page.
+        need(end==0x409FA000,'RAW-only loader')
+    need((new[0xE0FE90:0xE0FE94]!=old[0xE0FE90:0xE0FE94])==raw,'pre-capture hook ownership')
+    for va in (0x40EC8D24,0x40EC8D28,0x406C2304,0x410B7C64):
+        at = va-base
+        need((new[at:at+4]!=old[at:at+4])==photo,'photo capture hook ownership')
+    for state, present in ((0xAB,photo),(0x17D,quality)):
+        pos = 0x4BFFCC0+96*state
+        for delta in (40,80):
+            need((new[pos+delta:pos+delta+8]!=old[pos+delta:pos+delta+8])==present,'submenu ownership')
+    if photo:
+        need(end>=0x40BA0000,'crop data and zero-state loader floor')
+        need(read(new,'<Q',0x4DA1288)[0]==0x40B91040,'fixed C-low geometry pointer')
+        need(read(new,'<H',0x40B91040-base+10)[0]==576,'fixed crop height')
+        groups = read(new,'<II',0x40B80000-base+44*2)
+        need(groups[0]==3238 and read(new,'<I',0x40B80000-base+44*5)[0]==3239,'crop label references')
+        for row,icon in ((5,0x7110),(6,0x7111)):
+            need(read(new,'<I',0x40B80000-base+44*row+20)[0]==icon,'still menu icon')
+        need(read(new,'<H',0x40B84000-base+0x140)[0]==0x100,'still icon descriptors')
+        need(read(new,'<H',0x4BD79D0+32)[0]==7,'crop menu row count')
+        need(new[0x409ED000-base:0x409F0000-base]==bytes(0x3000),'pixel shift initial worker state')
     if log:need(end>=0x40B50000 and not any(new[0x40B0E000-base:0x40B0F100-base]),'Log private state initialized')
     if quality:need(new[0x40A40000-base]==0,'star force initially clear')
     if framing:need(not any(new[0x4097F000-base:0x40980000-base]),'AP state initialized')
-    return dict(status='PASS',video_menu=video,language_tables=36,offsets_per_language=3226,
+    if framing:
+        need(not any(new[0x4096F000-base:0x40970000-base]),'open-gate private state initialized')
+        need(read(new,'<H',0x4B13000+0xA028C1690-0xA02808000)[0]==11,'video file type page: 11 rows')
+    return dict(status='PASS',video_menu=video,language_tables=36 if photo or video else 0,offsets_per_language=entries if photo or video else 3137,
                 exact_group_visibility=True,zero_state=True,loader_end=hex(end))

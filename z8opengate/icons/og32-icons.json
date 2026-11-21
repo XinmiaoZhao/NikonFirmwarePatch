@@ -1,0 +1,45 @@
+{
+  "scope": "3:2-marked N-RAW file-type icons (menu row, shooting-screen solid/outline); 8-bit greyscale, filter 0, zlib 9 as the HB2 icons",
+  "icons": [
+    {
+      "number": "0x7100",
+      "role": "menu",
+      "file": "og32_menu.png",
+      "width": 104,
+      "height": 36,
+      "bytes": 769,
+      "sha256": "349e0a0d258debecc938c519fba054e655a7ec6d35e54040062cd01e2e5f493e",
+      "source": "research icon_check.py mock-up menu_nraw_32.png"
+    },
+    {
+      "number": "0x7101",
+      "role": "lv_solid",
+      "file": "og32_lv_solid.png",
+      "width": 82,
+      "height": 32,
+      "bytes": 749,
+      "sha256": "60fbe348b3098c6542ea735ebd95969c903b98d4ca8d810e05e57d7481c6db12",
+      "source": "research icon_check.py mock-up lv_nraw_32.png"
+    },
+    {
+      "number": "0x7102",
+      "role": "lv_outline",
+      "file": "og32_lv_outline.png",
+      "width": 86,
+      "height": 36,
+      "bytes": 858,
+      "sha256": "615bfcc296a9106ab31bb6bac4b9efc1322aadfadd25f912ee8e483ebaf216c3",
+      "source": "research icon_check.py mock-up lv_nraw_32_outline.png"
+    },
+    {
+      "number": "0x7103",
+      "role": "imenu_pad_blank",
+      "file": "og32_blank.png",
+      "width": 64,
+      "height": 32,
+      "bytes": 81,
+      "sha256": "6bc3b9acc258a9bfeb41b1c1dc842ae797ab2688e4890323b56b85ffd231d0f5",
+      "source": "E2: all-zero 64x32 greyscale (stock N-RAW i-menu cell icons are 64x32, background 0) for the unused cells 10..18 of the 3:2 list"
+    }
+  ]
+}
