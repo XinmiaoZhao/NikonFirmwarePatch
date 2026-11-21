@@ -2,8 +2,8 @@
   "schema": 1,
   "units": {
     "precapture": {
-      "bytes": 33917,
-      "sha256": "6dc74ff58f0a1bae5a947ea869e07444705b496330687849d728205242b54644",
+      "bytes": 37280,
+      "sha256": "3b61605564e6e713a38b5e301206a616b5983f490b37746816c147eec95e835b",
       "symbols": {
         "$x": {
           "va": "0x409f0040",
@@ -15,10 +15,10 @@
         },
         "e_shape": {
           "va": "0x409f2e34",
-          "bytes": 284
+          "bytes": 280
         },
         "crc32": {
-          "va": "0x409f2f50",
+          "va": "0x409f2f4c",
           "bytes": 48
         },
         "bound": {
@@ -34,7 +34,7 @@
           "bytes": 64
         },
         "aux_ok": {
-          "va": "0x409f2f80",
+          "va": "0x409f2f7c",
           "bytes": 124
         },
         "aux_seal": {
@@ -46,15 +46,15 @@
           "bytes": 840
         },
         "nef_flags": {
-          "va": "0x409f3070",
+          "va": "0x409f306c",
           "bytes": 148
         },
         "dual_list": {
-          "va": "0x409f3104",
+          "va": "0x409f3100",
           "bytes": 156
         },
         "two_lists": {
-          "va": "0x409f2ffc",
+          "va": "0x409f2ff8",
           "bytes": 116
         },
         "second": {
@@ -66,147 +66,175 @@
           "bytes": 644
         },
         "prepare": {
-          "va": "0x409f31a0",
-          "bytes": 1544
+          "va": "0x409f319c",
+          "bytes": 1624
         },
         "flow": {
-          "va": "0x409f37a8",
-          "bytes": 416
+          "va": "0x409f37f4",
+          "bytes": 720
         },
         "crc_table": {
-          "va": "0x409f7f94",
+          "va": "0x409f8c74",
           "bytes": 1024
         },
         "preview_stream": {
-          "va": "0x409f3948",
+          "va": "0x409f3ac4",
           "bytes": 368
         },
         "jpg_name": {
-          "va": "0x409f3ab8",
+          "va": "0x409f3c34",
           "bytes": 332
         },
         "build": {
-          "va": "0x409f3c04",
-          "bytes": 8412
+          "va": "0x409f3d80",
+          "bytes": 9192
         },
         "register_member": {
-          "va": "0x409f6844",
+          "va": "0x409f74b0",
           "bytes": 300
         },
         "stock_nef": {
-          "va": "0x409f6970",
-          "bytes": 2100
+          "va": "0x409f75dc",
+          "bytes": 2220
         },
         "jpeg_cancelled": {
-          "va": "0x409f71a4",
+          "va": "0x409f7e88",
           "bytes": 92
         },
         "xmp_ns": {
-          "va": "0x409f8460",
+          "va": "0x409f9150",
           "bytes": 29
         },
         "find": {
-          "va": "0x409f5ce0",
+          "va": "0x409f6168",
           "bytes": 288
         },
         "ifd_count": {
-          "va": "0x409f5e00",
+          "va": "0x409f6288",
           "bytes": 92
         },
         "nb": {
-          "va": "0x409f5e5c",
+          "va": "0x409f62e4",
           "bytes": 268
         },
         "crc16": {
-          "va": "0x409f5f68",
+          "va": "0x409f63f0",
           "bytes": 160
         },
+        "ni_tag": {
+          "va": "0x409f9170",
+          "bytes": 8
+        },
+        "stock_block": {
+          "va": "0x409f6544",
+          "bytes": 1016
+        },
         "emit": {
-          "va": "0x409f60bc",
+          "va": "0x409f693c",
           "bytes": 1396
         },
+        "curve": {
+          "va": "0x409f6eb0",
+          "bytes": 160
+        },
         "put": {
-          "va": "0x409f6008",
+          "va": "0x409f6490",
           "bytes": 180
         },
         "skip0": {
-          "va": "0x409f83a6",
-          "bytes": 22
+          "va": "0x409f9086",
+          "bytes": 28
         },
         "copy_entries": {
-          "va": "0x409f6630",
+          "va": "0x409f6f50",
           "bytes": 468
         },
         "refbw": {
-          "va": "0x409f83bc",
+          "va": "0x409f90a2",
           "bytes": 48
         },
         "tiffep": {
-          "va": "0x409f83ec",
+          "va": "0x409f90d2",
           "bytes": 4
         },
         "rat300": {
-          "va": "0x409f83f0",
+          "va": "0x409f90d6",
           "bytes": 8
         },
         "cfa_dim": {
-          "va": "0x409f83f8",
+          "va": "0x409f90de",
           "bytes": 4
         },
         "cfa_rggb": {
-          "va": "0x409f83fc",
+          "va": "0x409f90e2",
           "bytes": 4
         },
         "one8": {
-          "va": "0x409f8400",
+          "va": "0x409f90e6",
           "bytes": 1
         },
+        "placeholder": {
+          "va": "0x409f7124",
+          "bytes": 568
+        },
         "skipx": {
-          "va": "0x409f8402",
-          "bytes": 18
+          "va": "0x409f90e8",
+          "bytes": 20
         },
         "pad2": {
-          "va": "0x409f6804",
+          "va": "0x409f735c",
           "bytes": 64
         },
         "nikon2": {
-          "va": "0x409f8394",
+          "va": "0x409f9074",
           "bytes": 18
         },
         "skipm": {
-          "va": "0x409f8414",
-          "bytes": 20
+          "va": "0x409f90fc",
+          "bytes": 28
+        },
+        "fix56": {
+          "va": "0x409f739c",
+          "bytes": 276
         },
         "quality_raw": {
-          "va": "0x409f8428",
+          "va": "0x409f9118",
           "bytes": 8
         },
         "jpgc_nef": {
-          "va": "0x409f8430",
+          "va": "0x409f9120",
           "bytes": 2
         },
+        "mn_a4": {
+          "va": "0x409f9122",
+          "bytes": 4
+        },
         "type_size": {
-          "va": "0x409f8432",
+          "va": "0x409f9126",
           "bytes": 13
         },
+        "ni_leaf": {
+          "va": "0x409f9180",
+          "bytes": 32
+        },
         "stop_file": {
-          "va": "0x409f7d64",
+          "va": "0x409f8a48",
           "bytes": 408
         },
         "build_footer": {
-          "va": "0x409f72a4",
+          "va": "0x409f7f88",
           "bytes": 2752
         },
         "seg": {
-          "va": "0x409f7200",
+          "va": "0x409f7ee4",
           "bytes": 164
         },
         "$d": {
-          "va": "0x409f8460",
+          "va": "0x409f9180",
           "bytes": 0
         },
         "precapture_tdec_sel_entry": {
-          "va": "0x409f7f00",
+          "va": "0x409f8be0",
           "bytes": 0
         },
         "hn5_tdec_sel": {
@@ -214,11 +242,11 @@
           "bytes": 72
         },
         "precapture_area_mode": {
-          "va": "0x409f7f20",
+          "va": "0x409f8c00",
           "bytes": 0
         },
         "precapture_y_size_entry": {
-          "va": "0x409f7f60",
+          "va": "0x409f8c40",
           "bytes": 0
         },
         "hn4_y_size": {
@@ -226,7 +254,7 @@
           "bytes": 456
         },
         "precapture_y_alloc_entry": {
-          "va": "0x409f7f68",
+          "va": "0x409f8c48",
           "bytes": 0
         },
         "hn4_y_alloc": {
@@ -314,15 +342,15 @@
           "bytes": 1160
         },
         "precapture_dcf_ids": {
-          "va": "0x409f7f70",
+          "va": "0x409f8c50",
           "bytes": 36
         }
       },
       "source_sha256": {
         "z8precapture/crc32_table.inc": "fe021e684d78717732adddb6c9dde91f6fc6918f18cb0aeccfb349db5511a515",
-        "z8precapture/firmware.c": "b2320bc917fad7b53030813a4909a5add2aa06d97a2ba293a85e9105ba3fad9c"
+        "z8precapture/firmware.c": "4ccbc09e8be62d5c6fda514051d3107449283f957b23daf5515718a26a94df8d"
       },
-      "compiler": "Apple clang version 21.0.0 (clang-2100.1.1.101)",
+      "compiler": "Apple clang version 21.0.0 (clang-2100.4.1.1)",
       "flags": [
         "--target=aarch64-none-elf",
         "-O2",

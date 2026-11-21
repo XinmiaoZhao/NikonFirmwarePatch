@@ -103,6 +103,10 @@ def compose(eg, features, compiler='clang', code_source='prebuilt', *, check_rec
         af,_=load('pixelshift-af',code_source,compiler)
         part,detail['pixelshift']=build_main(eg,code,meta['symbols'],af,strings)
         merge('pixelshift',part)
+        from z8dxlens.patcher import edits as dx_edits
+        dx=dx_edits(eg)
+        for e in dx:img.put(e['offset'],e['new'],e['purpose'],expect=e['old'])
+        detail['dx-lens-fx']=dict(edits=len(dx))
     detail['strings']=strings.emit(img)
     if callbacks:
         code,entries=unit('shared')

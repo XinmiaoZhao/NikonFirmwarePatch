@@ -1,5 +1,35 @@
 # 更新日志 / Changelog
 
+## 未发布 / Unreleased
+
+已在 Z8 机身上测试（`photo-tools`，C15／C30 预拍，机内“NEF（RAW）处理”与 RAW-only 回放）。`resources/compiled.json` 与 `resources/combinations.json` 中的预拍单元和组合配方已用 Apple clang 21.0.0（clang-2100.4.1.1）重新生成；构建方法：将本分支文件覆盖到解压后的 v0.4.0 完整工具包（其余八个预编译单元不变），运行 `python tools/build_precapture_unit.py` 生成并核对 `resources/precapture.bin`，再按默认预编译模式构建。
+
+### 修改与修复
+
+- **预拍 NEF 文件头。** 针对[问题 #23](https://github.com/XinmiaoZhao/NikonFirmwarePatch/issues/23)、[#27](https://github.com/XinmiaoZhao/NikonFirmwarePatch/issues/27)：机身自带的 NEF 读取器要求 IFD0 的 SubIFDs 恰好六项且后三项偏移非零，旧文件头只写三项（回退路径两项），因此“NEF（RAW）处理”提示“无法编辑照片”。现在始终写六个 SubIFD，SubIFD3–5 采用原厂无图像时的空占位。
+- **与原厂 NEF 标签表对齐。** 新增 NEFInfo 块 0x05–0x07、0x0C、0x10–0x13（由原厂写入函数生成）和 MakerNote 0x0046、0x008C、0x00A4；不再从 JPEG 头带入 IFD0 0x013E／0x013F／0x0211、Exif 0xA500 与 MakerNote 0x0050。
+- **RAW-only 预拍的连拍起始文件编号。** NEF 头由原厂为 JPEG 计划生成的文件头构建，因此 MakerNote 0x0056 的连拍起始编号为 JPG 类型，指向 RAW-only 下被取消的 JPEG。仅写 NEF 时，现将该编号的类型改为 NEF；原厂写入器完成时用于回放文件列表的 M+0x118／+0x11C 在写入期间同样给出 NEF 类型，写完后恢复。只修改通过原厂校验的编号；同卡 RAW+JPEG 不变。
+- **RAW-only 连拍的回放连拍组图标。** RAW-only 时 NEF 写完后会取消该帧的 JPEG 成员，取消操作按数据库刷新回放列表中的条目，而数据库不含连拍字段，因此连拍组图标要到重新插卡后才显示（分组与翻组正常）。现在取消后按原厂写入器完成时的方式（0x406cd6bc–0x406cd75c）再次发送该 NEF 的“文件已写入”事件，带 NEF 类型的起始编号与连拍序号；只用于卡 1／2 上的连拍帧，不写卡。
+
+### 新增（已在 Z8 机身上测试，固件 03.12.d2）
+
+> 本节中文由 AI 根据英文原文翻译。
+
+- **DX 镜头使用 FX 影像区域。** 针对[问题 #45](https://github.com/XinmiaoZhao/NikonFirmwarePatch/issues/45)：`photo-tools` 现在允许在安装电子 DX 镜头（Z 卡口 DX 镜头，或经 FTZ 转接的 F 卡口 DX 镜头）时选择 FX（36×24），相当于 D850 的“自动 DX 裁切：关闭”。相机不再自动切换到 DX；需要 DX 时请手动选择。照片、视频和延时视频的“选择影像区域”、8K 与 FX N-RAW／ProRes RAW 视频尺寸、影像区域按键功能以及 PTP 设置不再因 DX 镜头而锁定。“图像除尘参照照片”在 DX 镜头下仍不可用；镜头仍按 DX 报告（EXIF、PTP）。共 36 处固定字节修改（`z8dxlens/patcher.py`），无新增代码；`resources/combinations.json` 中包含 `photo-tools` 的配置各增加这 36 行，其余不变。详见 [DX 镜头使用 FX 影像区域](docs/dx-lens-fx.md)。
+
+### English
+
+Tested on a Z8 (`photo-tools`, C15/C30 pre-capture, in-camera NEF (RAW) processing and RAW-only playback). The pre-capture unit and combination recipes in `resources/compiled.json` and `resources/combinations.json` were regenerated with Apple clang 21.0.0 (clang-2100.4.1.1). To build, copy this branch over an extracted v0.4.0 toolkit (the other eight prebuilt units are unchanged), run `python tools/build_precapture_unit.py` to compile and check `resources/precapture.bin`, then build in the default prebuilt mode.
+
+- **Pre-capture NEF header.** For [issue #23](https://github.com/XinmiaoZhao/NikonFirmwarePatch/issues/23) and [#27](https://github.com/XinmiaoZhao/NikonFirmwarePatch/issues/27): the camera's own NEF reader requires exactly six SubIFDs in IFD0 with non-zero offsets for the last three. The previous header wrote three (two on the fallback path), so Retouch › NEF (RAW) processing reported “Unable to edit picture”. Six are now always written; SubIFD3–5 are the empty placeholders stock firmware writes when a frame has no such image.
+- **Stock NEF tag lists.** Adds NEFInfo blocks 0x05–0x07, 0x0C, 0x10–0x13 (produced by the stock writer functions) and MakerNote 0x0046, 0x008C, 0x00A4. IFD0 0x013E/0x013F/0x0211, Exif 0xA500 and MakerNote 0x0050 are no longer carried over from the JPEG header.
+- **Burst-start file ID in RAW-only pre-capture.** The NEF header is built from the header the camera made for the JPEG plan, so MakerNote 0x0056 carried a JPG-typed burst-start ID pointing at a JPEG that RAW-only cancels. When a card gets only the NEF, the ID now has the NEF type. The stock writer's completion, which re-reads M+0x118/+0x11C for the playback file list, sees the same NEF-typed ID during the write, and the word is restored afterwards. Only IDs the stock validator accepts are changed; RAW+JPEG on one card is unchanged.
+- **Series symbol in playback for RAW-only bursts.** In RAW-only, the frame's JPEG member is cancelled after the NEF is written. The cancel refreshes the playback-list entry from the database, which has no series fields, so the series symbol appeared only after the card was reloaded (grouping and group navigation already worked). After the cancel, the NEF's "file written" event is now sent again, built as the stock writer's completion builds it (0x406cd6bc–0x406cd75c), with the NEF-typed start ID and the shot number. This applies only to series frames on card 1 or 2 and writes nothing to the card.
+
+**New, tested on a Z8 (firmware 03.12.d2)** (the Chinese text for this entry was translated by AI):
+
+- **FX image area with DX lenses.** For [issue #45](https://github.com/XinmiaoZhao/NikonFirmwarePatch/issues/45): `photo-tools` now lets you choose FX (36×24) with an electronic DX lens attached (Z-mount DX, or F-mount DX on the FTZ), like "Auto DX crop: Off" on the D850. The camera no longer switches to DX by itself; select DX when you want it. The photo, video and time-lapse "Choose image area" items, the 8K and FX N-RAW/ProRes RAW video sizes, the image-area button functions and the PTP image-area settings are no longer locked by a DX lens. Image Dust Off ref photo stays unavailable with DX lenses, and the lens is still reported as DX (EXIF, PTP). 36 fixed byte edits (`z8dxlens/patcher.py`), no new code; in `resources/combinations.json` every profile that includes `photo-tools` gains these 36 rows and nothing else changes. See [FX image area with DX lenses](docs/dx-lens-fx.md).
+
 ## [v0.4.0](https://github.com/XinmiaoZhao/NikonFirmwarePatch/releases/tag/v0.4.0) — 四组补丁 / Four feature groups
 
 2026-11-10 发布。以下变化相对于上一公开功能系列 v0.3.0／v0.3.0-r1。v0.4.0 的源码、九份预编译补丁单元和固件补丁与预发布版 v0.4.0-rc.2 相同，只更新版本标注和下载链接；RC2 补全了 README 使用说明、致谢和模拟器截图，固件补丁与 RC1 相同。
