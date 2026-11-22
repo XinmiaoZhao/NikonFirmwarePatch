@@ -1,6 +1,6 @@
 {
  "schema": 3,
- "release": "v0.5.0",
+ "release": "v0.5.1",
  "platform": "macOS arm64",
  "input_sha256": "d67413c2ede6b9ce8887175f20700bd9fbad2a973a4820968c45503d15d80d96",
  "cases": [
@@ -161,6 +161,12 @@
    "HQ and LT ProRes recordings",
    "DX and FX lossless selection produced HE-star NEFs; C30 at 29.9 fps",
    "4- and 16-shot pixel-shift groups at non-default starting numbers merged"
+  ],
+  "v051_fixes": [
+   "All-group build byte-identical to the camera-tested 06.80.g1 (7e4cc7b1...) apart from version and checksums; 04.08.p0 (73a151f7...) differs from it in 15 decoded bytes",
+   "4.1K 3:2 standby live view normal for several minutes at each of the seven frame rates (120/100/60/50/30/25/24p), with AF-area mode and subject-detection changes at 60p and 100p (before: very slow refresh at 120p, pink screen after restart)",
+   "Touch tracking in auto-area AF during 4.1K 3:2 recording at 24p and 120p and a single-point touch at 120p: four clips, 5,973 frames; a 116 s 100p recording with AF-area mode changes and touch AF: 11,625 frames; main and proxy frame counts equal, proxies decoded in full",
+   "Viewfinder playback of a 3:2 clip full width, smooth, no blocks; 16:9 clips play normally on the monitor and in the viewfinder with screen switching; 8K H.265 and 4K ProRes 422 LT clips from the same package decode in full; monitor auto-area AF box as tall as 16:9 and rows on the stock photo grid"
   ]
  },
  "windows_firmware_smoke": "See Host checks workflow_dispatch for this release commit; Python 3.12 and 3.13, digest-verified release archive",

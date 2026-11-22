@@ -1,8 +1,8 @@
-> 当前四组版本 v0.5.0 的机身测试范围见[验证记录](validation.md)。本文按功能列出实际限制。
+> 当前四组版本 v0.5.1 的机身测试范围见[验证记录](validation.md)。本文按功能列出实际限制。
 
 # 已知问题与功能限制 / Known issues and feature limits
 
-适用于基于官方 Nikon Z8 C 3.11 的当前四组版本 v0.5.0；历史公开版本限制保留具体版本号。以下列出当前实现中已确认的问题和明确的功能限制；操作方法见各功能指南，验证记录见[当前版本验证](validation.md)。
+适用于基于官方 Nikon Z8 C 3.11 的当前四组版本 v0.5.1；历史公开版本限制保留具体版本号。以下列出当前实现中已确认的问题和明确的功能限制；操作方法见各功能指南，验证记录见[当前版本验证](validation.md)。
 
 ## Windows 工具包修订
 
@@ -66,6 +66,7 @@
 
 - **3:2 只限 N-RAW 文件类型。** “N-RAW 12位 3:2(NEV)”提供 8.3K 30／25／24p（8256×5504）和 4.1K 120p 至 24p（4128×2752）。8.3K 3:2 最高 30p，ProRes／H.265 仍为 16:9。i 菜单没有文件类型项，需在视频拍摄菜单切换。
 - **离开 3:2 后对焦点可能停在多出的一行。** 按一次多重选择器即可回到 16:9 网格。
+- **3:2 画面最上、最下各一行对焦点可能不会启用。** N-RAW 3:2 下，自动区域 AF 的合焦绿框可能最多只亮到从上数第二行和从下数第二行；对象跟踪 AF 把对焦框放在最外一行后按 OK，框可能向内移动一行。
 - **两档画质的软件会合并档位名称。** 为兼容这类读取器，Fine 映射为 High、Basic 映射为 Normal；软件显示的两档名称不能用于区分实际的四档编码。
 - **低码率档位有细节损失。** Basic 使用 1.0 bit/像素预算，实拍已观察到高频纹理减弱。8.3K 3:2 High 为 2.5 bit/像素，低于普通 8.3K 30／25／24p High 的 3.0 bit/像素；不能把两者视为相同的单位像素压缩预算。
 
@@ -77,7 +78,7 @@
 
 The original v0.3.0 can reject pre-capture, pixel-shift or open-gate builds on Windows with `Compiled patch source does not match the reviewed recipe`, even when `--check` passes. v0.3.0-r1 fixes path-separator comparison. Extract the complete revised toolkit into a fresh directory and build from official C 3.11 into a new output directory. Keep the recipes and hash checks intact. `--check` validates input compatibility; it is not a complete build check. See [issue #12](https://github.com/XinmiaoZhao/NikonFirmwarePatch/issues/12).
 
-Applies to the current four-group release, v0.5.0, built from official Nikon Z8 C 3.11. Historical limitations name their affected releases.
+Applies to the current four-group release, v0.5.1, built from official Nikon Z8 C 3.11. Historical limitations name their affected releases.
 
 ### RAW capture and pre-capture
 
@@ -131,5 +132,6 @@ See the [still crop guide](photo-crop.md).
 
 - 3:2 is limited to the N-RAW 12-bit 3:2 (NEV) file type: 8.3K 30/25/24p (8256×5504) and 4.1K 120p to 24p (4128×2752). 8.3K 3:2 stops at 30p, and ProRes/H.265 stay 16:9. The i menu has no file type item; switch in the video recording menu.
 - After leaving 3:2, the focus point can remain on an extra row; press the multi selector once to return to the 16:9 grid.
+- In N-RAW 3:2, auto-area AF and subject-tracking AF may not use the top and bottom rows of focus points: auto-area AF may light its in-focus boxes only as far as the second row from the top and bottom, and a subject-tracking AF frame placed on the outermost row may move one row inward when OK is pressed.
 - Compatibility metadata maps Fine to High and Basic to Normal for two-tier readers. Those labels cannot distinguish all four actual encoding grades.
 - Basic uses a 1.0-bit/pixel budget, with reduced fine texture observed in camera samples. 8.3K 3:2 High uses 2.5 bits/pixel versus 3.0 for ordinary 8.3K 30/25/24p High.

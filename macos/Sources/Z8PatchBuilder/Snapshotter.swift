@@ -120,7 +120,7 @@ enum Snapshotter {
         await shot("07-risk-expanded", width: 1300) { WindowMock(model: model, height: 1000, sheet: AnyView(RiskConfirmView(model: model))) }
 
         if stock != nil {
-            // A real build of all four groups as 04.07.p0 (the README example), into the temporary folder.
+            // A real build of all four groups as 04.08.p0 (the README example), into the temporary folder.
             await ready(model, FeatureID.allCases, focus: .videoRecording, stock: stock)
             model.beginBuild()
             model.showFlow = false

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """All 15 feature selections and integrity failures using an external stock fixture."""
-import argparse,binascii,itertools,json,os,subprocess,sys,tempfile
+import argparse,binascii,concurrent.futures,itertools,json,os,subprocess,sys,tempfile
 from pathlib import Path
 sys.dont_write_bytecode=True
 ROOT=Path(__file__).resolve().parents[1];sys.path.insert(0,str(ROOT))
@@ -11,9 +11,32 @@ from verify import verify_pair
 def need(ok,message):
     if not ok:raise RuntimeError(message)
 
+# One stock package per process: workers decode it once in the initializer, not per selection.
+WORK={}
+def load_stock(path):
+    original=Path(path).read_bytes();WORK.update(original=original,pkg=Package(original))
+
+def check_selection(names):
+    """Build one selection, verify it by request and by detection, and refuse a wrong feature claim."""
+    original,pkg=WORK['original'],WORK['pkg']
+    eg,meta=build(pkg.eg,'00.00','t0',names)
+    packet,_=pkg.replace_eg(eg,'eg2070_0000t0.bi')
+    verified=verify_pair(original,packet,names,expected_version='00.00',expected_tag='t0')
+    auto=verify_pair(original,packet)
+    need(set(auto['features'])==set(names) and not auto['requested_features_checked'],'Automatic detection')
+    need(meta['features']==names and verified['status']=='PASS','Selection mismatch')
+    rows=[dict(test='+'.join(names),result='PASS',payload_sha256=sha(eg),package_sha256=sha(packet))]
+    wrong=[f for f in FEATURES if f not in names] or ['video-recording']
+    try:verify_pair(original,packet,wrong)
+    except (ValueError,KeyError):rows.append(dict(test='+'.join(names)+' wrong feature claim',result='REJECTED'))
+    else:raise RuntimeError('Accepted negative control: '+'+'.join(names)+' wrong feature claim')
+    return rows,((eg,packet) if names==list(FEATURES) else None)
+
 def main():
     ap=argparse.ArgumentParser(description=__doc__);ap.add_argument('--stock',type=Path,required=True)
-    ap.add_argument('--report',type=Path,required=True);ap.add_argument('--compiler',default='/usr/bin/clang');a=ap.parse_args()
+    ap.add_argument('--report',type=Path,required=True);ap.add_argument('--compiler',default='/usr/bin/clang')
+    ap.add_argument('--jobs',type=int,default=min(6,os.cpu_count() or 1),help='selections checked in parallel; each worker peaks near 1.5 GB')
+    a=ap.parse_args();need(a.jobs>=1,'--jobs must be at least 1')
     need(not a.report.exists(),'Report exists')
     original=a.stock.read_bytes();require_official_input(original);pkg=Package(original)
     rows=[];failures=[]
@@ -22,20 +45,18 @@ def main():
         except (ValueError,KeyError):rows.append(dict(test=name,result='REJECTED'))
         else:raise RuntimeError('Accepted negative control: '+name)
     try:
-        for bits in itertools.product((False,True),repeat=4):
-            names=[f for f,on in zip(FEATURES,bits) if on]
-            if not names:continue
-            eg,meta=build(pkg.eg,'00.00','t0',names)
-            packet,_=pkg.replace_eg(eg,'eg2070_0000t0.bi')
-            verified=verify_pair(original,packet,names,expected_version='00.00',expected_tag='t0')
-            auto=verify_pair(original,packet)
-            need(set(auto['features'])==set(names) and not auto['requested_features_checked'],'Automatic detection')
-            need(meta['features']==names and verified['status']=='PASS','Selection mismatch')
-            rows.append(dict(test='+'.join(names),result='PASS',payload_sha256=sha(eg),package_sha256=sha(packet)))
-            print('+'.join(names)+': PASS',flush=True)
-            wrong=[f for f in FEATURES if f not in names] or ['video-recording']
-            reject('+'.join(names)+' wrong feature claim',lambda:verify_pair(original,packet,wrong))
-        # Last iteration is all features. Source mode must give the same bytes.
+        selections=[[f for f,on in zip(FEATURES,bits) if on] for bits in itertools.product((False,True),repeat=4)][1:]
+        pool=concurrent.futures.ProcessPoolExecutor(a.jobs,initializer=load_stock,initargs=(str(a.stock),)) if a.jobs>1 else None
+        try:
+            if pool is None:WORK.update(original=original,pkg=pkg);results=map(check_selection,selections)
+            else:results=pool.map(check_selection,selections)
+            # Results come back in selection order, so the report lists them as the serial loop did.
+            for names,(found,full) in zip(selections,results):
+                rows.extend(found);print('+'.join(names)+': PASS',flush=True)
+                if full:eg,packet=full
+        finally:
+            if pool is not None:pool.shutdown(cancel_futures=True)
+        # The last selection is all features. Source mode must give the same bytes.
         source,_=build(pkg.eg,'00.00','t0',list(FEATURES),a.compiler,'source')
         need(source==eg,'Source/prebuilt mismatch')
         rows.append(dict(test='all features source/prebuilt equivalence',result='PASS',payload_sha256=sha(source)))

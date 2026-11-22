@@ -552,11 +552,11 @@ struct ExportSection: View {
                                 .font(.system(.body, design: .monospaced))
                                 .frame(width: 84)
                             if model.version.isEmpty {
-                                hint(lang.t("Enter NN.NN, e.g. 04.07. Give different selections different versions so they are distinguishable on the camera."))
+                                hint(lang.t("Enter NN.NN, e.g. 04.08. Give different selections different versions so they are distinguishable on the camera."))
                             } else {
                                 validation(ok: model.versionValid,
                                            good: lang.t("Format NN.NN. Give different selections different versions so they are distinguishable on the camera."),
-                                           bad: lang.t("Use two digits, a dot and two digits, e.g. 04.07"))
+                                           bad: lang.t("Use two digits, a dot and two digits, e.g. 04.08"))
                             }
                         }
                     }

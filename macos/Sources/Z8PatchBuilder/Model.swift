@@ -139,8 +139,8 @@ final class BuilderModel {
         return false
     }
 
-    /// The README example identity: each public release adds 0.01 (v0.4.0 used 04.06, v0.5.0 uses 04.07).
-    static let defaultVersion = "04.07"
+    /// The README example identity of this release.
+    static let defaultVersion = "04.08"
 
     var versionValid: Bool { version.range(of: #"^[0-9]{2}\.[0-9]{2}$"#, options: .regularExpression) != nil }
     var tagValid: Bool { tag.range(of: #"^[a-z][0-9]$"#, options: .regularExpression) != nil }
@@ -163,7 +163,7 @@ final class BuilderModel {
         return "Z8-\(versionValid ? version : "NN.NN").\(tag)" + (parts.isEmpty ? "" : "-" + parts.joined(separator: "+"))
     }
 
-    /// First free name: `Z8-04.07.p0-video`, then `… 2`, `… 3`; never an existing folder.
+    /// First free name: `Z8-04.08.p0-video`, then `… 2`, `… 3`; never an existing folder.
     func refreshOutputName() {
         let base = baseFolderName
         guard let parent = outputParent else { outputFolderName = base; return }
@@ -382,9 +382,9 @@ final class BuilderModel {
     }
 
     func mockInvalidInput() {
-        let url = FileManager.default.homeDirectoryForCurrentUser.appendingPathComponent("Downloads/Z_8_0407.bin")
+        let url = FileManager.default.homeDirectoryForCurrentUser.appendingPathComponent("Downloads/Z_8_0408.bin")
         input = .checked(InputInfo(url: url, bytes: toolkit.input.bytes,
-                                   sha256: "e084a43bfb37650ead5a55f2a0c582b4b0ff82513aca95da0d99144d3d576533",
+                                   sha256: "73a151f7ce1f033a5eaadb44cfcf5e37c74bc250addc7841061a3a606fc4bab5",
                                    sizeOK: true, hashOK: false, toolkitCheck: .notRun))
     }
 

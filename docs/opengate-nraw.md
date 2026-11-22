@@ -36,6 +36,7 @@ N-RAW 3:2 有自己的“画面尺寸／帧频”列表，共 10 项，均为 FX
 ### 已知问题
 
 - 离开 3:2 后，对焦点可能停在 16:9 网格之外多出的一行。按一次多重选择器即可回到网格内。
+- 自动区域 AF 和对象跟踪 AF 可能不会启用画面最上、最下各一行对焦点：自动区域 AF 的合焦绿框可能最多只亮到从上数第二行和从下数第二行；对象跟踪 AF 把对焦框放在最外一行后按 OK，框可能向内移动一行。
 - 为兼容只识别两档的软件，Fine 的兼容名称映射为 High，Basic 映射为 Normal；这些名称不能区分实际四档编码。
 - Basic 的 1.0 bit/像素预算会损失高频细节。8.3K 3:2 High 为 2.5 bit/像素，普通 8.3K 30／25／24p High 为 3.0；4.1K 3:2 与普通 4.1K 相同。
 
@@ -73,6 +74,7 @@ With [Log colour](log-colour.md) installed, both N-RAW file type rows show the s
 ### Known issues
 
 - After leaving 3:2, the focus point can remain on an extra row outside the 16:9 grid. Press the multi selector once to bring it back.
+- Auto-area AF and subject-tracking AF may not use the top and bottom rows of focus points. Auto-area AF may light its in-focus boxes only as far as the second row from the top and bottom, and a subject-tracking AF frame placed on the outermost row may move one row inward when OK is pressed.
 - For compatibility with two-tier readers, Fine maps to the High label and Basic to Normal; those labels cannot distinguish the four actual encoding tiers.
 - Basic's 1.0-bit/pixel budget reduces fine texture. 8.3K 3:2 High uses 2.5 bits/pixel versus 3.0 for ordinary 8.3K 30/25/24p High; 4.1K 3:2 uses the same budget as ordinary 4.1K.
 

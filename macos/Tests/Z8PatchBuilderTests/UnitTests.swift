@@ -97,15 +97,15 @@ final class UnitTests: XCTestCase {
         defer { try? fm.removeItem(at: parent) }
         let model = BuilderModel(layout: nil)
         model.outputParent = parent
-        model.version = "04.07"
+        model.version = "04.08"
         model.tag = "p0"
         model.selected = [.stillPhotoTools, .videoRecording]
         model.refreshOutputName()
-        XCTAssertEqual(model.outputFolderName, "Z8-04.07.p0-video+photo")
-        XCTAssertEqual(model.outputFileName, "Z_8_0407.bin")
-        try fm.createDirectory(at: parent.appendingPathComponent("Z8-04.07.p0-video+photo"), withIntermediateDirectories: false)
+        XCTAssertEqual(model.outputFolderName, "Z8-04.08.p0-video+photo")
+        XCTAssertEqual(model.outputFileName, "Z_8_0408.bin")
+        try fm.createDirectory(at: parent.appendingPathComponent("Z8-04.08.p0-video+photo"), withIntermediateDirectories: false)
         model.refreshOutputName()
-        XCTAssertEqual(model.outputFolderName, "Z8-04.07.p0-video+photo 2")
+        XCTAssertEqual(model.outputFolderName, "Z8-04.08.p0-video+photo 2")
         model.version = "4.6"
         XCTAssertFalse(model.versionValid)
         model.version = "00.01"

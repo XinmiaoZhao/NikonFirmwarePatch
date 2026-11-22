@@ -9,7 +9,7 @@ import XCTest
 /// Every one of the 15 selections is built through the app's pipeline and through patch.py on the
 /// command line; the firmware and checksum files must be byte-identical.
 final class BuildIntegrationTests: XCTestCase {
-    struct Env {
+    struct Env: Sendable {
         let layout: ToolkitLayout
         let stock: URL
         let cliPython: URL
@@ -49,33 +49,63 @@ final class BuildIntegrationTests: XCTestCase {
                                                      onLine: { _ in })
     }
 
+    /// One selection through the app pipeline and through patch.py. Mismatches come back as messages so the
+    /// caller can report them in selection order; a failed build throws.
+    func checkSelection(_ env: Env, _ dir: URL, mask: Int) async throws -> (row: String, problems: [String]) {
+        let features = FeatureID.allCases.enumerated().filter { mask & (1 << $0.offset) != 0 }.map(\.element)
+        let label = features.map(\.short).joined(separator: "+")
+        let appFolder = dir.appendingPathComponent("app-" + label)
+        let outcome = try await BuildPipeline(runner: ToolRunner(layout: env.layout)).run(request(env, features, folder: appFolder)) { _ in }
+        let cliFolder = dir.appendingPathComponent("cli-" + label)
+        let out = try await cli(env, [env.stock.path, "--features"] + features.map(\.rawValue) +
+                                ["--version", "00.00", "--tag", "t0", "--output", cliFolder.path])
+        let row = "\(label) \(outcome.sha256)"
+        guard out.status == 0 else { return (row, ["\(label) command line exited \(out.status): \(out.stderr)"]) }
+        var problems: [String] = []
+        for name in ["Z_8_0000.bin", "SHA256SUMS.txt"] {
+            let a = try Data(contentsOf: appFolder.appendingPathComponent(name))
+            let b = try Data(contentsOf: cliFolder.appendingPathComponent(name))
+            if sha256Hex(a) != sha256Hex(b) { problems.append("\(label) \(name)") }
+        }
+        // manifest.json differs only in source_hashes, which lists the files present beside patch.py:
+        // the app bundles the runtime subset, the ZIP has everything. Shared entries must agree.
+        guard var am = try JSONSerialization.jsonObject(with: Data(contentsOf: appFolder.appendingPathComponent("manifest.json"))) as? [String: Any],
+              var cm = try JSONSerialization.jsonObject(with: Data(contentsOf: cliFolder.appendingPathComponent("manifest.json"))) as? [String: Any],
+              let ah = am.removeValue(forKey: "source_hashes") as? [String: String],
+              let ch = cm.removeValue(forKey: "source_hashes") as? [String: String] else {
+            return (row, problems + ["\(label) manifest.json is not the expected object"])
+        }
+        if !ah.allSatisfy({ ch[$0.key] == $0.value }) { problems.append("\(label) source_hashes") }
+        if NSDictionary(dictionary: am) != NSDictionary(dictionary: cm) { problems.append("\(label) manifest.json") }
+        return (row, problems)
+    }
+
     func testAllFifteenSelectionsMatchCommandLine() async throws {
         let env = try env()
         let dir = try scratch("all")
+        // Each selection runs two builds of about 9 s and peaks near 1.5 GB per Python process;
+        // up to six selections at a time, at most half the cores.
+        let width = max(1, min(6, ProcessInfo.processInfo.activeProcessorCount / 2))
+        var results: [Int: (row: String, problems: [String])] = [:]
+        try await withThrowingTaskGroup(of: (Int, (row: String, problems: [String])).self) { group in
+            var next = 1
+            func submit() {
+                guard next < 16 else { return }
+                let mask = next
+                next += 1
+                group.addTask { (mask, try await self.checkSelection(env, dir, mask: mask)) }
+            }
+            for _ in 0..<width { submit() }
+            while let (mask, result) = try await group.next() {
+                results[mask] = result
+                submit()
+            }
+        }
         var rows: [String] = []
         for mask in 1..<16 {
-            let features = FeatureID.allCases.enumerated().filter { mask & (1 << $0.offset) != 0 }.map(\.element)
-            let label = features.map(\.short).joined(separator: "+")
-            let appFolder = dir.appendingPathComponent("app-" + label)
-            let outcome = try await BuildPipeline(runner: ToolRunner(layout: env.layout)).run(request(env, features, folder: appFolder)) { _ in }
-            let cliFolder = dir.appendingPathComponent("cli-" + label)
-            let out = try await cli(env, [env.stock.path, "--features"] + features.map(\.rawValue) +
-                                    ["--version", "00.00", "--tag", "t0", "--output", cliFolder.path])
-            XCTAssertEqual(out.status, 0, out.stderr)
-            for name in ["Z_8_0000.bin", "SHA256SUMS.txt"] {
-                let a = try Data(contentsOf: appFolder.appendingPathComponent(name))
-                let b = try Data(contentsOf: cliFolder.appendingPathComponent(name))
-                XCTAssertEqual(sha256Hex(a), sha256Hex(b), "\(label) \(name)")
-            }
-            // manifest.json differs only in source_hashes, which lists the files present beside patch.py:
-            // the app bundles the runtime subset, the ZIP has everything. Shared entries must agree.
-            var am = try XCTUnwrap(JSONSerialization.jsonObject(with: Data(contentsOf: appFolder.appendingPathComponent("manifest.json"))) as? [String: Any])
-            var cm = try XCTUnwrap(JSONSerialization.jsonObject(with: Data(contentsOf: cliFolder.appendingPathComponent("manifest.json"))) as? [String: Any])
-            let ah = try XCTUnwrap(am.removeValue(forKey: "source_hashes") as? [String: String])
-            let ch = try XCTUnwrap(cm.removeValue(forKey: "source_hashes") as? [String: String])
-            XCTAssertTrue(ah.allSatisfy { ch[$0.key] == $0.value }, label)
-            XCTAssertEqual(NSDictionary(dictionary: am), NSDictionary(dictionary: cm), label)
-            rows.append("\(label) \(outcome.sha256)")
+            let result = try XCTUnwrap(results[mask], "selection \(mask) did not finish")
+            for problem in result.problems { XCTFail(problem) }
+            rows.append(result.row)
         }
         let report = rows.joined(separator: "\n") + "\n"
         if let path = ProcessInfo.processInfo.environment["Z8_REPORT"] {

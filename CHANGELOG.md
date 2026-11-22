@@ -1,5 +1,35 @@
 # 更新日志 / Changelog
 
+## [v0.5.1](https://github.com/XinmiaoZhao/NikonFirmwarePatch/releases/tag/v0.5.1) — N-RAW 3:2 修复 / N-RAW 3:2 fixes
+
+2026-11-23 发布。以下变化相对于 v0.5.0，只涉及视频录制组；不含视频录制的 7 种组合与 v0.5.0 逐字节相同。
+
+### 修复
+
+- **4.1K 3:2 待机取景冻结。** 修复[问题 #57](https://github.com/XinmiaoZhao/NikonFirmwarePatch/issues/57)。N-RAW 3:2 选 4.1K 后，即使不开始录制，取景也可能在约十秒内卡死，开关机无响应，需取出电池；120p 下先变得极慢，重启后可能粉屏。原因是 AF 区域仍按 16:9 换算，算出的对焦矩形超出坐标范围。现在 4.1K 3:2 的 AF 区域按 3:2 换算。
+- **4.1K 3:2 录制中触屏对焦卡顿。** 录制中在自动区域 AF 下触屏启动跟踪后，取景严重卡顿，按 REC 也不能恢复；120p 单点触屏会提示录制已终止。录制时的 AF 区域同样改为按 3:2 换算。
+- **取景器回放 3:2 短片花屏。** 修复[问题 #34](https://github.com/XinmiaoZhao/NikonFirmwarePatch/issues/34)。在取景器中播放 N-RAW 3:2 短片时出现绿色和品红色错块，因为每帧比原厂回放缓冲的一格多 240 KiB。缓冲格加大到能放下 1280×848 的 3:2 画面，取景器回放保持满宽；后屏回放和普通 16:9 短片的显示不变。
+- **3:2 自动区域 AF 绿框。** N-RAW 3:2 下自动区域 AF 的合焦绿框被拉高，行距也比普通视频大。现在单框高度与普通视频相同，各行按原厂照片模式的网格排列；反挤压倍率照常生效。
+
+### 已知问题
+
+- N-RAW 3:2 下，自动区域 AF 和对象跟踪 AF 可能不会启用画面最上、最下各一行对焦点，见[已知问题](docs/known-issues.md)。
+
+### English
+
+Released 2026-11-23. Changes are relative to v0.5.0 and affect only the video recording group; the seven selections without video recording are byte-identical to v0.5.0.
+
+**Fixed**
+
+- 4.1K 3:2 live view no longer freezes before recording ([issue #57](https://github.com/XinmiaoZhao/NikonFirmwarePatch/issues/57)). With N-RAW 3:2 at 4.1K, live view could lock up within about ten seconds even without recording, the power switch had no effect and the battery had to be removed; at 120p it first slowed to a crawl and could show a pink screen after a restart. The AF area was still converted as 16:9, so the focus rectangle fell outside its coordinate range. 4.1K 3:2 now converts the AF area as 3:2.
+- Touch AF during 4.1K 3:2 recording no longer stalls live view. Starting tracking by touch in auto-area AF could slow live view severely, and REC did not recover it; a single-point touch at 120p could end the recording. Recording now uses the same 3:2 AF conversion.
+- Playing an N-RAW 3:2 clip in the viewfinder no longer shows green and magenta blocks ([issue #34](https://github.com/XinmiaoZhao/NikonFirmwarePatch/issues/34)). Each frame was 240 KiB larger than one slot of the stock playback buffer. The slots now hold a 1280×848 3:2 frame, so viewfinder playback keeps its full width; monitor playback and ordinary 16:9 clips look as before.
+- Auto-area AF in-focus boxes in N-RAW 3:2 are no longer stretched or spread out. Each box now has the height of an ordinary video box, and the rows follow the stock photo-mode grid; desqueeze factors still apply.
+
+**Known issue**
+
+- In N-RAW 3:2, auto-area AF and subject-tracking AF may not use the top and bottom rows of focus points; see [known issues](docs/known-issues.md).
+
 ## [v0.5.0](https://github.com/XinmiaoZhao/NikonFirmwarePatch/releases/tag/v0.5.0) — 四组补丁重新分组 / Regrouped feature set
 
 2026-11-21 发布。以下变化相对于 v0.4.0。
@@ -15,7 +45,7 @@
 
 - **分组。** 构建选项改为 `video-recording`、`log-colour`、`still-photo-tools`、`raw-precapture`。原 `framing` 与 `video-quality` 合并为视频录制；原 `photo-tools` 拆为照片工具和 RAW 预拍，只装预拍时不再附带像素位移合成。v0.4.0 的组名会被拒绝。
 - **像素位移页面。** 改用原厂菜单的按键、可点按底栏（MENU 取消／OK 确定）和字形宽度；左键与 MENU 一样返回，确认页取消回到列表，有损压缩的组提示“仅支持无损压缩”。合成引擎不变。
-- **ProRes 文件类型名称。** 装入视频录制组后，ProRes 行显示“ProRes 422 10位(MOV)”，文件类型帮助的标题相应改为 ProRes 422。
+- **ProRes 文件类型帮助。** 装入视频录制组后，文件类型帮助页里的 ProRes 422 说明不再写 HQ，与菜单中的 ProRes 行一致。
 - **高速画面捕捉的照片格式。** 在 C15、C30、C60、C120 中，压缩照片临时使用 JPEG，HEIF 禁用；C15/C30 中无损压缩选项禁用，保存的无损按高效率★记录。回到普通释放模式即恢复当前菜单库的偏好。
 - **Adobe RGB JPEG。** 安装照片工具后，Adobe RGB 的 SDR JPEG 嵌入 Nikon Adobe RGB ICC，macOS 预览、小米相册等软件因此按 Adobe RGB 显示。
 - **分发。** 工具包只收构建与核验所需的文件和文字说明，带十九份与源码匹配的编译单元。截图、色彩报告与数据和 macOS app 源码只留在仓库中。
@@ -35,7 +65,7 @@ Released 2026-11-21. Changes are relative to v0.4.0.
 
 - Build options are now `video-recording`, `log-colour`, `still-photo-tools` and `raw-precapture`. `framing` and `video-quality` merge into video recording; `photo-tools` splits into the still-photo tools and RAW pre-capture, so pre-capture alone no longer brings pixel-shift merge. v0.4.0 group names are rejected.
 - The pixel-shift page uses the stock menu keys, a tappable footer (MENU Cancel / OK) and stock glyph widths. The left key goes back like MENU, Cancel on the confirmation page returns to the list, and lossy groups show "Use lossless". The merge engine is unchanged.
-- With video recording installed, the ProRes file type row reads "ProRes 422 10-bit (MOV)", and the file type help heading reads ProRes 422.
+- With video recording installed, the file type help describes ProRes 422 without HQ, matching the ProRes row in the menu.
 - In C15, C30, C60 and C120, compressed photos use JPEG and HEIF is disabled; C15/C30 disable the lossless option and record a saved lossless setting as HE★. An ordinary release mode restores the active bank’s preferences.
 - With the still-photo tools installed, Adobe RGB SDR JPEGs embed the Nikon Adobe RGB ICC profile, so apps such as macOS Preview and the Xiaomi gallery display them as Adobe RGB.
 - The toolkit now carries only the files that build and verify firmware, plus the text guides, with nineteen matching compiled units. Screenshots, the colour report and its data and the macOS app source stay in the repository.

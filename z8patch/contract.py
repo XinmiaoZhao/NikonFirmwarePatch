@@ -87,5 +87,15 @@ def verify_contract(old,new,features):
     if framing:
         need(not any(new[0x4096F000-base:0x40970000-base]),'open-gate private state initialized')
         need(read(new,'<H',0x4B13000+0xA028C1690-0xA02808000)[0]==11,'video file type page: 11 rows')
+    # v0.5.1, video recording only: the local movie output slot holds one 1280x848 NV12 frame, and both 4.1K 3:2
+    # AF geometry calls enter the fix unit in the open-gate code tail. Without the group both stay stock.
+    lo,hi=read(new,'<I',0x40CF4620-base)[0],read(new,'<I',0x40CF4630-base)[0]
+    need(lo&0xFFE0001F==0x5280000D and hi&0xFFE0001F==0x72A0000D,'movie output slot instruction shape')
+    need(((lo>>5)&65535)|(((hi>>5)&65535)<<16)==(0x18D800 if framing else 0x151800),'movie output slot size')
+    for site in (0x41055AC0,0x410567DC):
+        word=read(new,'<I',site-base)[0]
+        target=site+(((word&0x3FFFFFF)^0x2000000)-0x2000000)*4
+        need((word>>26==0x25 and target==0x40968000) if framing else new[site-base:site-base+4]==old[site-base:site-base+4],
+             '4.1K 3:2 AF geometry entry')
     return dict(status='PASS',video_menu=video,language_tables=36 if photo or video else 0,offsets_per_language=entries if photo or video else 3137,
                 exact_group_visibility=True,zero_state=True,loader_end=hex(end))

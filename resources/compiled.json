@@ -1908,8 +1908,20 @@
           "va": "0x40970320",
           "bytes": 0
         },
+        "ap_points_scale": {
+          "va": "0x409704b0",
+          "bytes": 0
+        },
+        "ap_points_scale_next": {
+          "va": "0x409704b4",
+          "bytes": 0
+        },
         "ap_point_y": {
           "va": "0x40970530",
+          "bytes": 0
+        },
+        "ap_points_done": {
+          "va": "0x4097050c",
           "bytes": 0
         },
         "ap_map_out_y": {
@@ -2012,7 +2024,7 @@
       "source_sha256": {
         "z8anamorphic/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
         "z8anamorphic/patcher.py": "685b6d0c848f3cc147f7f302ca2147daf4f7972de2f135588681aa9ace3aaa3b",
-        "z8anamorphic/src/hooks.S": "f063c249d7da85247a1ba8e4bc761dcedff61957aa9ada94712c91e260d43335"
+        "z8anamorphic/src/hooks.S": "1ae64b5cd6a4789682219a5d2c7168ee90c0a8ee7d712c1c3e075b3e6d9609b3"
       },
       "compiler": "Apple clang version 21.0.0 (clang-2100.1.1.101)",
       "flags": [
@@ -2382,6 +2394,91 @@
         "assembler-with-cpp"
       ],
       "resource": "resources/shared.bin"
+    },
+    "framing-fixes": {
+      "bytes": 2096,
+      "sha256": "4f7ad4576b5eaa6eb74c60943fabd218cb7cbe32db64f349e6a63ccc0381bbd2",
+      "symbols": {
+        "geometry_plan": {
+          "va": "0x40968260",
+          "bytes": 0
+        },
+        "geometry_plan_resume": {
+          "va": "0x40968028",
+          "bytes": 0
+        },
+        "geometry_done": {
+          "va": "0x40968118",
+          "bytes": 0
+        },
+        "forward_plan": {
+          "va": "0x4096826c",
+          "bytes": 0
+        },
+        "forward_plan_resume": {
+          "va": "0x4096815c",
+          "bytes": 0
+        },
+        "inverse_plan": {
+          "va": "0x40968278",
+          "bytes": 0
+        },
+        "inverse_plan_resume": {
+          "va": "0x409681e4",
+          "bytes": 0
+        },
+        "evf_fit_done": {
+          "va": "0x40968578",
+          "bytes": 0
+        },
+        "evf_fit_slot_check": {
+          "va": "0x40968494",
+          "bytes": 0
+        },
+        "points_loop": {
+          "va": "0x409686a0",
+          "bytes": 0
+        },
+        "af_geometry": {
+          "va": "0x40968000",
+          "bytes": 0
+        },
+        "af_forward": {
+          "va": "0x40968148",
+          "bytes": 0
+        },
+        "af_inverse": {
+          "va": "0x409681d0",
+          "bytes": 0
+        },
+        "evf_fit_hook": {
+          "va": "0x40968400",
+          "bytes": 0
+        },
+        "evf_full": {
+          "va": "0x40968718",
+          "bytes": 0
+        },
+        "points_source": {
+          "va": "0x40968600",
+          "bytes": 0
+        },
+        "pitch_setup": {
+          "va": "0x409687c0",
+          "bytes": 0
+        }
+      },
+      "source_sha256": {
+        "z8opengate/fixes/hooks.S": "fac7c3d8a77bdf7425cf030917992b093547f8459c1a95b99741abe2118b820f"
+      },
+      "compiler": "Apple clang version 21.0.0 (clang-2100.1.1.101)",
+      "flags": [
+        "-target",
+        "aarch64-none-elf",
+        "-x",
+        "assembler-with-cpp"
+      ],
+      "resource": "resources/framing-fixes.bin"
     },
     "precapture-menu": {
       "bytes": 312,

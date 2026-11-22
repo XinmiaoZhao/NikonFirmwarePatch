@@ -34,7 +34,7 @@ Z8 补丁构建器是本项目命令行工具的 macOS 图形界面，不另写�
    - 操作演示动画；
    - 已知限制。
 3. **填写导出设置。**
-   - 版本号格式为 NN.NN（如 04.07），内部标记为一个小写字母加一位数字（如 p0），两者组成相机中显示的固件身份 `04.07.p0`。
+   - 版本号格式为 NN.NN（如 04.08），内部标记为一个小写字母加一位数字（如 p0），两者组成相机中显示的固件身份 `04.08.p0`。
    - 不同的功能组合请使用不同的版本号，以便在相机菜单中区分。若这台 Mac 曾用同一身份构建过另一组功能，应用会提示换号。
    - 00.xx 只用于离线测试，不能作为上机包。
    - 最后选择导出位置。
@@ -47,7 +47,7 @@ Z8 补丁构建器是本项目命令行工具的 macOS 图形界面，不另写�
 
 ### 输出
 
-每次构建都在导出位置新建一个文件夹，名称由身份和所选功能组成，如 `Z8-04.07.p0-video+photo`。同名文件夹已存在时自动加序号，不会覆盖输入或此前的输出。文件夹内有：
+每次构建都在导出位置新建一个文件夹，名称由身份和所选功能组成，如 `Z8-04.08.p0-video+photo`。同名文件夹已存在时自动加序号，不会覆盖输入或此前的输出。文件夹内有：
 
 - 修改后的固件，按版本号命名，如 `Z_8_0407.bin`；
 - `manifest.json`：输入、所选功能、固件身份、修改范围和各文件的哈希；
@@ -105,7 +105,7 @@ With the same input, groups and identity, the `.bin` is byte-identical to the co
    - operation guide animation;
    - known limits.
 3. **Fill in the export settings.**
-   - The version uses the format NN.NN (for example 04.07). The internal tag is one lowercase letter and one digit (for example p0). Together they form the identity shown on the camera, `04.07.p0`.
+   - The version uses the format NN.NN (for example 04.08). The internal tag is one lowercase letter and one digit (for example p0). Together they form the identity shown on the camera, `04.08.p0`.
    - Give different selections different versions so they can be told apart in the camera menu. If this Mac has already built a different selection with the same identity, the app suggests another version.
    - 00.xx is reserved for offline tests and must not be installed.
    - Finally, choose the export location.
@@ -118,7 +118,7 @@ With the same input, groups and identity, the `.bin` is byte-identical to the co
 
 ### Output
 
-Each build creates a new folder at the export location. The folder name combines the identity and the selected groups, for example `Z8-04.07.p0-video+photo`. A number is appended when that name exists; the input and earlier outputs are never overwritten. The folder holds:
+Each build creates a new folder at the export location. The folder name combines the identity and the selected groups, for example `Z8-04.08.p0-video+photo`. A number is appended when that name exists; the input and earlier outputs are never overwritten. The folder holds:
 
 - the modified firmware, named after the version, such as `Z_8_0407.bin`;
 - `manifest.json`, with the input, selected groups, identity, edited ranges and file hashes;

@@ -117,6 +117,8 @@ SOURCE_FILES=(
     'z8opengate/icons/og32_menu.png',
     'z8opengate/imenu.py',
     'z8opengate/linker.py',
+    'z8opengate/fix_sites.py',
+    'z8opengate/fixes/hooks.S',
     'z8opengate/patcher.py',
     'z8opengate/quality.py',
     'z8opengate/sites.py',
@@ -340,7 +342,7 @@ REPOSITORY_FILES=(
 )
 CODE_FILES=('resources/precapture.bin', 'resources/pixelshift.bin', 'resources/pixelshift-af.bin', 'resources/opengate.bin', 'resources/anamorphic.bin', 'resources/h265.bin', 'resources/log.bin', 'resources/quality.bin', 'resources/shared.bin', 'resources/heif-format.bin', 'resources/heif-capture.bin', 'resources/heif-srgb.bin', 'resources/area-sizes.bin', 'resources/area-formula.bin',
             'resources/area-quick.bin', 'resources/area-thumbnail.bin', 'resources/heif-drive.bin',
-            'resources/heif-icc.bin', 'resources/precapture-menu.bin')
+            'resources/heif-icc.bin', 'resources/precapture-menu.bin', 'resources/framing-fixes.bin')
 MANIFEST='release-manifest.json'
 # Separate post-production download: the F LUT with its identity, numerical checks, guide and license,
 # flattened into one folder (archive name -> checkout path). It carries no firmware code.

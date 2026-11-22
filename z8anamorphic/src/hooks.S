@@ -415,7 +415,9 @@ ap_af_points_hook:                  // 40386BE8: bl 403EB928 (b 41186C68: x0 AF 
     b 5f
 4:  add w23, w23, w23, lsl #3
     lsr w23, w23, #4                // Hd = 9 W / 16: a 16:9 grid (layouts 3-7)
+ap_points_scale:                    // v0.5.1: b points_source (z8opengate/fixes)
 5:  subs w9, w24, w23
+ap_points_scale_next:
     cneg w9, w9, mi
     cmp w9, w23, lsr #6
     b.ls 9f                         // within 1/64 of Hd: unchanged
@@ -438,6 +440,7 @@ ap_af_points_hook:                  // 40386BE8: bl 403EB928 (b 41186C68: x0 AF 
     add x20, x20, #8
     subs w19, w19, #1
     b.ne 1b
+ap_points_done:
 9:  mov w0, w21
     ldp x23, x24, [sp, #48]
     ldp x21, x22, [sp, #32]

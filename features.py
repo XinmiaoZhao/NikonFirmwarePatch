@@ -78,8 +78,8 @@ def compose(eg, features, compiler='clang', code_source='prebuilt', *, check_rec
 
     if 'framing' in modules:
         from z8opengate.patcher import build_main
-        code,entries=unit('opengate')
-        part,detail['opengate-nraw']=build_main(eg,code,entries,strings)
+        code,og_entries=unit('opengate')
+        part,detail['opengate-nraw']=build_main(eg,code,og_entries,strings)
         menu.collect(part,0x2FC1)       # E2: "Video file type" row help id
         merge('opengate-nraw',part)
         from z8anamorphic.patcher import build_main
@@ -88,6 +88,10 @@ def compose(eg, features, compiler='clang', code_source='prebuilt', *, check_rec
         menu.collect(ap,0x310F)
         merge('anamorphic',ap,(0x40960C98,0x40962B58,0x409616A4,0x407138D0))
         callbacks['anamorphic']=entries['ap_menu_refresh_hook']
+        from z8opengate.fix_sites import build_main as framing_fixes, REFINED
+        fix_code,fix_entries=unit('framing-fixes')
+        fixes,detail['framing-fixes']=framing_fixes(bytes(img.new),fix_code,fix_entries,og_entries,entries)
+        merge('framing-fixes',fixes,REFINED)
     if 'video-quality' in modules:
         star,star_entries=unit('quality')
         if 'opengate-e1' in strings.groups:

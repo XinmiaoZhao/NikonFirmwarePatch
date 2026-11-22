@@ -1046,18 +1046,18 @@
         }
       }
     },
-    "Enter NN.NN, e.g. 04.07. Give different selections different versions so they are distinguishable on the camera." : {
+    "Enter NN.NN, e.g. 04.08. Give different selections different versions so they are distinguishable on the camera." : {
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "填写 NN.NN，例如 04.07。不同的功能组合请使用不同的版本号，便于在相机菜单中区分。"
+            "value" : "填写 NN.NN，例如 04.08。不同的功能组合请使用不同的版本号，便于在相机菜单中区分。"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "輸入 NN.NN，例如 04.07。不同的功能組合請使用不同的版本號碼，方便在相機選單中區分。"
+            "value" : "輸入 NN.NN，例如 04.08。不同的功能組合請使用不同的版本號碼，方便在相機選單中區分。"
           }
         }
       }
@@ -2948,18 +2948,18 @@
         }
       }
     },
-    "Use two digits, a dot and two digits, e.g. 04.07" : {
+    "Use two digits, a dot and two digits, e.g. 04.08" : {
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "应为两位数字、点、两位数字，例如 04.07"
+            "value" : "应为两位数字、点、两位数字，例如 04.08"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "應為兩位數字、點、兩位數字，例如 04.07"
+            "value" : "應為兩位數字、點、兩位數字，例如 04.08"
           }
         }
       }

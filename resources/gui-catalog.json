@@ -162,6 +162,23 @@
         {
           "level": "note",
           "title": {
+            "en": "Top and bottom AF rows may be unused in 3:2",
+            "zh-Hans": "3:2 下最上、最下一行对焦点可能不启用",
+            "zh-Hant": "3:2 下最上、最下一列對焦點可能不啟用"
+          },
+          "detail": {
+            "en": "Auto-area AF may light its in-focus boxes only as far as the second row from the top and bottom, and a subject-tracking AF frame placed on the outermost row may move one row inward when OK is pressed.",
+            "zh-Hans": "自动区域 AF 的合焦绿框可能最多只亮到从上、从下数第二行；对象跟踪 AF 把对焦框放在最外一行后按 OK，框可能向内移动一行。",
+            "zh-Hant": "自動區域 AF 的合焦綠框可能最多只亮到從上、從下數第二列；主體追蹤 AF 將對焦框放在最外一列後按 OK，框可能向內移動一列。"
+          },
+          "source": {
+            "path": "docs/opengate-nraw.md",
+            "quote": "对象跟踪 AF 把对焦框放在最外一行"
+          }
+        },
+        {
+          "level": "note",
+          "title": {
             "en": "H.265 Mbps values are encoder targets",
             "zh-Hans": "H.265 显示的 Mbps 是编码目标",
             "zh-Hant": "H.265 顯示的 Mbps 是編碼目標"
