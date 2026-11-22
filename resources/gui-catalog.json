@@ -634,20 +634,20 @@
         "zh-Hant": "RAW 預拍攝"
       },
       "summary": {
-        "en": "C15/C30 high-speed capture also saves RAW",
-        "zh-Hans": "C15／C30 高速画面捕捉同时保存 RAW",
-        "zh-Hant": "C15／C30 高速畫面捕捉同時儲存 RAW"
+        "en": "C15/C30/C60 high-speed capture also saves RAW",
+        "zh-Hans": "C15／C30／C60 高速画面捕捉同时保存 RAW",
+        "zh-Hant": "C15／C30／C60 高速畫面捕捉同時儲存 RAW"
       },
       "intro": {
-        "en": "C15/C30 high-speed frame capture can also save RAW (FX/DX, HE/HE★). Image quality uses the ordinary menu: RAW+JPEG, RAW or JPEG, and the remaining count follows the actual RAW and JPEG quality. Pre-capture has no lossless compression: C15/C30 disable the lossless option and record a saved lossless setting as HE★ until ordinary shooting restores it.",
-        "zh-Hans": "高速画面捕捉 C15／C30 可同时保存 RAW（FX／DX，HE／HE★）。画质使用普通画质菜单，可选 RAW+JPEG、RAW 或 JPEG，剩余张数按实际的 RAW 与 JPEG 画质计算。预拍不支持无损压缩：C15／C30 中无损选项禁用，保存的无损按 HE★ 记录，回到普通拍照即恢复。",
-        "zh-Hant": "高速畫面捕捉 C15／C30 可同時儲存 RAW（FX／DX，HE／HE★）。影像品質使用一般畫質選單，可選 RAW+JPEG、RAW 或 JPEG，剩餘張數依實際的 RAW 與 JPEG 畫質計算。預拍不支援無損壓縮：C15／C30 中無損壓縮選項停用，儲存的無損壓縮以 HE★ 記錄，回到一般拍攝即恢復。"
+        "en": "C15, C30 and C60 high-speed frame capture can also save RAW (FX/DX, HE/HE★; C60 records DX). Image quality uses the ordinary menu: RAW+JPEG, RAW or JPEG, and the remaining count follows the actual RAW and JPEG quality. Pre-capture has no lossless compression: C15/C30/C60 disable the lossless option and record a saved lossless setting as HE★ until ordinary shooting restores it.",
+        "zh-Hans": "高速画面捕捉 C15、C30 与 C60 可同时保存 RAW（FX／DX，HE／HE★；C60 记录 DX）。画质使用普通画质菜单，可选 RAW+JPEG、RAW 或 JPEG，剩余张数按实际的 RAW 与 JPEG 画质计算。预拍不支持无损压缩：C15／C30／C60 中无损选项禁用，保存的无损按 HE★ 记录，回到普通拍照即恢复。",
+        "zh-Hant": "高速畫面捕捉 C15、C30 與 C60 可同時儲存 RAW（FX／DX，HE／HE★；C60 記錄 DX）。影像品質使用一般畫質選單，可選 RAW+JPEG、RAW 或 JPEG，剩餘張數依實際的 RAW 與 JPEG 畫質計算。預拍不支援無損壓縮：C15／C30／C60 中無損壓縮選項停用，儲存的無損壓縮以 HE★ 記錄，回到一般拍攝即恢復。"
       },
       "includes": [
         {
-          "en": "C15/C30 RAW pre-capture (FX/DX, HE/HE★)",
-          "zh-Hans": "C15／C30 RAW 预拍（FX／DX，HE／HE★）",
-          "zh-Hant": "C15／C30 RAW 預拍（FX／DX，HE／HE★）"
+          "en": "C15/C30/C60 RAW pre-capture (FX/DX, HE/HE★)",
+          "zh-Hans": "C15／C30／C60 RAW 预拍（FX／DX，HE／HE★）",
+          "zh-Hant": "C15／C30／C60 RAW 預拍（FX／DX，HE／HE★）"
         },
         {
           "en": "Ordinary quality menu: RAW+JPEG, RAW or JPEG",
@@ -658,12 +658,17 @@
           "en": "Remaining count follows the actual RAW/JPEG quality",
           "zh-Hans": "剩余张数按实际 RAW／JPEG 画质计算",
           "zh-Hant": "剩餘張數依實際 RAW／JPEG 畫質計算"
+        },
+        {
+          "en": "In-camera NEF (RAW) processing of pre-capture NEFs",
+          "zh-Hans": "机内可对预拍 NEF 执行 NEF（RAW）处理",
+          "zh-Hant": "機內可對預拍 NEF 執行 NEF（RAW）處理"
         }
       ],
       "camera_entry": {
-        "en": "Release mode C15/C30 · Image quality · RAW recording",
-        "zh-Hans": "释放模式 C15/C30 · 图像品质 · RAW录制",
-        "zh-Hant": "快門釋放模式 C15/C30 · 影像品質 · RAW 記錄"
+        "en": "Release mode C15/C30/C60 · Image quality · RAW recording",
+        "zh-Hans": "释放模式 C15/C30/C60 · 图像品质 · RAW录制",
+        "zh-Hant": "快門釋放模式 C15/C30/C60 · 影像品質 · RAW 記錄"
       },
       "limits": [
         {
@@ -708,30 +713,30 @@
             "zh-Hant": "預拍不支援無損壓縮"
           },
           "detail": {
-            "en": "C15/C30 disable the lossless option; a saved lossless setting is recorded as HE★ and restored in ordinary shooting. C60/C120 RAW, HLG/HEIF and separately sized secondary JPEGs are not supported.",
-            "zh-Hans": "C15/C30 中无损选项禁用，保存的无损按 HE★ 记录，回到普通拍照即恢复。不支持 C60/C120 RAW、HLG/HEIF 及副卡独立 JPEG 尺寸。",
-            "zh-Hant": "C15/C30 中無損壓縮選項停用，儲存的無損壓縮以 HE★ 記錄，回到一般拍攝即恢復。不支援 C60/C120 RAW、HLG/HEIF 及副卡獨立 JPEG 尺寸。"
+            "en": "C15/C30/C60 disable the lossless option; a saved lossless setting is recorded as HE★ and restored in ordinary shooting. C120 RAW, HLG/HEIF and separately sized secondary JPEGs are not supported.",
+            "zh-Hans": "C15/C30/C60 中无损选项禁用，保存的无损按 HE★ 记录，回到普通拍照即恢复。不支持 C120 RAW、HLG/HEIF 及副卡独立 JPEG 尺寸。",
+            "zh-Hant": "C15/C30/C60 中無損壓縮選項停用，儲存的無損壓縮以 HE★ 記錄，回到一般拍攝即恢復。不支援 C120 RAW、HLG/HEIF 及副卡獨立 JPEG 尺寸。"
           },
           "source": {
             "path": "docs/known-issues.md",
-            "quote": "预拍支持 FX/DX、L、C15/C30、HE／HE★，不支持无损压缩"
+            "quote": "预拍支持 FX/DX、L、C15/C30/C60、HE／HE★（C60 始终为 DX），不支持无损压缩"
           }
         },
         {
           "level": "note",
           "title": {
-            "en": "RAW write backlog shortens bursts",
-            "zh-Hans": "RAW 写卡积压会缩短连拍与预拍窗口",
-            "zh-Hant": "RAW 寫卡積壓會縮短連拍與預拍時間"
+            "en": "The buffer limits RAW bursts",
+            "zh-Hans": "缓存限制 RAW 连拍长度",
+            "zh-Hant": "緩衝限制 RAW 連拍長度"
           },
           "detail": {
-            "en": "HE★ uses more buffer and card space than HE. At C30 FX RAW only, about 5–6 NEFs are written per second and the buffer fills after about 66 (HE★) or 134 (HE) frames.",
-            "zh-Hans": "HE★ 比 HE 占用更多缓冲与卡空间。C30 FX 仅 RAW 时写卡约每秒 5–6 张，缓冲在 HE★ 约 66 张、HE 约 134 张后写满。",
-            "zh-Hant": "HE★ 比 HE 佔用更多緩衝與記憶卡空間。C30 FX 僅 RAW 時寫入約每秒 5–6 張，緩衝在 HE★ 約 66 張、HE 約 134 張後寫滿。"
+            "en": "RAW frames stay in the buffer until their NEF is written, and pre-release frames count against it. Measured on a Z8 (03.12.f1): C30 FX HE about 184 frames, C30 FX HE★ about 74, C15 FX HE★ about 130.",
+            "zh-Hans": "RAW 帧保留到 NEF 写完，预拍帧同样占用缓存。Z8 机身实测（03.12.f1）：C30 FX HE 约 184 张，C30 FX HE★ 约 74 张，C15 FX HE★ 约 130 张。",
+            "zh-Hant": "RAW 影像保留至 NEF 寫入完成，預拍影像同樣佔用緩衝。Z8 機身實測（03.12.f1）：C30 FX HE 約 184 張，C30 FX HE★ 約 74 張，C15 FX HE★ 約 130 張。"
           },
           "source": {
             "path": "docs/known-issues.md",
-            "quote": "缓冲在 HE★ 约 66 张、HE 约 134 张后写满"
+            "quote": "RAW 连拍长度受缓存限制"
           }
         },
         {
@@ -742,47 +747,30 @@
             "zh-Hant": "預拍沿用自己的格式與畫幅"
           },
           "detail": {
-            "en": "With the photo tools installed, C15/C30 still write NEF/JPEG in FX or DX; C modes disable HEIF and the added image areas.",
-            "zh-Hans": "同时安装照片工具时，C15/C30 仍按 FX 或 DX 写 NEF／JPEG；C 档中 HEIF 与新增画幅禁用。",
-            "zh-Hant": "同時安裝相片工具時，C15/C30 仍依 FX 或 DX 寫入 NEF／JPEG；C 檔中 HEIF 與新增畫幅停用。"
+            "en": "With the still-photo tools installed, C15/C30/C60 still write NEF/JPEG in FX or DX; C modes disable HEIF and the added image areas.",
+            "zh-Hans": "同时安装照片工具时，C15/C30/C60 仍按 FX 或 DX 写 NEF／JPEG；C 档中 HEIF 与新增画幅禁用。",
+            "zh-Hant": "同時安裝相片工具時，C15/C30/C60 仍依 FX 或 DX 寫入 NEF／JPEG；C 檔中 HEIF 與新增畫幅停用。"
           },
           "source": {
-            "path": "docs/raw-precapture.md",
-            "quote": "HLG/HEIF"
+            "path": "docs/known-issues.md",
+            "quote": "预拍沿用自己的格式与画幅"
           }
         },
         {
           "level": "note",
           "title": {
-            "en": "No in-camera retouch of pre-capture NEFs",
-            "zh-Hans": "机内不能润饰预拍 NEF",
-            "zh-Hant": "機內無法潤飾預拍 NEF"
+            "en": "Older pre-capture NEFs in in-camera processing",
+            "zh-Hans": "早期预拍 NEF 的机内处理",
+            "zh-Hant": "早期預拍 NEF 的機內處理"
           },
           "detail": {
-            "en": "Retouch › NEF (RAW) processing reports that the picture cannot be edited.",
-            "zh-Hans": "“润饰 › NEF (RAW) 处理”会提示无法编辑。",
-            "zh-Hant": "「潤飾 › NEF (RAW) 處理」會提示無法編輯。"
+            "en": "Pre-capture NEFs from earlier builds restart the camera in Retouch › NEF (RAW) processing; process them on a computer. NEFs from this build process normally.",
+            "zh-Hans": "用早期构建拍摄的预拍 NEF 在“润饰 › NEF（RAW）处理”中会使相机重启，请在电脑上处理；本构建拍摄的 NEF 可正常处理。",
+            "zh-Hant": "以早期版本拍攝的預拍 NEF 在「潤飾 › NEF（RAW）處理」中會使相機重新開機，請在電腦上處理；本版本拍攝的 NEF 可正常處理。"
           },
           "source": {
             "path": "docs/known-issues.md",
-            "quote": "机内不能润饰预拍 NEF"
-          }
-        },
-        {
-          "level": "note",
-          "title": {
-            "en": "Series playback of pre-capture bursts",
-            "zh-Hans": "预拍连拍的系列回放显示异常",
-            "zh-Hant": "預拍連拍的系列重播顯示異常"
-          },
-          "detail": {
-            "en": "Playback does not group pre-capture bursts as a series correctly.",
-            "zh-Hans": "回放时预拍连拍不能按系列正常显示。",
-            "zh-Hant": "重播時預拍連拍無法依系列正常顯示。"
-          },
-          "source": {
-            "path": "docs/known-issues.md",
-            "quote": "系列回放显示异常"
+            "quote": "用早期构建拍摄的预拍 NEF 带有高速快门模式值"
           }
         },
         {
@@ -793,13 +781,13 @@
             "zh-Hant": "NEF 缺少部分中繼資料"
           },
           "detail": {
-            "en": "Lens-correction data and a few other blocks are absent, so apps such as Lightroom cannot apply the in-camera lens corrections.",
-            "zh-Hans": "镜头校正数据等部分原厂块缺失，Lightroom 等软件不能自动套用机内镜头校正。",
-            "zh-Hant": "鏡頭校正資料等部分原廠區塊缺失，Lightroom 等軟體無法自動套用機內鏡頭校正。"
+            "en": "SubIFD3–5 are empty placeholders (no grayscale subimage), XMP correction data and MakerNote 0x0093 are absent, and a custom tone curve omits ContrastCurve.",
+            "zh-Hans": "SubIFD3–5 为空占位（没有灰度子图），XMP 校正数据和 MakerNote 0x0093 缺失，自定义色调曲线时不写 ContrastCurve。",
+            "zh-Hant": "SubIFD3–5 為空白佔位（沒有灰階子影像），XMP 校正資料與 MakerNote 0x0093 缺失，自訂色調曲線時不寫入 ContrastCurve。"
           },
           "source": {
             "path": "docs/known-issues.md",
-            "quote": "部分元数据缺失"
+            "quote": "部分可选元数据缺失"
           }
         }
       ],
@@ -823,9 +811,9 @@
       ],
       "guide": [
         {
-          "en": "Choose C15 or C30. Image quality uses the ordinary menu: RAW+JPEG, RAW or JPEG; RAW recording HE or HE★.",
-          "zh-Hans": "选择 C15 或 C30，画质用普通画质菜单：RAW+JPEG、RAW 或 JPEG；RAW 记录选 HE／HE★。",
-          "zh-Hant": "選擇 C15 或 C30，影像品質使用一般畫質選單：RAW+JPEG、RAW 或 JPEG；RAW 記錄選 HE／HE★。"
+          "en": "Choose C15, C30 or C60. Image quality uses the ordinary menu: RAW+JPEG, RAW or JPEG; RAW recording HE or HE★.",
+          "zh-Hans": "选择 C15、C30 或 C60，画质用普通画质菜单：RAW+JPEG、RAW 或 JPEG；RAW 记录选 HE／HE★。",
+          "zh-Hant": "選擇 C15、C30 或 C60，影像品質使用一般畫質選單：RAW+JPEG、RAW 或 JPEG；RAW 記錄選 HE／HE★。"
         },
         {
           "en": "Half-press to start buffering; frames keep cycling until the full press.",
@@ -833,9 +821,9 @@
           "zh-Hant": "半按開始緩衝，全按前畫面持續循環更新。"
         },
         {
-          "en": "A full press also saves the frames before it — up to 30 for 1 s at C30.",
-          "zh-Hans": "全按时连同之前的画面一起保存：C30 预拍 1 秒最多 30 张。",
-          "zh-Hant": "全按時連同先前的畫面一起儲存：C30 預拍 1 秒最多 30 張。"
+          "en": "A full press also saves the frames before it — up to 30 for 1 s at C30, 60 at C60.",
+          "zh-Hans": "全按时连同之前的画面一起保存：预拍 1 秒在 C30 最多 30 张，在 C60 最多 60 张。",
+          "zh-Hant": "全按時連同先前的畫面一起儲存：預拍 1 秒在 C30 最多 30 張，在 C60 最多 60 張。"
         }
       ]
     }

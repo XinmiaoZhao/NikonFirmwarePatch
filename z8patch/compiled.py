@@ -30,7 +30,7 @@ SPECS.update({
 
 
 for _name, _folder, _base, _limit in (
-    ('precapture-menu','z8precapture/menu',0x409F9000,0x40A00000),
+    ('precapture-menu','z8precapture/menu',0x409FF000,0x40A00000),
     ('heif-icc','z8heif/icc',0x40B71D00,0x40B72000),
     ('heif-format','z8heif/format',0x40B70000,0x40B718D0),
     ('heif-capture','z8heif/capture',0x40B718D0,0x40B71950),

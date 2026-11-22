@@ -120,11 +120,16 @@ def compose(eg, features, compiler='clang', code_source='prebuilt', *, check_rec
         for e in edits(code,meta['symbols']):img.put(e['offset'],e['new'],e['purpose'])
         from z8precapture.menu.sites import apply as raw_menu
         code_menu,entries=unit('precapture-menu')
-        require(0x409F0000+len(code)<=0x409F9000,'Pre-capture code reaches RAW menu')
+        require(0x409F0000+len(code)<=0x409FF000,'Pre-capture code reaches RAW menu')
         for site,old,new in raw_menu(eg,code_menu,entries):
             img.put(site-0x40160000,new,'pre-capture RAW recording menu',expect=old)
         detail['precapture']=dict(code_sha256=meta['sha256'],code_bytes=len(code),diagnostics=False,
                                   space_fallback=True,remaining_count=True,dx=True,lossless_fallback='HE*')
+        from z8precapture.patcher import c20, label_edits
+        if c20(meta['symbols']):                     # HN24 built in: the C15 label and release-mode icons read 20
+            lab=label_edits(eg)
+            for e in lab:img.put(e['offset'],e['new'],e['purpose'],expect=e['old'])
+            detail['c15-label']=dict(edits=len(lab))
     if photo:
         from z8pixelshift.patcher import build_main
         code,meta=load('pixelshift',code_source,compiler)

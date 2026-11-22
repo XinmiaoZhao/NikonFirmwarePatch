@@ -1,5 +1,5 @@
 """Factory C 3.11 photo menu call sites and their displaced instructions."""
-BASE = 0x409F9000
+BASE = 0x409FF000   # the last 4 KiB of the pre-capture cave; the pre-capture unit may use 0x409F0000..0x409FF000
 SITES = (
     (0x4049D674, 'raw_menu_size_alt', True, 0x403ACCCC),
     (0x405D9B40, 'raw_menu_value', True, 0x403EC398),
