@@ -120,7 +120,7 @@ def compose(eg, features, compiler='clang', code_source='prebuilt', *, check_rec
         for e in edits(code,meta['symbols']):img.put(e['offset'],e['new'],e['purpose'])
         from z8precapture.menu.sites import apply as raw_menu
         code_menu,entries=unit('precapture-menu')
-        require(0x409F0000+len(code)<=0x409F9000,'Pre-capture code reaches RAW menu')
+        require(0x409F0000+len(code)<=0x409FF000,'Pre-capture code reaches RAW menu')
         for site,old,new in raw_menu(eg,code_menu,entries):
             img.put(site-0x40160000,new,'pre-capture RAW recording menu',expect=old)
         detail['precapture']=dict(code_sha256=meta['sha256'],code_bytes=len(code),diagnostics=False,

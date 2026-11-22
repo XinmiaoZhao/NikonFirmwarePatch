@@ -13,6 +13,7 @@ c_photo:
     ldr w9,[x8]
     cmp w9,#3             // C30
     ccmp w9,#6,#4,ne      // C15, or retain Z=1 for C30
+    ccmp w9,#5,#4,ne      // C60, or retain Z=1 for C30/C15
     cset w0,eq
     ret
 1:  mov w0,wzr

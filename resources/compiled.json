@@ -2384,47 +2384,47 @@
       "resource": "resources/shared.bin"
     },
     "precapture-menu": {
-      "bytes": 312,
-      "sha256": "16271e8013ae619f6a6eabf0b9ca3450bd2217ce588ed13cacf63cbd8ecc2388",
+      "bytes": 316,
+      "sha256": "a0f077571d1843e086339d094cad9e0e6ab30c7ba9b669797448ef7dd011f745",
       "symbols": {
         "c_photo": {
-          "va": "0x409f9000",
+          "va": "0x409ff000",
           "bytes": 0
         },
         "raw_menu_value": {
-          "va": "0x409f9040",
+          "va": "0x409ff044",
           "bytes": 0
         },
         "raw_menu_enter": {
-          "va": "0x409f906c",
+          "va": "0x409ff070",
           "bytes": 0
         },
         "raw_menu_lossless": {
-          "va": "0x409f9094",
+          "va": "0x409ff098",
           "bytes": 0
         },
         "raw_menu_star": {
-          "va": "0x409f90b0",
+          "va": "0x409ff0b4",
           "bytes": 0
         },
         "raw_menu_size_disabled": {
-          "va": "0x409f90e4",
+          "va": "0x409ff0e8",
           "bytes": 0
         },
         "raw_menu_size_live": {
-          "va": "0x409f90f8",
+          "va": "0x409ff0fc",
           "bytes": 0
         },
         "raw_menu_size_alt": {
-          "va": "0x409f911c",
+          "va": "0x409ff120",
           "bytes": 0
         }
       },
       "source_sha256": {
-        "z8precapture/menu/hooks.S": "5cd2a678f41edb452b1f1744c0b43e08dd78f2690b20df45ceb4e3e0716b4889",
-        "z8precapture/menu/sites.py": "30fae14e8cd7275ee75733957ed33a38674c1987c97b0cc052e3a8b65f1b893a"
+        "z8precapture/menu/hooks.S": "ef609b1299ad07d6c57fbd5562f521cc86ab86e48dd50c00f41f06fc3d4864d5",
+        "z8precapture/menu/sites.py": "2d5e71f41fce04aa2dd388f4871012fa03210286248c771b87e1234ca0066a7f"
       },
-      "compiler": "Apple clang version 21.0.0 (clang-2100.1.1.101)",
+      "compiler": "Apple clang version 21.0.0 (clang-2100.4.1.1)",
       "flags": [
         "-target",
         "aarch64-none-elf",

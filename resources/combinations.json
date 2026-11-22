@@ -837,42 +837,42 @@
       "bytes": 4,
       "purpose": "pre-capture RAW recording menu",
       "old_sha256": "2617626b774b9086bf5d82a5c2e9beddfeb9ee1ac4c58034a790d6e0a1bde35b",
-      "new_sha256": "deae037918d2788e1e65b166b4176663bc1790876892aa4d624e90e383458444"
+      "new_sha256": "7499429c4d1aaf0561d92502d7728e73f82f00d20190f3316ae6b551f773c6ca"
     },
     {
       "offset": "0x33d674",
       "bytes": 4,
       "purpose": "pre-capture RAW recording menu",
       "old_sha256": "777c04a7bbe4dc4b9be4dd624833a9eb1e505a97d283eb952c813701c562fb88",
-      "new_sha256": "00fc46fccf570b165c435e8b9df94a796da0b1b0acf6f8c3c3563655b6da88ce"
+      "new_sha256": "fce7bc0c0d69fc7cefe69cd9bb63388df9bd5633f1b0f76e8237e18cd5df05ba"
     },
     {
       "offset": "0x479b40",
       "bytes": 4,
       "purpose": "pre-capture RAW recording menu",
       "old_sha256": "f987151005a33cc8b12c9812144e83df183d7ea04feff730a27a55ed2d90506f",
-      "new_sha256": "c25dab1c3f64c7f99df4f91217d56a9a0b486567d02c99624ca7e2a2e70b8c66"
+      "new_sha256": "5ae8f66ad873f1054eeb4febfe07c0c1ba86d6b753cda3429959c842e88ae0e7"
     },
     {
       "offset": "0x47b6cc",
       "bytes": 4,
       "purpose": "pre-capture RAW recording menu",
       "old_sha256": "30f8e51e4be1c0ed08118814715061f713bfad83b0c29b69d95d97d7fd366109",
-      "new_sha256": "12445f72787d0159605bc857f18935f7e26f1b98d6f81961657cb9d970afca11"
+      "new_sha256": "b27e8b6149e89b68af751f9a894b877ba0b4a50cf3dbdb37c1af138d98938ba3"
     },
     {
       "offset": "0x486990",
       "bytes": 4,
       "purpose": "pre-capture RAW recording menu",
       "old_sha256": "5b6055adbe479653590f33fed0e7c6fa295780e7316f3dfc8a9fc6d8e46053e2",
-      "new_sha256": "c67a24ad44025763a5e461a2765da37f64343e2961ebcab575f93222055e3bf1"
+      "new_sha256": "9e6ebbe5ddb7a33db7aabe7449235e66a45947f7408d8a99dbf5a2b065264bbb"
     },
     {
       "offset": "0x4869a0",
       "bytes": 4,
       "purpose": "pre-capture RAW recording menu",
       "old_sha256": "5b6055adbe479653590f33fed0e7c6fa295780e7316f3dfc8a9fc6d8e46053e2",
-      "new_sha256": "88b280e60650d3c4fde4650d8de213b1cc364331ecef429a9382b84072674cea"
+      "new_sha256": "c78df784678657487fff20e55efbe909d0e908b610e52ad8c80eb89de05eb467"
     },
     {
       "offset": "0x704938",
@@ -917,11 +917,11 @@
       "new_sha256": "6dc74ff58f0a1bae5a947ea869e07444705b496330687849d728205242b54644"
     },
     {
-      "offset": "0x899000",
-      "bytes": 312,
+      "offset": "0x89f000",
+      "bytes": 316,
       "purpose": "pre-capture RAW recording menu",
-      "old_sha256": "6287e17fe5efcb191aec8a2578e685d0a1040a0ab53bd1f02c7f49cc6c8fced7",
-      "new_sha256": "16271e8013ae619f6a6eabf0b9ca3450bd2217ce588ed13cacf63cbd8ecc2388"
+      "old_sha256": "7802c95d2f1ade746d97350a18ddbfdb9f5bee2803436917a3cf3d6a685a3a67",
+      "new_sha256": "a0f077571d1843e086339d094cad9e0e6ab30c7ba9b669797448ef7dd011f745"
     },
     {
       "offset": "0xbe24f0",
@@ -1096,21 +1096,21 @@
       "bytes": 8,
       "purpose": "shared text copy boundary",
       "old_sha256": "bda28137c2144d68e201a3cd3b59a3c006df0ece63bb4c270da16ab9505f5405",
-      "new_sha256": "051c00601d2006ed6c4bd13e8943e9e52bfc36dc95c20c561bcca1597d5437db"
+      "new_sha256": "db553a61786a50f11a64be91e36c3404cf7eb6e355ac08609263439cdc3b9d56"
     },
     {
       "offset": "0x298a178",
       "bytes": 8,
       "purpose": "pre-capture RAW recording menu",
       "old_sha256": "14cf3f7ade7e4205b9f27db40d64e345d96126b54aab90a40a1e861022bc1662",
-      "new_sha256": "1af4c1d01ab4b125c81ad1c5162db63809e3e25fdf247f7a7d7d4ba9c46d11c3"
+      "new_sha256": "35114513d0f84114103d6af24c40d74e234d4e50fc496b07c4140f1bfb3dc7f3"
     },
     {
       "offset": "0x2996460",
       "bytes": 8,
       "purpose": "pre-capture RAW recording menu",
       "old_sha256": "47faf3a172a33146710e97f5ae293fc240461fa02558e688f50091dfb614604a",
-      "new_sha256": "1af4c1d01ab4b125c81ad1c5162db63809e3e25fdf247f7a7d7d4ba9c46d11c3"
+      "new_sha256": "35114513d0f84114103d6af24c40d74e234d4e50fc496b07c4140f1bfb3dc7f3"
     },
     {
       "offset": "0x4c69b50",

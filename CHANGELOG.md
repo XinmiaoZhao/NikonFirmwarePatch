@@ -1,5 +1,15 @@
 # 更新日志 / Changelog
 
+## 未发布 / Unreleased
+
+### 修改与修复
+
+- **RAW 记录菜单单元移至预拍代码区末尾。** `raw-precapture` 的 RAW 记录菜单单元（312 字节）由 0x409F9000 移至 0x409FF000，预拍单元可使用 0x409F0000–0x409FF000；菜单行为不变，其 C 档判断另含 C60（C60 RAW 见下）。（本条中文由 AI 根据英文原文翻译。）
+
+### English
+
+- **RAW recording menu unit moved to the end of the pre-capture cave.** The `raw-precapture` RAW recording menu unit (312 bytes) moves from 0x409F9000 to 0x409FF000, so the pre-capture unit may use 0x409F0000–0x409FF000; the menu behaves as before, and its C-mode test also covers C60 (see C60 RAW below).
+
 ## [v0.5.0](https://github.com/XinmiaoZhao/NikonFirmwarePatch/releases/tag/v0.5.0) — 四组补丁重新分组 / Regrouped feature set
 
 2026-11-21 发布。以下变化相对于 v0.4.0。
