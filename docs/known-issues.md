@@ -10,14 +10,15 @@
 
 ## RAW 连拍与预拍摄
 
-- **预拍支持 FX/DX、L、C15/C30、HE／HE★，不支持无损压缩。** C15/C30 中无损压缩选项禁用，普通拍照保存的无损按高效率★记录，回到普通拍照即恢复。C60/C120 RAW、HLG/HEIF 和副卡独立 JPEG 尺寸计划不支持。
+- **预拍支持 FX/DX、L、C15/C30/C60、HE／HE★（C60 始终为 DX），不支持无损压缩。** C15/C30/C60 中无损压缩选项禁用，普通拍照保存的无损按高效率★记录，回到普通拍照即恢复。C120 RAW、HLG/HEIF 和副卡独立 JPEG 尺寸计划仍不支持。（本条中文由 AI 根据英文原文翻译。）
 - **近满卡处理仍按 JPEG 计划。** 剩余张数已计入 NEF 及普通 JPEG 品质，但拍摄准入、提交预留、自动溢出换卡和 r／缓冲显示仍沿用原厂高速 JPEG 计划；排队等待写入的 NEF 没有全部预留空间。显示张数不能作为可写 NEF 数量的保证。数据库拒绝登记时会尝试 JPEG 回退，包括 RAW-only 设置；每张目标卡都应留足空间。
-- **RAW 写卡积压会缩短连拍和预拍窗口。** RAW 帧缓冲保留到 NEF 写完，比原厂 JPEG 更早积压；连续短间隔拍摄时，可用帧数会减少。HE★ 比 HE 占用更多缓冲与卡空间。贡献者在 C30 FX 仅 RAW 下测得写卡约每秒 5–6 张，缓冲在 HE★ 约 66 张、HE 约 134 张后写满（[PR #50](https://github.com/XinmiaoZhao/NikonFirmwarePatch/pull/50)）。
+- **RAW 连拍长度受缓存限制。** RAW 帧缓冲保留到 NEF 写完，缓存写满时连拍结束；预拍帧同样占用缓存，连续短间隔拍摄时可用帧数会减少。Z8 机身配 CFexpress 卡、仅 RAW 实测（03.12.f1）：C30 HE 约 184 张，C30 HE★ 约 74 张，C15 HE★ 约 130 张；C15 HE 每秒写入 14.4 个 NEF（拍摄 15 张／秒），一次连拍 412 张（27 秒）。C60 每帧都解码，连拍长度尚未在本配置下实测。需要更长连拍时请选择 HE；HE★ 占用更多缓存与卡空间。（本条中文由 AI 根据英文原文翻译。）
+- C15／C30 下，相机把每帧以 HE／HE★ 压缩 RAW 保存在缓存中，之后再解码一次以生成 NEF 内的预览 JPEG（JPEG 模式下也用于生成 JPEG 本身）。该解码每秒约处理 245 MB 压缩 RAW，因此无论存储卡多快，HE（17 MB）每秒最多约处理并写入 14 帧，HE★（29 MB）约 8.6 帧；原厂 C30 JPEG 使用 HE，受同样的限制。更快的存储卡不能延长 C15／C30 RAW 连拍。C20 不经过这一解码（同一张卡上每秒写入 12 个 HE★ NEF），其速度由存储卡决定。（本条中文由 AI 根据英文原文翻译。）
+- 机内 NEF（RAW）处理现可用于预拍 NEF（已在 Z8 机身上测试，固件 03.12.v9）。用早期构建拍摄的预拍 NEF 带有高速快门模式值（MakerNote 0x0034 = 0x60），对其执行“润饰 › NEF（RAW）处理”会使相机重启；请在电脑上处理这些文件。（本条中文由 AI 根据英文原文翻译。）
 - **停止文件会持续阻止额外 NEF 写入。** NEF 写入失败、写后找不到文件或超出默认 1.5 秒处理预算时，会尝试创建 `Z8PRESTP.BIN`。该文件存在期间，后续帧尝试回退 JPEG；重启不会清除它，主卡的停止状态还会影响副卡共享的 RAW 缓冲。处理方法见[停止文件指南](stop-file.md)。
-- **部分元数据缺失。** 生成的 NEF 缺少部分原厂镜头校正块（畸变与暗角）、灰度子图及 XMP 校正数据，Lightroom 等软件不能自动套用机内镜头校正（[#23](https://github.com/XinmiaoZhao/NikonFirmwarePatch/issues/23)）。
-- **机内不能润饰预拍 NEF。** “润饰 › NEF (RAW) 处理”会提示无法编辑：生成的 NEF 头只有 3 个子 IFD，相机的读取器要求 6 个（[#27](https://github.com/XinmiaoZhao/NikonFirmwarePatch/issues/27)）。
-- **系列回放显示异常。** 预拍连拍在回放中不能按系列正常显示；仅 RAW 时，元数据里的连拍起始文件类型写成 JPG（[#23](https://github.com/XinmiaoZhao/NikonFirmwarePatch/issues/23)）。
-- **预拍沿用自己的格式与画幅。** 同时安装照片工具时，C15／C30 仍按 FX 或 DX 写 NEF／JPEG。C15 至 C120 中压缩照片使用 JPEG，HEIF 与新增画幅禁用。
+- **部分可选元数据缺失。** NEF 头现按原厂 NEF 标签表写出六个 SubIFD 和镜头校正等 NEFInfo 块，但 SubIFD3–5 为空占位（没有灰度子图），XMP 校正数据和 MakerNote 0x0093 仍缺失，自定义色调曲线时不写 ContrastCurve。
+- **机内“NEF（RAW）处理”与连拍组回放。** 旧版预拍 NEF 只有三个 SubIFD，机内润饰会提示“无法编辑照片”（[问题 #23](https://github.com/XinmiaoZhao/NikonFirmwarePatch/issues/23)、[#27](https://github.com/XinmiaoZhao/NikonFirmwarePatch/issues/27)）。新的文件头针对这一原因修改，已在 Z8 机身上测试；已拍摄的旧文件不受影响。RAW-only 连拍的回放分组与连拍组图标现在写入后即可显示，无需重新插卡（已在 Z8 机身上测试）。
+- **预拍沿用自己的格式与画幅。** 同时安装照片工具时，C15／C30／C60 仍按 FX 或 DX 写 NEF／JPEG。C15 至 C120 中压缩照片使用 JPEG，HEIF 与新增画幅禁用。（本条中文由 AI 根据英文原文翻译。）
 
 详细设置与双卡规则见 [RAW／预拍摄指南](raw-precapture.md#简体中文)。
 
@@ -81,14 +82,15 @@ Applies to the current four-group release, v0.5.0, built from official Nikon Z8 
 
 ### RAW capture and pre-capture
 
-- Pre-capture supports FX/DX, L, C15/C30 and HE/HE★, not lossless compression. C15/C30 disable the lossless option; a lossless setting saved for ordinary shooting is recorded as HE★ there and restored afterwards. C60/C120 RAW, HLG/HEIF and separately sized secondary JPEG plans are not supported.
+- Pre-capture supports FX/DX, L, C15/C30/C60 and HE/HE★ (C60 always records DX), not lossless compression. C15/C30/C60 disable the lossless option; a lossless setting saved for ordinary shooting is recorded as HE★ there and restored afterwards. C120 RAW, HLG/HEIF and separately sized secondary JPEG plans remain unsupported.
 - Admission, reservations, overflow switching and r/buffer display retain the stock JPEG plan, although the remaining-shot estimate includes NEF and ordinary JPEG quality. Queued NEFs are not all reserved. Database refusal attempts JPEG fallback even for RAW-only. Keep space on each destination card; the displayed count is not a guaranteed NEF capacity.
-- RAW buffers remain occupied until NEF writing finishes. Write backlog reduces available burst/history frames; HE★ uses more memory and card space than HE. A contributor measured about 5–6 NEFs written per second at C30 FX RAW only, with the buffer full after about 66 (HE★) or 134 (HE) frames ([PR #50](https://github.com/XinmiaoZhao/NikonFirmwarePatch/pull/50)).
+- RAW burst length is limited by the buffer. RAW buffers remain occupied until NEF writing finishes, and a burst ends when the buffer is full; pre-release frames count against it, and short intervals between bursts leave fewer frames. Measured on a Z8 with a CFexpress card, RAW-only (03.12.f1): C30 HE about 184 frames, C30 HE★ about 74, C15 HE★ about 130; C15 HE writes 14.4 NEFs per second against 15 frames per second and ran 412 frames (27 s). In C60 every frame is decoded; burst lengths in this configuration are not measured yet. Choose HE for longer bursts; HE★ uses more memory and card space.
+- In C15/C30 the camera keeps each frame in the buffer as compressed HE/HE★ RAW and decodes it again to make the preview JPEGs in the NEF (in JPEG modes, also the JPEG itself). That decode handles about 245 MB of compressed RAW per second, so frames are developed and written at most about 14 per second with HE (17 MB) and about 8.6 per second with HE★ (29 MB), whatever the card speed; stock C30 JPEG has the same limit with HE. A faster card does not lengthen C15/C30 RAW bursts. C20 does not go through this decode (on the same card it wrote 12 HE★ NEFs per second), so there the card is the limit.
+- In-camera NEF (RAW) processing works for pre-capture NEFs (tested on a Z8, 03.12.v9). Pre-capture NEFs recorded with earlier builds carry the high-speed ShutterMode value (MakerNote 0x0034 = 0x60), with which Retouch › NEF (RAW) processing restarts the camera; process those files on a computer instead.
 - Failed, missing or over-budget NEF writes attempt to create `Z8PRESTP.BIN`. Its presence blocks further extra NEFs and prompts JPEG fallback; restarting does not clear it. A primary-card stop also affects the shared secondary RAW buffer. See the [stop-file guide](stop-file.md#english-summary).
-- Some lens-correction blocks (distortion and vignetting), a grayscale subimage and XMP correction metadata are absent, so applications such as Lightroom cannot apply the in-camera lens corrections ([#23](https://github.com/XinmiaoZhao/NikonFirmwarePatch/issues/23)).
-- Retouch › NEF (RAW) processing refuses pre-capture NEFs: their header has three sub-IFDs and the camera's reader requires six ([#27](https://github.com/XinmiaoZhao/NikonFirmwarePatch/issues/27)).
-- Series playback does not group pre-capture bursts correctly; with RAW only, the burst-start file type in the metadata reads JPG ([#23](https://github.com/XinmiaoZhao/NikonFirmwarePatch/issues/23)).
-- With the still-photo tools installed, C15/C30 still writes NEF/JPEG in FX or DX. C15 through C120 use JPEG for compressed photos and disable HEIF and the added image areas.
+- NEF headers now follow the stock NEF tag lists with six SubIFDs and the lens-correction and other NEFInfo blocks. SubIFD3–5 are empty placeholders (no grayscale subimage); XMP correction metadata and MakerNote 0x0093 remain absent, and a custom tone curve omits ContrastCurve.
+- Earlier pre-capture NEFs carry three SubIFDs, which the camera's own NEF reader rejects: Retouch › NEF (RAW) processing reports “Unable to edit picture” ([issue #23](https://github.com/XinmiaoZhao/NikonFirmwarePatch/issues/23), [#27](https://github.com/XinmiaoZhao/NikonFirmwarePatch/issues/27)). The new header addresses that cause and has been tested on a Z8; files already recorded are unchanged. RAW-only bursts now group in playback and show the series symbol right after writing, without reloading the card (tested on a Z8).
+- With the still-photo tools installed, C15/C30/C60 still write NEF/JPEG in FX or DX. C15 through C120 use JPEG for compressed photos and disable HEIF and the added image areas.
 
 ### Log and desqueeze
 
