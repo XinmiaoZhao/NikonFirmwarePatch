@@ -20,6 +20,7 @@
 2. 在普通“画质”中选择文件类型、JPEG 档位和 ★；在“RAW 记录”中选择 HE／HE★。
 3. 设置预拍时长、后拍上限、主卡槽及副卡槽功能。无需 `Z8PRE.CFG`，旧配置文件不再读取。
 4. 半按填充预拍缓存，再全按拍摄。等写入结束后再更换卡或调整文件格式。
+5. 需要更长的仅 RAW 连拍时，在“照片拍摄菜单”第三行（“扩展菜单库”之下）打开 **Turbo RAW**（默认关闭）。开启后仅 RAW 连拍只解码部分帧：C15／C30 的 HE★（FX 每 5 帧、DX 每 3 帧）与 C60（HE★ 每 4 帧、HE 每 3 帧），另加首帧和最新一帧；其余帧带生成的灰色预览，也跳过主 JPEG 编码与显像处理，因此连拍更长。RAW 数据不受影响；RAW+JPEG 与 JPEG 不变。关闭时每帧都解码，预览均为真实图像。（本条中文由 AI 根据英文原文翻译。）
 
 ### 输出与显示
 
@@ -42,6 +43,7 @@ NEF 使用原厂照片数据库与写入器，写完可直接回放，FX 输出�
 - 实际拍摄准入、空间预留、自动溢出和 r／缓冲显示仍按高速 JPEG 计划。数据库拒绝登记或锁失败时尝试 JPEG 回退，包括 RAW-only；该拒绝不创建停止文件。
 - RAW 帧保留到 NEF 写完，缓存写满时连拍结束；预拍帧同样占用缓存。Z8 机身配 CFexpress 卡、仅 RAW 实测（03.12.f1）：C30 HE 约 184 张，C30 HE★ 约 74 张，C15 HE★ 约 130 张，C15 HE 接近跟上拍摄速度（每秒写入 14.4 个 NEF，拍摄 15 张／秒）。C60 每帧都解码：DX HE★ 每秒 59.9 帧下一次连拍 201 张后缓存写满（每秒写入 20 个 NEF，03.12.u1）。需要更长连拍时请选择 HE。每张目标卡应保留充足空间。（本条中文由 AI 根据英文原文翻译。）
 - C15／C30 下，相机把每帧以 HE／HE★ 压缩 RAW 保存在缓存中，之后再解码一次以生成 NEF 内的预览 JPEG（JPEG 模式下也用于生成 JPEG 本身）。该解码每秒约处理 245 MB 压缩 RAW，因此无论存储卡多快，HE（17 MB）每秒最多约处理并写入 14 帧，HE★（29 MB）约 8.6 帧；原厂 C30 JPEG 使用 HE，受同样的限制。更快的存储卡不能延长 C15／C30 RAW 连拍。C20 不经过这一解码（同一张卡上每秒写入 12 个 HE★ NEF），其速度由存储卡决定。（本条中文由 AI 根据英文原文翻译。）
+- 开启 Turbo RAW 时，未解码帧在相机回放和电脑上显示均匀灰色预览（放大同样为灰色），这些帧仍可在机内执行“NEF（RAW）处理”（固件 03.12.v9 实测）。用电脑 RAW 软件打开即可看到真实图像。该设置保存在设置组 1Eh 的一个空闲字节中，随该组保存；关机后能否保留尚待机身确认。（本条中文由 AI 根据英文原文翻译。）
 - 机内 NEF（RAW）处理现可用于预拍 NEF（已在 Z8 机身上测试，固件 03.12.v9）。用早期构建拍摄的预拍 NEF 带有高速快门模式值（MakerNote 0x0034 = 0x60），对其执行“润饰 › NEF（RAW）处理”会使相机重启；请在电脑上处理这些文件。（本条中文由 AI 根据英文原文翻译。）
 - 实际 NEF 写入失败、写后找不到文件或达到默认 1.5 秒预算时，仍会尝试创建 `Z8PRESTP.BIN`。重启不清除停止文件；保留两卡文件并按[停止文件指南](stop-file.md)处理。停止额外 RAW 拍摄可选择 JPEG-only 或退出 C15／C30／C60。
 - NEF 头按原厂 NEF 标签表写出：六个 SubIFD、镜头校正等 NEFInfo 块（0x05–0x07、0x0C、0x10–0x13）以及 MakerNote 0x0046／0x008C／0x00A4，不再带入仅属于 JPEG 的标签。SubIFD3–5 是空占位，仍没有原厂的 384×256 灰度子图；XMP 校正数据和 MakerNote 0x0093 仍缺失；使用自定义色调曲线的优化校准时不写 ContrastCurve。这项改动（[问题 #23](https://github.com/XinmiaoZhao/NikonFirmwarePatch/issues/23)、[#27](https://github.com/XinmiaoZhao/NikonFirmwarePatch/issues/27) 的机内“NEF（RAW）处理”与元数据差异）已在 Z8 机身上测试。
@@ -65,6 +67,7 @@ With a full buffer, 0.3/1-second history saves up to 5/15 frames at C15, 9/30 at
 2. Select file type, JPEG grade and ★ in ordinary Image quality; select HE/HE★ in RAW recording.
 3. Set history duration, post-release limit, primary slot and secondary-slot role. No `Z8PRE.CFG` is required; old configuration files are ignored.
 4. Half-press to fill history, then fully press to shoot. Let writing finish before changing cards or file format.
+5. For longer RAW-only bursts, turn on **Turbo RAW** in the Photo shooting menu (third row, below Extended menu banks; Off by default). On, RAW-only bursts decode only some frames: HE★ in C15/C30 (FX every 5th, DX every 3rd frame) and C60 (HE★ every 4th, HE every 3rd), plus the first and the newest frame; the other frames get generated gray previews and skip the main JPEG encode and development, so bursts last longer. The RAW data is not affected; RAW+JPEG and JPEG are unchanged. Off, every frame is decoded and has real previews.
 
 ### Files and display
 
@@ -87,6 +90,7 @@ Remaining counts include NEF size and refresh with file type, RAW compression, J
 - Admission, reservations, overflow switching and r/buffer display retain the stock high-speed JPEG plan. Database/lock refusal attempts JPEG fallback, even for RAW-only; that refusal does not create a stop marker.
 - RAW buffers remain occupied until NEF writing finishes, and a burst ends when the buffer is full; pre-release frames count against it. Measured on a Z8 with a CFexpress card, RAW-only (03.12.f1): C30 HE about 184 frames, C30 HE★ about 74, C15 HE★ about 130; C15 HE nearly keeps up (14.4 NEFs written per second against 15 frames per second). In C60 every frame is decoded: DX HE★ 201 frames at 59.9 fps until the buffer is full (20 NEFs written per second, 03.12.u1). Choose HE for longer bursts. Leave ample space on each destination card.
 - In C15/C30 the camera keeps each frame in the buffer as compressed HE/HE★ RAW and decodes it again to make the preview JPEGs in the NEF (in JPEG modes, also the JPEG itself). That decode handles about 245 MB of compressed RAW per second, so frames are developed and written at most about 14 per second with HE (17 MB) and about 8.6 per second with HE★ (29 MB), whatever the card speed; stock C30 JPEG has the same limit with HE. A faster card does not lengthen C15/C30 RAW bursts. C20 does not go through this decode (on the same card it wrote 12 HE★ NEFs per second), so there the card is the limit.
+- With Turbo RAW on, frames that were not decoded show a uniform gray preview in camera playback and on a computer (also when zoomed); in-camera NEF (RAW) processing still works on them (tested with firmware 03.12.v9). A RAW converter on a computer shows the real image. The setting is kept in a spare byte of settings group 1Eh, which the camera saves with the group; whether it survives power-off is still to be confirmed on the camera.
 - In-camera NEF (RAW) processing works for pre-capture NEFs (tested on a Z8, 03.12.v9). Pre-capture NEFs recorded with earlier builds carry the high-speed ShutterMode value (MakerNote 0x0034 = 0x60), with which Retouch › NEF (RAW) processing restarts the camera; process those files on a computer instead.
 - Failed/missing NEF writes or reaching the default 1.5-second budget still attempt to create `Z8PRESTP.BIN`. Restarting does not clear it. Preserve both cards and follow the [stop-file guide](stop-file.md#english-summary). Select JPEG-only or leave C15/C30/C60 to stop extra RAW capture.
 - NEF headers follow the stock NEF tag lists: six SubIFDs, the lens-correction and other NEFInfo blocks (0x05–0x07, 0x0C, 0x10–0x13) and MakerNote 0x0046/0x008C/0x00A4, without the JPEG-only tags. SubIFD3–5 are empty placeholders, so the stock 384×256 grayscale subimage is still absent, as are XMP correction metadata and MakerNote 0x0093. A Picture Control with a custom tone curve omits ContrastCurve. This change, made for the in-camera NEF (RAW) processing failure and metadata differences in [issue #23](https://github.com/XinmiaoZhao/NikonFirmwarePatch/issues/23) and [#27](https://github.com/XinmiaoZhao/NikonFirmwarePatch/issues/27), has been tested on a Z8.

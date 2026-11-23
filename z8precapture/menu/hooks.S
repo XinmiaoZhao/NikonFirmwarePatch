@@ -107,3 +107,61 @@ raw_menu_size_alt:
     mov x0,xzr
     b original_403ACCCC
 1:  ret
+
+// Turbo RAW (Photo shooting menu row 2, item 0x2CAA, hidden in stock): a switch row like Long exposure NR.
+// Its value is a spare byte of settings group 1Eh (after the one-byte setting 1E50h; nothing else uses it), saved
+// with the group: 0 = never set (TURBO_DEFAULT), 1 = Off, 2 = On. The pre-capture unit reads the same byte (HN26).
+#ifndef TURBO_DEFAULT
+#define TURBO_DEFAULT 0
+#endif
+turbo_on:                           // w0 = 1 when On; uses x8
+    movz x8,#0x32a5
+    movk x8,#0x03d7,lsl #16
+    movk x8,#0xa,lsl #32
+    ldrb w8,[x8]
+    cmp w8,#2
+    b.eq 1f
+    cmp w8,#1
+    b.eq 2f
+    mov w0,#TURBO_DEFAULT
+    ret
+1:  mov w0,#1
+    ret
+2:  mov w0,wzr
+    ret
+
+// OK, right and touch on the row (stock switch rows: 0x4051226C). Flip the byte, then redraw the row's switch as
+// the stock toggle does (0x40512068 takes the row under the cursor).
+.global turbo_toggle
+turbo_toggle:
+    stp x19,x30,[sp,#-16]!
+    ldr x19,[x0]
+    bl turbo_on
+    eor w1,w0,#1
+    add w9,w1,#1
+    movz x8,#0x32a5
+    movk x8,#0x03d7,lsl #16
+    movk x8,#0xa,lsl #32
+    strb w9,[x8]
+    mov x0,x19
+    ldp x19,x30,[sp],#16
+    b original_40512068
+
+// Photo menu refresh 0x405D9808: after the stock Extended menu banks switch (bl 0x405121E4 at 0x405D98A4), set the
+// Turbo RAW switch the same way. x20 is the refresh's menu (callee-saved there).
+.global turbo_refresh
+turbo_refresh:
+    stp x19,x30,[sp,#-16]!
+    bl original_405121E4
+    mov x0,x20
+    mov w1,#0x2caa
+    mov w2,#0x4ba7
+    bl original_4050A6F0
+    cbz x0,1f
+    mov x19,x0
+    bl turbo_on
+    mov w1,w0
+    mov x0,x19
+    bl original_405121E4
+1:  ldp x19,x30,[sp],#16
+    ret

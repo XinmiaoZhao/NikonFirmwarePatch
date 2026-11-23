@@ -663,6 +663,11 @@
           "en": "In-camera NEF (RAW) processing of pre-capture NEFs",
           "zh-Hans": "机内可对预拍 NEF 执行 NEF（RAW）处理",
           "zh-Hant": "機內可對預拍 NEF 執行 NEF（RAW）處理"
+        },
+        {
+          "en": "Turbo RAW switch (Photo shooting menu): longer RAW-only bursts, some gray previews",
+          "zh-Hans": "Turbo RAW 开关（照片拍摄菜单）：仅 RAW 连拍更长，部分预览为灰色",
+          "zh-Hant": "Turbo RAW 開關（相片拍攝選單）：僅 RAW 連拍更長，部分預覽為灰色"
         }
       ],
       "camera_entry": {
@@ -789,6 +794,23 @@
             "path": "docs/known-issues.md",
             "quote": "部分可选元数据缺失"
           }
+        },
+        {
+          "level": "note",
+          "title": {
+            "en": "Turbo RAW: gray previews",
+            "zh-Hans": "Turbo RAW：灰色预览",
+            "zh-Hant": "Turbo RAW：灰色預覽"
+          },
+          "detail": {
+            "en": "With Turbo RAW on, frames that were not decoded have uniform gray previews in camera playback and on a computer; a RAW converter shows the real image, and in-camera NEF (RAW) processing works on them. Off (default) decodes every frame.",
+            "zh-Hans": "开启 Turbo RAW 时，未解码帧在相机回放和电脑上显示灰色预览；电脑 RAW 软件可显示真实图像，机内“NEF（RAW）处理”也可用。关闭（默认）时每帧都解码。",
+            "zh-Hant": "開啟 Turbo RAW 時，未解碼影格在相機播放和電腦上顯示灰色預覽；電腦 RAW 軟體可顯示真實影像，機內「NEF（RAW）處理」也可用。關閉（預設）時每張都解碼。"
+          },
+          "source": {
+            "path": "docs/known-issues.md",
+            "quote": "Turbo RAW 的灰色预览。"
+          }
         }
       ],
       "docs": [
@@ -824,6 +846,11 @@
           "en": "A full press also saves the frames before it — up to 30 for 1 s at C30, 60 at C60.",
           "zh-Hans": "全按时连同之前的画面一起保存：预拍 1 秒在 C30 最多 30 张，在 C60 最多 60 张。",
           "zh-Hant": "全按時連同先前的畫面一起儲存：預拍 1 秒在 C30 最多 30 張，在 C60 最多 60 張。"
+        },
+        {
+          "en": "For longer RAW-only bursts, turn on Turbo RAW (Photo shooting menu, third row).",
+          "zh-Hans": "需要更长的仅 RAW 连拍时，打开 Turbo RAW（照片拍摄菜单第三行）。",
+          "zh-Hant": "需要更長的僅 RAW 連拍時，開啟 Turbo RAW（相片拍攝選單第三行）。"
         }
       ]
     }

@@ -27,15 +27,11 @@
  * HN18..HN21 skips apply as they are. Added: mode 5 in the mode tests, the record's 512 bytes on C60's E request, DX-sized
  * E classes (C15/C30 use FX-sized E even for DX), the DX HE* E for hooks E and S, up to 60 pre-release frames (1 s at
  * 60 fps), and partial decoding of RAW-only C60 bursts in HE* (every 4th frame) and HE (every 3rd).
- * HN24: C15 takes 20 photos per second instead of 15. The sensor rate stays stock (FX 30 fps, DX 60 fps in a C15
- * sequence); the photo-frame selector keeps 2 of every 3 frames in FX (alternately 33 and 67 ms apart) and every 3rd in DX (50 ms). The
- * pre-release counts follow (0.3/0.5/1 s = 6/10/20 frames), and RAW-only C15 bursts decode only some frames in HE too
- * (an FX HE decode, ~70 ms, is slower than the 50 ms frame interval).
  * HN25: the NEF's MakerNote 0x0034 (ShutterMode) is 0x10 (electronic), as in a normal Z8 NEF, not the high-speed frame
  * capture value 0x60, with which in-camera NEF (RAW) processing restarts the camera.
- * Build switches (this adapter: both off): PRECAPTURE_SKIP 0 decodes every frame (N = 0), so HN18's partial decoding and
- * the HN19..HN21 steps that act only on skipped frames stay idle; PRECAPTURE_C20 0 leaves C15 at 15 fps with its stock
- * label and icons (HN24's frame selector is not built, and the patcher then installs none of HN24's edits).
+ * HN26: HN18's partial decoding (and with it HN19..HN21, which act only on skipped frames) runs only while Turbo RAW
+ * (Photo shooting menu, z8precapture/menu) is On; Off decodes every frame. The setting is a spare byte of settings group
+ * 1Eh, saved with the group: 0 = never set (TURBO_DEFAULT, Off unless built otherwise), 1 = Off, 2 = On.
  * Public adapter: no card configuration, diagnostic footer off by default. */
 typedef unsigned char u8;
 typedef unsigned short u16;
@@ -136,7 +132,6 @@ typedef long s64;
 #define OLD_ALLOCATION_DX_HS (PAYLOAD_DX_HS+(OLD_ALLOCATION_DX-PAYLOAD_DX))   /* 0xbb2e00 */
 #define NEW_ALLOCATION_DX_HS (OLD_ALLOCATION_DX_HS+0x200u)
 #define MODE_C60 5u                 /* HSFC release mode (G_MODE, record +0x20) */
-#define MODE_C15 6u                 /* HN24 */
 #define HISTORY_MAX 30u             /* pre-release frames a burst may drain: 1 s at 30 fps ... */
 #define HISTORY_MAX_C60 60u         /* ... and at 60 fps (HN23) */
 #define WORK_BYTES 0x40000u        /* one heap block per NEF, freed before return */
@@ -227,16 +222,15 @@ typedef long s64;
 #define A_SKIP 0xf8u                 /* SKIP_MARK: this frame's decode is refused (blank previews) */
 #define SKIP_MARK 0x50494b53u        /* "SKIP" */
 #define HALF_FLAG 0x100u             /* in the selector word (request +0x98) between hook D and the job-builder hook */
-#ifndef PRECAPTURE_SKIP
-#define PRECAPTURE_SKIP 0            /* 0: every frame decoded (N = 0); 1: partial decoding with the N below */
+#define N_FX 5u                     /* FX: decode every 5th frame */
+#define N_DX 3u                     /* DX: decode every 3rd frame */
+#define N_C60_HS 4u                 /* HN23: C60 HE* (DX decode ~50 ms): every 4th frame */
+#define N_C60_HE 3u                 /* HN23: C60 HE (DX decode ~30 ms): every 3rd frame */
+#define TURBO_BYTE 0xa03d732a5ul    /* HN26: spare byte after setting 1E50h (1 byte) in settings group 1Eh */
+#ifndef TURBO_DEFAULT
+#define TURBO_DEFAULT 0             /* value 0 (never set): Off */
 #endif
-#ifndef PRECAPTURE_C20
-#define PRECAPTURE_C20 0             /* 0: C15 stays 15 fps (stock label and icons); 1: HN24 */
-#endif
-#define N_FX (PRECAPTURE_SKIP?5u:0u)       /* FX: decode every 5th frame */
-#define N_DX (PRECAPTURE_SKIP?3u:0u)       /* DX: decode every 3rd frame */
-#define N_C60_HS (PRECAPTURE_SKIP?4u:0u)   /* HN23: C60 HE* (DX decode ~50 ms): every 4th frame */
-#define N_C60_HE (PRECAPTURE_SKIP?3u:0u)   /* HN23: C60 HE (DX decode ~30 ms): every 3rd frame */
+static int turbo_on(void) { u32 v=*(volatile u8 *)TURBO_BYTE; return v==2u || (v!=1u && TURBO_DEFAULT); }
 #define G_SUBMITS 0xa03bc5634ul      /* frames submitted in this burst (+1 per stock submit 0x40f93098; 0 after 0x40f92fec) */
 #define SHOT_GET ((u32 (*)(u32))0x40ec44e4ul)   /* property read, as the submit sites use it */
 #define ID_SHOTS 0x4a05u             /* running shot total; M+0x2508 = this burst's count at submit + total */
@@ -597,13 +591,13 @@ __attribute__((used)) u32 hn5_tdec_sel(u64 r) {
      * the newest submitted one (its shot number M+0x2508 equals this burst's count plus the running total: true for
      * the newest frame during the burst and for the last frame after the burst end resets the count).
      * HN23: in C60 also HE (the DX HE decode, ~30 ms, is slower than the 16.7 ms frame interval), with its own N.
-     * HN24: in C15 (20 fps) also HE, with the N of the geometry. */
-    if(e && (q=bound(r,e,Q_MARKED)) && (get32(q+A_VALUE)&0xffu)==13u &&
-       (sel==4 || get32(q+0x20)==MODE_C60 || get32(q+0x20)==MODE_C15)) {
+     * HN26: only while Turbo RAW is On. */
+    if(turbo_on() && e && (q=bound(r,e,Q_MARKED)) && (get32(q+A_VALUE)&0xffu)==13u &&
+       (sel==4 || get32(q+0x20)==MODE_C60)) {
         u32 dims=LOAD32(e+0x38),seq=get32(q+0x18),n; u64 m=LOAD64(r+0x790);
         if(get32(q+0x20)==MODE_C60) n=sel==4?N_C60_HS:N_C60_HE;
         else n=dims==FX_DIMS?N_FX:N_DX;
-        if(n && (dims==FX_DIMS || dims==DX_DIMS) &&                            /* N = 0: every frame decoded */
+        if((dims==FX_DIMS || dims==DX_DIMS) &&
            !(seq<=1u || (seq-1u)%n==0u || LOAD32(m+0x2508)==LOAD32(G_SUBMITS)+SHOT_GET(ID_SHOTS))) {
             set32(q+A_SKIP,SKIP_MARK); aux_seal(q); sel|=HALF_FLAG;
         }
@@ -630,27 +624,6 @@ __asm__(".pushsection .text.hn5stub,\"ax\",%progbits\n"
  *   cmp w0,#6; b.ne ret; cmp w1,#1; mov w8,#5; cinc w8,w8,ne; cmp w1,#0; mov w9,#3; csel w0,w9,w8,eq; ret
  * i.e. C15 FX -> 3, C15 DX -> 5, C15 other -> 6, every other mode unchanged. Its first instruction becomes a branch here
  * (x30 is still the caller's); the C30 clause adds C30 DX -> 5. Same registers as the original (w0, w8, w9). */
-/* F (HN24). Original: bl 0x40f84ecc(w0 = rate index state+0x3b4, w1 = release mode state+0x48) at 0x40f807bc and
- * 0x40f80a2c, the HSFC photo-frame selector: 1 (not a photo) unless the sensor-frame counter 0xa03bc2cdc (0 at the
- * sequence start, +1 after each of these calls; nothing else reads it) is a multiple of fps[index] / {30,120,60,15}[mode-3].
- * A C15 sequence runs the sensor at 30 fps in FX (every 2nd frame a photo) and 60 fps in DX (every 4th). For C15 the
- * selection here gives 20 photos per second: FX 2 of every 3 frames, DX (60 fps) every 3rd, every frame at 20 fps or
- * less; other modes stay stock. */
-#if PRECAPTURE_C20
-#define FRAME_SELECT ((u32 (*)(u32,u32))0x40f84eccul)
-#define RATE_FPS ((u32 (*)(u32))0x40f9511cul)       /* rate index -> integer fps (table 0xa029c9e40), 0 above 9 */
-#define G_FRAMES 0xa03bc2cdcul
-#define C15_FPS 20u
-__attribute__((used)) u32 precapture_frame_skip(u32 index,u32 mode) {
-    if(mode==MODE_C15) {
-        u32 fps=RATE_FPS(index),n=LOAD32(G_FRAMES);
-        if(fps==30u) return n%3u==2u;
-        if(fps<=C15_FPS) return 0;
-        return n%(fps/C15_FPS)!=0u;
-    }
-    return FRAME_SELECT(index,mode);
-}
-#endif
 __asm__(".pushsection .text.hn13stub,\"ax\",%progbits\n"
         ".global precapture_area_mode\n.type precapture_area_mode,%function\n"
         "precapture_area_mode:\n"

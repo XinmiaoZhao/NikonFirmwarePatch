@@ -36,12 +36,12 @@ def verify_contract(old,new,features):
     # 36 offset arrays: native text offsets are byte-for-byte retained, added IDs
     # are present exactly for their selected modules. String IDs stay fixed across masks.
     ranges=[(3137,3142,framing),(3142,3147,photo),(3147,3153,quality),
-            (3153,3161,framing),(3161,3217,quality),(3217,3225,log),(3225,3234,framing),(3234,3238,photo),(3238,3250,photo)]
-    entries=3251 if photo else (3235 if framing else 3226)             # the open-gate E1/E2 strings extend the table only with framing
+            (3153,3161,framing),(3161,3217,quality),(3217,3225,log),(3225,3234,framing),(3234,3238,photo),(3238,3250,photo),(3250,3252,raw)]
+    entries=3253 if raw else (3251 if photo else (3235 if framing else 3226))   # E1/E2 strings: framing; Turbo RAW: raw
     for language in range(36):
         table=read(new,'<Q',0x311C5A0+8*language)[0]
         original_table=read(old,'<Q',0x311C5A0+8*language)[0]
-        if not (photo or video):
+        if not (photo or video or raw):
             need(table==original_table,'RAW-only keeps factory language directory')
             continue
         need(table==STRING_TABLES+language*entries*4,'language table position')
@@ -57,11 +57,8 @@ def verify_contract(old,new,features):
                 new[a-base:b-base].decode('utf-16le')
     loader=read(new,'<II',0x1024D8C)
     end=((loader[0]>>5)&65535)|(((loader[1]>>5)&65535)<<16)
-    if video or photo:
-        need(0x40AE2000<=end<=0x40C00000 and end%4096==0,'copy boundary covers resources')
-    else:
-        # The RAW recording menu occupies the last page of the pre-capture cave (0x409FF000..0x40A00000).
-        need(end==0x40A00000,'RAW-only loader')
+    # Every selection has strings now (Turbo RAW's with raw-precapture), so the copy covers the string tables.
+    need(0x40AE2000<=end<=0x40C00000 and end%4096==0,'copy boundary covers resources')
     need((new[0xE0FE90:0xE0FE94]!=old[0xE0FE90:0xE0FE94])==raw,'pre-capture hook ownership')
     for va in (0x40EC8D24,0x40EC8D28,0x406C2304,0x410B7C64):
         at = va-base
@@ -87,5 +84,5 @@ def verify_contract(old,new,features):
     if framing:
         need(not any(new[0x4096F000-base:0x40970000-base]),'open-gate private state initialized')
         need(read(new,'<H',0x4B13000+0xA028C1690-0xA02808000)[0]==11,'video file type page: 11 rows')
-    return dict(status='PASS',video_menu=video,language_tables=36 if photo or video else 0,offsets_per_language=entries if photo or video else 3137,
+    return dict(status='PASS',video_menu=video,language_tables=36 if photo or video or raw else 0,offsets_per_language=entries if photo or video or raw else 3137,
                 exact_group_visibility=True,zero_state=True,loader_end=hex(end))
