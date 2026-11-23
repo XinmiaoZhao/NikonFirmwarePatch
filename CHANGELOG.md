@@ -2,11 +2,11 @@
 
 ## 未发布 / Unreleased
 
-以下为 Born2Ski 分支在 v0.5.0 之上的改动（供上游合并的版本）。部分解码与 C20 已内置但默认关闭；同一代码在两者开启时已在 Z8 机身上测试（`raw-precapture`：C15／C30／C60 预拍、机内“NEF（RAW）处理”与 RAW-only 回放；固件 03.12.v9）。预拍单元与 RAW 记录菜单单元及组合配方已用 Apple clang 21.0.0（clang-2100.4.1.1）重新生成。构建方法：将本分支文件覆盖到解压后的 v0.5.0 完整工具包（其余预编译单元不变），运行 `python tools/build_precapture_unit.py` 编译并核对这两个单元，再按默认预编译模式构建。（本条中文由 AI 根据英文原文翻译。）
+以下为 Born2Ski 分支在 v0.5.0 之上的改动（供上游合并的版本）。部分解码与 C20 已内置但默认关闭；本配置（两者关闭）已在 Z8 机身上测试（固件 03.12.u1：C15 每秒 15 张，C30 与 C60 仅 RAW HE★ 连拍，每帧均有真实预览）；同一代码在两者开启时也已测试（`raw-precapture`：C15／C30／C60 预拍、机内“NEF（RAW）处理”与 RAW-only 回放；固件 03.12.v9）。预拍单元与 RAW 记录菜单单元及组合配方已用 Apple clang 21.0.0（clang-2100.4.1.1）重新生成。构建方法：将本分支文件覆盖到解压后的 v0.5.0 完整工具包（其余预编译单元不变），运行 `python tools/build_precapture_unit.py` 编译并核对这两个单元，再按默认预编译模式构建。（本条中文由 AI 根据英文原文翻译。）
 
 ### 新增
 
-- **C60 RAW。** C60 现在与 C15／C30 相同：预拍历史帧和正式帧按普通“画质”（RAW、RAW+JPEG、JPEG）和“RAW 记录”（HE／HE★）输出，预拍最多 60 帧（每秒 60 帧下 1 秒）。C60 始终记录 DX 区域（5408×3608 NEF，与 C15／C30 的 DX 文件相同）。已在 Z8 机身上测试（固件 03.12.q1 与 03.12.v9，启用部分解码时每秒 60.0 帧，HE★ 每次连拍 214–266 张）；本构建每帧都解码，C60 的连拍长度尚未实测。C120 RAW 仍不支持。（本条中文由 AI 根据英文原文翻译。）
+- **C60 RAW。** C60 现在与 C15／C30 相同：预拍历史帧和正式帧按普通“画质”（RAW、RAW+JPEG、JPEG）和“RAW 记录”（HE／HE★）输出，预拍最多 60 帧（每秒 60 帧下 1 秒）。C60 始终记录 DX 区域（5408×3608 NEF，与 C15／C30 的 DX 文件相同）。已在 Z8 机身上测试（固件 03.12.q1 与 03.12.v9，启用部分解码时每秒 60.0 帧，HE★ 每次连拍 214–266 张）；本构建每帧都解码（固件 03.12.u1）：HE★ 每秒 59.9 帧下一次连拍 201 张后缓存写满，每秒写入 20 个 NEF。C120 RAW 仍不支持。（本条中文由 AI 根据英文原文翻译。）
 
 ### 修改与修复
 
@@ -22,11 +22,11 @@
 
 ### English
 
-Changes of the Born2Ski branch on top of v0.5.0 (the version offered for upstream). Partial decoding and C20 are built in but off; the same code with both on was tested on a Z8 (`raw-precapture`: C15/C30/C60 pre-capture, in-camera NEF (RAW) processing and RAW-only playback; firmware 03.12.v9). The pre-capture and RAW recording menu units and the combination recipes were regenerated with Apple clang 21.0.0 (clang-2100.4.1.1). To build, copy this branch over an extracted v0.5.0 toolkit (the other prebuilt units are unchanged), run `python tools/build_precapture_unit.py` to compile and check both units, then build in the default prebuilt mode.
+Changes of the Born2Ski branch on top of v0.5.0 (the version offered for upstream). Partial decoding and C20 are built in but off; this configuration (both off) was tested on a Z8 (firmware 03.12.u1: C15 at 15 fps, C30 and C60 RAW-only HE★ bursts, real previews on every frame), and the same code with both on was tested too (`raw-precapture`: C15/C30/C60 pre-capture, in-camera NEF (RAW) processing and RAW-only playback; firmware 03.12.v9). The pre-capture and RAW recording menu units and the combination recipes were regenerated with Apple clang 21.0.0 (clang-2100.4.1.1). To build, copy this branch over an extracted v0.5.0 toolkit (the other prebuilt units are unchanged), run `python tools/build_precapture_unit.py` to compile and check both units, then build in the default prebuilt mode.
 
 **Added**
 
-- **C60 with RAW.** C60 now works like C15/C30: history and post-release frames follow ordinary Image quality (RAW, RAW+JPEG, JPEG) and RAW recording (HE/HE★), with up to 60 pre-release frames (1 s at 60 fps). C60 always records the DX area (5408×3608 NEFs, the same files as DX in C15/C30). Tested on a Z8 (firmware 03.12.q1 and 03.12.v9, with partial decoding on: 60.0 fps, HE★ 214–266 frames per burst); this build decodes every frame, and C60 burst lengths in this configuration are not measured yet. C120 RAW is still unsupported.
+- **C60 with RAW.** C60 now works like C15/C30: history and post-release frames follow ordinary Image quality (RAW, RAW+JPEG, JPEG) and RAW recording (HE/HE★), with up to 60 pre-release frames (1 s at 60 fps). C60 always records the DX area (5408×3608 NEFs, the same files as DX in C15/C30). Tested on a Z8 (firmware 03.12.q1 and 03.12.v9, with partial decoding on: 60.0 fps, HE★ 214–266 frames per burst); this build decodes every frame (firmware 03.12.u1): HE★ 201 frames at 59.9 fps until the buffer is full, 20 NEFs written per second. C120 RAW is still unsupported.
 
 **Changed and fixed**
 

@@ -730,9 +730,9 @@
             "zh-Hant": "緩衝限制 RAW 連拍長度"
           },
           "detail": {
-            "en": "RAW frames stay in the buffer until their NEF is written, and pre-release frames count against it. Measured on a Z8 (03.12.f1): C30 FX HE about 184 frames, C30 FX HE★ about 74, C15 FX HE★ about 130.",
-            "zh-Hans": "RAW 帧保留到 NEF 写完，预拍帧同样占用缓存。Z8 机身实测（03.12.f1）：C30 FX HE 约 184 张，C30 FX HE★ 约 74 张，C15 FX HE★ 约 130 张。",
-            "zh-Hant": "RAW 影像保留至 NEF 寫入完成，預拍影像同樣佔用緩衝。Z8 機身實測（03.12.f1）：C30 FX HE 約 184 張，C30 FX HE★ 約 74 張，C15 FX HE★ 約 130 張。"
+            "en": "RAW frames stay in the buffer until their NEF is written, and pre-release frames count against it. Measured on a Z8 (03.12.f1): C30 FX HE about 184 frames, C30 FX HE★ about 74, C15 FX HE★ about 130. With every frame decoded (03.12.u1): C60 DX HE★ about 201.",
+            "zh-Hans": "RAW 帧保留到 NEF 写完，预拍帧同样占用缓存。Z8 机身实测（03.12.f1）：C30 FX HE 约 184 张，C30 FX HE★ 约 74 张，C15 FX HE★ 约 130 张。每帧都解码时（03.12.u1）：C60 DX HE★ 约 201 张。",
+            "zh-Hant": "RAW 影像保留至 NEF 寫入完成，預拍影像同樣佔用緩衝。Z8 機身實測（03.12.f1）：C30 FX HE 約 184 張，C30 FX HE★ 約 74 張，C15 FX HE★ 約 130 張。每張都解碼時（03.12.u1）：C60 DX HE★ 約 201 張。"
           },
           "source": {
             "path": "docs/known-issues.md",
