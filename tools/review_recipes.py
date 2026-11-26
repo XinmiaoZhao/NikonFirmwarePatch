@@ -13,12 +13,12 @@ from z8prores.package import Package,require_official_input
 from features import FEATURES,compose
 
 def format_catalog(catalog):
-    # Keep range records readable and wrap profile index lists in groups of 16.
+    # Keep range records readable and wrap profile index lists in groups of 16 while staying under 512 KiB.
     def wrap(match):
         numbers = re.findall(r'\d+',match[1])
-        return '"patches": [\n'+',\n'.join('        '+', '.join(numbers[i:i+16])
-                                          for i in range(0,len(numbers),16))+'\n      ]'
-    return re.sub(r'"patches": \[([\s\d,]+)\]', wrap, json.dumps(catalog,indent=2))+'\n'
+        return '"patches": [\n'+',\n'.join('    '+', '.join(numbers[i:i+16])
+                                          for i in range(0,len(numbers),16))+'\n   ]'
+    return re.sub(r'"patches": \[([\s\d,]+)\]', wrap, json.dumps(catalog,indent=1))+'\n'
 
 
 def main():
