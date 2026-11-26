@@ -213,6 +213,8 @@ SOURCE_FILES=(
     'z8quality/patcher.py',
     'z8quality/prores-icons.json',
     'z8quality/src/hooks.S',
+    'z8rsf/__init__.py',
+    'z8rsf/patcher.py',
 )
 # Tracked but kept out of the ZIP: repository configuration, figures and screenshots, colour-report data
 # and plotting, the F LUT, earlier validation pages, publisher-only tools and the macOS app source (the app

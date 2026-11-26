@@ -127,6 +127,8 @@ def compose(eg, features, compiler='clang', code_source='prebuilt', *, check_rec
         require(0x409F0000+len(code)<=0x409F9000,'Pre-capture code reaches RAW menu')
         for site,old,new in raw_menu(eg,code_menu,entries):
             img.put(site-0x40160000,new,'pre-capture RAW recording menu',expect=old)
+        from z8rsf.patcher import apply as rsf_precapture
+        detail['rsf_precapture'] = rsf_precapture(img, eg)
         detail['precapture']=dict(code_sha256=meta['sha256'],code_bytes=len(code),diagnostics=False,
                                   space_fallback=True,remaining_count=True,dx=True,lossless_fallback='HE*')
     if photo:
