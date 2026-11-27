@@ -129,6 +129,12 @@ def compose(eg, features, compiler='clang', code_source='prebuilt', *, check_rec
             img.put(site-0x40160000,new,'pre-capture RAW recording menu',expect=old)
         detail['precapture']=dict(code_sha256=meta['sha256'],code_bytes=len(code),diagnostics=False,
                                   space_fallback=True,remaining_count=True,dx=True,lossless_fallback='HE*')
+        from z8precapture.menu.sites import BASE as RAW_MENU_AT
+        from z8relbank.patcher import edits as rb_edits, CODE_AT as RB_AT
+        require(RAW_MENU_AT+len(code_menu)<=RB_AT,'RAW menu code reaches the release-mode bank code')
+        rb=rb_edits(eg)
+        for e in rb:img.put(e['offset'],e['new'],e['purpose'],expect=e['old'])
+        detail['release-mode-banks']=dict(edits=len(rb),code_at=hex(RB_AT),code_bytes=len(rb[0]['new']))
     if photo:
         from z8pixelshift.patcher import build_main
         code,meta=load('pixelshift',code_source,compiler)

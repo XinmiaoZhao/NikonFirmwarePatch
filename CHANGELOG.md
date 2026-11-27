@@ -1,5 +1,17 @@
 # 更新日志 / Changelog
 
+## 未发布 / Unreleased
+
+### 新增
+
+- **释放模式随照片拍摄菜单库切换。** 针对[问题 #41](https://github.com/XinmiaoZhao/NikonFirmwarePatch/issues/41)第 1 项：使用 `raw-precapture` 时，若“扩展菜单库”为“开启”，释放模式（单张、低速连拍、高速连拍、C15、C30、C60、C120、自拍）保存在每个照片拍摄菜单库中，选择菜单库时恢复，例如 A = C30、B = 高速连拍、C = 单张。扩展菜单库关闭时行为与原厂相同，并恢复开启前的释放模式（与原厂对曝光模式的处理相同）。“管理菜单库”›“复制”一并复制释放模式；低速／高速连拍速度与预拍选项仍跟随自定义设定库。数据保存在设置组 1Eh 的五个空闲字节中，没有菜单项和新字符串；四处单字钩子与 0x409FF800 处 1,044 字节代码（`z8relbank/patcher.py`，无编译单元）。仅选 `raw-precapture` 时代码复制边界变为 0x40A00000（`z8patch/contract.py` 相应调整）；`resources/combinations.json` 中包含 `raw-precapture` 的配置各增加 5 行。已在 Z8 机身上测试（固件 03.12.r2）：A = C30、B = 高速连拍、C = 单张，切换菜单库时各自恢复。详见[释放模式随菜单库切换](docs/release-mode-banks.md)。（本条中文由 AI 根据英文原文翻译。）
+
+### English
+
+**Added**
+
+- **Release mode per photo shooting menu bank.** For item 1 of [issue #41](https://github.com/XinmiaoZhao/NikonFirmwarePatch/issues/41): with `raw-precapture` and Extended menu banks On, the release mode (Single frame, Continuous L, Continuous H, C15, C30, C60, C120, self-timer) is stored in each photo shooting menu bank and restored when the bank is selected, for example A = C30, B = Continuous H, C = Single frame. With Extended menu banks Off the behaviour is stock, and turning it Off restores the release mode used before it was turned On (as the stock firmware does for exposure mode). Manage menu banks › Copy copies the release mode too; the Continuous L/H frame rates and the Pre-Release Capture options still follow the Custom settings bank. Stored in five spare bytes of settings group 1Eh; no menu item and no new strings; four one-word hooks and 1,044 bytes of code at 0x409FF800 (`z8relbank/patcher.py`, no compiled unit). The RAW-only selection now copies the pre-capture cave up to 0x40A00000 (`z8patch/contract.py` follows); each profile with `raw-precapture` in `resources/combinations.json` gains 5 rows. Tested on a Z8 (firmware 03.12.r2): A = C30, B = Continuous H, C = Single frame, each restored when its bank is selected. See [Release mode per photo shooting menu bank](docs/release-mode-banks.md).
+
 ## [v0.5.1](https://github.com/XinmiaoZhao/NikonFirmwarePatch/releases/tag/v0.5.1) — N-RAW 3:2 修复 / N-RAW 3:2 fixes
 
 2026-11-23 发布。以下变化相对于 v0.5.0，只涉及视频录制组；不含视频录制的 7 种组合与 v0.5.0 逐字节相同。

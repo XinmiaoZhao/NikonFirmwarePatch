@@ -60,9 +60,12 @@ def verify_contract(old,new,features):
     if video or photo:
         need(0x40AE2000<=end<=0x40C00000 and end%4096==0,'copy boundary covers resources')
     else:
-        # The 228-byte RAW recording menu starts at 0x409F9000 and needs the next page.
-        need(end==0x409FA000,'RAW-only loader')
+        # The release-mode bank code ends the pre-capture cave (0x409FF800..), so the copy covers the whole cave.
+        need(end==0x40A00000,'RAW-only loader')
     need((new[0xE0FE90:0xE0FE94]!=old[0xE0FE90:0xE0FE94])==raw,'pre-capture hook ownership')
+    for va in (0x410DD4D8,0x410E95A8,0x410D71E0,0x410DDE5C):
+        at = va-base
+        need((new[at:at+4]!=old[at:at+4])==raw,'release-mode bank hook ownership')
     for va in (0x40EC8D24,0x40EC8D28,0x406C2304,0x410B7C64):
         at = va-base
         need((new[at:at+4]!=old[at:at+4])==photo,'photo capture hook ownership')
