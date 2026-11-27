@@ -18,7 +18,7 @@
 
 1. 选择 FX/L 或 DX/L 和 C15 或 C30。
 2. 在普通“画质”中选择文件类型、JPEG 档位和 ★；在“RAW 记录”中选择 HE／HE★。
-3. 设置预拍时长、后拍上限、主卡槽及副卡槽功能。无需 `Z8PRE.CFG`，旧配置文件不再读取。
+3. 设置预拍时长、后拍上限、主卡槽及副卡槽功能。无需 `Z8PRE.CFG`，旧配置文件不再读取。也可在 `f2`（机身按键）或 `f8`（镜头控制环／功能按钮）的“重新调用拍摄功能”或“重新调用拍摄功能（保持）”中将“释放模式”设为 **C15／C30／C60／C120**（或通过“保存当前设定”写入当前 C 档），一键在普通释放模式与高速画面捕捉／RAW 预拍之间切换。
 4. 半按填充预拍缓存，再全按拍摄。等写入结束后再更换卡或调整文件格式。
 
 ### 输出与显示
@@ -62,7 +62,7 @@ With a full buffer, 0.3/1-second history saves up to 5/15 frames at C15 or 9/30 
 
 1. Select FX/L or DX/L and C15 or C30.
 2. Select file type, JPEG grade and ★ in ordinary Image quality; select HE/HE★ in RAW recording.
-3. Set history duration, post-release limit, primary slot and secondary-slot role. No `Z8PRE.CFG` is required; old configuration files are ignored.
+3. Set history duration, post-release limit, primary slot and secondary-slot role. No `Z8PRE.CFG` is required; old configuration files are ignored. You can also assign **C15/C30/C60/C120** under **Release mode** (or via **Save current settings**) in **Recall shooting functions** or **Recall shooting functions (hold)** (`f2` body controls and `f8` lens controls) to toggle between an ordinary release mode and High-Speed Frame Capture / RAW pre-capture with one button.
 4. Half-press to fill history, then fully press to shoot. Let writing finish before changing cards or file format.
 
 ### Files and display

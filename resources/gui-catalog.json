@@ -675,12 +675,17 @@
           "en": "Remaining count follows the actual RAW/JPEG quality",
           "zh-Hans": "剩余张数按实际 RAW／JPEG 画质计算",
           "zh-Hant": "剩餘張數依實際 RAW／JPEG 畫質計算"
+        },
+        {
+          "en": "Recall shooting functions / (hold): C15 / C30 / C60 / C120",
+          "zh-Hans": "重新调用拍摄功能／(保持)：可选 C15／C30／C60／C120",
+          "zh-Hant": "重新呼叫拍攝功能／(按住)：可選 C15／C30／C60／C120"
         }
       ],
       "camera_entry": {
-        "en": "Release mode C15/C30 · Image quality · RAW recording",
-        "zh-Hans": "释放模式 C15/C30 · 图像品质 · RAW录制",
-        "zh-Hant": "快門釋放模式 C15/C30 · 影像品質 · RAW 記錄"
+        "en": "Release mode C15/C30 · Image quality · RAW recording · Recall shooting functions",
+        "zh-Hans": "释放模式 C15/C30 · 图像品质 · RAW录制 · 重新调用拍摄功能",
+        "zh-Hant": "快門釋放模式 C15/C30 · 影像品質 · RAW 記錄 · 重新呼叫拍攝功能"
       },
       "limits": [
         {

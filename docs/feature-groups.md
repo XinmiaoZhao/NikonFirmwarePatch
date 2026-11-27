@@ -9,7 +9,7 @@
 | `video-recording` | N-RAW 12位 3:2（8.3K 30／25／24p，4.1K 120p 至 24p）、N-RAW 四档画质、反挤压显示、ProRes 四档与 HQ 星标、H.265 五档码率 | 视频文件类型、画面尺寸／帧频、视频品质、变形镜头还原显示 |
 | `log-colour` | N-Log、S-Log3、Log3G10 选择及相关显示与标签 | Log 设定 |
 | `still-photo-tools` | SDR HEIF、4:3／2.39:1／65:24 照片裁切、像素位移合成 | 色调模式 › SDR文件格式、选择图像区域、像素变化合成 |
-| `raw-precapture` | C15／C30 RAW 预拍（FX／DX，HE／HE★，画质沿用普通菜单） | 释放模式、图像品质、RAW录制 |
+| `raw-precapture` | C15／C30 RAW 预拍（FX／DX，HE／HE★，画质沿用普通菜单），以及“重新调用拍摄功能／(保持)”的 C15／C30／C60／C120 释放模式选择与保存 | 释放模式、图像品质、RAW录制、f2／f8 自定义控制 › 重新调用拍摄功能 |
 
 每组都可以单独从原厂 C 3.11 构建，也可一次选择多组，共 15 种非空组合。构建选项决定安装哪些功能，机内菜单决定每项功能如何使用。先选好所需的组，再从原厂包一次构建完整固件；不要在已经修改的固件上继续叠加。
 
@@ -34,7 +34,7 @@ v0.4.0 及更早的组名不能用于 v0.5.0，当前 CLI 会拒绝，不会自�
 | `video-recording` | N-RAW 12-bit 3:2 (8.3K 30/25/24p, 4.1K 120p to 24p), four N-RAW tiers, anamorphic desqueeze, four ProRes grades with an HQ star, five H.265 bitrates | Video file type, Frame size/frame rate, Video quality, Anamorphic desqueeze |
 | `log-colour` | N-Log, S-Log3 and Log3G10 with matching display and labels | Log settings |
 | `still-photo-tools` | SDR HEIF, 4:3 / 2.39:1 / 65:24 still crops, pixel-shift merge | Tone mode › SDR file format, Choose image area, Pixel shift merge |
-| `raw-precapture` | C15/C30 RAW pre-capture (FX/DX, HE/HE★, ordinary quality menu) | Release mode, Image quality, RAW recording |
+| `raw-precapture` | C15/C30 RAW pre-capture (FX/DX, HE/HE★, ordinary quality menu) and C15/C30/C60/C120 release modes in Recall shooting functions / (hold) | Release mode, Image quality, RAW recording, f2/f8 Custom controls › Recall shooting functions |
 
 Each group builds on its own from the original C 3.11 image, and several groups can be combined in one build: 15 nonempty combinations. Build options decide which features are installed; camera menus decide how each one is used. Choose the groups first and build the complete firmware once from the original package; do not layer patches onto modified firmware.
 

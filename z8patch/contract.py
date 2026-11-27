@@ -60,9 +60,22 @@ def verify_contract(old,new,features):
     if video or photo:
         need(0x40AE2000<=end<=0x40C00000 and end%4096==0,'copy boundary covers resources')
     else:
-        # The 228-byte RAW recording menu starts at 0x409F9000 and needs the next page.
-        need(end==0x409FA000,'RAW-only loader')
+        # The RAW-only pre-capture cave includes the RSF release-mode block at 0x409FF200..0x409FF800.
+        need(end==0x40A00000,'RAW-only loader')
     need((new[0xE0FE90:0xE0FE94]!=old[0xE0FE90:0xE0FE94])==raw,'pre-capture hook ownership')
+    for va in (0x40ED4768,0x40ED4918,0x405131A4,0x40515FD8,0x405178F4,0x440F71EC):
+        at = va-base
+        need((new[at:at+4]!=old[at:at+4])==raw,'RSF pre-capture hook ownership')
+    for pos in (0x4B13000+0xA028BC620-0xA02808000,0x4B13000+0xA028CC390-0xA02808000):
+        need(read(new,'<H',pos+32)[0]==(7 if raw else 3),'RSF release-mode subpage row count')
+    if raw:
+        # Item IDs index the global grey-state bytes 0xA032CAC8[id-0x2921]: they must not be shared, in
+        # particular not with the HEIF item 0x2DE1 / JPEG 0x2DDE (still-photo-tools) or ProRes HQ 0x315A.
+        rsf_ids=[]
+        for pos in (0x4B13000+0xA028BC620-0xA02808000,0x4B13000+0xA028CC390-0xA02808000):
+            rows=read(new,'<Q',pos+16)[0]
+            rsf_ids+=[read(new,'<I',rows-base+44*i+24)[0] for i in range(7)]
+        need(len(set(rsf_ids))==14 and not set(rsf_ids)&{0x2DDE,0x2DE1,0x315A},'RSF release-mode item IDs')
     for va in (0x40EC8D24,0x40EC8D28,0x406C2304,0x410B7C64):
         at = va-base
         need((new[at:at+4]!=old[at:at+4])==photo,'photo capture hook ownership')
