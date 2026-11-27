@@ -27,7 +27,7 @@ Z8 补丁构建器是本项目命令行工具的 macOS 图形界面，不另写�
 
 <img src="images/macos-app-main-zh.png" width="820" alt="主窗口：已添加原厂固件，四组功能全选，右侧检查器显示视频录制" />
 
-1. **添加原厂固件。** 把 `Z_8_0311.bin` 拖进窗口，或点“选择文件…”。应用先核对文件长度和 SHA-256，再运行工具包的兼容检查。只接受完整的原厂 Z8 C 3.11；C 3.12、下载不完整或已经打过补丁的文件会被拒绝。官方下载地址见 [README](../README.md)。
+1. **添加原厂固件。** 把 `Z_8_0311.bin` 拖进窗口，或点“选择文件…”。应用先核对文件长度和 SHA-256，再运行工具包的兼容检查。只接受完整的原厂 Z8 C 3.11；C 3.12、下载不完整或已经打过补丁的文件会被拒绝。取得方式见 [README](../README.md)。
 2. **选择功能。** 左侧四张功能卡片可以单独勾选，也可以任意组合，也可以全选。点按卡片，右侧检查器显示所选功能的：
    - 功能介绍；
    - 相机中的入口；
@@ -98,7 +98,7 @@ With the same input, groups and identity, the `.bin` is byte-identical to the co
 
 <img src="images/macos-app-main-en.png" width="820" alt="Main window with the original firmware added, all four groups selected and Video Recording in the inspector" />
 
-1. **Add the original firmware.** Drop `Z_8_0311.bin` on the window or click Choose File…. The app checks the length and SHA-256, then runs the toolkit's compatibility check. Only the complete original Z8 C 3.11 is accepted; C 3.12, incomplete downloads and patched files are refused. See the [README](../README.md#english) for the official download.
+1. **Add the original firmware.** Drop `Z_8_0311.bin` on the window or click Choose File…. The app checks the length and SHA-256, then runs the toolkit's compatibility check. Only the complete original Z8 C 3.11 is accepted; C 3.12, incomplete downloads and patched files are refused. See the [README](../README.md#english) for where to get it.
 2. **Choose feature groups.** Tick any of the four cards on the left, in any combination, or select all. Selecting a card shows its details in the inspector on the right:
    - description;
    - camera controls;

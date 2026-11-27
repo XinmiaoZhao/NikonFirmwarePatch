@@ -114,7 +114,8 @@ jobs:
           toolkit = work / prefix
           (work / 'host-inputs.json').write_text(json.dumps(inputs, indent=2) + '\n', encoding='utf-8')
           expected = json.loads((root / 'resources/input.json').read_text(encoding='utf-8'))
-          url = 'https://download.nikonimglib.com/archive8/wP5Vr003qbpC07ibhJ666rmRfF47/Z_8_0311.bin'
+          # Nikon withdrew C 3.11; this is the Internet Archive copy of its original download.
+          url = 'https://web.archive.org/web/20260921081340id_/https://download.nikonimglib.com/archive8/wP5Vr003qbpC07ibhJ666rmRfF47/Z_8_0311.bin'
           received = 0
           digest = hashlib.sha256()
           with urllib.request.urlopen(url, timeout=60) as response, (work / 'Z_8_0311.bin').open('xb') as output:

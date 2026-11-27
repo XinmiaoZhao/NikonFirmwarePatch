@@ -42,7 +42,7 @@ N-RAW 3:2 是单独的视频文件类型，ProRes 与 H.265 仍为 16:9；反挤
 - [后期 F LUT](https://github.com/XinmiaoZhao/NikonFirmwarePatch/releases/download/v0.5.1/NikonFirmwarePatch-v0.5.1-F-LUT.zip)：65³ `.cube`，附文件身份、数值核验和使用说明，用法见 [LUT 说明](luts/README.md)。
 - [macOS app](https://github.com/XinmiaoZhao/NikonFirmwarePatch/releases/download/v0.5.1/NikonFirmwarePatch-v0.5.1-macOS.dmg)：图形界面的构建工具，内置同一版工具包，适用于 Apple 芯片、macOS 14 或更高，见 [Mac app 说明](docs/macos-app.md)。
 
-请自行从 Nikon 取得 [Z8 C 3.11 官方输入](https://download.nikonimglib.com/archive8/wP5Vr003qbpC07ibhJ666rmRfF47/Z_8_0311.bin) 并遵守其许可条款。尼康原 C 3.11 说明页已下线，可查阅[原说明页的 Wayback 快照](https://web.archive.org/web/20260920232234/https://downloadcenter.nikonimglib.com/en/download/fw/606.html)。固件由尼康服务器提供，另有[尼康备用下载链接](https://download.nikonimglib.com/archive8/ulkCY0035nUW07Elwhy66zV8P546/Z_8_0311.bin)。两个链接的完整文件核验记录见 [issue #11](https://github.com/XinmiaoZhao/NikonFirmwarePatch/issues/11#issuecomment-6493044598)。
+请自行取得 [Z8 C 3.11 原厂固件](https://web.archive.org/web/20260921081340id_/https://download.nikonimglib.com/archive8/wP5Vr003qbpC07ibhJ666rmRfF47/Z_8_0311.bin)，并遵守尼康的许可条款。尼康已撤下 C 3.11 的说明页和下载链接，现在只提供 C 3.12；上面的链接是 Internet Archive（Wayback Machine）保存的尼康原始下载，原说明页及其许可条款见[原说明页的 Wayback 快照](https://web.archive.org/web/20260920232234/https://downloadcenter.nikonimglib.com/en/download/fw/606.html)。文件从哪里取得都可以，工具会先核对下面的长度和 SHA-256。背景见 [issue #11](https://github.com/XinmiaoZhao/NikonFirmwarePatch/issues/11)。
 
 ### 构建与核验
 
@@ -155,7 +155,7 @@ The release has two more downloads, also listed in SHA256SUMS.txt:
 - [Post-production F LUT](https://github.com/XinmiaoZhao/NikonFirmwarePatch/releases/download/v0.5.1/NikonFirmwarePatch-v0.5.1-F-LUT.zip): the 65³ `.cube` with its identity record, numerical checks and guide; see the [LUT documentation](luts/README.md).
 - [macOS app](https://github.com/XinmiaoZhao/NikonFirmwarePatch/releases/download/v0.5.1/NikonFirmwarePatch-v0.5.1-macOS.dmg): a graphical builder with the same toolkit inside, for Apple silicon and macOS 14 or later; see the [Mac app guide](docs/macos-app.md).
 
-Obtain the [original Z8 C 3.11 firmware](https://download.nikonimglib.com/archive8/wP5Vr003qbpC07ibhJ666rmRfF47/Z_8_0311.bin) from Nikon under its license terms. Nikon has withdrawn the original C 3.11 landing page. The [Wayback snapshot of the original instructions](https://web.archive.org/web/20260920232234/https://downloadcenter.nikonimglib.com/en/download/fw/606.html) preserves that page. The firmware download is served by Nikon, with an [alternate Nikon download](https://download.nikonimglib.com/archive8/ulkCY0035nUW07Elwhy66zV8P546/Z_8_0311.bin). Both downloads were verified in full in [issue #11](https://github.com/XinmiaoZhao/NikonFirmwarePatch/issues/11#issuecomment-6493044598).
+Obtain the [original Z8 C 3.11 firmware](https://web.archive.org/web/20260921081340id_/https://download.nikonimglib.com/archive8/wP5Vr003qbpC07ibhJ666rmRfF47/Z_8_0311.bin) under Nikon's license terms. Nikon has withdrawn the C 3.11 landing page and its downloads and now offers only C 3.12. The link above is Nikon's original download as preserved by the Internet Archive (Wayback Machine); the [Wayback snapshot of the original instructions](https://web.archive.org/web/20260920232234/https://downloadcenter.nikonimglib.com/en/download/fw/606.html) preserves the landing page and its license terms. Any copy will do: the tool checks the length and SHA-256 below first. See [issue #11](https://github.com/XinmiaoZhao/NikonFirmwarePatch/issues/11) for the background.
 
 ### Build and verify
 
